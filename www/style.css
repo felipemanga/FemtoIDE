@@ -1,0 +1,58 @@
+html, body {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    background-color: #222;
+    color: #ABC;
+}
+
+.blocking {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.frameSeparator {
+    position: relative;
+    flex-grow: 0;
+    width: 1px;
+    background-color: #111;
+}
+
+.frame {
+    position: relative;
+    overflow: hidden;
+    background-color: inherit;
+    flex-grow: 1;
+}
+
+#contents {
+    position: relative;
+    flex-grow: 1;
+    background-color: inherit;
+    display: flex;
+    flex-direction: row;
+}
+
+.IDE {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+div {
+    cursor: default;
+}
+
+.ace_content {
+    cursor: text;
+}

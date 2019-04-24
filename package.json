@@ -1,0 +1,12 @@
+{
+  "name": "IDE",
+  "main": "www/index.html",
+  "window": {
+    "toolbar": false,
+    "frame": true,
+    "width": 800,
+    "height": 600
+  },
+  "dependencies": {
+  }
+}

@@ -1,0 +1,5 @@
+[
+    ["div", [
+	["input", {"id":"filesToEdit", "type":"hidden", "value":"project.json"}]
+    ]]
+]

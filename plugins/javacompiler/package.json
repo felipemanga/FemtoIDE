@@ -1,0 +1,15 @@
+{
+  "name": "jokitto",
+  "version": "1.0.0",
+  "description": "Java for Pokitto compiler",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd tests && nodejs run.js"
+  },
+  "author": "FManga",
+  "license": "MIT",
+  "dependencies": {
+    "canvas": "^2.4.1",
+    "java-parser": "^0.2.0"
+  }
+}

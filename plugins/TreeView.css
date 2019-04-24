@@ -1,0 +1,53 @@
+.frame.TreeView {
+    flex-grow: 0;
+}
+
+.frame.TreeView input {
+    background-color: inherit;
+    color: inherit;
+    border: 0 none;
+}
+
+.frame.TreeView input:focus {
+    background-color: #101010;
+    border-radius: 3px;
+    border: 0 none;
+    outline: 0 none;
+}
+
+.frame.TreeView ul {
+    padding: 0 5px;
+}
+
+.FileList .closed > #actions {
+    display: none;
+}
+
+
+.FileList .item.open {
+    background-color: rgba(255,255,255,0.1);
+    padding: 1px;
+}
+
+.FileList #actions {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 200px;
+    padding: 0;
+}
+
+.FileList #actions .action {
+    background: rgba(0,0,0,0.25);
+    padding: 3px;
+    margin: 1px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.FileList .open #name {
+    background-color: #171717;
+    margin: 1px -1px 1px -1px;
+    padding: 3px;
+}

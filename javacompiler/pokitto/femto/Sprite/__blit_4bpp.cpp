@@ -1,0 +1,167 @@
+
+#define drawPixelRaw( _x, _y, c )                     \
+    {                                                 \
+        std::uint32_t __x = (_x);                     \
+        std::uint32_t __y = (_y);                     \
+        std::uint8_t __col = (c);                     \
+        std::uint16_t __i = (__y)*(110) + ((__x)>>1); \
+        std::uint8_t __pixel = buffer[__i];           \
+        __col &= 0xF;                                 \
+        if (__x&1) __pixel = (__pixel&0xF0)|(__col);  \
+        else __pixel = (__pixel&0x0F) | (__col<<4);   \
+        buffer[__i] = __pixel;                        \
+    }
+const uint32_t displayWidth = 220,
+    displayHeight = 176;
+const uint8_t *data = (uint8_t *)src;
+uint8_t *buffer = (uint8_t *)out;
+uint32_t width = data[0];
+uint32_t height = data[1];
+const uint8_t *img = data+2;
+
+if( x <= -int32_t(width) || x >= int32_t(displayWidth) || y <= -int32_t(height) || y >= int32_t(displayHeight) )
+    return;
+
+int32_t osx = x, osy = y;
+int32_t isx = 0, isy = 0, iex = width, iey = height;
+
+if( x < 0 ){
+    osx = 0;
+    isx = -x;
+}
+
+if( x + width >= displayWidth ){
+    iex = (displayWidth - x);
+}
+
+if( y < 0 ){
+    osy = 0;
+    isy = -y;
+}
+
+if( y + height >= displayHeight ){
+    iey = displayHeight - y;
+}
+
+int32_t ostride;
+if( flip ){
+    buffer += (displayWidth * (iey - isy)) >> 1;
+    ostride = -(((displayWidth + (iex - isx)) >> 1));
+}else{
+    ostride = ((displayWidth - (iex - isx)) >> 1);
+}
+uint32_t istride = (width - (iex - isx)) >> 1;
+
+buffer += (displayWidth * osy + osx)>>1;
+img += (width * isy + isx)>>1;
+
+y = iey - isy;
+if( y < 0 ) y = -y;
+
+int sx = (iex - isx - 1) >> 1;
+
+if( mirror ){
+    ostride += ((sx+1)<<1);
+    img += (width - iex)>>1;
+    buffer += sx;
+}
+
+if( osx & 1 ){
+    if( flip )
+        ostride -= iex&1;
+
+    if( mirror ){
+        buffer++;
+
+        for( ; y > 0; y--, img += istride, buffer += ostride ){
+            uint8_t next = *img++;
+            if( !(iex&1) && next>>4 )
+                *buffer = (*buffer&0x0F) + (next&0xF0);
+            buffer--;
+            if( sx )
+            {
+                for( x = sx; x > 0; x--, buffer-- ){
+                    uint8_t hi = next&0x0F;
+                    next = *img++;
+                    uint8_t lo = next&0xF0;
+                    
+                    if( !hi ){
+                        if( !lo ) continue;
+                        hi = *buffer&0x0F;
+                    }else if( !lo ){
+                        lo = *buffer&0xF0;
+                    }
+                
+                    *buffer = hi+lo;
+                }
+            }
+            if( (next&0x0F) )
+                *buffer = (*buffer&0xF0) + (next&0x0F);
+        }
+        
+    }else{
+        for( ; y > 0; y--, img += istride, buffer += ostride ){
+            uint8_t next = *img++;
+            if( next>>4 )
+                *buffer = (*buffer&0xF0) + (next>>4);
+            buffer++;
+            if( sx )
+            {
+                for( x = sx; x > 0; x--, buffer++ ){
+                    uint8_t hi = next<<4;
+                    next = *img++;
+                    uint8_t lo = next>>4;
+                    if( !hi ){
+                        if( !lo ) continue;
+                        hi = *buffer&0xF0;
+                    }else if( !lo ){
+                        lo = *buffer&0x0F;
+                    }
+                
+                    *buffer = hi+lo;
+                }
+            }
+            if( !(iex&1) && (next&0x0F) )
+                *buffer = (*buffer&0x0F) + (next<<4);
+        }
+    }
+
+}else{
+
+    if( flip )
+        ostride -= isx&1;
+
+    if( mirror ){
+        img -= isx>>1;
+
+
+        for( ; y > 0; y--, img += istride, buffer += ostride ){
+            for( x = sx+1; x > 0; x--, buffer-- ){
+                uint8_t b = *img++;
+                if( b ){
+                    b = (b>>4) | (b<<4);
+                    if( !(b>>4) )
+                        b |= *buffer & 0xF0;
+                    if( !(b&0x0F) )
+                        b |= *buffer & 0x0F;
+                    *buffer = b;
+                }
+            }
+        }
+    }else{
+        for( ; y > 0; y--, img += istride, buffer += ostride ){
+            for( x = sx+1; x > 0; x--, buffer++ ){
+                uint8_t b = *img++;
+                if( b ){
+                    if( !(b>>4) )
+                        b |= *buffer & 0xF0;
+                    if( !(b&0x0F) )
+                        b |= *buffer & 0x0F;
+                    *buffer = b;
+                }
+            }
+        }
+    }
+}
+
+#undef drawPixelRaw

@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="style.css" rel="stylesheet"/>
+  </head>
+
+  <body class="unrendered row container"
+	ondragenter="cancelEvent(event)"
+	ondragover="cancelEvent(event)"
+	ondrop="APP.onDropFile(cancelEvent(event))"
+	onmousemove="APP.onMouseMove(event)"
+	onmouseup="APP.onMouseUp(event)"
+	onkeydown="APP.onKeyDown(event)"
+	onkeyup="APP.onKeyUp(event)"
+  >
+    
+    <div class="chrome"></div>
+    <div id="contents"></div>
+    <div id="logPane">
+      <div id="logContainer"></div>
+      <div id="cmdContainer"><input id="cmd" onkeydown="event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')"></div>
+    </div>
+    
+    <script src="uwa.js"></script>
+    <script src="pool.js"></script>
+    <script src="doc.js"></script>
+    <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="index.js"></script>
+    
+  </body>
+
+</html>
