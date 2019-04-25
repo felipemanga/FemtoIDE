@@ -78,10 +78,6 @@ function Pool() {
         });
     };
 
-    this.debug = function(m) {
-        debug = m;
-    };
-
     this.silence = function(m) {
         silence[m] = 1;
     };

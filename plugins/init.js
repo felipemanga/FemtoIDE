@@ -28,7 +28,7 @@ APP.add({
 class ProjectsListView {
 
     constructor( frame, buffer ){
-        this.css = "blocking";
+        this.css = "blocking InitView";
         
         let projectsList;
 
@@ -48,7 +48,7 @@ class ProjectsListView {
             projectsList = [];
         }
 
-        DOC.create("h1", {text:"PokIDE"}, frame);
+        DOC.create("h1", {text:"FemtoIDE"}, frame);
 
         DOC.create(
             frame,

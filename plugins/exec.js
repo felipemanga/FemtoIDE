@@ -1,5 +1,5 @@
 APP.addPlugin("Exec", [], _=>{
-    const modes = [];
+    const modes = ["APP"];
 
     APP.customSetVariables({ execMode:"APP" });
 
@@ -11,7 +11,14 @@ APP.addPlugin("Exec", [], _=>{
             }else{
                 modes.push( mode );
             }
-            DATA.execMode = mode;
+            APP.customSetVariables({ execMode:mode });
+        },
+
+        popExecMode(){
+            modes.pop();
+            APP.customSetVariables({
+                execMode:modes[modes.length-1] || "APP"
+            });
         },
 
         exec( cmd ){

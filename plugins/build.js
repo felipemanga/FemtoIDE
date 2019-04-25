@@ -1,4 +1,5 @@
 APP.addPlugin("Build", ["Project"], _=>{
+    APP.customSetVariables({buildMode:"RELEASE"});
 
     let build;
 
@@ -9,11 +10,17 @@ APP.addPlugin("Build", ["Project"], _=>{
             console.log("New builder");
         }
 
+        onCloseProject(){
+            APP.remove(this);
+        }
+        
         clean(){
             console.log("onCleanBuildFolder");
         }
 
-        compile(){
+        compile( release=true, cb=null ){
+            APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});
+
             let pipeline, files, current;
             try{
                 const target = DATA.project.target;
@@ -35,6 +42,8 @@ APP.addPlugin("Build", ["Project"], _=>{
                 current++;
                 if( current >= pipeline.length ){
                     APP.setStatus("Compilation OK " + DATA.buildFolder);
+                    if( cb && typeof cb == "function" )
+                        cb();
                     return;
                 }
 
@@ -47,13 +56,8 @@ APP.addPlugin("Build", ["Project"], _=>{
 
     APP.add({
 
-        onCloseProject(){
-            if( build )
-                APP.remove(build);
-        },
-
         onOpenProject(){
-            build = new Build();
+            new Build();
         },
 
         queryMenus(){

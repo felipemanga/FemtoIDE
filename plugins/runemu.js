@@ -1,9 +1,11 @@
 APP.addPlugin("RunEMU", [], _=> {
-    const { execFile } = require('child_process');
+    const { spawn } = require('child_process');
 
     function replaceData( f ){
         return f.replace(/\$\{([^}]+)\}/g, (s, key)=>DATA[key]);
     }
+
+    let running = false;
 
     APP.add({
 
@@ -11,10 +13,28 @@ APP.addPlugin("RunEMU", [], _=> {
             this.run(["-g"]);
             APP.setStatus("Debugging " + DATA.buildFolder);
             if( DATA.debugBuffer )
-                APP.displayBuffer( DATA.debugBuffer );                
+                APP.displayBuffer( DATA.debugBuffer );
+            setTimeout( _=>{
+                if( running ){
+                    APP.onDebugEmulatorStarted(1234);
+                }
+            }, 500);
+        },
+
+        stopEmulator(){
+            if( running ){
+                running.kill('SIGHUP');
+                running = null;
+                APP.log("Emulator stopped");
+            }
         },
 
         run( flags ){
+
+            if( running ){
+                APP.error("Emulator already running");
+                return;
+            }
 
             let execPath = DATA[
                 "EMU-" + DATA.project.target
@@ -39,16 +59,24 @@ APP.addPlugin("RunEMU", [], _=> {
 
             APP.setStatus("Emulating...");
 
-            execFile( execPath, flags, (error, stdout, stderr)=>{
-                if( stderr )
-                    console.error( stderr );
-                else
-                    APP.setStatus("Emulation ended");
+            let emu = spawn( execPath, flags );
 
-                if( stdout )
-                    console.log( stdout );
+            emu.stdout.on('data', data => {
+                APP.log(data);
             });
-            
+
+            emu.stderr.on('data', data => {
+                APP.error(data);
+            });
+
+            emu.on('close', code => {
+                APP.onEmulatorStopped();
+                APP.setStatus("Emulation ended");
+                running = false;
+            });
+
+            running = emu;
+
         }
     });
 });

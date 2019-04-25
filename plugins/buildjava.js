@@ -188,12 +188,17 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             if( unit ){
                 let output = require(`${DATA.appPath}/javacompiler/cppwriter.js`).write(unit, fqcn, DATA.project.target);
-                let buffer = new Buffer();
+                
+                let buffer = DATA.debugBuffer;
+                if( !DATA.debugBuffer ){
+                    buffer = new Buffer();
+                    APP.customSetVariables({debugBuffer:buffer});
+                }
+                
                 buffer.data = output;
                 buffer.name = "generated.cpp";
                 buffer.type = "CPP";
                 buffers.push(buffer);
-                APP.customSetVariables({debugBuffer:buffer});
                 onDone();
             }
         }

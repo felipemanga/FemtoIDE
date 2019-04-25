@@ -12,7 +12,11 @@
         }
         container.appendChild( node );
         node.className = "logItem " + className;
-        container.scrollTo( 0, container.clientHeight );
+
+        setTimeout(_=>{
+            container.scrollTo( 0, container.scrollHeight );
+        }, 0);
+        
         return node;
     }
     

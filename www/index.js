@@ -53,6 +53,7 @@ class Buffer {
         this.views = [];
         this.killable = killable;
         this.id = nextBufferId++;
+        this.pluginData = {};
     }
 
     kill(){
@@ -321,7 +322,12 @@ class Keys {
                         }
                     }
                     
-                    str.push( String.fromCharCode(code).toLowerCase() );
+                    if( code >= 112 ){
+                        str.push( "F" + (code-111) );
+                    }else{
+                        str.push( String.fromCharCode(code).toLowerCase() );
+                    }
+                    
                     path[i] = str.join("-");
                 }
                 
@@ -347,6 +353,10 @@ class Keys {
             if( MODIFIERS[c] ){
                 num |= MODIFIERS[c];
                 ++i; // skip the -
+            }else if( c == "F" ){
+                let n = parseInt(str.substr(i+1))|0;
+                num += 111 + n;
+                i += (n+"").length;
             }else if( c.charCodeAt(0) > 32 ){
                 num |= c.toUpperCase().charCodeAt(0);
             }else if( num & 0xFF ){
@@ -538,8 +548,8 @@ class Core {
             cb(data);
     }
 
-    readBuffer( buffer, en, cb ){
-        if( buffer.data )
+    readBuffer( buffer, en, cb, force){
+        if( buffer.data && !force )
             setTimeout( cb(null, buffer.data), 1 );
         else{
 
@@ -554,6 +564,12 @@ class Core {
                 cb( err, buffer.data );
             } );
         }
+    }
+
+    replaceDataInString( f ){
+        if( Array.isArray(f) )
+            return f.map( s => this.replaceDataInString(s) );
+        return f.replace(/\$\{([^}]+)\}/g, (s, key)=>DATA[key]);
     }
 
     loadCSS( file ){

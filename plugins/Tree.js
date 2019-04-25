@@ -5,9 +5,9 @@ APP.addPlugin("Tree", [], _=>{
         constructor( buffer, parent ){
             APP.add(this);
             this.buffer = buffer;
-
+            this.parent = null;
             this.children = [];
-
+            buffer.pluginData.TreeNode = this;
             let actions = [];
             APP.pollBufferActions( buffer, actions );
 
@@ -61,7 +61,21 @@ APP.addPlugin("Tree", [], _=>{
         }
 
         displayBuffer( buffer ){
-            if( buffer == this.buffer ){
+            let open = buffer == this.buffer;
+            let unfolded = this.folded;
+            
+            if( !unfolded && buffer.pluginData.TreeNode ){
+                let node = buffer.pluginData.TreeNode;
+                while( node ){
+                    if( node == this ){
+                        unfolded = true;
+                        break;
+                    }
+                    node = node.parent;
+                }
+            }
+            
+            if( open ){
                 this.DOM.__ROOT__.classList.remove("closed");
                 this.DOM.__ROOT__.classList.add("open");
             }else{
@@ -101,7 +115,9 @@ APP.addPlugin("Tree", [], _=>{
             }else if( path.length == 1 ){
                 if( this.children.find( child => child.buffer == buffer ) )
                     return;
-                this.children.push( new TreeNode(buffer, this.DOM.dir) );
+                let child = new TreeNode(buffer, this.DOM.dir);
+                child.parent = this;
+                this.children.push( child );
             }else{
                 let child = this.children.find( child => child.buffer.name == path[0] );
                 if( !child )

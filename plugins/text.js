@@ -8,6 +8,7 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         attach(){
             APP.add(this);
+            this.ace.resize(true);
         }
 
         detach(){
@@ -20,6 +21,18 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         onCommandEnded(){
             this.ace.setReadOnly(false);
+        }
+
+        jumpToLine(buffer, line){
+            if( buffer.data != this.ace.session )
+                return;
+            
+            this.ace.scrollToLine(line, true, false, function () {});
+            this.ace.gotoLine(line, 0, false);
+            setTimeout(_=>{
+                this.ace.scrollToLine(line, true, false, function () {});
+                this.ace.gotoLine(line, 0, false);
+            }, 500);
         }
 
         yank(){
@@ -74,13 +87,13 @@ APP.addPlugin("Text", ["Project"], _=>{
             
             this.ace = ace.edit( id );
             this.ace.setTheme( DATA.aceTheme || "ace/theme/kuroir" );
+            let session = this.ace.session;
 
             APP.onCreateACE( this.ace );
             
+            buffer.data = session;
             APP.readBuffer( buffer, "utf-8", (err, data) => {
-                let session = this.ace.session;
                 let hnd;
-                buffer.data = session;
                 buffer.transform = "transformSessionToString";
 
                 session.setUndoManager( new ace.UndoManager() );
@@ -95,7 +108,7 @@ APP.addPlugin("Text", ["Project"], _=>{
                     hnd = 0;
                     APP.writeBuffer( buffer );
                 }
-            });
+            }, true);
 
         }
 

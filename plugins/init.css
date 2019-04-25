@@ -1,0 +1,24 @@
+.InitView h1 {
+    font-style: italic;
+    text-align: center;
+}
+
+.InitView .initProjectList {
+    list-style: none;
+    background: #111;
+    margin: 30px;
+    padding: 10px 20px;
+}
+
+.InitView .initProjectListNewProject {background: #333;}
+
+.InitView li {
+    margin: 10px 0px;
+    padding: 5px;
+    background: #222;
+    cursor: pointer;
+}
+
+.InitView li:hover {
+    background: #444;
+}

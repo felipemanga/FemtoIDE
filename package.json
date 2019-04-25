@@ -1,5 +1,5 @@
 {
-  "name": "IDE",
+  "name": "FemtoIDE",
   "main": "www/index.html",
   "window": {
     "toolbar": false,

@@ -6,10 +6,6 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     let libs = {};
     let objBuffer = null;
 
-    function replaceData( f ){
-        return f.replace(/\$\{([^}]+)\}/g, (s, key)=>DATA[key]);
-    }
-    
     APP.add({
 
         getCPPBuildFolder(){
@@ -101,6 +97,8 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 flags.push(...typeFlags[DATA.project.target]);
             if( typeFlags.ALL )
                 flags.push( ...typeFlags.ALL );
+            if( typeFlags[DATA.buildMode] )
+                flags.push( ...typeFlags[DATA.buildMode] );
         }
 
         if( !objFile[ buffer.path ] )
@@ -113,7 +111,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         let output = buildFolder + path.sep + objFile[buffer.path] + ".o";
         flags.push( output );
 
-        flags = flags.map( f => replaceData(f) );
+        flags = APP.replaceDataInString(flags);
 
         let full = `"${compilerPath}" `;
         full += flags.map( f => `"${f}"`).join(" ");

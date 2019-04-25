@@ -3,10 +3,6 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
 
     let buffer;
 
-    function replaceData( f ){
-        return f.replace(/\$\{([^}]+)\}/g, (s, key)=>DATA[key]);
-    }
-
     APP.add({
         onOpenProject(){
             buffer = new Buffer();
@@ -32,9 +28,11 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
                     flags.push(...typeFlags[DATA.project.target]);
                 if( typeFlags.ALL )
                     flags.push( ...typeFlags.ALL );
+                if( typeFlags[DATA.buildMode] )
+                    flags.push( ...typeFlags[DATA.buildMode] );
             }
 
-            flags = flags.map( f => replaceData(f) );
+            flags = APP.replaceDataInString(flags);
 
             let i = flags.indexOf("$objectFiles");
             if( i > -1 )
