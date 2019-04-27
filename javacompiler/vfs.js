@@ -25,6 +25,7 @@ let src = {
             double:{ src:require("./java/lang/double.js") },
             pointer:{ src:require("./java/lang/pointer.js") },
             Object:{ src:require("./java/lang/Object.js") },
+            Math:{ src:read("./java/lang/Math.java", "utf-8") },
         }
     },
     femto:{

@@ -95,7 +95,7 @@ APP.addPlugin("Text", ["Project"], _=>{
             APP.readBuffer( buffer, "utf-8", (err, data) => {
                 let hnd;
                 buffer.transform = "transformSessionToString";
-
+                buffer.data = session;
                 session.setUndoManager( new ace.UndoManager() );
                 session.setValue( data );
                 session.on("change", _=>{

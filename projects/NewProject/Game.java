@@ -4,6 +4,7 @@ import femto.palette.Colodore;
 import femto.font.Tiny;
 import femto.font.Tic80;
 import femto.font.Dragon;
+import java.lang.Math;
 
 public class Game {
 
@@ -16,9 +17,10 @@ public class Game {
         dog.x = 80;
         dog.y = 80;
         float sx = 0, sy = 0;
-        int counter = 0;
+        float counter = 0.0f;
         dog.run();
         while(true){
+            counter += 0.01f;
 
             screen.clear( 0x44 );
             screen.textX = 10;
@@ -33,7 +35,8 @@ public class Game {
 
             dog.mirror = sx < 0;
             // dog.flip = sy < 0;
-            dog.x += sx*0.1; dog.y += sy*0.1;
+            dog.x += sx*0.1; // dog.y += sy*0.1;
+            dog.y = Math.sin( counter ) * 50.0f + 88.0f;
             dog.draw(screen);
             
             screen.flush();

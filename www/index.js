@@ -549,9 +549,21 @@ class Core {
     }
 
     readBuffer( buffer, en, cb, force){
-        if( buffer.data && !force )
-            setTimeout( cb(null, buffer.data), 1 );
-        else{
+        if( buffer.data && !force ){
+
+            if( buffer.modified )
+                APP.writeBuffer( buffer );
+
+            setTimeout( bob, 1 );
+            
+            function bob(){
+                let data = buffer.data;
+                if( typeof buffer.transform == "string" )
+                    data = APP[buffer.transform]( data );                
+                cb(null, data);
+            }
+
+        }else{
 
             en = en || encoding[buffer.type];
             if( en === undefined )

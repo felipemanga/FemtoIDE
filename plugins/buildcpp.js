@@ -73,16 +73,12 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     });
 
     function compile( buffer, cb ){
-        if( !buffer.path ){
-            buffer.path = buildFolder + path.sep + buffer.name;
-            fs.writeFile( buffer.path, buffer.data, "utf-8", (err)=>{
-                if( err ){
-                    cb("Could not save file: " + buffer.data);
-                    return;
-                }
-                compile( buffer, cb );
-            });
-            return;
+        if( !buffer.path || buffer.modified ){
+            
+            if( !buffer.path )
+                buffer.path = buildFolder + path.sep + buffer.name;
+
+            APP.writeBuffer( buffer );
         }
 
         let compilerPath = DATA[

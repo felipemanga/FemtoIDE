@@ -194,7 +194,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     buffer = new Buffer();
                     APP.customSetVariables({debugBuffer:buffer});
                 }
-                
+                buffer.modified = true;
                 buffer.data = output;
                 buffer.name = "generated.cpp";
                 buffer.type = "CPP";
