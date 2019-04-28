@@ -83,6 +83,12 @@
 	
     },
 
+    "GDBFlags":{
+        "Pokitto":[
+            "${projectPath}/${projectName}.elf"
+        ]
+    },
+    
     "emuFlags":{
         "Pokitto":[
             "${projectPath}/${projectName}.bin"            

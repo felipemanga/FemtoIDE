@@ -117,7 +117,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         execFile( compilerPath, flags, (error, stdout, stderr)=>{
             if( error ){
                 APP.displayBuffer( buffer );
-                cb( stderr );
+                cb( stderr || error.message );
             }else cb( null, output );
         });
 

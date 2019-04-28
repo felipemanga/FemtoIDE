@@ -22,7 +22,7 @@
     "SFlags":{
         "Pokitto":[
             "-I${appPath}/javacompiler/pokitto/includes",
-            "-I/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2",
+            "-I${projectPath}",
             "-mcpu=cortex-m0plus",
             "-mthumb"
         ]
@@ -32,7 +32,7 @@
 
 	"Pokitto":[
             "-I${appPath}/javacompiler/pokitto/includes",
-            "-I/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2",
+            "-I${projectPath}",
 	    "-DPOKITTO",
             "-fno-rtti",
             "-Wno-pointer-arith",
@@ -54,7 +54,7 @@
 	
 	"Pokitto-release":[
             "-I${appPath}/javacompiler/pokitto/includes",
-            "-I/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2",
+            "-I${projectPath}",
 	    "-DPOKITTO",
             "-fno-rtti",
             "-Wno-pointer-arith",
@@ -83,9 +83,15 @@
 	
     },
 
+    "GDBFlags":{
+        "Pokitto":[
+            "${projectPath}/${projectName}.elf"
+        ]
+    },
+    
     "emuFlags":{
         "Pokitto":[
-            "/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2/${projectName}.bin"            
+            "${projectPath}/${projectName}.bin"            
         ]
     },
 
@@ -93,8 +99,8 @@
         "Pokitto":[
             "-O",
             "binary",
-            "/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2/${projectName}.elf",
-            "/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2/${projectName}.bin"
+            "${projectPath}/${projectName}.elf",
+            "${projectPath}/${projectName}.bin"
         ]
     },
 
@@ -116,7 +122,7 @@
             "${appPath}/javacompiler/pokitto/link.ld",
 
             "--output",
-            "/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2/${projectName}.elf",
+            "${projectPath}/${projectName}.elf",
 
             "$objectFiles",
             
@@ -149,7 +155,7 @@
             "${appPath}/javacompiler/pokitto/link.ld",
 
             "--output",
-            "/home/fmanga/Projects/Pokitto/IDE/nwjs/projects/NewProject2/${projectName}.elf",
+            "${projectPath}/${projectName}.elf",
 
             "$objectFiles",
             

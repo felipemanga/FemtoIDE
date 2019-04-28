@@ -184,7 +184,7 @@ APP.addPlugin("Project", [], _=>{
                         'utf-8'
                     );
                     
-                    file = file.replace( /\$\{([^}]+)\}/g, ( m, key )=>{
+                    file = file.replace( /\$\{\{([^}]+)\}\}/g, ( m, key )=>{
                         let value = settings[key];
                         if( value === undefined ) value = '${' + key + '}';
                         return value;
