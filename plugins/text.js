@@ -87,28 +87,34 @@ APP.addPlugin("Text", ["Project"], _=>{
             
             this.ace = ace.edit( id );
             this.ace.setTheme( DATA.aceTheme || "ace/theme/kuroir" );
+            let hnd;
             let session = this.ace.session;
-
-            APP.onCreateACE( this.ace );
-            
-            buffer.data = session;
-            APP.readBuffer( buffer, "utf-8", (err, data) => {
-                let hnd;
-                buffer.transform = "transformSessionToString";
-                buffer.data = session;
-                session.setUndoManager( new ace.UndoManager() );
-                session.setValue( data );
-                session.on("change", _=>{
-                    buffer.modified = true;
-                    if( hnd ) clearTimeout( hnd );
-                    hnd = setTimeout( save, 1000 );
-                });
-
+            session.setUndoManager( new ace.UndoManager() );
+            session.on("change", _=>{
+                buffer.modified = true;
+                if( hnd ) clearTimeout( hnd );
+                hnd = setTimeout( save, 1000 );
                 function save(){
                     hnd = 0;
                     APP.writeBuffer( buffer );
                 }
-            }, true);
+            });
+
+            APP.onCreateACE( this.ace );
+            
+            buffer.transform = "transformSessionToString";
+            
+            if( typeof buffer.data == "string" ){
+                session.setValue( buffer.data );
+                buffer.data = session;            
+            }else{
+                buffer.data = session;            
+                APP.readBuffer( buffer, "utf-8", (err, data) => {
+                    buffer.data = session;
+                    session.setValue( data );
+
+                }, true);
+            }
 
         }
 

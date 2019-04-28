@@ -3,8 +3,9 @@ import static java.lang.System.memory.*;
 class ScreenMode {
     public pointer font;
     public int textLeftLimit, textRightLimit, lineSpacing, charSpacing;
-    public int textX, textY, textColor;
-
+    public float textX, textY;
+    public int textColor;
+    public float cameraX = 0.0f, cameraY = 0.0f;
     public int lastFrameTime, frameTimeUpdate, frameTime;
 
     ScreenMode(){
@@ -34,9 +35,15 @@ class ScreenMode {
         lastFrameTime = now;
     }
 
+    public void setTextPosition( float x, float y ){
+        textX = x;
+        textY = y;
+    }
+    
     abstract public uint width();
     public uint height(){ return 0; }
     public void setPixel(uint x, uint y, byte col){}
+    public void drawHLine(uint x, uint y, uint h, byte col){}
 
     public void print( String s ){
         int i=0;
@@ -64,8 +71,8 @@ class ScreenMode {
         uint w = LDRB( font );
         uint h = LDRB( font+1 );
         index -= LDRB( font+2 );
-        uint x = textX;
-        uint y = textY;
+        uint x = (int) textX;
+        uint y = (int) textY;
         uint color = textColor;
         uint extra = h != 8 && h != 16;
         uint hbytes = h;

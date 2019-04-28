@@ -57,6 +57,7 @@ function toAST( fqcn ){
 
     let parser = parsers[ res.parser||"java" ];
     res.unit = parser.run( res.src, pkg );
+    res.name = pkg.join(".");
     if( parser.postRun )
         parser.postRun( res, pkg );
 

@@ -21,6 +21,16 @@ public class Math implements __stub__ {
         return a;
     }
 
+    public static float floor( float a ){
+        return (float) __inline_cpp__("a.getInteger()");
+    }
+    public static float round( float a ){
+        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal((a.getInternal()+128)&~0xFF)");
+    }
+    public static float ceil( float a ){
+        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal((a.getInternal()+255)&~0xFF)");
+    }
+
     public static float cos( float angle ){}
 
     public static float sin( float angle ){

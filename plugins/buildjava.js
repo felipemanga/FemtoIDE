@@ -88,11 +88,12 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     try{
                         cst = javaParser( res.src );
                     }catch(ex){
-                        let name = res.name || "???";
+                        let name = res.name || (res.unit && res.unit.name + "") || "???";
                         if( name.startsWith(DATA.projectPath) ){
                             name = name.substr(DATA.projectPath.length+1);
                         }
-                        throw( name + ": " + ex.message );
+                        
+                        throw( name + ": " + (ex.message || ex) );
                     }
                     res.unit.process(cst);
                 }
@@ -198,6 +199,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 buffer.data = output;
                 buffer.name = "generated.cpp";
                 buffer.type = "CPP";
+                buffer.transform = null;
                 buffers.push(buffer);
                 onDone();
             }

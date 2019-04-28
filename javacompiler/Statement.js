@@ -13,6 +13,7 @@ class Statement {
         if( this[this.type] ){
             this[this.type]( node );
         }else{
+            const {ast} = require("./AST.js");
             ast(node);
             console.log(node);
             throw ("Unknown Stmt: "+this.type);
@@ -70,6 +71,12 @@ class Statement {
         
     }
 
+    statementExpression( node ){
+        this.expression = new Expression(
+            node.children.expression[0],
+            this.scope );
+    }
+
     expressionStatement( node ){
         
         this.expression = new Expression( node.children
@@ -80,7 +87,8 @@ class Statement {
 
     block( node ){
         const {Block} = require("./Block.js");
-        this.block = new Block(node.children.blockStatements[0], this.scope );
+        let statements = node.children.blockStatements;
+        this.block = new Block(statements && statements[0], this.scope );
     }
 
     continueStatement( node ){}

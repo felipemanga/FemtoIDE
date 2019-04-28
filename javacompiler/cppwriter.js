@@ -1,4 +1,5 @@
 let fs = require("fs");
+const {TypeRef} = require("./TypeRef.js");
 
 let platform, platformDir;
 
@@ -451,6 +452,11 @@ function writeExpression( expr ){
                             + ", "
                             + right.out
                             + ')';
+                    }else if( expr.operation == ">>>" ){
+                        out += "up_java::up_lang::uc_uint(" + left.out + ")";
+                        out += ">>";
+                        out += right.out;
+                        type = new TypeRef(["uint", false, expr.scope]);
                     }else{
                         out += left.out;
                         out += expr.operation;
@@ -493,7 +499,7 @@ function writeExpression( expr ){
     return {out, type};
 }
 
-function writeStatement( stmt, block ){
+function writeStatement( stmt, block, noSemicolon ){
     let out = "";
     switch( stmt.type ){
     case "variableDeclarator":
@@ -504,7 +510,10 @@ function writeStatement( stmt, block ){
         }else{
             out += local.name;
         }
-        out += ";\n";
+
+        if( !noSemicolon )
+            out += ";\n";
+        
         break;
     case "emptyStatement":
         break;
@@ -531,6 +540,10 @@ function writeStatement( stmt, block ){
             pop();
         });
         out += `${indent}}\n`;
+        break;
+
+    case "statementExpression":
+        out += writeExpression(stmt.expression).out;
         break;
 
     case "expressionStatement":
@@ -595,9 +608,8 @@ function writeStatement( stmt, block ){
     case "forStatement":
         out += indent + "for( ";
         if( stmt.init )
-            out += writeStatement(stmt.init[0], stmt.scope).trim();
-        else
-            out += ";";
+            out += stmt.init.map( init => writeStatement(init, stmt.scope, true).trim() ).join(", ");
+        out += ";";
 
         out += " " + (stmt.condition?writeExpression(stmt.condition).out:"");
 

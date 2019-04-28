@@ -175,7 +175,6 @@ class uc_Array : public uc_Object {
 
 public:
     TP *elements;
-    uint32_t *refCount;
     uint32_t length;
 
     uc_Array() : elements(nullptr), length(0){}

@@ -2,7 +2,12 @@ APP.bindKeys("global", {
     "C-x C-f": APP.findFile,
     "C-c b": APP.compile,
     "C-c r": APP.run,
-    "C-c C-r": APP.runDebug,
+    "F4": APP.stopEmulator,
+    "F5": APP.debug,
+    "F8": APP.debugContinue,
+    "F7": APP.debugStepIn,
+    "S-F7": APP.debugStepOver,
+    "F6": APP.debugStepOut,
     "C-x C-c": APP.exit,
     "C-c d": _=>nw.Window.get().showDevTools(),
     "C-w": APP.killRegion,
@@ -28,6 +33,8 @@ APP.customSetVariables({
     "projectsPath":DATA.appPath + path.sep + "projects",
     "os": process.platform,
     "executableExt": process.platform == "windows" ? ".exe" : "",
+
+    "GDB-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-gdb"].join(path.sep),
 
     "C-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-gcc"].join(path.sep),
 
