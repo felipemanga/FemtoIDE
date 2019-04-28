@@ -674,6 +674,33 @@ class Core {
     exit(code){
         nw.process.exit(code||0);
     }
+
+    killChild(child){
+        if( !child || !child.pid ){
+            APP.log("Can't kill " + child);
+            return;
+        }
+        
+        if( DATA.os == "windows" ){
+            const {exec} = require("child_process");
+            exec('taskkill -T -F -PID ' + child.pid);
+        }else{
+            child.kill("SIGTERM");
+        }
+    }
+
+    escapeCmdArgs( args ){
+        for( let i = 0; i<args.length; i++ ){
+            args[i] = args[i]
+                .replace(/\\/g, "\\\\")
+                .replace(/"/g, "\\\"");
+
+            if( args[i].indexOf(" ") > -1 )
+                args[i] = `"${args[i]}"`;
+        }
+
+        return args;
+    }
 };
 
 (function(){

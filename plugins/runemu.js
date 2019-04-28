@@ -22,11 +22,7 @@ APP.addPlugin("RunEMU", [], _=> {
         },
 
         stopEmulator(){
-            if( running ){
-                running.kill('SIGHUP');
-                running = null;
-                APP.log("Emulator stopped");
-            }
+            APP.killChild( running );
         },
 
         run( flags ){
@@ -53,13 +49,12 @@ APP.addPlugin("RunEMU", [], _=> {
                     flags.push( ...typeFlags.ALL );
             }
 
-            flags = flags.map( f => replaceData(f) );
+            flags = flags.map( f => '"' + replaceData(f) + '"' );
 
-            console.log( execPath, ...flags );
+            APP.log([execPath, ...flags ].join(" "));
 
             APP.setStatus("Emulating...");
-
-            let emu = spawn( execPath, flags );
+            let emu = spawn( '"' + execPath + '"', flags, {shell:true} );
 
             emu.stdout.on('data', data => {
                 APP.log(data);

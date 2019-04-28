@@ -15,16 +15,16 @@ APP.addPlugin("Debug", ["Build"], _=>{
             pendingCommand = null;
             
             APP.log("Running GDB");
-            let gdbPath = DATA[
+            let gdbPath = '"' + DATA[
                 "GDB-" + DATA.project.target
-            ] + DATA.executableExt;
+            ] + DATA.executableExt + '"';
 
             let buildFolder = APP.getCPPBuildFolder();
 
             let flags = [
                 "-q",
                 "-ex", "target remote :" + port,
-                "-ex", "dir" + buildFolder
+                "-ex", `dir "${buildFolder}"`
             ];
             
             let typeFlags = DATA.project["GDBFlags"];
@@ -37,13 +37,13 @@ APP.addPlugin("Debug", ["Build"], _=>{
                     flags.push( ...typeFlags[DATA.buildMode] );
             }
 
-            flags = APP.replaceDataInString(flags);
+            flags = APP.escapeCmdArgs( APP.replaceDataInString(flags) );
 
             APP.log(gdbPath + " " + flags.join(" ") );
 
             let currentFile;
 
-            gdb = spawn(gdbPath, flags);
+            gdb = spawn(gdbPath, flags, {shell:true});
             gdb.stdin.setEncoding('utf-8');
 
             gdb.stdout.on('data', data => {
@@ -127,10 +127,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
         }
 
         stopGDB(){
-            if( gdb ){
-                gdb.kill('SIGHUP');
-                gdb = null;
-            }
+            APP.killChild(gdb);
         }
 
         debug(){
