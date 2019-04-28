@@ -28,25 +28,32 @@ APP.add({
     }
 });
 
+let platform = process
+    .platform
+    .toLowerCase()
+    .startsWith("win") ? "windows" : process.platform.toLowerCase();
+
 APP.customSetVariables({
     "aceTheme":"ace/theme/chaos",
     "projectsPath":DATA.appPath + path.sep + "projects",
-    "os": process.platform,
-    "executableExt": process.platform == "windows" ? ".exe" : "",
 
-    "GDB-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-gdb"].join(path.sep),
+    "os": platform,
 
-    "C-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-gcc"].join(path.sep),
+    "executableExt":platform=="windows" ? ".exe" : "",
 
-    "CPP-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-g++"].join(path.sep),
+    "GDB-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-gdb"].join(path.sep),
 
-    "S-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-as"].join(path.sep),
+    "C-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-gcc"].join(path.sep),
 
-    "LD-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-gcc"].join(path.sep),
+    "CPP-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-g++"].join(path.sep),
+
+    "S-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-as"].join(path.sep),
+
+    "LD-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-gcc"].join(path.sep),
     
-    "ELF2BIN-Pokitto":[DATA.appPath, process.platform, "arm", "bin", "arm-none-eabi-objcopy"].join(path.sep),
+    "ELF2BIN-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-objcopy"].join(path.sep),
 
-    "EMU-Pokitto":[DATA.appPath, process.platform, "PokittoEmu"].join(path.sep)
+    "EMU-Pokitto":[DATA.appPath, platform, "PokittoEmu"].join(path.sep)
     
 });
 
