@@ -1,5 +1,4 @@
 APP.addPlugin("Debug", ["Build"], _=>{
-    const { spawn } = require('child_process');
     let gdb, standby, pendingCommand;
 
     class Debug {
@@ -14,10 +13,9 @@ APP.addPlugin("Debug", ["Build"], _=>{
         onDebugEmulatorStarted(port){
             pendingCommand = null;
             
-            APP.log("Running GDB");
-            let gdbPath = '"' + DATA[
+            let gdbPath =DATA[
                 "GDB-" + DATA.project.target
-            ] + DATA.executableExt + '"';
+            ] + DATA.executableExt;
 
             let buildFolder = APP.getCPPBuildFolder();
 
@@ -37,13 +35,9 @@ APP.addPlugin("Debug", ["Build"], _=>{
                     flags.push( ...typeFlags[DATA.buildMode] );
             }
 
-            flags = APP.escapeCmdArgs( APP.replaceDataInString(flags) );
-
-            APP.log(gdbPath + " " + flags.join(" ") );
-
             let currentFile;
 
-            gdb = spawn(gdbPath, flags, {shell:true});
+            gdb = APP.spawn(gdbPath, ...flags);
             gdb.stdin.setEncoding('utf-8');
 
             gdb.stdout.on('data', data => {

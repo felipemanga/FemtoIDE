@@ -1,5 +1,4 @@
 APP.addPlugin("BuildCPP", ["Build"], _=> {
-    const { execFile, execSync } = require('child_process');
     let buildFolder = "";
     let objFile = {};
     let nextObjFileId = 1;
@@ -50,7 +49,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                     pending.start();
                     if( !id ){
                         let buffer = new Buffer();
-                        buffer.path = path;
+                        buffer.path = APP.replaceDataInString( path );
                         buffer.type = path.split(".").pop().toUpperCase();
                         compile(buffer, (err, objPath)=>{
                             if( err ) pending.error(err);
@@ -107,19 +106,21 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         let output = buildFolder + path.sep + objFile[buffer.path] + ".o";
         flags.push( output );
 
-        flags = APP.replaceDataInString(flags);
-
-        let full = `"${compilerPath}" `;
-        full += flags.map( f => `"${f}"`).join(" ");
-
-        console.log(full);
-
-        execFile( compilerPath, flags, (error, stdout, stderr)=>{
-            if( error ){
-                APP.displayBuffer( buffer );
-                cb( stderr || error.message );
-            }else cb( null, output );
-        });
+        APP.spawn( compilerPath, ...flags )
+            .on("data-err", err =>{
+                APP.error("CPP: " + err);
+            })
+            .on("data-out", msg=>{
+                APP.log("CPP: " + msg);
+            })
+            .on("close", error=>{
+                if( error ){
+                    APP.displayBuffer( buffer );
+                    cb( true );
+                }else{
+                    cb( null, output );
+                }
+            });
 
     }
 });

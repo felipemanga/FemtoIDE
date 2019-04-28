@@ -675,6 +675,41 @@ class Core {
         nw.process.exit(code||0);
     }
 
+    spawn( cmd, ...args ){
+        const { spawn } = require('child_process');
+        
+        cmd = this.escapeCmdArgs([APP.replaceDataInString(cmd)])[0];
+
+        if( Array.isArray(args[0]) )
+            args = args[0];
+        
+        args = APP.replaceDataInString(args);
+
+        let child;
+
+        if( DATA.os == "windows" ){
+            this.escapeCmdArgs(args);
+            child = spawn(cmd, args, {shell:true});
+        }else{
+            child = spawn(cmd, args);
+        }
+
+        child.stdout.on('data', data => {
+            child.emit('data-out', data);
+        });
+
+        child.stderr.on('data', data => {
+            child.emit('data-err', data);
+        });
+
+        child.on('close', error=>{
+            if( error )
+                APP.error( [cmd, ...args].join(" ") );
+        });
+
+        return child;
+    }
+
     killChild(child){
         if( !child || !child.pid ){
             APP.log("Can't kill " + child);
@@ -685,7 +720,7 @@ class Core {
             const {exec} = require("child_process");
             exec('taskkill -T -F -PID ' + child.pid);
         }else{
-            child.kill("SIGTERM");
+            child.kill("SIGHUP");
         }
     }
 

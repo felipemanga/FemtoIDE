@@ -1,10 +1,4 @@
 APP.addPlugin("RunEMU", [], _=> {
-    const { spawn } = require('child_process');
-
-    function replaceData( f ){
-        return f.replace(/\$\{([^}]+)\}/g, (s, key)=>DATA[key]);
-    }
-
     let running = false;
 
     APP.add({
@@ -49,12 +43,10 @@ APP.addPlugin("RunEMU", [], _=> {
                     flags.push( ...typeFlags.ALL );
             }
 
-            flags = flags.map( f => '"' + replaceData(f) + '"' );
-
-            APP.log([execPath, ...flags ].join(" "));
+            flags = APP.replaceDataInString(flags);
 
             APP.setStatus("Emulating...");
-            let emu = spawn( '"' + execPath + '"', flags, {shell:true} );
+            let emu = APP.spawn( execPath, ...flags );
 
             emu.stdout.on('data', data => {
                 APP.log(data);

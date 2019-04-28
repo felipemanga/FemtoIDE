@@ -1,6 +1,4 @@
 APP.addPlugin("BuildLD", ["Build"], _=> {
-    const { execFile, execSync } = require('child_process');
-
     let buffer;
 
     APP.add({
@@ -32,24 +30,24 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
                     flags.push( ...typeFlags[DATA.buildMode] );
             }
 
-            flags = APP.replaceDataInString(flags);
-
             let i = flags.indexOf("$objectFiles");
             if( i > -1 )
                 flags.splice( i, 1, ...olist.data);
 
-            console.log( linkerPath, ...flags );
-
-            execFile( linkerPath, flags, (error, stdout, stderr)=>{
-                if( error ){
-                    cb( stderr );
-                }else{
-                    let i = flags.indexOf("--output");
-                    buffer.path = flags[i+1];
-                    files.push( buffer );
-                    cb( null );
-                }
-            });
+            APP.spawn( linkerPath, ...flags )
+                .on("data-err", err=>{
+                    APP.error("LD: " + err);                    
+                })
+                .on("close", error=>{
+                    if( error ){
+                        cb( true );
+                    }else{
+                        let i = flags.indexOf("--output");
+                        buffer.path = flags[i+1];
+                        files.push( buffer );
+                        cb( null );
+                    }
+                });
             
         }
     });

@@ -1,6 +1,4 @@
 APP.addPlugin("BuildBIN", ["Build"], _=> {
-    const { execFile, execSync } = require('child_process');
-
     let buffer;
 
     function replaceData( f ){
@@ -34,19 +32,19 @@ APP.addPlugin("BuildBIN", ["Build"], _=> {
                     flags.push( ...typeFlags.ALL );
             }
 
-            flags = flags.map( f => replaceData(f) );
-
-            console.log( execPath, ...flags );
-
-            execFile( execPath, flags, (error, stdout, stderr)=>{
-                if( error ){
-                    cb( stderr );
-                }else{
-                    buffer.path = flags[flags.length-1];
-                    files.push( buffer );
-                    cb( null );
-                }
-            });
+            APP.spawn( execPath, flags )
+                .on("data-err", err=>{
+                    APP.error("BIN: " + err);
+                })
+                .on("close", error=>{
+                    if( error ){
+                        cb( true );
+                    }else{
+                        buffer.path = flags[flags.length-1];
+                        files.push( buffer );
+                        cb( null );
+                    }
+                });
             
         }
     });

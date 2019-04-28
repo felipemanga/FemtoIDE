@@ -16,3 +16,7 @@
     width: 100%;
     color: inherit;
 }
+
+#logContainer .error {
+    color: #FF0000;
+}
