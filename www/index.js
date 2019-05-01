@@ -671,6 +671,10 @@ class Core {
         importData( map );
     }
 
+    async(cb){
+        setTimeout(cb, 1);
+    }
+
     exit(code){
         nw.process.exit(code||0);
     }

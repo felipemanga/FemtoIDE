@@ -771,6 +771,9 @@ function writeClassImpl( unit ){
                     }
 
                     t.fields.forEach( f=>{
+                        if( f.isStatic )
+                            return;
+                        
                         let str = f.name + "(";
                         if( f.init && f.init.expression ){
                             str += writeExpression(f.init.expression.right).out;
