@@ -1,4 +1,3 @@
-module.exports = `
 package java.lang;
 
 public class System extends Object {
@@ -25,19 +24,31 @@ public class System extends Object {
 	}
 
         public static void write32( uint p, uint v ){
-            __inline_cpp__("#ifdef POKITTO\n*((uint32_t*)p) = v;\n#endif\n");
+            __inline_cpp__("#ifdef POKITTO
+*((uint32_t*)p) = v;
+#endif
+");
         }
         public static uint read32( uint p ){
             uint out;
-            __inline_cpp__("#ifdef POKITTO\nout = *((uint32_t*)p);\n#endif\n");
+            __inline_cpp__("#ifdef POKITTO
+out = *((uint32_t*)p);
+#endif
+");
             return out;
         }
         public static void write8( uint p, byte v ){
-            __inline_cpp__("#ifdef POKITTO\n*((uint8_t*)p) = v;\n#endif\n");
+            __inline_cpp__("#ifdef POKITTO
+*((uint8_t*)p) = v;
+#endif
+");
         }
         public static byte read8( uint p ){
             byte out;
-            __inline_cpp__("#ifdef POKITTO\nout = *((uint8_t*)p);\n#endif\n");
+            __inline_cpp__("#ifdef POKITTO
+out = *((uint8_t*)p);
+#endif
+");
             return out;
         }
     }
@@ -47,26 +58,31 @@ public class System extends Object {
     }
 
     public static uint currentTimeMillis(){
-        __inline_cpp__("#ifdef POKITTO\nreturn __timer;\n#else\n");
-__inline_cpp__("using namespace std::chrono;\n\
-return duration_cast< milliseconds >(\n\
-    system_clock::now().time_since_epoch()\n\
-).count();\n\
-#endif\n");
+        __inline_cpp__("
+#ifdef POKITTO
+	unsigned int *SysTick = (unsigned int *) 0xE000E010UL;
+	uint32_t systick_ms = ((((SysTick[1]-SysTick[2])>>9)*699)>>16);
+	return __timer + systick_ms;
+#else
+	using namespace std::chrono;
+	return duration_cast< milliseconds >(
+	    system_clock::now().time_since_epoch()
+	).count();
+#endif
+");
         return 0;
     }
 
     public static class out {
 
         public static void println( String s ){
-            __inline_cpp__("std::printf(\\"%s\\\\n\\", s->__c_str())");
+            __inline_cpp__("std::printf(\"%s\", s->__c_str())");
         }
 
         public static void println( int s ){
-            __inline_cpp__("std::printf(\\"%d\\\\n\\", (int) s)");
+            __inline_cpp__("std::printf(\"%d\", (int) s)");
         }
 
     }
     
 }
-`;

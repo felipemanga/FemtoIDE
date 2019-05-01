@@ -7,7 +7,7 @@ function read(file, fmt){
 let src = {
     java:{
         lang:{
-            System:{ src:require("./java/lang/System.js") },
+            System:{ src:read("/java/lang/System.java", "utf-8") },
             String:{ src:require("./java/lang/String.js") },
             Array:{ src:require("./java/lang/Array.js") },
             int:{ src:require("./java/lang/int.js") },

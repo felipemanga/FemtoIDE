@@ -121,7 +121,8 @@ APP.addPlugin("Debug", ["Build"], _=>{
         }
 
         stopGDB(){
-            APP.killChild(gdb);
+            if( gdb )
+                APP.killChild(gdb);
         }
 
         debug(){

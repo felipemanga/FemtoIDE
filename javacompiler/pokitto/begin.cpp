@@ -434,6 +434,6 @@ __ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String
 volatile std::uint32_t __timer;
 extern "C" {
     void SysTick_Handler(void) {
-        __timer += 10;
+        __timer += 100;
     }
 }

@@ -4,7 +4,7 @@ import mode.HiRes16Color;
 
 public class Sprite extends Object implements __stub__ {
     public ubyte currentFrame, startFrame, endFrame, flags;
-    public ushort frameTime;
+    public uint frameTime;
     public float x, y;
 
     Sprite(){
@@ -76,12 +76,13 @@ public class Sprite extends Object implements __stub__ {
 
             while( __inline_cpp__("((up_femto::uc_FrameRef*)(frameData=getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_HiRes16Color*)nullptr)))->duration") < delta ){
                 currentFrame++;
-                delta -= __inline_cpp__("((up_femto::uc_FrameRef*)frameData)->duration");
+                int duration = __inline_cpp__("((up_femto::uc_FrameRef*)frameData)->duration");
+                delta -= duration;
 
                 if( currentFrame > endFrame )
                     currentFrame = startFrame;
 
-                frameTime = now - delta;
+                frameTime += duration;
             }
         }
 
