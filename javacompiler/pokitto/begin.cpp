@@ -65,6 +65,19 @@ void miniitoa(unsigned long n, char *buf, uint8_t base=10 ){
 
 }
 
+void __print__( const char *str ){
+    char *usart = (char*) 0x40008000;
+    usart[0xC] = 3;
+    while( *str )
+        usart[0] = *str++;
+}
+
+void __print__( int i ){
+    char buff[13];
+    miniitoa(i, buff, 10);
+    __print__(buff);
+}
+
 namespace up_java {
     namespace up_lang {
         typedef int64_t uc_long;

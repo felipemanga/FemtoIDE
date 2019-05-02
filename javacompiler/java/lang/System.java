@@ -75,12 +75,22 @@ out = *((uint8_t*)p);
 
     public static class out {
 
+        public static void print( String s ){
+            __inline_cpp__("__print__(s->__c_str())");
+        }
+
+        public static void print( int s ){
+            __inline_cpp__("__print__((int) s)");
+        }
+
         public static void println( String s ){
-            __inline_cpp__("std::printf(\"%s\", s->__c_str())");
+            __inline_cpp__("__print__(s->__c_str())");
+            __inline_cpp__("__print__(\"\\n\")");
         }
 
         public static void println( int s ){
-            __inline_cpp__("std::printf(\"%d\", (int) s)");
+            __inline_cpp__("__print__((int) s)");
+            __inline_cpp__("__print__(\"\\n\")");
         }
 
     }
