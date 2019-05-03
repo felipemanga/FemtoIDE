@@ -160,6 +160,11 @@ class Expression {
 
     }
 
+    unaryExpressionNotPlusMinus(expr){
+        this.name = "unaryExpression";
+        this.unaryExpression(expr);
+    }
+
     unaryExpression(expr){
 
         if( expr.children.UnarySuffixOperator ){
@@ -334,8 +339,9 @@ class Expression {
             );
         }else if( left.castExpression ){
             this.operation = "cast";
-            let pce = left.castExpression[0].children.primitiveCastExpression;
-            if( pce ){
+            let children = left.castExpression[0].children;
+            let pce;
+            if( (pce = children.primitiveCastExpression) ){
                 pce = pce[0].children;
                 this.type = new TypeRef(
                     pce.primitiveType[0],
@@ -346,9 +352,17 @@ class Expression {
                     pce.unaryExpression[0],
                     this.scope
                 );
-            }else{
-                ast(left);
-                throw "mega poop";
+            }else if( (pce=children.referenceTypeCastExpression) ){
+                pce = pce[0].children;
+                this.type = new TypeRef(
+                    pce.referenceType[0],
+                    false,
+                    this.scope
+                );
+                this.left = new Expression(
+                    pce.unaryExpressionNotPlusMinus[0],
+                    this.scope
+                );
             }
         }else if( left.This ){
             this.operation = "access";

@@ -24,7 +24,10 @@ class TypeRef {
             if( Array.isArray(node) )
                 node = node[0];
 
-            this.isReference = node.name == "unannReferenceType";
+            this.isReference = (
+                node.name == "unannReferenceType"
+                    || node.name == "referenceType"
+            );
 
             this.isArray = this.isReference && (node.children.dims) && true;
 

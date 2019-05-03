@@ -87,6 +87,7 @@ function writeType( type, local ){
         finalType = local ? `__ref__<${writePath(type)}>` : `${writePath(type)}*`;
     else
         finalType = writePath(type);
+    
     return finalType;
 }
 
@@ -382,7 +383,18 @@ function writeExpression( expr ){
 
     case "cast":
         e = writeExpression(expr.left);
-        out += writePath(expr.type) + "(" + e.out + ")";
+        out += writeType(expr.type, true) + "(";
+        if( expr.type.isReference ){
+            out += "static_cast<";
+            out += writeType(expr.type, false);
+            out += ">(";
+            out += e.out;
+            out += ")";
+        }else{
+            out += e.out;
+        }
+        
+        out += ")";
         type = expr.type;
         break;
 
