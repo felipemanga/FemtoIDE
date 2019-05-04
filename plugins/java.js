@@ -6,6 +6,13 @@ APP.addPlugin("Java", ["Text"], TextView => {
             super(frame, buffer);
             this.ace.session.setMode("ace/mode/java");
         }
+
+        beautify(){
+            if( typeof js_beautify == "undefined" )
+                return;
+            let ret = js_beautify(this.ace.session.getValue());
+            this.ace.session.setValue(ret);
+        }
     }
 
     APP.add({
