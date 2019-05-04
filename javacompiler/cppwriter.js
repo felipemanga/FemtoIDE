@@ -452,6 +452,8 @@ function writeExpression( expr ){
         e = writeExpression(expr.left);
         out += "(" + e.out + ")";
         type = e.type;
+        out += writeExpressionRight(expr.right);
+
         break;
 
     case "cast":
@@ -468,7 +470,9 @@ function writeExpression( expr ){
         }
         
         out += ")";
-        type = expr.type;
+        type = expr.type.getTarget();
+
+        out +=  writeExpressionRight(expr.right);
         break;
 
     case "new":
@@ -492,23 +496,7 @@ function writeExpression( expr ){
             out += ")";
         }
 
-        if( expr.right ){
-            expr.right.forEach( ex => {
-                if( typeof ex == "string" ){
-                    let trail = [];
-                    let target = type.resolve( ex, trail );
-                    if( !target ){
-                        throw `Could not find ${ex} in ${type.name}`;
-                    }
-                    out += "." + ex;
-                }else{
-                    e = writeExpression( ex );
-                    out += e.out;
-                    type = e.type;
-                }
-            });
-        }
-
+        out += writeExpressionRight(expr.right);
         break;
 
     case "ternary": // to-do: check if left & right types match
@@ -582,6 +570,33 @@ function writeExpression( expr ){
         break;
     }
     return {out, type};
+
+    function writeExpressionRight(right){
+        
+        if( !right )
+            return "";
+
+        let out = "";
+
+        right.forEach( ex => {
+            if( typeof ex == "string" ){
+                let trail = [];
+                let target = type.resolve( [ex], trail );
+                if( !target ){
+                    throw `Could not find ${ex} in ${type.name}`;
+                }
+                if( type.isClass || type.isInterface ) out += "->";
+                else out += ".";
+                out += ex;
+            }else{
+                e = writeExpression( ex );
+                out += e.out;
+                type = e.type;
+            }
+        });
+
+        return out;
+    }
 }
 
 function writeStatement( stmt, block, noSemicolon ){
