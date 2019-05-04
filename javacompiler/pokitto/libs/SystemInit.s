@@ -186,9 +186,12 @@ lcdCmd: 				// r0 = cmd<<16 + arg
 .align 4
 PV_INIT_GPIO:
 	// system_LPC11U6x.c: 487
-	// enable GPIO | IOCON | SRAM1+SRAM2 | USART0
-	OR LPC_SYSAHBCLKCTRL, (1<<16) | (1<<6) | (3<<26) | (1<<12)
+	// enable GPIO | IOCON | SRAM1+SRAM2 | USART0 | RTC
+	OR LPC_SYSAHBCLKCTRL, (1<<16) | (1<<6) | (3<<26) | (1<<12) | (1<<30)
 
+        AND LPC_RTCCTRL, ~1
+        SET LPC_RTCCTRL, (1<<7)
+        
 	// 488
 	SET LPC_SYSPLLCTRL, 0x23
 	

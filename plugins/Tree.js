@@ -8,6 +8,11 @@ APP.addPlugin("Tree", [], _=>{
             this.parent = null;
             this.children = [];
             buffer.pluginData.TreeNode = this;
+            this.DOM = null;
+            APP.async(_=>this._render(buffer, parent));
+        }
+
+        _render( buffer, parent ){
             let actions = [];
             APP.pollBufferActions( buffer, actions );
 
@@ -21,14 +26,7 @@ APP.addPlugin("Tree", [], _=>{
                     [
                         "ul",
                         { id:"actions" },
-                        actions.map( a => [
-                            "li",
-                            {
-                                text:a.name,
-                                onclick:a.cb,
-                                className:"action " + a.name
-                            }
-                        ])
+                        actions.map( a => makeAction.call(this, a) )
                     ],
                     
                     ["ul", { id:"dir" }]
@@ -58,6 +56,34 @@ APP.addPlugin("Tree", [], _=>{
                 }
             } );
 
+            function makeAction( meta ){
+                let type = "_makeAction_" + meta.type;
+                if( !this[type] )
+                    type = "_makeAction_";
+                return ["li", { className:"action " + type }, this[type]( meta )];
+            }
+        }
+
+        _makeAction_( meta ){
+            return [[{ text: "Unknown: " + meta.type }]];
+        }
+
+        _makeAction_button( meta ){
+            return [[{
+                text:meta.label,
+                onclick:meta.cb,
+            }]];
+        }
+
+        _makeAction_bool( meta ){
+            return [
+                ["span", {text:meta.label}],
+                ["input", {
+                    type:"checkbox",
+                    value:meta.value,
+                    onchange:evt=>evt.target.value = meta.cb(evt.target.value)
+                }]
+            ];
         }
 
         displayBuffer( buffer ){
@@ -174,11 +200,13 @@ APP.addPlugin("Tree", [], _=>{
         pollBufferActions( buffer, actions ){
             actions.push(
                 {
-                    name:"rename",
+                    type:"button",
+                    label:"rename",
                     cb:APP.renameBuffer.bind(null, buffer)
                 },
                 {
-                    name:"delete",
+                    type:"button",
+                    label:"delete",
                     cb:APP.deleteBuffer.bind(null, buffer)
                 }
             );

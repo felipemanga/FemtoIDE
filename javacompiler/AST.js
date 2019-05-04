@@ -31,7 +31,7 @@ function resolveVFS( fqcn ){
             ctx = ctx[ fparts[j] ];
         }
 
-        if( ctx ){
+        if( ctx && ctx.src ){
             fparts.splice(0, j-1);
             return ctx;
         }

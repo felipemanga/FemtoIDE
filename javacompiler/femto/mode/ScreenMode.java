@@ -1,3 +1,5 @@
+package femto.mode;
+
 import static java.lang.System.memory.*;
 
 class ScreenMode {

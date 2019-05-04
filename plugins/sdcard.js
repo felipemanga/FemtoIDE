@@ -3,7 +3,8 @@ APP.addPlugin("SDCard", [], _=>{
         pollBufferMeta( buffer, meta ){
             meta.sdcard = {
                 type:"bool",
-                label:"Copy to SD"
+                label:"Copy to SD",
+                default: false
             };
         }
     }

@@ -126,11 +126,81 @@ function writeMethodSignature( method, writeStatic, writeClass ){
     return out;
 }
 
-function writeClassDecl( unit ){
+function sortTypes(){
+    let unitList = Object.values(units)
+        .map(k=>k.unit)
+        .reverse();
+    
+    let typeList = [];
+    
+    for( let i=0; i<unitList.length; ++i ){
+        let unit = unitList[i];
+        for( let t=0; t<unit.types.length; ++t ){
+            let type = unit.types[t];
+            let dependencies = getTypeDependencies(type)
+                .map( d => d.getTarget() );
+            
+            typeList.push({
+                type,
+                unit,
+                dependencies
+            });
+        }
+    }
+
+    let hadShuffle;
+    do{
+        hadShuffle = false;
+        for( let i=0; i<typeList.length; ++i ){
+            let obj = typeList[i];
+            for( let j=0; j<obj.dependencies.length; ++j ){
+                let target = obj.dependencies[j];
+                for( let k=i+1; k<typeList.length; ++k ){
+                    let candidate = typeList[k];
+                    if( candidate.type != target )
+                        continue;
+                    typeList.splice(k, 1);
+                    typeList.splice(i, 0, candidate);
+                    hadShuffle = true;
+                    ++i;
+                    break;
+                }
+            }
+        }
+    }while( hadShuffle );
+
+    return typeList;
+
+    function getTypeDependencies( t ){
+        let ret = [];
+        if( t.cppType != "class" )
+            return [];
+
+        if( t.implements ){
+            ret.push( ...t.implements );
+        }
+        
+        if( t.extends ){
+            ret.push( t.extends );
+        }
+
+        ret = ret.filter( f => !(
+            f.name.length == 1 && (
+                f.name[0] == "__raw__"
+                    || f.name[0] == "__stub__"
+                    || f.name[0] == "__stub_only__"
+            )
+        ));
+
+        return ret;
+    }    
+}
+
+function writeClassDecl( unit, type, dependencies ){
+    let written = {"Object":true};
     let out = openNamespace( unit, "Class Declarations" );
-    
-    unit.types.forEach( t => writeTypes(t) );
-    
+    out += "// Deps: " + dependencies.map(d=>d.name).join(" ") + "\n";
+    writeTypes( type );
     out += closeNamespace( unit );
     return out;
 
@@ -230,6 +300,9 @@ function writePath( expr, clean ){
             if( i==0 && expr.name == "this" ){
                 out += next + "this";
                 next = "->";
+            }else if( i==0 && expr.name == "super" ){
+                out += next + trail.name;
+                next = "::";
             }else{
                 if( clean )
                     out += next + n.name;
@@ -731,9 +804,9 @@ function writeClassImpl( unit ){
                 if( field.isFinal )
                     out += "const ";
                 out += `${writeType(field.type, true)} ${writeType(t)}::`;
-                if( field.init )
+                if( field.init && field.init.expression ){
                     out += writeExpression(field.init.expression).out;
-                else
+                }else
                     out += field.name;
                 out += ';\n';
             });
@@ -898,11 +971,16 @@ function write( unit, main, plat ){
 
     let out = fs.readFileSync( platformDir+"/begin.cpp", "utf-8" );
 
+    let types = sortTypes();
+
     let list = Object.values(units).reverse();
     for( let dependency of list )
         out += dependency.forwardDecl;
-    for( let dependency of list )
-        out += dependency.classDecl;
+    // for( let dependency of list )
+    //    out += dependency.classDecl;
+    for( let type of types )
+        out += writeClassDecl( type.unit, type.type, type.dependencies );
+        
     for( let dependency of list )
         out += dependency.classImpl;
 
@@ -927,9 +1005,6 @@ function writeDependency( dep ){
         return;
 
     dep.forwardDecl = writeForwardDecl( dep.unit );
-
-    dep.classDecl = writeClassDecl( dep.unit );
-
     dep.classImpl = writeClassImpl( dep.unit );
 
 }

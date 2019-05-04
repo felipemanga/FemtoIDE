@@ -19,6 +19,7 @@ APP.addPlugin("Build", ["Project"], _=>{
         }
 
         compile( release=true, cb=null ){
+            APP.clearLog();
             APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});
 
             let pipeline, files, current;

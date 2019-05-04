@@ -28,7 +28,9 @@ let src = {
             Math:{ src:read("/java/lang/Math.java", "utf-8") },
         },
         util:{
-            Arrays:{ src:read("/java/util/Arrays.java", "utf-8") }
+            Date:{ src:read("/java/util/Date.java", "utf-8") },
+            Arrays:{ src:read("/java/util/Arrays.java", "utf-8") },
+            Random:{ src:read("/java/util/Random.java", "utf-8") }
         }
     },
     femto:{

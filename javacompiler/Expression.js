@@ -210,12 +210,12 @@ class Expression {
             let ref = left
                 .fqnOrRefType[0]
                 .children
-                .fqnOrRefTypePart.map( part =>
-                                       part
-                                       .children
-                                       .Identifier[0]
-                                       .image
-                                     );
+                .fqnOrRefTypePart.map( part =>{
+                    return part.children.Super ? "super" : part
+                        .children
+                        .Identifier[0]
+                        .image;
+                });
             let match;
             if( ref.length == 1 && (match=ref[0].match(/^__inline_([^_]+)__$/)) ){
                 this.operation = "inline";

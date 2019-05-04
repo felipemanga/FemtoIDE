@@ -53,16 +53,26 @@ out = *((uint8_t*)p);
         }
     }
 
+    public static void exit(int num){
+        __inline_cpp__("::exit(num)");
+    }
+
     public static void gc(){
         __inline_cpp__("uc_Object::__gc__()");
     }
 
-    public static uint currentTimeMillis(){
+    private static long bootTime;
+    public static long currentTimeMillis(){
         __inline_cpp__("
 #ifdef POKITTO
+	if(!bootTime){
+		bootTime = ((uint32_t*)0x40024000)[2];
+		bootTime *= 1000;
+	}
+
 	unsigned int *SysTick = (unsigned int *) 0xE000E010UL;
 	uint32_t systick_ms = ((((SysTick[1]-SysTick[2])>>9)*699)>>16);
-	return __timer + systick_ms;
+	return bootTime + __timer + systick_ms;
 #else
 	using namespace std::chrono;
 	return duration_cast< milliseconds >(

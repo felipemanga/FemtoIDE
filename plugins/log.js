@@ -22,6 +22,10 @@
     
     APP.add({
 
+        clearLog(){
+            container.innerHTML = '';
+        },
+
         log( ...args ){
             args.join(" ")
                 .split("\n")
@@ -39,7 +43,9 @@
         },
 
         logLine( ...args ){
-            getNode("normal").textContent = args.join(" ");
+            getNode("normal").textContent = args
+                .join(" ")
+                .replace(/^(\s+)/, (m, r)=>"-".repeat(r.length));
         },
 
         logHTML( html ){
