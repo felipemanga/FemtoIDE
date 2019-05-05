@@ -600,7 +600,7 @@ function writeExpression( expr ){
 }
 
 function writeStatement( stmt, block, noSemicolon ){
-    let out = "";
+    let out = `\n/*<MAP*${stmt.location.unit}|${stmt.location.startLine}|${stmt.location.startColumn}*MAP>*/`;
     switch( stmt.type ){
     case "variableDeclarator":
         let local = block.locals.find( local => local.name == stmt.name );
@@ -707,8 +707,12 @@ function writeStatement( stmt, block, noSemicolon ){
 
     case "forStatement":
         out += indent + "for( ";
-        if( stmt.init )
-            out += stmt.init.map( init => writeStatement(init, stmt.scope, true).trim() ).join(", ");
+        if( stmt.init ){
+            let backup = indent;
+            indent = "";
+            out += stmt.init.map( init => writeStatement(init, stmt.scope, true) ).join(", ");
+            indent = backup;
+        }
         out += ";";
 
         out += " " + (stmt.condition?writeExpression(stmt.condition).out:"");

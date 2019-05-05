@@ -1,9 +1,17 @@
 const {Expression} = require("./Expression.js");
 
+function getLocation( node, scope ){
+    while( scope.scope )
+        scope = scope.scope;
+    let unit = scope.file;
+    return Object.assign({ unit }, node.location);
+}
+
 class Statement {
     
     constructor(node, scope){
         this.scope = scope;
+        this.location = getLocation(node, scope);
         this.defer(node);
     }
 

@@ -1,5 +1,24 @@
 APP.addPlugin("Debug", ["Build"], _=>{
-    let gdb, standby, pendingCommand;
+    let gdb, standby, pendingCommands, sigSent;
+
+    function getBreakpoints(){
+        let breakpoints = [];
+        for( let file of DATA.projectFiles ){
+            if( !file.pluginData.breakpoints )
+                continue;
+            for( let k in file.pluginData.breakpoints ){
+                let classes = file.pluginData.breakpoints[k];
+                if( classes.indexOf("unconditional") == -1 )
+                    continue;
+                
+                let translated = APP.getBreakpointLocation(file, k|0);
+                if( translated )
+                    breakpoints.push(translated.file+":"+translated.line);
+            }
+        }
+        
+        return breakpoints;
+    }
 
     class Debug {
         constructor(){
@@ -10,8 +29,34 @@ APP.addPlugin("Debug", ["Build"], _=>{
             APP.remove(this);
         }
 
+        onAddBreakpoint( buffer, row ){
+            if( !gdb ) return;
+            let translated = APP.getBreakpointLocation( buffer, row|0 );
+            if( translated ){
+                let oldStandby = standby;
+                this.gdbCommand("b " + translated.file+":"+translated.line, true);
+                if( !oldStandby )
+                    this.gdbCommand("c", true);
+            }
+        }
+
+        onRemoveBreakpoint( buffer, row ){
+            if( !gdb ) return;
+            let translated = APP.getBreakpointLocation( buffer, row|0 );
+            if( translated ){
+                let oldStandby = standby;
+                this.gdbCommand("clear " + translated.file+":"+translated.line, true);
+                if( !oldStandby )
+                    this.gdbCommand("c", true);
+            }
+        }
+
         onDebugEmulatorStarted(port){
-            pendingCommand = null;
+            sigSent = false;
+            
+            pendingCommands = getBreakpoints()
+                .map(c => "b " + c);
+            pendingCommands.push("c");
             
             let gdbPath =DATA[
                 "GDB-" + DATA.project.target
@@ -48,16 +93,33 @@ APP.addPlugin("Debug", ["Build"], _=>{
                     currentFile = APP.findFile( m[1], true );
                 
                 m = data.match(/^([0-9]+)\s+([^\n]*)/m);
-                if( m && currentFile )
-                    APP.jumpToLine(currentFile, m[1]|0);
+                if( m && currentFile ){
+                    let map = APP.sourceMap( currentFile.path, m[1]|0 );
+                    if( map ){
+                        let mapFile = DATA.projectFiles
+                            .find( file=>file.path==map.file );
+                        if( mapFile ){
+                            APP.displayBuffer( mapFile );
+                            APP.highlightLine( mapFile, map.line, true );
+                            m = null;
+                        }
+                    }
+                    
+                    if( m ){
+                        APP.displayBuffer( currentFile );
+                        APP.highlightLine( currentFile, m[1]|0, true );
+                    }
+                }
 
                 standby = !!data.match(/\(gdb\)\s*$/);
+                if( standby )
+                    sigSent = false;                    
 
                 APP.log("GDB: " + data);
-                
-                if( standby && pendingCommand ){
-                    this.gdbCommand(pendingCommand);
-                    pendingCommand = null;
+
+                if( standby && pendingCommands.length ){
+                    let cmd = pendingCommands.shift();
+                    this.gdbCommand(cmd);
                 }
 
             });
@@ -70,6 +132,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 gdb = null;
                 APP.popExecMode("GDB");
                 APP.log("GDB ended");
+                APP.clearHighlight();
             });
 
             APP.pushExecMode("GDB");
@@ -82,21 +145,29 @@ APP.addPlugin("Debug", ["Build"], _=>{
         debugContinue(){
             if( !gdb ) return;
 
-            if( !standby )
+            if( !standby ){
+                if( sigSent )
+                    return;
+                sigSent = true;
                 gdb.kill('SIGINT');
-            else
+            }else{
+                APP.clearHighlight();
                 this.gdbCommand("continue");
+            }
         }
 
         debugStepIn(){
+            APP.clearHighlight();
             this.gdbCommand("step");
         }
 
         debugStepOver(){
+            APP.clearHighlight();
             this.gdbCommand("next");
         }
 
         debugStepOut(){
+            APP.clearHighlight();
             this.gdbCommand("finish");
         }
 
@@ -105,15 +176,18 @@ APP.addPlugin("Debug", ["Build"], _=>{
             return this.gdbCommand( cmd );
         }
 
-        gdbCommand( cmd ){
+        gdbCommand( cmd, enqueue ){
             if( !gdb )
                 return;
             
             if( !standby ){
-                pendingCommand = cmd;
+                if( enqueue ){
+                    pendingCommands.push(cmd);
+                    this.debugContinue();
+                }
                 return;
             }
-
+            
             standby = false;
             cmd = (cmd+"").trim();
             APP.log( cmd );

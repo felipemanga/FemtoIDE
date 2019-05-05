@@ -7,6 +7,7 @@ class Unit {
         this.imports = [];
         this.types = [];
         this.id = unitId++;
+        this.file = "";
     }
 
     resolve( fqcn, trail, scope, dbg ){

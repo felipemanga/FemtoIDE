@@ -4,7 +4,40 @@ Object.assign(encoding, {
 });
 
 APP.addPlugin("BuildJava", ["Build"], _ => {
+    let jcmap = {};
+    let cjmap = [];
+    const mapexpr = /\n(?:\/\*<MAP\*([^|]*)\|([0-9]+)\|([0-9]+)\*MAP>\*\/)?/g;
+    
     APP.add({
+
+        getBreakpointLocation( buffer, row ){
+            let file = buffer.path+"";
+            let m = jcmap[ file ];
+            if( !m )
+                return undefined;
+
+            while( row && m[row]===undefined )
+                row--;
+
+            if( m[row] === undefined )
+                return undefined;
+
+            return {
+                file:"generated.cpp",
+                line:m[row]
+            };
+        },
+
+        sourceMap( file, line ){
+            if( !file.endsWith("generated.cpp") )
+                return undefined;
+            
+            while( line>0 && !cjmap[line] )
+                line--;
+
+            return cjmap[line];
+        },
+
         ["compile-java"]( files, cb ){
             APP.readFilteredBuffers(
                 files,
@@ -84,6 +117,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 },
 
                 postRun( res ){
+                    res.unit.file = res.name || "???";
                     let cst;
                     try{
                         cst = javaParser( res.src );
@@ -195,6 +229,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     buffer = new Buffer();
                     APP.customSetVariables({debugBuffer:buffer});
                 }
+
+                output = makeSourceMap(output);
+
                 buffer.modified = true;
                 buffer.data = output;
                 buffer.name = "generated.cpp";
@@ -205,6 +242,34 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             }
         }
 
+        function makeSourceMap( output ){
+            cjmap = [];
+            jcmap = {};
+            
+            let cppline = 1;
+            let lineOffset = 0,
+                columnOffset = 0;
+            return output.replace(mapexpr, (match, file, line, column)=>{
+                if( !line ){
+                    cppline++;
+                    return match;
+                }
+
+                line = line|0;
+                column = column|0;
+                file = DATA.projectPath
+                    + "/"
+                    + file.replace(/\./g, "/")
+                    + ".java";
+                                
+                let arr = jcmap[file];
+                if( !arr ) jcmap[file] = arr = [];
+                arr[line-1] = cppline;
+
+                cjmap[cppline] = {file, line};
+                return "";
+            });
+        }
         
     }
 

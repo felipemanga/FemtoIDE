@@ -18,6 +18,13 @@ APP.addPlugin("Build", ["Project"], _=>{
             console.log("onCleanBuildFolder");
         }
 
+        compileAndRun(){
+            APP.stopEmulator();
+            this.compile(true, _=>{
+                APP.run();
+            });
+        }
+
         compile( release=true, cb=null ){
             APP.clearLog();
             APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});

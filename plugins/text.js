@@ -23,6 +23,44 @@ APP.addPlugin("Text", ["Project"], _=>{
             this.ace.setReadOnly(false);
         }
 
+        clearHighlight( buffer ){
+            let session = this.ace.session, classes;
+            if( buffer && buffer.data != session )
+                return;
+            let breakpoints = session.getBreakpoints();
+
+            if( this.highlight !== undefined ){
+                classes = (breakpoints[ this.highlight ]||"").split(" ");
+                let index = classes.indexOf("highlight");
+                classes.splice(index, 1);
+                if( !classes.length ){
+                    session.clearBreakpoint( this.highlight );
+                }else{
+                    session.setBreakpoint( this.highlight, classes.join(" ") );
+                }
+            }
+
+            this.highlight = undefined;
+        }
+
+        highlightLine( buffer, line, jump ){
+            let session = this.ace.session, classes;
+            if( buffer.data != session )
+                return;
+
+            this.clearHighlight( buffer.data );
+            
+            let breakpoints = session.getBreakpoints();
+
+            this.highlight = line-1;
+            classes = (breakpoints[line-1]||"").split(" ");
+            classes.push("highlight");
+            session.setBreakpoint( line-1, classes.join(" ") );
+
+            if( jump )
+                this.jumpToLine( buffer, line );
+        }
+
         jumpToLine(buffer, line){
             if( buffer.data != this.ace.session )
                 return;
@@ -89,6 +127,8 @@ APP.addPlugin("Text", ["Project"], _=>{
             this.ace.setTheme( DATA.aceTheme || "ace/theme/kuroir" );
             let hnd;
             let session = this.ace.session;
+            this.highlight = undefined;
+            
             session.setUndoManager( new ace.UndoManager() );
             session.on("change", _=>{
                 buffer.modified = true;
@@ -99,6 +139,37 @@ APP.addPlugin("Text", ["Project"], _=>{
                     APP.writeBuffer( buffer );
                 }
             });
+            
+	    this.ace.on("guttermousedown", e => {
+	        let target = e.domEvent.target; 
+	        if (target.className.indexOf("ace_gutter-cell") == -1) 
+		    return; 
+	        e.stop();
+                let row = e.getDocumentPosition().row;
+                let breakpoints = session.getBreakpoints();
+                let classes = (breakpoints[row] || "").split(" ");
+                let index = classes.indexOf("unconditional");
+                let isSet = index == -1;
+                if( isSet )
+                    classes.push("unconditional");
+                else
+                    classes.splice(index, 1);
+                
+                if( classes.length ){
+                    session.setBreakpoint( row, classes.join(" ") );
+                    breakpoints[row] = classes.join(" ");
+                }else{
+                    session.clearBreakpoint( row );
+                    delete breakpoints[row];
+                }
+
+                buffer.pluginData.breakpoints = breakpoints;
+
+                if( isSet )
+                    APP.onAddBreakpoint(buffer, row);
+                else
+                    APP.onRemoveBreakpoint(buffer, row);
+	    });
 
             APP.onCreateACE( this.ace );
             
