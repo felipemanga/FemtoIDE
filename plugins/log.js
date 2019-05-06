@@ -1,6 +1,6 @@
 (function(){
     let container = document.querySelector('#logContainer');
-    APP.customSetVariables({maxLogLength:100});
+    APP.customSetVariables({maxLogLength:300});
 
     function getNode(className){
         let node;
