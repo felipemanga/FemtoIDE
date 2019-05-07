@@ -50,5 +50,24 @@ public class Math implements __stub__ {
     public static float sin( float angle ){
         return cos( angle + PI );
     }
-    
+
+    public static float sqrt( float x ){
+        uint t, q, b, r;
+        r = __inline_cpp__("x.getInternal()");
+        b = 0x40000000;
+        q = 0;
+        while( b > 0x40 ){
+            t = q;
+            t += b;
+            if( r >= t )
+            {
+                r -= t;
+                q += b<<1;
+            }
+            r <<= 1;
+            b >>= 1;
+        }
+        q >>= 12;
+        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal(q)");
+    }
 }
