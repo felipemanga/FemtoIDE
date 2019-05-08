@@ -1,5 +1,25 @@
 .frame.TreeView {
     flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75em;
+}
+
+.TreeView .FileListContainer {
+    position: relative;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.TreeView .FileListContainer>ul {
+    position: absolute;
+    margin: 5px;
+    background: #101010;
+}
+
+.FileList li {
+    list-style: none;
+    margin-bottom: 4px;
 }
 
 .frame.TreeView input {
@@ -16,7 +36,7 @@
 }
 
 .frame.TreeView ul {
-    padding: 0 5px;
+    padding: 0 10px;
 }
 
 .FileList .closed > #actions {
@@ -24,13 +44,12 @@
 }
 
 
-.FileList .item.open {
+.FileList .item.open #actions {
     background-color: rgba(255,255,255,0.1);
     padding: 1px;
 }
 
 .FileList #actions {
-    list-style: none;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -46,7 +65,7 @@
     text-align: center;
 }
 
-.FileList .open #name {
+.FileList .open>#name {
     background-color: #171717;
     margin: 1px -1px 1px -1px;
     padding: 3px;

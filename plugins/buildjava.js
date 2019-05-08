@@ -98,7 +98,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 return;
 
             if( ext[1].toUpperCase() == "PNG" ){
-                if( jsons[file.replace(/\.png$/i,".JSON")] )
+                if( jsons[file.toUpperCase().replace(/\.png$/i,".JSON")] )
                     return;
             }
 

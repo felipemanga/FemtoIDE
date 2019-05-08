@@ -66,6 +66,9 @@ class Buffer {
         APP.onKillBuffer( this );
 
         this.views.forEach( ({view}) =>{
+            if( typeof view.kill != "function" )
+                return;
+            
             try{
                 view.kill();
             }catch(ex){
@@ -160,8 +163,15 @@ class Frame {
             return false;
         
         let buffer = DATA.buffers[index];
-        if( !buffer.killable )
+        if( buffer.killable === false )
             return false;
+
+        let next = DATA.buffers[index+1] || DATA.buffers[index-1];
+        
+        buffer.views.forEach( v => {
+            if( v.frame )
+                APP.displayBufferInFrame( next, v.frame );
+        });
         
         buffer.kill();
         
@@ -231,6 +241,7 @@ class Frame {
 
         if( view ){
             view.elements.forEach( c => frame.appendChild( c ) );
+            view.frame = frame;
             frame.className = "frame " + (view.view.css || view.view.constructor.name);
             if( view.view.attach )
                 view.view.attach();

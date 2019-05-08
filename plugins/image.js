@@ -1,5 +1,11 @@
 APP.addPlugin("Image", [], _ => {
-    const extensions = ["PNG"];
+    const extensions = ["PNG", "JPG", "GIF"];
+
+    Object.assign(encoding, {
+        "PNG":null,
+        "GIF":null,
+        "JPG":null,
+    });
     
     class ImageView {
         constructor( frame, buffer ){

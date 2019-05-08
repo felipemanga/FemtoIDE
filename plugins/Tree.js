@@ -8,13 +8,6 @@ APP.addPlugin("Tree", [], _=>{
             this.parent = null;
             this.children = [];
             buffer.pluginData.TreeNode = this;
-            this.DOM = null;
-            APP.async(_=>this._render(buffer, parent));
-        }
-
-        _render( buffer, parent ){
-            let actions = [];
-            APP.pollBufferActions( buffer, actions );
 
 	    this.DOM = DOC.index( DOC.create(
                 "li",
@@ -26,7 +19,6 @@ APP.addPlugin("Tree", [], _=>{
                     [
                         "ul",
                         { id:"actions" },
-                        actions.map( a => makeAction.call(this, a) )
                     ],
                     
                     ["ul", { id:"dir" }]
@@ -55,12 +47,27 @@ APP.addPlugin("Tree", [], _=>{
                     }
                 }
             } );
+            
+            APP.async(_=>this._render(buffer, parent));
+
+        }
+
+        _render( buffer, parent ){
+            let actions = [];
+            APP.pollBufferActions( buffer, actions );
+
+            actions.forEach( a => DOC.create(...makeAction.call(this, a)) );
 
             function makeAction( meta ){
                 let type = "_makeAction_" + meta.type;
                 if( !this[type] )
                     type = "_makeAction_";
-                return ["li", { className:"action " + type }, this[type]( meta )];
+                return [
+                    "li",
+                    { className:"action " + type },
+                    this[type]( meta ),
+                    this.DOM.actions
+                ];
             }
         }
 
@@ -166,7 +173,15 @@ APP.addPlugin("Tree", [], _=>{
                 onchange: e=>this.filterFiles(e.target.value)
             }, frame);
 
-            this.fileList = DOC.create("ul", {className:"FileList"}, frame);
+            let container = DOC.create("div", {
+                className:"FileListContainer"
+            }, frame);
+
+            this.fileList = DOC.create(
+                "ul",
+                {className:"FileList"},
+                container
+            );
 
             this.root = null;
 
@@ -203,13 +218,55 @@ APP.addPlugin("Tree", [], _=>{
                     type:"button",
                     label:"rename",
                     cb:APP.renameBuffer.bind(null, buffer)
-                },
+                }
+            );
+
+            if( buffer.type != "directory" ){
+                actions.push(
                 {
                     type:"button",
                     label:"delete",
-                    cb:APP.deleteBuffer.bind(null, buffer)
+                    cb:_=>{
+                        if( confirm(`Do you really want to delete ${buffer.name}?`) )
+                            APP.deleteBuffer(buffer);
+                    }
                 }
-            );
+                );
+            }else{
+                actions.push(
+                    {
+                        type:"button",
+                        label:"New File...",
+                        cb:_=>{
+                            let name = prompt("Name:");
+                            if( !name ) return;
+                            let fb = APP.findFile(buffer.path + "/" + name, true);
+                            if( !fb ) return;
+                            if( DATA.projectFiles.indexOf(fb) > -1 )
+                                return;
+                            APP.writeBuffer(fb);
+                            APP.registerProjectFile(fb);
+                            DATA.projectFiles.push(fb);
+                        }
+                    },
+                    {
+                        type:"button",
+                        label:"New Folder...",
+                        cb:_=>{
+                            let name = prompt("Name:");
+                            if( !name ) return;
+
+                            fs.mkdirSync(buffer.path + "/" + name);
+                            let fb = APP.findFile(buffer.path + "/" + name, false);
+                            if( !fb ) return;
+                            fb.type = "directory";
+                            if( DATA.projectFiles.indexOf(fb) > -1 )
+                                return;
+                            APP.registerProjectFile(fb);
+                        }
+                    }                    
+                );
+            }
         },
 
         pollViewForBuffer( buffer, vf ){

@@ -40,6 +40,14 @@ APP.addPlugin("Project", [], _=>{
 
     APP.add({
 
+        onDeleteBuffer( buffer ){
+            let pf = DATA.projectFiles;
+            let index = pf.indexOf(buffer);
+            if( index == -1 )
+                return;
+            pf.splice(index, 1);
+        },
+
         queryMenus(){
             APP.addMenu("File", {
                 "New Project":"newProject",

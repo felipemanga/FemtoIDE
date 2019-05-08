@@ -115,6 +115,10 @@ APP.addPlugin("Text", ["Project"], _=>{
             killRing.push(text);
         }
 
+        kill(){
+            this.DOM.innerHTML = "";
+        }
+
         constructor( frame, buffer ){
             
             let id = "text_" + (textViewInstance++);

@@ -8,6 +8,12 @@ APP.addPlugin("Directory", [], _ => {
 
             fs.readdir( buffer.path, (err, files) => {
                 if( err ) return;
+
+                if( !files.length ){
+                    DOC.create("h1", {text:"Empty directory"}, this.el);
+                    return;
+                }
+
                 files.forEach( file => {
                     fs.stat( buffer.path + path.sep + file, (err, stat)=>{
                         DOC.create(
@@ -17,6 +23,7 @@ APP.addPlugin("Directory", [], _ => {
                         );
                     });
                 });
+
             });
         }
     }
