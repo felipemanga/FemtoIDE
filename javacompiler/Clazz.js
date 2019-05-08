@@ -174,6 +174,54 @@ class Clazz extends Type {
         this.methods.push( new Constructor(node, this) );
     }
 
+    staticImage( image, name ){
+        this.extends = new TypeRef(["femto", "Image"], false, this.scope);
+
+        let method = new Method(null, this);
+        this.methods.push( method );
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["pointer"], false, this),
+            "getImageDataForScreen",
+            [
+                new Field(
+                    null,
+                    // TODO: replace with 16-color interface
+                    ["femto", "mode", "HiRes16Color"],
+                    "screen",
+                    false,
+                    null,
+                    method
+                )
+            ],
+            {image}
+        );
+
+        method = new Method(null, this);
+        this.methods.push(method);
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["int"], false, this),
+            "height",
+            [],
+            {returnConst:image.height}
+        );
+
+        method = new Method(null, this);
+        this.methods.push(method);
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["int"], false, this),
+            "width",
+            [],
+            {returnConst:image.width}
+        );
+        
+    }
+
     image( sprite ){
         this.extends = new TypeRef(["femto", "Sprite"], false, this.scope);
 

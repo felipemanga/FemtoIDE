@@ -134,6 +134,16 @@ class Unit {
         this.types.push( clazz );
     }
 
+    staticImage( sprite, name ){
+        this.name = [...name];
+        console.log("Static Image: ", this.name);
+        let clazzName = this.name.pop();
+        const Clazz = require("./Clazz.js");
+        const clazz = new Clazz( clazzName, this );
+        clazz.staticImage( sprite );
+        this.types.push( clazz );
+    }
+
     image( sprite, name ){
         this.name = [...name];
         console.log("Image: ", this.name);

@@ -777,6 +777,12 @@ function writeBlock( block ){
             out += writeStatement( stmt, block );
         });
 
+    if( block.returnConst )
+        out += "return " + block.returnConst + ";\n";
+
+    if( block.image )
+        out += require("./cppImage.js")( block );        
+
     if( block.sprite )
         out += require("./cppSprite.js")( block );
 
@@ -836,7 +842,7 @@ function writeClassImpl( unit ){
                 if( method.isAbstract )
                     return;
 
-                if( isStub && !method.body ){
+                if( isStub && !method.body && !method.isConstructor ){
                     let stubPath = "";
                     try{
                         stubPath = writePath(method, true).replace(/::/g, "/");
@@ -852,7 +858,9 @@ function writeClassImpl( unit ){
                         pop();
                         out += `\n${indent}}\n`;                    
                     }catch( ex ){
-                        out += `${indent}// stub ${t.name}::${method.name} (${stubPath}\n`;
+                        out += `${indent}// Missing stub ${t.name}::${method.name} (${stubPath}\n`;
+                        out += writeMethodSignature( method, false, t.name );
+                        out += `{}\n`;
                     }
                     return;
                 }
