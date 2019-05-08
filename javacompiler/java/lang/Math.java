@@ -51,6 +51,8 @@ public class Math implements __stub__ {
         return cos( angle + PI );
     }
 
+    public static float atan2( float fy, float fx ){}
+
     public static float sqrt( float x ){
         uint t, q, b, r;
         r = __inline_cpp__("x.getInternal()");

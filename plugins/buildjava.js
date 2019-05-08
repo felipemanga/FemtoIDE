@@ -79,12 +79,28 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         let pending = new Pending(onDoneLoadingVFS);
         
         let mainClass = DATA.project.javaFlags.mainClass;
+
+        let jsons = {};
+
+        Object.keys(files).forEach( file => {
+            if( /\.json$/i.test(file) ){
+                jsons[file.toUpperCase()] = true;
+            }
+        });
         
         Object.keys(files).forEach( file => {
             let ext = file.match(/\.([a-z]+)$/i);
+            if( !ext )
+                return;
+            
             let parser = parsers[ ext[1] ];
             if( !parser )
                 return;
+
+            if( ext[1].toUpperCase() == "PNG" ){
+                if( jsons[file.replace(/\.png$/i,".JSON")] )
+                    return;
+            }
 
             let fqcn = file
                 .substr( DATA.projectPath.length + 1 )
