@@ -52,6 +52,7 @@ let src = {
             Tic80:{ src:require("./femto/font/Tic80.bin"), parser:"bin" },
         },
         Sprite:{ src:read("/femto/Sprite.java", "utf-8") },
+        Image:{ src:read("/femto/Image.java", "utf-8") },
         FrameRef:{ src:read("/femto/FrameRef.java", "utf-8") },
         State:{ src:read("/femto/State.java", "utf-8") },
         StateMachine:{ src:read("/femto/StateMachine.java", "utf-8") },

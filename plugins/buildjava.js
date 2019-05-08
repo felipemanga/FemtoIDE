@@ -10,6 +10,16 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     
     APP.add({
 
+        displayGeneratedCPP(){
+            let gen = DATA.debugBuffer;
+            if( !gen ){
+                console.error("No generated CPP buffer found");
+                return;
+            }
+            
+            APP.displayBuffer( gen );
+        },
+
         getBreakpointLocation( buffer, row ){
             let file = buffer.path+"";
             let m = jcmap[ file ];
@@ -81,7 +91,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 .replace(/\..*$/,"")
                 .split(path.sep);
 
-            let src = files[file] + "";
+            let src = files[file];
             pending.start();
             if( parser.load ){
                 parser.load( {name:file, src}, onLoad );
@@ -142,6 +152,38 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 }
             };
 
+            parsers.png={
+                run( png, name ){
+                    let unit = new Unit();
+                    unit.staticImage(png, name);
+                    return unit;
+                },
+
+                load( file, cb ){
+                    let data = file.src.toString("base64");
+                    data = `data:image/png;base64,${data}`;
+
+                    let img = new Image();
+                    img.onload = onLoadImage.bind(null, img);
+                    img.src = data;
+
+                    function onLoadImage( img ){
+
+                            const canvas = document.createElement("canvas");
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+
+                            const ctx = canvas.getContext("2d");
+                            ctx.drawImage( img, 0, 0 );
+
+                            let id = ctx.getImageData( 0, 0, img.width, img.height );
+                            cb( null, id );
+
+                    }
+                    
+                }
+            };
+
             parsers.json={
 
                 run( json, name ){
@@ -174,7 +216,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                         return;
                     }
 
-                    data = buffer.data.toString("base64");
+                    let data = buffer.data.toString("base64");
                     data = `data:image/${format};base64,${data}`;
 
                     let img = new Image();
