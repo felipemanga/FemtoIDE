@@ -17,6 +17,7 @@
     background: #101010;
     box-sizing: border-box;
     width: calc(100% - 10px);
+    height: calc(100% - 10px);
 }
 
 .FileList li {
@@ -39,8 +40,16 @@
     outline: 0 none;
 }
 
-.frame.TreeView ul {
-    padding: 3px 10px 3px 20px;
+.FileList .action label {
+    display: block;
+}
+
+.FileList .item label input {
+    float: right;
+}
+
+.frame.TreeView #itemContainer {
+    padding: 3px;
 }
 
 .FileList .itemExpander {
@@ -56,7 +65,7 @@
     cursor: pointer;
 }
 
-.FileList .item.expand>#actions {
+.FileList .item.expand>#itemContainer>#actions {
     display: flex;
 }
 
@@ -86,3 +95,23 @@
 .FileList .expand>.itemExpander {
     background: #708090;
 }
+
+.frame.TreeView ul {
+    padding: 0;
+}
+
+.frame.TreeView #dir {
+    padding-left: 20px;
+}
+
+.FileList .item #name {
+    color: bisque;
+}
+
+.FileList .item.directory>#itemContainer #name {color: inherit;}
+.FileList .item.BIN>#itemContainer #name {color: #303040;}
+.FileList .item.ELF>#itemContainer #name {color: #303040;}
+.FileList .item.JAVA>#itemContainer #name {color: #8090F0;}
+.FileList .item.PNG>#itemContainer #name {color: #80F090;}
+.FileList .item.JSON>#itemContainer #name {color: #90E0A0;}
+

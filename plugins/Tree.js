@@ -14,19 +14,20 @@ APP.addPlugin("Tree", [], _=>{
                 parent,
                 { className:"item " + buffer.type + " closed"},
                 [
-                    ["button", {
-                        className: "itemExpander",
-                        text: " ",
-                        onclick:_=>{
-                            this.DOM.__ROOT__.classList.toggle("expand");
-                        }
-                    }],
-                    ["div", { text:buffer.name, id:"name" }],
-                    [
-                        "ul",
-                        { id:"actions" },
-                    ],
-                    
+                    ["div", {id:"itemContainer"}, [
+                        ["button", {
+                            className: "itemExpander",
+                            text: " ",
+                            onclick:_=>{
+                                this.DOM.__ROOT__.classList.toggle("expand");
+                            }
+                        }],
+                        ["div", { text:buffer.name, id:"name" }],
+                        [
+                            "ul",
+                            { id:"actions" },
+                        ]
+                    ]],
                     ["ul", { id:"dir" }]
                 ]
             ), null, {
@@ -63,11 +64,32 @@ APP.addPlugin("Tree", [], _=>{
                 }
             } );
             
-            APP.async(_=>this._render(buffer, parent));
+            APP.async(_=>this._render(parent));
 
         }
 
-        _render( buffer, parent ){
+        filterFiles( str ){
+            str += "";
+            let name = this.buffer.name;
+            let visible = true;
+            if( str != "" ){
+                let i=-1;
+                for( let j=0; j<str.length; ++j ){
+                    let c = str[j];
+                    i = name.indexOf(c, i+1);
+                    if( i ==-1 ){
+                        visible = false;
+                        break;
+                    }
+                }
+            }
+
+            if( visible ) this.DOM.itemContainer.classList.remove("hidden");
+            else this.DOM.itemContainer.classList.add("hidden");            
+        }
+
+        _render( parent ){
+            let buffer = this.buffer;
             let actions = [];
             APP.pollBufferActions( buffer, actions );
 
@@ -98,14 +120,18 @@ APP.addPlugin("Tree", [], _=>{
         }
 
         _makeAction_bool( meta ){
-            return [
-                ["span", {text:meta.label}],
-                ["input", {
-                    type:"checkbox",
-                    value:meta.value,
-                    onchange:evt=>evt.target.value = meta.cb(evt.target.value)
-                }]
-            ];
+            return (
+                [["label",
+                  {text:meta.label},
+                  [
+                      ["input", {
+                          type:"checkbox",
+                          value:meta.value,
+                          onchange:evt=>evt.target.value = meta.cb(evt.target.value)
+                      }]
+                  ]]
+                ]
+            );
         }
 
         displayBuffer( buffer ){
@@ -185,7 +211,7 @@ APP.addPlugin("Tree", [], _=>{
 
             DOC.create("input", {
                 className:"search",
-                onchange: e=>this.filterFiles(e.target.value)
+                onkeyup: e=>APP.filterFiles(e.target.value)
             }, frame);
 
             let container = DOC.create("div", {
@@ -219,9 +245,6 @@ APP.addPlugin("Tree", [], _=>{
             }
         }
 
-        filterFiles( str ){
-            
-        }
     }
 
 

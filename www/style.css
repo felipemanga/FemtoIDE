@@ -12,6 +12,10 @@ html, body {
     color: #ABC;
 }
 
+.hidden {
+    display: none;
+}
+
 .blocking {
     position: fixed !important;
     top: 0;
