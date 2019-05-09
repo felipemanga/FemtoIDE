@@ -15,17 +15,21 @@
     position: absolute;
     margin: 5px;
     background: #101010;
+    box-sizing: border-box;
+    width: calc(100% - 10px);
 }
 
 .FileList li {
     list-style: none;
     margin-bottom: 4px;
+    position: relative;
 }
 
 .frame.TreeView input {
     background-color: inherit;
     color: inherit;
     border: 0 none;
+    margin: 0 4px;
 }
 
 .frame.TreeView input:focus {
@@ -36,25 +40,33 @@
 }
 
 .frame.TreeView ul {
-    padding: 0 10px;
+    padding: 3px 10px 3px 20px;
 }
 
-.FileList .closed > #actions {
-    display: none;
-}
-
-
-.FileList .item.open #actions {
-    background-color: rgba(255,255,255,0.1);
+.FileList .itemExpander {
+    position: absolute;
+    left: -15px;
+    border: none;
+    border-radius: 10px;
     padding: 1px;
+    top: 2px;
+    height: 0.75em;
+    width: 0.75em;
+    background: #404040;
+    cursor: pointer;
+}
+
+.FileList .item.expand>#actions {
+    display: flex;
 }
 
 .FileList #actions {
-    display: flex;
+    display: none;
     flex-direction: row;
     flex-wrap: wrap;
     max-width: 200px;
-    padding: 0;
+    padding: 1;
+    background-color: #303030;
 }
 
 .FileList #actions .action {
@@ -69,4 +81,8 @@
     background-color: #171717;
     margin: 1px -1px 1px -1px;
     padding: 3px;
+}
+
+.FileList .expand>.itemExpander {
+    background: #708090;
 }

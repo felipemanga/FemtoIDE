@@ -14,8 +14,14 @@ APP.addPlugin("Tree", [], _=>{
                 parent,
                 { className:"item " + buffer.type + " closed"},
                 [
+                    ["button", {
+                        className: "itemExpander",
+                        text: " ",
+                        onclick:_=>{
+                            this.DOM.__ROOT__.classList.toggle("expand");
+                        }
+                    }],
                     ["div", { text:buffer.name, id:"name" }],
-                    
                     [
                         "ul",
                         { id:"actions" },
@@ -25,6 +31,10 @@ APP.addPlugin("Tree", [], _=>{
                 ]
             ), null, {
                 name:{
+                    keydown:event=>{
+                        if( event.key == "Enter" )
+                            event.target.blur();
+                    },
                     blur:_=>{
                         if( !this.DOM.name.isContentEditable )
                             return;
@@ -35,7 +45,12 @@ APP.addPlugin("Tree", [], _=>{
                             .path
                             .split(/[\\/]/);
                         
-                        newName[newName.length-1] = this.DOM.name.textContent.trim();
+                        newName[newName.length-1] = this.DOM
+                            .name
+                            .textContent
+                            .trim()
+                            .replace(/\n/g, "");
+                        
                         newName = newName.join(path.sep);
                         
                         APP.renameBuffer( buffer, newName );
@@ -131,7 +146,7 @@ APP.addPlugin("Tree", [], _=>{
         renameBuffer( buffer, newName ){
             if( buffer != this.buffer || typeof newName == "string" )
                 return;
-            this.DOM.name.setAttribute("contenteditable", "true");
+            this.DOM.name.setAttribute("contenteditable", "plaintext-only");
             this.DOM.name.focus();
         }
 
