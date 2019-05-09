@@ -1,4 +1,5 @@
 APP.bindKeys("global", {
+    "C-o":APP.focusFilter,
     "C-x C-f": APP.findFile,
     "C-c b": APP.compile,
     "C-c r": APP.run,
