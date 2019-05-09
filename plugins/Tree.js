@@ -7,6 +7,7 @@ APP.addPlugin("Tree", [], _=>{
             this.buffer = buffer;
             this.parent = null;
             this.children = [];
+            this.y = 0;
             buffer.pluginData.TreeNode = this;
 
 	    this.DOM = DOC.index( DOC.create(
@@ -66,6 +67,22 @@ APP.addPlugin("Tree", [], _=>{
             
             APP.async(_=>this._render(parent));
 
+        }
+
+        pollFirstVisibleTreeItem( ret ){
+            if( this.DOM.itemContainer.classList.contains("hidden") )
+                return;
+
+            this.y = 0;
+            let e = this.DOM.__ROOT__;
+            while( e ){
+                this.y += e.offsetTop;
+                e = e.parentElement;
+            }
+            
+            if( !ret.length || ret[0].y > this.y )
+                ret[0] = this;
+            
         }
 
         filterFiles( str ){
@@ -209,9 +226,25 @@ APP.addPlugin("Tree", [], _=>{
         constructor( frame, buffer ){
             APP.add(this);
 
-            DOC.create("input", {
+            this.filter = DOC.create("input", {
                 className:"search",
-                onkeyup: e=>APP.filterFiles(e.target.value)
+                onkeyup: e=>{
+
+                    if( e.key != "Enter" ){
+                        APP.filterFiles(e.target.value);
+                        return;
+                    }
+
+                    let file = [];
+                    APP.pollFirstVisibleTreeItem(file);
+                    if( !file.length )
+                        return;
+
+                    APP.displayBuffer(file[0].buffer);
+
+                    this.filter.value = "";
+                    APP.filterFiles("");
+                }
             }, frame);
 
             let container = DOC.create("div", {
@@ -226,6 +259,10 @@ APP.addPlugin("Tree", [], _=>{
 
             this.root = null;
 
+        }
+
+        focusFilter(){
+            this.filter.focus();
         }
 
         detach(){

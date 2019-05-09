@@ -8,7 +8,8 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         attach(){
             APP.add(this);
-            APP.async(_=>this.ace.resize(true));
+            APP.async(_=>this.ace.resize(true))
+            this.ace.focus();
         }
 
         detach(){
