@@ -47,6 +47,15 @@ class Statement {
                 this.scope);
     }
 
+    doStatement( node ){
+        this.condition = new Expression(
+            node.children.expression[0],
+            this.scope
+        );
+
+        this.body = new Statement( node.children.statement[0], this.scope );
+    }
+
     whileStatement( node ){
         this.condition = new Expression(
             node.children.expression[0],

@@ -779,6 +779,23 @@ function writeStatement( stmt, block, noSemicolon ){
 
         break;
 
+    case "doStatement":
+        out += `${indent}do`;
+        if( stmt.body.type != "block" ){
+            out += `${indent}{\n`;
+            push();
+        }
+        out += writeStatement( stmt.body, block );
+        if( stmt.body.type != "block" ){
+            pop();
+            out += `${indent}}\n`;
+        }
+        out += `${indent}while( `;
+        out += writeExpression(stmt.condition).out;
+        out += " );\n";
+
+        break;
+
     case "whileStatement":
         out += indent + "while( ";
         out += writeExpression(stmt.condition).out;
