@@ -306,15 +306,27 @@ class Expression {
                     );
                 }
             }else{
-                this.left = new TypeRef(
-                    left.newExpression[0].children
-                        .unqualifiedClassInstanceCreationExpression[0].children
-                        .classOrInterfaceTypeToInstantiate
-                        .map( i=>i.children.Identifier[0].image ),
-                    false,
-                    this.scope
-                );
-
+                let ucice = left.newExpression[0].children
+                    .unqualifiedClassInstanceCreationExpression[0];
+                
+                if( ucice.children.classBody ){
+                    const Clazz = require("./Clazz.js");
+                    let clazz = new Clazz( ucice, this.scope );
+                    this.left = new TypeRef(
+                        null,
+                        false,
+                        this.scope,
+                        clazz
+                    );
+                }else{
+                    this.left = new TypeRef(
+                        ucice.children.classOrInterfaceTypeToInstantiate
+                            .map( i=>i.children.Identifier[0].image ),
+                        false,
+                        this.scope
+                    );
+                }
+                
                 let args = left
                     .newExpression[0]
                     .children

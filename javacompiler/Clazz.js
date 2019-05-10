@@ -7,7 +7,13 @@ const {ast} = require("./AST.js");
 let classId = 1;
 class Clazz extends Type {
     constructor( node, parent ){
-        super(node, "normalClassDeclaration", "class", parent );
+        super(
+            node,
+            (typeof node == "string" || node.children.normalClassDeclaration ? "normalClassDeclaration" : null),
+            "class",
+            parent
+        );
+        
         this.id = classId++;
         this.fields = [];
         this.methods = [];
@@ -16,52 +22,73 @@ class Clazz extends Type {
         this.implements = [];
         this.isInterface = false;
         this.isClass = true;
+        this.isInline = false;
 
         if( typeof node == "string" )
             return;
 
-        if( node.children.normalClassDeclaration[0].children.superclass )
-            this.extends = new TypeRef(
-                node
-                    .children
-                    .normalClassDeclaration[0]
-                    .children
-                    .superclass[0]
-                    .children
-                    .classType[0]
-                    .children
-                    .Identifier.map( i => i.image ),
-                false,
-                parent
-            );
+        let memberNodes;
 
+        if( node.children.normalClassDeclaration ){
 
-        if( node.children.normalClassDeclaration[0].children.superinterfaces )
-            node
-            .children
-            .normalClassDeclaration[0]
-            .children
-            .superinterfaces[0]
-            .children
-            .interfaceTypeList[0]
-            .children
-            .interfaceType
-            .forEach( intType => {
-                this.implements.push( new TypeRef(
-                    Object
-                        .values(intType.children)[0][0]
+            if( node.children.normalClassDeclaration[0].children.superclass )
+                this.extends = new TypeRef(
+                    node
+                        .children
+                        .normalClassDeclaration[0]
+                        .children
+                        .superclass[0]
+                        .children
+                        .classType[0]
                         .children
                         .Identifier.map( i => i.image ),
                     false,
                     parent
-                ));
-            });
-        
-        
-        let memberNodes = node.children
-            .normalClassDeclaration[0].children
-            .classBody[0].children
-            .classBodyDeclaration;
+                );
+
+
+            if( node.children.normalClassDeclaration[0].children.superinterfaces )
+                node
+                .children
+                .normalClassDeclaration[0]
+                .children
+                .superinterfaces[0]
+                .children
+                .interfaceTypeList[0]
+                .children
+                .interfaceType
+                .forEach( intType => {
+                    this.implements.push( new TypeRef(
+                        Object
+                            .values(intType.children)[0][0]
+                            .children
+                            .Identifier.map( i => i.image ),
+                        false,
+                        parent
+                    ));
+                });
+            
+            
+            memberNodes = node.children
+                .normalClassDeclaration[0].children
+                .classBody[0].children
+                .classBodyDeclaration;
+            
+        }else if( node.children.classBody ){
+
+            this.isInline = true;
+
+            this.extends = new TypeRef(
+                node.children.classOrInterfaceTypeToInstantiate[0]
+                    .children.Identifier.map( i=>i.image ),
+                false,
+                parent
+            );
+
+            memberNodes = node.children.classBody[0].children
+                .classBodyDeclaration;            
+            
+        }
 
         if( memberNodes ){
             memberNodes.forEach( n => {

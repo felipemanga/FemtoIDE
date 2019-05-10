@@ -196,6 +196,36 @@ function sortTypes(){
     }    
 }
 
+function writeClassInline( type ){
+    let out = `class ${type.name} : public ${writePath(type.extends)} {`;
+    out += "public:\n";
+    
+    type.fields.forEach( field => {
+        out += `${indent}${writeFieldDecl(field)}`;
+        if( field.init && field.init.expression )
+            out += writeExpression(field.init.expression).out;
+        out += ";\n";
+    });
+
+    type.methods.forEach( method => {
+        out += writeMethodSignature( method, true );
+        out += writeMethodBody(method, type);
+        out += "\n";
+    });    
+    
+    out += `};`;
+    return out;
+}
+
+function writeFieldDecl(field) {
+    let out = "";
+    if( field.isStatic ) out += "static ";
+    if( field.isFinal ) out += "const ";
+    out += `${writeType(field.type, field.isStatic)} ${field.name};\n`;
+    return out;
+}
+
+
 function writeClassDecl( unit, type, dependencies ){
     let written = {"Object":true};
     let out = openNamespace( unit, "Class Declarations" );
@@ -229,12 +259,7 @@ function writeClassDecl( unit, type, dependencies ){
         push();
 
         t.fields.forEach( field => {
-
-            out += `${indent}`;
-            if( field.isStatic ) out += "static ";
-            if( field.isFinal ) out += "const ";
-            out += `${writeType(field.type, field.isStatic)} ${field.name};\n`;
-
+            out += `${indent}${writeFieldDecl(field)}\n`;
         });
 
         t.methods.forEach( method => {
@@ -261,6 +286,60 @@ function writeClassDecl( unit, type, dependencies ){
         }
         
     }
+}
+
+function writeMethodBody( method, t ){
+    var out = "";
+    
+    if( method.isConstructor){
+        let inits = [];
+
+        if( t.extends ){
+            inits.push(
+                writePath(t.extends)
+                    + "("
+                    + method
+                    .superArgs
+                    .map( arg=>writeExpression(arg).out )
+                    .join(", ")
+                    + ")"
+            );
+        }
+
+        t.fields.forEach( f=>{
+            if( f.isStatic )
+                return;
+            
+            let str = f.name + "(";
+            if( f.init && f.init.expression ){
+                str += writeExpression(f.init.expression.right).out;
+            }else if(f.isReference){
+                str += "nullptr";
+            }else{
+                str += "0";
+            }
+            str += ")";
+            inits.push( str );
+        });
+
+        if( inits.length ){
+            out += " : ";
+            out += inits.join(", ");
+        }
+    }
+
+    out += `{\n`;
+    push();
+
+    if( !method.isStatic )
+        out += `${indent}__ref__<${writePath(t)}> __ref__${refid++} = this;\n`;
+
+    out += writeBlock( method.body );
+    
+    pop();
+    out += `${indent}}\n\n`;
+
+    return out;
 }
 
 let refid = 0;
@@ -293,7 +372,8 @@ function writePath( expr, clean ){
             tmp = n.name;
             if( !clean ) tmp = tmp.map(n=>"up_"+n);
             out += tmp.join("::");
-            next = "::";
+            if( tmp.length ) next = "::";
+            else next = "";
             break;
 
         case "Clazz":
@@ -331,6 +411,7 @@ function writePath( expr, clean ){
                 next = "->";
                 break;
             }
+            
         default:
             if( isInEnum ){
                 out = "&" + out;
@@ -476,24 +557,37 @@ function writeExpression( expr ){
         break;
 
     case "new":
+        let close = "";
         if( expr.left.isArray ){
             out += `new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>{`;
             out += expr.array.map(a => writeExpression(a).out).join(", ");
             out += '}';
+            type = expr.left.trail[expr.left.trail.length-1];
+        }else if( expr.left.getTarget().isInline ){
+            let ref = expr.left.getTarget();
+            out += "([=]()->";
+            out += writeType(ref.extends, false);
+            out += "{";
+            out += writeClassInline(ref);
+            out += "return new " + ref.name;
+            close = ";})()";
+            type = ref.extends.getTarget();
         }else{
             out += "(new " + writePath(expr.left);
+            close = ")";
+            type = expr.left.trail[expr.left.trail.length-1];
         }
-        type = expr.left.trail[expr.left.trail.length-1];
+        
         if( !expr.array ){
-            out+="(";
+            out += "(";
             if( expr.args ){
                 out += expr
                     .args
                     .map( e => writeExpression(e).out )
                     .join(", ");
             }
-            out+=")";
             out += ")";
+            out += close;
         }
 
         out += writeExpressionRight(expr.right);
@@ -867,53 +961,7 @@ function writeClassImpl( unit ){
 
                 out += writeMethodSignature( method, false, t.name );
 
-                if( method.isConstructor){
-                    let inits = [];
-
-                    if( t.extends ){
-                        inits.push(
-                            writePath(t.extends)
-                                + "("
-                                + method
-                                .superArgs
-                                .map( arg=>writeExpression(arg).out )
-                                .join(", ")
-                                + ")"
-                        );
-                    }
-
-                    t.fields.forEach( f=>{
-                        if( f.isStatic )
-                            return;
-                        
-                        let str = f.name + "(";
-                        if( f.init && f.init.expression ){
-                            str += writeExpression(f.init.expression.right).out;
-                        }else if(f.isReference){
-                            str += "nullptr";
-                        }else{
-                            str += "0";
-                        }
-                        str += ")";
-                        inits.push( str );
-                    });
-
-                    if( inits.length ){
-                        out += " : ";
-                        out += inits.join(", ");
-                    }
-                }
-
-                out += `{\n`;
-                push();
-
-                if( !method.isStatic )
-                    out += `${indent}__ref__<${writePath(t)}> __ref__${refid++} = this;\n`;
-
-                out += writeBlock( method.body );
-                
-                pop();
-                out += `${indent}}\n\n`;
+                out += writeMethodBody(method, t);
 
             });
         }
