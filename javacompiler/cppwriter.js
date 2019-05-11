@@ -219,6 +219,7 @@ function writeClassInline( type ){
 
 function writeFieldDecl(field) {
     let out = "";
+    if( field.isVolatile ) out += "volatile ";
     if( field.isStatic ) out += "static ";
     if( field.isFinal ) out += "const ";
     out += `${writeType(field.type, field.isStatic)} ${field.name};\n`;
@@ -950,6 +951,8 @@ function writeClassImpl( unit ){
                 if( !field.isStatic ) 
                     return;
                 out += `${indent}`;
+                if( field.isVolatile )
+                    out += "volatile ";
                 if( field.isFinal )
                     out += "const ";
                 out += `${writeType(field.type, true)} ${writeType(t)}::`;

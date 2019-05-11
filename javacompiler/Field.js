@@ -7,6 +7,7 @@ class Field {
         this.isPublic = false;
         this.isStatic = false;
         this.isFinal = false;
+        this.isVolatile = false;
 
         if( modifier ){
             modifier.forEach(mod=>{
@@ -14,6 +15,7 @@ class Field {
                 if( key == "Public" ) this.isPublic = true;
                 else if( key == "Static" ) this.isStatic = true;
                 else if( key == "Final" ) this.isFinal = true;
+                else if( key == "Volatile" ) this.isVolatile = true;
             });
         }
 
