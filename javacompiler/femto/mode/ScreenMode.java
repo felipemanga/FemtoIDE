@@ -41,7 +41,11 @@ class ScreenMode {
         textX = x;
         textY = y;
     }
-    
+
+    public void setTextColor( int color ){
+        textColor = color;
+    }
+
     abstract public uint width();
     public uint height(){ return 0; }
     public void setPixel(uint x, uint y, byte col){}
