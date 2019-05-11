@@ -26,7 +26,7 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
 
     public void clear( byte col ){}
 
-    public void setPixel(uint x, uint y, byte col){
+    public void setPixel(uint x, uint y, int col){
         ushort i = y*(110) + (x>>1);
         byte pixel = buffer[i];
         col &= 0xF;
@@ -120,7 +120,8 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         }
     }    
 
-    public void drawHLine(uint x, uint y, uint w, byte col){}
+    public void drawHLine(int x, int y, int w, byte color){}
+    public void drawVLine(int x, int y, int h, byte color){}
 
     public void flush(){}
 

@@ -20,7 +20,9 @@ class Unit {
             fqcn = fqcn.split(".");
         else
             fqcn = [...fqcn];
-
+        
+        let srcfqcn = [...fqcn];
+        
         if( dbg )
             console.log("Looking for: ", fqcn);
 
@@ -109,8 +111,8 @@ class Unit {
 
         
         if( !ret ){
-            console.error( "Could not find " + fqcn.join(".") );
-            throw ( "Could not find " + fqcn.join(".") );
+            console.error( "Could not find " + srcfqcn.join(".") );
+            throw ( "Could not find " + srcfqcn.join(".") );
         }
         
         return ret;

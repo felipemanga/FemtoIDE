@@ -4,10 +4,10 @@ if( x>=220 || y>=176 || !w )
 if( x+w>=220 )
     w = 220 - x;
 
-col = (col<<4) | (col&0xF);
+color = (color<<4) | (color&0xF);
 
 if( x&1 ){
-    setPixel(x, y, col);
+    setPixel(x, y, color);
     w--;
     x++;
     if(!w)
@@ -18,7 +18,7 @@ int rem = (w>>1);
 auto *b = buffer->elements+y*110+(x>>1);
 
 while( rem-- )
-    *b++ = col;
+    *b++ = color;
 
 if( w&1 )
-    setPixel( x+w-1, y, col );
+    setPixel( x+w-1, y, color );
