@@ -120,8 +120,8 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         }
     }    
 
-    public void drawHLine(int x, int y, int w, byte color){}
-    public void drawVLine(int x, int y, int h, byte color){}
+    public void drawHLine(int x, int y, int w, int color){}
+    public void drawVLine(int x, int y, int h, int color){}
 
     public void flush(){}
 

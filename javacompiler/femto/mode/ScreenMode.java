@@ -51,10 +51,43 @@ class ScreenMode {
     public void setPixel( uint x, uint y, int color ){}
     public void drawHLine( int x, int y, int w, int color ){}
     public void drawVLine( int x, int y, int h, int color ){}
+    
+    public void drawRect( int x, int y, int w, int h, int color ){
+        drawHLine( x, y, w, color );
+        drawHLine( x, y+h, w, color );
+        drawVLine( x, y, h, color );
+        drawVLine( x+w, y, h, color );
+    }
 
-    void drawLine(int x0, int y0, int x1, int y1, int color) {
-        int height = this.height();
-        int width = this.width();
+    public void fillRect( int x, int y, int w, int h, int color ){
+        int height = (int) this.height();
+        int width = (int) this.width();
+        
+        if( x < 0 ){
+            w += x;
+            x = 0;
+        }
+        if( y < 0 ){
+            h += y;
+            y = 0;
+        }
+        if( x+w >= width ){
+            w = width - x;
+        }
+        if( y+h >= height ){
+            h = height - y;
+        }
+        if( w<0 )
+            return;
+        while( h>0 ){
+            drawHLine(x, y++, w, color);
+            h--;
+        }
+    }
+    
+    public void drawLine(int x0, int y0, int x1, int y1, int color) {
+        int height = (int) this.height();
+        int width = (int) this.width();
         
         if ((uint)x0 >= width || (uint)y0 >= height || (uint)x1 >= width || (uint)y1 >= height ) {
 
