@@ -118,6 +118,38 @@ namespace up_java {
     }
 }
 
+void miniftoa( up_java::up_lang::uc_float v, char *c ){
+    using FLOAT = up_java::up_lang::uc_float;
+    char *cp = c;
+    if( v < 0 ){
+        *cp++ = '-';
+        v = -v;
+    }
+    miniitoa( v.getInteger(), cp, 10 );
+
+    while(*cp)
+        cp++;
+                
+    if( cp - c < 9 ){
+        FLOAT f = FLOAT::fromInternal(v.getFraction());
+        FLOAT ten = 10;
+        *cp++ = '.';
+        while( f.getInternal() && cp - c < 10 ){
+            f *= ten;
+            int digit = f.getInteger();
+            f = FLOAT::fromInternal(f.getFraction());
+            *cp++ = '0' + digit;
+        }
+        *cp++ = 0;
+    }
+}
+
+void __print__( up_java::up_lang::uc_float f ){
+    char buff[15];
+    miniftoa(f, buff);
+    __print__(buff);
+}
+
 constexpr up_java::up_lang::uc_Object *__objFromShort__( uint16_t s ){
     return (up_java::up_lang::uc_Object *) (std::uintptr_t(s&~3)+0x10000000);
 }
@@ -431,6 +463,23 @@ namespace up_java {
                 return ptr;
             }
 
+            static __ref__<uc_String> valueOf( up_java::up_lang::uc_float v ){
+                char *c = new char[15];
+                miniftoa( v, c );
+                return new uc_String(c);
+            }
+            
+            static __ref__<uc_String> valueOf( int32_t v ){
+                char *c = new char[11];
+                char *cp = c;
+                if( v < 0 ){
+                    *cp++ = '-';
+                    v = -v;
+                }
+                miniitoa( v, cp, 10 );
+                return new uc_String(c);
+            }
+
             static __ref__<uc_String> valueOf( uint32_t v ){
                 char *c = new char[11];
                 miniitoa( v, c, 10 );
@@ -498,6 +547,11 @@ __ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String
 }
 
 __ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, up_java::up_lang::uc_int r ){
+    __ref__<up_java::up_lang::uc_String> sr = up_java::up_lang::uc_String::valueOf( r );
+    return __add__(l, sr);
+}
+
+__ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, up_java::up_lang::uc_float r ){
     __ref__<up_java::up_lang::uc_String> sr = up_java::up_lang::uc_String::valueOf( r );
     return __add__(l, sr);
 }

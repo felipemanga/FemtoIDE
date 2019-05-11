@@ -103,6 +103,11 @@ out = *((uint8_t*)p);
             __inline_cpp__("__print__(\"\\n\")");
         }
 
+        public static void println( float s ){
+            __inline_cpp__("__print__( s)");
+            __inline_cpp__("__print__(\"\\n\")");
+        }
+
     }
     
 }

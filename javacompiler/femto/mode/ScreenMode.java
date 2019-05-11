@@ -23,10 +23,10 @@ class ScreenMode {
         frameTimeUpdate = 64;
     }
 
-    public int fps(){
+    public float fps(){
         float f = 64000.0f;
         f /= frameTime;
-        return (int) f;
+        return f;
     }
 
     public void flush(){
@@ -70,6 +70,36 @@ class ScreenMode {
         __inline_cpp__("char *c = buf; while(*c) putchar(*c++)");
     }
 
+    public void print( int v ){
+        if( !v ){
+            putchar('0');
+            return;
+        }
+        __inline_cpp__("
+char buf[11], *c = buf; 
+if(v<0){
+  *c++ = '-';
+  v = -v;
+} 
+miniitoa(v, c, 10);
+c = buf;
+while(*c) 
+  putchar(*c++)");
+    }
+
+    public void print( float v ){
+        if( v == 0.0f ){
+            putchar('0');
+            return;
+        }
+        __inline_cpp__("
+char buf[15], *c = buf; 
+miniftoa(v, c);
+c = buf;
+while(*c) 
+  putchar(*c++)");
+    }
+    
     public void putchar( char index ){
         if( !font || textY >= (int)height() ) return;
         uint screenWidth = width();
