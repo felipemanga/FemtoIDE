@@ -76,29 +76,29 @@ class __ref__ {
     T *ptr;
 public:
     __ref__():ptr(nullptr){
-        printf("ref empty %p\n", this);
+        // printf("ref empty %p\n", this);
     };
 
     __ref__( T *p ):ptr(nullptr){
-        printf("ref assign %p from %p\n", p, this);
+        // printf("ref assign %p from %p\n", p, this);
         *this = p;
     }
 
     template<typename OT>
     __ref__(__ref__<OT> &o):ptr(nullptr){
-        printf("ref copy %p from %p\n", o.ptr, this);
+        // printf("ref copy %p from %p\n", o.ptr, this);
         *this = o.ptr;
     }
     
     template<typename OT>
     __ref__(const __ref__<OT> &o):ptr(nullptr){
-        printf("ref const copy %p from %p\n", o.ptr, this);
+        // printf("ref const copy %p from %p\n", o.ptr, this);
         *this = o.ptr;
     }
 
     template<typename OT>
     __ref__(__ref__<OT>&&o):ptr(nullptr){
-        printf("move ref %p from %p to %p\n", o.ptr, &o, this);
+        // printf("move ref %p from %p to %p\n", o.ptr, &o, this);
         ptr = o.ptr;
         o.ptr = nullptr;
     }
@@ -110,7 +110,7 @@ public:
     }
     
     __ref__<T> &operator =(T *p){
-        printf("(ref %p from %p)\n", p, this);
+        // printf("(ref %p from %p)\n", p, this);
         if( p ){
             p->__hold__();
         }
@@ -359,6 +359,10 @@ namespace up_java {
                 miniitoa( v, c, 10 );
                 return new uc_String(c);
             }
+
+            void __hold__();
+            void __release__();
+            
         };
     }    
 }

@@ -436,6 +436,10 @@ namespace up_java {
                 miniitoa( v, c, 10 );
                 return new uc_String(c);
             }
+
+            void __hold__();
+            void __release__();
+
         };
     }    
 }

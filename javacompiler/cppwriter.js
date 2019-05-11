@@ -282,6 +282,10 @@ function writeClassDecl( unit, type, dependencies ){
             out += `${indent}static const uint32_t __id__ = ${t.id};\n`;
             out += `${indent}virtual bool __instanceof__( uint32_t id );\n`;
             out += `${indent}virtual ~uc_${t.name}(){}\n`;
+            if( writePath(t) != "up_java::up_lang::uc_Object" ){
+                out += `${indent}void __hold__();\n`;
+                out += `${indent}void __release__();\n`;
+            }
         }
         pop();
         out += `${indent}};\n`;
@@ -550,7 +554,7 @@ function writeExpression( expr ){
         e = writeExpression(expr.left);
         out += writeType(expr.type, true) + "(";
         if( expr.type.isReference ){
-            out += "dynamic_cast<";
+            out += "static_cast<";
             out += writeType(expr.type, false);
             out += ">(";
             out += e.out;
@@ -999,6 +1003,11 @@ ${indent}\tif(id == ${t.id}) return true;
 ${indent}\treturn ${t.extends&&t.extends.name[0]!="__raw__"?writePath(t.extends)+"::__instanceof__(id)":"false"};
 ${indent}}
 `;
+            if( !t.isInterface && writePath(t) != "up_java::up_lang::uc_Object" ){
+                out += `${indent}void uc_${t.name}::__hold__(){ uc_Object::__hold__(); }\n`;
+                out += `${indent}void uc_${t.name}::__release__(){ uc_Object::__release__(); }\n`;
+            }
+            
             if( t.fields.length && !t.isInterface ){
                 out += `${indent}void uc_${t.name}::__mark__(){\n`;
                 push();
