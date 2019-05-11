@@ -319,7 +319,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     + "/"
                     + file.replace(/\./g, "/")
                     + ".java";
-                                
+                file = file.replace(/\//g, path.sep);
                 let arr = jcmap[file];
                 if( !arr ) jcmap[file] = arr = [];
                 arr[line-1] = cppline;
