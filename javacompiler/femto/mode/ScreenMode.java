@@ -84,6 +84,69 @@ class ScreenMode {
             h--;
         }
     }
+
+    void drawCircle( int x0, int y0, int r, int color ){
+        int f = 1 - r;
+        int ddF_x = 1;
+        int ddF_y = -2 * r;
+        int x = 0;
+        int y = r;
+
+        setPixel(x0, y0 + r, color);
+        setPixel(x0, y0 - r, color);
+        setPixel(x0 + r, y0, color);
+        setPixel(x0 - r, y0, color);
+
+        while (x < y) {
+            if (f >= 0) {
+
+                y--;
+                ddF_y += 2;
+                f += ddF_y;
+            }
+            x++;
+            ddF_x += 2;
+            f += ddF_x;
+
+            setPixel(x0 + x, y0 + y, color);
+            setPixel(x0 - x, y0 + y, color);
+            setPixel(x0 + x, y0 - y, color);
+            setPixel(x0 - x, y0 - y, color);
+            setPixel(x0 + y, y0 + x, color);
+            setPixel(x0 - y, y0 + x, color);
+            setPixel(x0 + y, y0 - x, color);
+            setPixel(x0 - y, y0 - x, color);
+
+        }
+    }    
+
+    void fillCircle( int x0, int y0, int r, int color ){
+        drawHLine(x0 - r, y0, 2 * r, color );
+        int delta = 0;
+        int cornername = 3;
+    
+        int f = 1 - r;
+        int ddF_x = 1;
+        int ddF_y = -2 * r;
+        int x = 0;
+        int y = r;
+
+        while (x < y) {
+            if (f >= 0) {
+                y--;
+                ddF_y += 2;
+                f += ddF_y;
+            }
+            x++;
+            ddF_x += 2;
+            f += ddF_x;
+
+            drawHLine( x0 - y, y0 + x, 2 * y, color );
+            drawHLine( x0 - x, y0 + y, 2 * x, color );
+            drawHLine( x0 - y, y0 - x, 2 * y, color );
+            drawHLine( x0 - x, y0 - y, 2 * x, color );
+        }
+    }
     
     public void drawLine(int x0, int y0, int x1, int y1, int color) {
         int height = (int) this.height();
