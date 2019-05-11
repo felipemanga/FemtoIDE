@@ -167,14 +167,33 @@ template<typename T>
 class __ref__ {
     T *ptr;
 public:
-    __ref__():ptr(nullptr){};
+    __ref__():ptr(nullptr){
+    };
 
     __ref__( T *p ):ptr(nullptr){
-        (*this) = p;
+        *this = p;
     }
 
-    __ref__(const __ref__ &o ):ptr(nullptr){
-        (*this) = o.ptr;
+    template<typename OT>
+    __ref__(__ref__<OT> &o):ptr(nullptr){
+        *this = o.ptr;
+    }
+    
+    template<typename OT>
+    __ref__(const __ref__<OT> &o):ptr(nullptr){
+        *this = o.ptr;
+    }
+
+    template<typename OT>
+    __ref__(__ref__<OT>&&o):ptr(nullptr){
+        ptr = o.ptr;
+        o.ptr = nullptr;
+    }
+
+    template<typename OT>
+    __ref__(const __ref__<OT>&&o):ptr(nullptr){
+        ptr = o.ptr;
+        ptr->__hold__();
     }
 
     __ref__<T> &operator =(T *p){
@@ -184,11 +203,17 @@ public:
         return *this;
     }
 
+    template<typename OT>
+    __ref__<T> &operator =(const __ref__<OT> &&ot){
+        *this = ot.ptr;
+        return *this;
+    }
+
     ~__ref__(){
         if(ptr) ptr->__release__();
     }
 
-    T *operator ->() const{
+    T *operator ->() const {
         return ptr;
     }
 
@@ -391,6 +416,16 @@ namespace up_java {
                 while( *x ) x++;
                 return uintptr_t(x) - uintptr_t(ptr);
             }
+
+            bool equals( const __ref__<uc_String> other ){
+                const char *x = ptr;
+                const char *y = other->__c_str();
+                while( *x && *x == *y ){
+                    x++;
+                    y++;
+                }
+                return *x == *y;
+            }
         
             const char *__c_str(){
                 return ptr;
@@ -447,7 +482,7 @@ inline constexpr double __add__(double l, double r){
 }
 
 __ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, __ref__<up_java::up_lang::uc_String> r){
-    char *ch = new char[l->length() + r->length()];
+    char *ch = new char[l->length() + r->length() + 1];
     const char *lch = l->__c_str();
     const char *rch = r->__c_str();
     __ref__<up_java::up_lang::uc_String> ret = new up_java::up_lang::uc_String( ch );

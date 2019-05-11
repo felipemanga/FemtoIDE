@@ -197,7 +197,7 @@ function sortTypes(){
 }
 
 function writeClassInline( type ){
-    let out = `class ${type.name} : public ${writePath(type.extends)} {`;
+    let out = `class uc_${type.name} : public ${writePath(type.extends)} {`;
     out += "public:\n";
     
     type.fields.forEach( field => {
@@ -235,7 +235,7 @@ function writeClassDecl( unit, type, dependencies ){
     return out;
 
     function writeTypes( t ){
-        if( t.cppType != "class" || t.isInterface )
+        if( t.cppType != "class" )
             return;
 
         if( t.implements.find( i => i.name.length == 1 && i.name[0] == "__stub_only__" ) )
@@ -243,17 +243,21 @@ function writeClassDecl( unit, type, dependencies ){
 
         let sep = ', ';
         out += `${indent}class uc_${t.name} `;
-        if( !t.extends || t.extends.name[0] != "__raw__" ){
-            out += ': public ';
-            out += t.extends ? writePath(t.extends) : "up_java::up_lang::uc_Object";
-        }
+        if( t.isInterface ){
+        }else{
+            if( !t.extends || t.extends.name[0] != "__raw__" ){
+                out += ': public ';
+                let base = t.extends ? writePath(t.extends) : "up_java::up_lang::uc_Object";
+                out += base;
+            }
 
-        t.implements.forEach( impl =>{
-            if( impl.name.length == 1 && impl.name[0] == "__stub__" )
-                return;
-            out += `${sep}public ${writeType(impl)}`;
-            sep = ', ';
-        });
+            t.implements.forEach( impl =>{
+                if( impl.name.length == 1 && impl.name[0] == "__stub__" )
+                    return;
+                out += `${sep}public virtual ${writePath(impl)}`;
+                sep = ', ';
+            });
+        }
 
         out += ` {\n${indent}public:\n`;
         push();
@@ -267,12 +271,17 @@ function writeClassDecl( unit, type, dependencies ){
             out += ";\n";
         });
 
-        // out += `${indent}virtual ~uc_${t.name}();\n`;
-        if( !t.extends || t.extends.name[0] != "__raw__" ){
+        if( t.isInterface ){
+            out += `${indent}virtual bool __instanceof__( uint32_t id );\n`;
+            out += `${indent}virtual ~uc_${t.name}(){}\n`;
+            out += `${indent}virtual void __hold__() = 0;\n`;
+            out += `${indent}virtual void __release__() = 0;\n`;
+        }else if( !t.extends || t.extends.name[0] != "__raw__" ){
             if( t.fields.length )
                 out += `${indent}virtual void __mark__();\n`;
             out += `${indent}static const uint32_t __id__ = ${t.id};\n`;
             out += `${indent}virtual bool __instanceof__( uint32_t id );\n`;
+            out += `${indent}virtual ~uc_${t.name}(){}\n`;
         }
         pop();
         out += `${indent}};\n`;
@@ -332,7 +341,7 @@ function writeMethodBody( method, t ){
     push();
 
     if( !method.isStatic )
-        out += `${indent}__ref__<${writePath(t)}> __ref__${refid++} = this;\n`;
+        out += `${indent}__ref__<${writePath(t, false, method)}> __ref__${refid++} = this;\n`;
 
     out += writeBlock( method.body );
     
@@ -354,7 +363,7 @@ function writePath( expr, clean ){
     }else{
         trail = [];
         let e = expr;
-        while( e ){
+        while( e && e.name ){
             trail.unshift(e);
             e = e.scope;
         }
@@ -541,7 +550,7 @@ function writeExpression( expr ){
         e = writeExpression(expr.left);
         out += writeType(expr.type, true) + "(";
         if( expr.type.isReference ){
-            out += "static_cast<";
+            out += "dynamic_cast<";
             out += writeType(expr.type, false);
             out += ">(";
             out += e.out;
@@ -569,7 +578,7 @@ function writeExpression( expr ){
             out += writeType(ref.extends, false);
             out += "{";
             out += writeClassInline(ref);
-            out += "return new " + ref.name;
+            out += "return new uc_" + ref.name;
             close = ";})()";
             type = ref.extends.getTarget();
         }else{
@@ -799,7 +808,7 @@ function writeStatement( stmt, block, noSemicolon ){
     case "whileStatement":
         out += indent + "while( ";
         out += writeExpression(stmt.condition).out;
-        out += ")\n";
+        out += " )\n";
         if( stmt.body.type != "block" ){
             out += `${indent}{\n`;
             push();
@@ -925,7 +934,7 @@ function writeClassImpl( unit ){
             });            
         }
 
-        if( t.cppType != "class" || t.isInterface || t.isNative )
+        if( t.cppType != "class" || t.isNative )
             return;
 
         if( !t.implements.find(i=>i.name == "__stub_only__") ){
@@ -990,7 +999,7 @@ ${indent}\tif(id == ${t.id}) return true;
 ${indent}\treturn ${t.extends&&t.extends.name[0]!="__raw__"?writePath(t.extends)+"::__instanceof__(id)":"false"};
 ${indent}}
 `;
-            if( t.fields.length ){
+            if( t.fields.length && !t.isInterface ){
                 out += `${indent}void uc_${t.name}::__mark__(){\n`;
                 push();
                 out += `${indent}if(__is_marked__()) return;\n`;

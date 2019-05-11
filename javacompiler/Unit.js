@@ -158,7 +158,6 @@ class Unit {
         const ImportDeclaration = require("./ImportDeclaration.js");
         const Clazz = require("./Clazz.js");
         const {Enum} = require("./Enum.js");
-        const Interface = require("./Interface.js");
 
         let ocu = node.children.ordinaryCompilationUnit[0];
         if( !ocu )
@@ -184,7 +183,7 @@ class Unit {
                     let clazz;
 
                     if( kdeclNode.name == "interfaceDeclaration" )
-                        clazz = Interface;
+                        clazz = Clazz;
                     else if( kdeclNode.name == "classDeclaration" && kdeclNode.children.normalClassDeclaration )
                         clazz = Clazz;
                     else if( kdeclNode.name == "classDeclaration" && kdeclNode.children.enumDeclaration )

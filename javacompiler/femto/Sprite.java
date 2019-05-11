@@ -2,7 +2,7 @@ package femto;
 
 import mode.HiRes16Color;
 
-public class Sprite extends Object implements __stub__ {
+public class Sprite implements __stub__ {
     public ubyte currentFrame, startFrame, endFrame, flags;
     public uint frameTime;
     public float x, y;

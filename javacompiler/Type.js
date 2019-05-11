@@ -2,13 +2,14 @@ let {Unit, getUnit} = require("./Unit.js");
 
 const nativeTypeList = "long,ulong,int,uint,short,ushort,char,byte,ubyte,boolean,float,void,double,pointer".split(",");
 
-let anonId = 0;
+let typeId = 1;
 
 class Type {
 
     constructor( node, key, cppType, parent ){
         this.scope = parent;
         this.cppType = cppType;
+        this.id = typeId++;
 
         if( typeof node == "string" ){
             this.name = node;
@@ -20,7 +21,7 @@ class Type {
         let modifierNode = (node.children.classModifier||[])[0];
         this.isPublic = (modifierNode && !!modifierNode.children.Public) || false;
         if( !key ){
-            this.name = "__anon__" + anonId++;
+            this.name = "__anon__" + typeId;
         }else{
             let declNode = (node.children[ key ]||[])[0];
             if( !declNode )

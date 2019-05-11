@@ -4,17 +4,18 @@ const {Method, Constructor} = require("./Method.js");
 const {Field} = require("./Field.js");
 const {ast} = require("./AST.js");
 
-let classId = 1;
 class Clazz extends Type {
     constructor( node, parent ){
         super(
             node,
-            (typeof node == "string" || node.children.normalClassDeclaration ? "normalClassDeclaration" : null),
+            (!node.children || node.children.normalClassDeclaration ?
+             "normalClassDeclaration" :
+             (node.children.normalInterfaceDeclaration ? "normalInterfaceDeclaration" : null)
+            ),
             "class",
             parent
         );
         
-        this.id = classId++;
         this.fields = [];
         this.methods = [];
         this.types = [];
@@ -27,90 +28,126 @@ class Clazz extends Type {
         if( typeof node == "string" )
             return;
 
-        let memberNodes;
-
         if( node.children.normalClassDeclaration ){
+            this.initClass( node );
+        }else if( node.children.classBody ){
+            this.initAnonClass( node );
+        }else if( node.children.normalInterfaceDeclaration ){
+            this.initInterface( node );
+        }
 
-            if( node.children.normalClassDeclaration[0].children.superclass )
-                this.extends = new TypeRef(
-                    node
-                        .children
-                        .normalClassDeclaration[0]
-                        .children
-                        .superclass[0]
-                        .children
-                        .classType[0]
+    }
+
+    initClass( node ){
+
+        if( node.children.normalClassDeclaration[0].children.superclass )
+            this.extends = new TypeRef(
+                node
+                    .children
+                    .normalClassDeclaration[0]
+                    .children
+                    .superclass[0]
+                    .children
+                    .classType[0]
+                    .children
+                    .Identifier.map( i => i.image ),
+                false,
+                this.scope
+            );
+
+
+        if( node.children.normalClassDeclaration[0].children.superinterfaces )
+            node
+            .children
+            .normalClassDeclaration[0]
+            .children
+            .superinterfaces[0]
+            .children
+            .interfaceTypeList[0]
+            .children
+            .interfaceType
+            .forEach( intType => {
+                this.implements.push( new TypeRef(
+                    Object
+                        .values(intType.children)[0][0]
                         .children
                         .Identifier.map( i => i.image ),
                     false,
-                    parent
-                );
+                    this.scope
+                ));
+            });
+        
+        
+        this.initMembers( node.children
+                          .normalClassDeclaration[0].children
+                          .classBody[0].children
+                          .classBodyDeclaration );
+        
+    }
 
+    initInterface( node ){
+        this.isInterface = true;
+        node.children
+            .normalInterfaceDeclaration[0].children
+            .interfaceBody[0].children
+            .interfaceMemberDeclaration
+            .forEach( n => {
 
-            if( node.children.normalClassDeclaration[0].children.superinterfaces )
-                node
-                .children
-                .normalClassDeclaration[0]
-                .children
-                .superinterfaces[0]
-                .children
-                .interfaceTypeList[0]
-                .children
-                .interfaceType
-                .forEach( intType => {
-                    this.implements.push( new TypeRef(
-                        Object
-                            .values(intType.children)[0][0]
-                            .children
-                            .Identifier.map( i => i.image ),
-                        false,
-                        parent
-                    ));
-                });
-            
-            
-            memberNodes = node.children
-                .normalClassDeclaration[0].children
-                .classBody[0].children
-                .classBodyDeclaration;
-            
-        }else if( node.children.classBody ){
-
-            this.isInline = true;
-
-            this.extends = new TypeRef(
-                node.children.classOrInterfaceTypeToInstantiate[0]
-                    .children.Identifier.map( i=>i.image ),
-                false,
-                parent
-            );
-
-            memberNodes = node.children.classBody[0].children
-                .classBodyDeclaration;            
-            
-        }
-
-        if( memberNodes ){
-            memberNodes.forEach( n => {
-
-                let decl = n.children.constructorDeclaration
-                    ?
-                    n.children.constructorDeclaration[0]
-                    : Object.values(
-                    Object.values(
-                        n.children
-                    )[0][0].children
+                let decl =Object.values(
+                    n.children
                 )[0][0];
 
                 if( !this[decl.name] ){
                     console.error( decl );
                     ast(decl);
-                    throw "ERROR: unknown member node";
+                    throw "ERROR: unknown interface member node";
                 }
+                
                 this[ decl.name ]( decl );
 
-            });
-        }
+            });      
+    }
+
+    initAnonClass( node ){
+
+        this.isInline = true;
+
+        this.extends = new TypeRef(
+            node.children.classOrInterfaceTypeToInstantiate[0]
+                .children.Identifier.map( i=>i.image ),
+            false,
+            this.scope
+        );
+
+        this.initMembers( node.children
+                          .classBody[0].children
+                          .classBodyDeclaration );            
+        
+    }
+
+    initMembers( memberNodes ){
+        if( !memberNodes )
+            return;
+        
+        memberNodes.forEach( n => {
+
+            let decl = n.children.constructorDeclaration
+                ?
+                n.children.constructorDeclaration[0]
+                : Object.values(
+                    Object.values(
+                        n.children
+                    )[0][0].children
+                )[0][0];
+
+            if( !this[decl.name] ){
+                console.error( decl );
+                ast(decl);
+                throw "ERROR: unknown member node";
+            }
+            this[ decl.name ]( decl );
+
+        });
     }
 
     resolve( fqcn, trail ){
@@ -168,6 +205,36 @@ class Clazz extends Type {
         this.types.push( new Clazz(node, this) );
     }
 
+    constantDeclaration( node ){
+        let modifierNodes = node.children.fieldModifier || [];
+        let typeNode = Object.values(node.children.unannType[0].children)[0];
+        let varDeclNodes = node.children
+            .variableDeclaratorList[0].children
+            .variableDeclarator;
+        
+        varDeclNodes.forEach( node => {
+            let field = new Field(
+                modifierNodes,
+                typeNode,
+                node.children
+                    .variableDeclaratorId[0]
+                    .children
+                    .Identifier[0]
+                    .image,
+                node.children
+                    .variableDeclaratorId[0]
+                    .children
+                    .dims,
+                node,
+                this
+            );
+            
+            field.isStatic = true;
+            
+            this.fields.push( field );
+        });
+    }
+    
     fieldDeclaration( node ){
         let modifierNodes = node.children.fieldModifier || [];
         let typeNode = Object.values(node.children.unannType[0].children)[0];
@@ -191,6 +258,10 @@ class Clazz extends Type {
                 this
             ) );
         });
+    }
+
+    interfaceMethodDeclaration( node ){
+        this.methods.push( new Method(node, this) );        
     }
 
     methodDeclaration( node ){

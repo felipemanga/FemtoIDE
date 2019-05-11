@@ -2,7 +2,7 @@ package femto;
 
 import mode.HiRes16Color;
 
-public class Image extends Object implements __stub__ {
+public class Image implements __stub__ {
 
     Image(){
     }

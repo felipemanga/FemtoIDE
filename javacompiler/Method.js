@@ -105,6 +105,11 @@ class Method {
         if( !node )
             return;
 
+        if( node.name == "interfaceMethodDeclaration" ){
+            this.isAbstract = !node.children.methodBody ||
+                !node.children.methodBody[0].children.block;
+        }
+
         const {Field} = require("./Field.js");
         const {TypeRef} = require("./TypeRef.js");
         const {Block} = require("./Block.js");

@@ -20,10 +20,12 @@ namespace up_java {
         typedef uint8_t uc_ubyte;
         typedef bool uc_boolean;
         typedef float uc_float;
-        typedef float uc_double;
+        typedef double uc_double;
         typedef char uc_char;
         typedef void uc_void;
         typedef const void *uc_pointer;
+
+        class uc_Object;
     }
 }
 
@@ -40,54 +42,108 @@ namespace up_java {
             uc_Object(){
                 __next__ = __first__;
                 __first__ = this;
-                printf("creating\n");
+                // printf("creating\n");
             }
 
             virtual ~uc_Object(){
-                printf("destroying\n");
+                // printf("destroying\n");
             };
             virtual bool __instanceof__( uint32_t id );
-
-            virtual void __mark__(){ __generation__ = __next_generation__; }
-            void __hold__(){ __refCount__++; }
-            void __release__(){ __refCount__--; }
+            
+            bool __is_marked__(){
+                return __generation__ == __next_generation__;
+            }
+            
+            virtual void __mark__(){
+                __generation__ = __next_generation__;
+            }
+            virtual void __hold__(){
+                __refCount__++;
+            }
+            virtual void __release__(){
+                __refCount__--;
+                // printf("release %p %d\n", this, __refCount__ );
+            }
             static void __gc__();
         };
     }
-};
+}
 
 using uc_Object = up_java::up_lang::uc_Object;
 
 template<typename T>
 class __ref__ {
-	T *ptr;
+    T *ptr;
 public:
-	__ref__():ptr(nullptr){};
+    __ref__():ptr(nullptr){
+        printf("ref empty %p\n", this);
+    };
 
-	__ref__( T *p ):ptr(nullptr){
-		(*this) = p;
-	}
+    __ref__( T *p ):ptr(nullptr){
+        printf("ref assign %p from %p\n", p, this);
+        *this = p;
+    }
 
-	__ref__<T> &operator =(T *p){
-		if( p ) p->__hold__();
-		if( ptr ) ptr->__release__();
-		ptr = p;
-		return *this;
-	}
+    template<typename OT>
+    __ref__(__ref__<OT> &o):ptr(nullptr){
+        printf("ref copy %p from %p\n", o.ptr, this);
+        *this = o.ptr;
+    }
+    
+    template<typename OT>
+    __ref__(const __ref__<OT> &o):ptr(nullptr){
+        printf("ref const copy %p from %p\n", o.ptr, this);
+        *this = o.ptr;
+    }
 
-	~__ref__(){
-		if(ptr) ptr->__release__();
-	}
+    template<typename OT>
+    __ref__(__ref__<OT>&&o):ptr(nullptr){
+        printf("move ref %p from %p to %p\n", o.ptr, &o, this);
+        ptr = o.ptr;
+        o.ptr = nullptr;
+    }
 
-	T *operator ->(){
-		return ptr;
-	}
+    template<typename OT>
+    __ref__(const __ref__<OT>&&o):ptr(nullptr){
+        ptr = o.ptr;
+        ptr->__hold__();
+    }
+    
+    __ref__<T> &operator =(T *p){
+        printf("(ref %p from %p)\n", p, this);
+        if( p ){
+            p->__hold__();
+        }
+        if( ptr ){
+            ptr->__release__();
+        }
+        ptr = p;
+        return *this;
+    }
 
-	operator T *(){
-		return ptr;
-	}
+    template<typename OT>
+    __ref__<T> &operator =(const __ref__<OT> &&ot){
+        *this = ot.ptr;
+        return *this;
+    }
+
+    ~__ref__(){
+        if(ptr){
+            ptr->__release__();
+        }
+    }
+
+    T *operator ->() const {
+        return ptr;
+    }
+
+    operator T *() const {
+        return ptr;
+    }
 
 };
+
+uint32_t dudBytes;
 
 template<typename T, bool isReference>
 class uc_Array : public uc_Object {
@@ -96,56 +152,37 @@ class uc_Array : public uc_Object {
 
 public:
     TP *elements;
-    int32_t *refCount;
     uint32_t length;
 
     uc_Array() : elements(nullptr), length(0){}
 
-    uc_Array( uint32_t length ){
+    uc_Array( uint32_t length ) : elements(nullptr) {
+        __ref__<uc_Array<T, isReference>> lock = this;
         elements = new TP[length];
         this->length = length;
         for( uint32_t i=0; i<length; ++i )
             elements[i] = nullptr;
-	refCount = new int;
-	*refCount = 1;
+    }
+
+    virtual ~uc_Array(){
+        release();
     }
 
     void release(){
-        if( !refCount ) return;
-        *refCount--;
-        if( !*refCount ){
-            delete refCount;
-            delete elements;
+        if( elements ){
+            delete[] elements;
             elements = nullptr;
         }
     }
 
-    void hold(){
-        *refCount++;
-    }
-
-    Self& operator=( __ref__<Self>& other ){
-        (*this) = *((Self *) other);
-return *this;
-    }
-
-    Self &operator =(Self &other){
-        other.hold();
-        if( elements ) release();
-        elements = other.elements;
-        refCount = other.refCount;
-        return *this;
-    }
-
     Self *loadValues( std::initializer_list<TP> init ){
-        if( elements ) release();
+        __ref__<uc_Array<T, isReference>> lock = this;
+        release();
         elements = new TP[init.size()];
         this->length = init.size();
         auto it = init.begin();
         for( uint32_t i=0; i<init.size(); ++i )
             elements[i] = *it++;
-    	refCount = new int;
-    	*refCount = 1;
         return this;
     }
 
@@ -155,6 +192,7 @@ return *this;
 
     virtual void __mark__() override {
         uc_Object::__mark__();
+        if( !elements ) return;
         for( uint32_t i=0; i<length; ++i ){
             if( elements[i] )
                 elements[i]->__mark__();
@@ -170,60 +208,47 @@ class uc_Array<T, false> : public uc_Object {
 
 public:
     T *elements;
-    int32_t *refCount;
     uint32_t length;
 
     uc_Array() : elements(nullptr), length(0){}
 
-    uc_Array( uint32_t length ){
+    uc_Array( uint32_t length ) : elements(nullptr) {
+        __ref__<uc_Array<T, false>> lock = this;
         elements = new T[length];
         this->length = length;
         for( uint32_t i=0; i<length; ++i )
             elements[i] = 0;
-	refCount = new int;
-	*refCount = 1;
+    }
+
+    virtual ~uc_Array(){
+        release();
     }
 
     void release(){
-        if( !refCount ) return;
-        *refCount--;
-        if( !*refCount ){
-            delete refCount;
-            delete elements;
+        if( elements ){
+            delete[] elements;
             elements = nullptr;
         }
     }
 
-    void hold(){
-        *refCount++;
-    }
-
-    Self& operator=( __ref__<Self>& other ){
-        (*this) = *((Self *) other);
-        return *this;
-    }
-
-    Self &operator =(Self &other){
-        other.hold();
-        if( elements ) release();
-        elements = other.elements;
-        refCount = other.refCount;
-        return *this;
-    }
 
     Self *loadValues( std::initializer_list<T> init ){
+        __ref__<uc_Array<T, false>> lock = this;
         if( elements ) release();
         elements = new T[init.size()];
         this->length = init.size();
         auto it = init.begin();
         for( uint32_t i=0; i<init.size(); ++i )
             elements[i] = *it++;
-    	refCount = new int;
-    	*refCount = 1;
         return this;
     }
 
-    T& access( int32_t offset ){ // to-do: bounds-check?
+    T& access( uint32_t offset ){ // to-do: bounds-check?
+        if( offset >= length ){
+            T *r = (T*) &dudBytes;
+            dudBytes = 0;
+            return *r;
+        }
         return elements[ offset ];
     }
 
@@ -283,7 +308,7 @@ namespace up_java {
         
             ~uc_String(){
 #ifndef POKITTO
-                if( !isStatic )
+                if( !isStatic && ptr )
 #else
                     if( std::uintptr_t(ptr) >= 0x10000000 )   
 #endif
@@ -309,12 +334,27 @@ namespace up_java {
                 while( *x ) x++;
                 return uintptr_t(x) - uintptr_t(ptr);
             }
+
+            bool equals( const __ref__<uc_String> other ){
+                return true;
+                
+                const char *x = ptr;
+                const char *y = other->__c_str();
+                if( !!x ^ !!y )
+                    return false;
+                
+                while( *x && *x == *y ){
+                    x++;
+                    y++;
+                }
+                return *x == *y;
+            }
         
             const char *__c_str(){
                 return ptr;
             }
 
-            static uc_String *valueOf( uint32_t v ){
+            static __ref__<uc_String> valueOf( uint32_t v ){
                 char *c = new char[11];
                 miniitoa( v, c, 10 );
                 return new uc_String(c);
@@ -323,7 +363,7 @@ namespace up_java {
     }    
 }
 
-up_java::up_lang::uc_String *__str__( const char *s ){
+__ref__<up_java::up_lang::uc_String> __str__( const char *s ){
     up_java::up_lang::uc_String *str = new up_java::up_lang::uc_String(s);
 #ifndef POKITTO
     str->isStatic = true;
@@ -336,6 +376,14 @@ inline constexpr const void *__add__(const void *l, int32_t r ){
 }
 
 inline constexpr int64_t __add__(int64_t l, int64_t r){
+    return l+r;
+}
+
+inline constexpr int __add__(int32_t l, long int r){
+    return l+r;
+}
+
+inline constexpr int __add__(uint32_t l, long int r){
     return l+r;
 }
 
@@ -359,7 +407,7 @@ inline constexpr int16_t __add__(int16_t l, int16_t r){
     return l+r;
 }
 
-inline constexpr float __add__(float l, float r){
+inline constexpr up_java::up_lang::uc_float __add__(up_java::up_lang::uc_float l, up_java::up_lang::uc_float r){
     return l+r;
 }
 
@@ -367,11 +415,11 @@ inline constexpr double __add__(double l, double r){
     return l+r;
 }
 
-up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_String *r){
-    char *ch = new char[l->length() + r->length()];
+__ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, __ref__<up_java::up_lang::uc_String> r){
+    char *ch = new char[l->length() + r->length() + 1];
     const char *lch = l->__c_str();
     const char *rch = r->__c_str();
-    up_java::up_lang::uc_String *ret = new up_java::up_lang::uc_String( ch );
+    __ref__<up_java::up_lang::uc_String> ret = new up_java::up_lang::uc_String( ch );
     char *i = ch;
     if( lch ) while( *lch ) *i++ = *lch++;
     if( rch ) while( *rch ) *i++ = *rch++;
@@ -379,7 +427,6 @@ up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up
     return ret;
 }
 
-up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_int r ){
-    up_java::up_lang::uc_String *sr = up_java::up_lang::uc_String::valueOf( r );
-    return __add__(l, sr);
+__ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, up_java::up_lang::uc_int r ){
+    return __add__(l, up_java::up_lang::uc_String::valueOf( r ));
 }
