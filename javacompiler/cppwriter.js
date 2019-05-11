@@ -1019,7 +1019,7 @@ ${indent}}
                 }
 
                 t.fields.forEach( field => {
-                    if( field.isStatic )
+                    if( field.isStatic || field.type.getTarget().isEnum )
                         return;
 
                     if( field.type.isArray || field.type.isReference ) {
