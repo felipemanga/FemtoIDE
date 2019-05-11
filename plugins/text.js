@@ -16,6 +16,12 @@ APP.addPlugin("Text", ["Project"], _=>{
             APP.remove(this);
         }
 
+        onResize(){
+            APP.async(_=>{
+                this.ace.resize(true);
+            });
+        }
+
         onCommandStarted(){
             this.ace.setReadOnly(true);
         }
