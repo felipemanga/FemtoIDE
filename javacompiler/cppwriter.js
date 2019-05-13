@@ -3,7 +3,7 @@ const {TypeRef} = require("./TypeRef.js");
 
 let platform, platformDir;
 
-let indent, units;
+let indent, units, isDebugMode;
 
 function push(){
     indent += "\t";    
@@ -279,7 +279,7 @@ function writeClassDecl( unit, type, dependencies ){
             out += `${indent}virtual void __release__() = 0;\n`;
         }else if( !t.extends || t.extends.name[0] != "__raw__" ){
             if( t.fields.length )
-                out += `${indent}virtual void __mark__();\n`;
+                out += `${indent}virtual void __mark__(int m);\n`;
             out += `${indent}static const uint32_t __id__ = ${t.id};\n`;
             out += `${indent}virtual bool __instanceof__( uint32_t id );\n`;
             out += `${indent}virtual ~uc_${t.name}(){}\n`;
@@ -475,8 +475,10 @@ function writeExpression( expr ){
         e = writeExpression( expr.left );
         type = e.type;
         out += e.out;
-        out += " " + expr.operation + " ";
-        out += writeExpression( expr.right ).out;
+        if( expr.right ){
+            out += " " + expr.operation + " ";
+            out += writeExpression( expr.right ).out;
+        }
         break;
 /*
     case "unaryExpression":
@@ -498,10 +500,22 @@ function writeExpression( expr ){
         break;
 
     case "arrayAccessSuffix":
-        out += "->access("+writeExpression(expr.right).out+")";
-        type = null;
+        if( expr.isLValue ){
+            out += "->arrayWrite(";
+            out += writeExpression(expr.right).out;
+            out += ", ";
+            e = writeExpression(expr.isLValue);
+            out += e.out;
+            type = e.type;
+        }else{
+            out += "->arrayRead(";
+            e = writeExpression(expr.right);
+            out += e.out;
+            type = null;
+        }
+        out += ")";
         break;
-
+        
     case "resolve":
         out += writePath(expr);
         if( !expr.trail || !expr.trail.length ){
@@ -712,7 +726,8 @@ function writeStatement( stmt, block, noSemicolon ){
     switch( stmt.type ){
     case "variableDeclarator":
         let local = block.locals.find( local => local.name == stmt.name );
-        out += indent + writeType(local.type, true) + " ";
+        out += indent;
+        out += writeType(local.type, true) + " ";
         if( stmt.expression ){
             out += writeExpression(stmt.expression).out;
         }else{
@@ -885,7 +900,7 @@ function writeRawData( data ){
 function writePalette( colors ){
     let out = "";
     out += `${indent}static const uint16_t colors[] = {${colors.join(",")}};\n`;
-    out += `${indent}uint16_t *palette = &screen->palette->access(0);\n`;
+    out += `${indent}auto palette = &screen->palette->arrayRead(0);\n`;
     out += `${indent}for( uint32_t i=0; i<${colors.length}; ++i )\n`;
     out += `${indent}	palette[i] = colors[i];\n`;
     return out;
@@ -1012,13 +1027,13 @@ ${indent}}
             }
             
             if( t.fields.length && !t.isInterface ){
-                out += `${indent}void uc_${t.name}::__mark__(){\n`;
+                out += `${indent}void uc_${t.name}::__mark__(int m){\n`;
                 push();
-                out += `${indent}if(__is_marked__()) return;\n`;
+                out += `${indent}if(__is_marked__(m)) return;\n`;
                 if( t.extends ){
-                    out += `${indent}${writePath(t.extends)}::__mark__();\n`;
+                    out += `${indent}${writePath(t.extends)}::__mark__(m);\n`;
                 }else{
-                    out += `${indent}uc_Object::__mark__();\n`;
+                    out += `${indent}uc_Object::__mark__(m);\n`;
                 }
 
                 t.fields.forEach( field => {
@@ -1027,7 +1042,7 @@ ${indent}}
 
                     if( field.type.isArray || field.type.isReference ) {
                         out += `${indent}if( ${field.name} ) `;
-                        out += `${field.name}->__mark__();\n`;
+                        out += `${field.name}->__mark__(2);\n`;
                     }
                 });
 
@@ -1061,7 +1076,8 @@ function addUnit( unit ){
 
 }
 
-function write( unit, main, plat ){
+function write( unit, main, plat, dbg ){
+    isDebugMode = dbg;
 
     units = {};
 

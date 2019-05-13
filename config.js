@@ -1,5 +1,6 @@
 APP.bindKeys("global", {
     "C-o":APP.focusFilter,
+    "C-c g":APP.displayGeneratedCPP,
     "C-x C-f": APP.findFile,
     "C-c b": APP.compile,
     "C-c r": APP.run,

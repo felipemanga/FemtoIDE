@@ -3,17 +3,17 @@ const {TypeRef} = require("./TypeRef.js");
 const {ast} = require("./AST.js");
 
 class Expression {
-    constructor( expr, scope ){
+    constructor( expr, scope, opts ){
         this.scope = scope;
         this.srcExpr = expr;
-        this.dispatch(expr);
+        this.dispatch(expr, opts);
     }
 
-    dispatch(expr){
+    dispatch(expr, opts){
         this.name = expr.name;
         this.node = expr;
         if( this[ expr.name ] )
-            this[expr.name]( expr );
+            this[expr.name]( expr, opts );
         else{
             console.error("Invalid expr: ", expr, this.scope);
             ast(this.srcExpr);
@@ -63,20 +63,20 @@ class Expression {
         this.operation = "referenceType";
     }
 
-    expression(expr){
-        this.dispatch( Object.values(expr.children)[0][0] );
+    expression(expr, opts){
+        this.dispatch( Object.values(expr.children)[0][0], opts );
     }
 
-    ternaryExpression(expr){
+    ternaryExpression(expr, opts){
         if( !expr.children.QuestionMark )
-            return this.dispatch( Object.values(expr.children)[0][0] );
+            return this.dispatch( Object.values(expr.children)[0][0], opts );
         this.operation = "ternary";
         this.condition = new Expression( expr.children.binaryExpression[0], this.scope );
         this.left = new Expression( expr.children.expression[0], this.scope );
         this.right = new Expression( expr.children.expression[1], this.scope );
     }
 
-    binaryExpression(expr){
+    binaryExpression(expr, opts){
 
         if( expr.children.BinaryOperator ){
             
@@ -145,9 +145,15 @@ class Expression {
             this.operation = expr.children
                 .AssignmentOperator[0].image;
 
-            this.left = new Expression( expr.children.unaryExpression[0], this.scope );
+            let right =  new Expression( expr.children.expression[0], this.scope );
 
-            this.right = new Expression( expr.children.expression[0], this.scope );
+            this.left = new Expression( expr.children.unaryExpression[0], this.scope, {isLValue:_=>{
+                let ret = right;
+                right = null;
+                return ret;
+            }} );
+
+            this.right = right;
             return;
         }else if( expr.children.Instanceof ){
             this.operation = "instanceof";
@@ -165,7 +171,7 @@ class Expression {
         this.unaryExpression(expr);
     }
 
-    unaryExpression(expr){
+    unaryExpression(expr, opts){
 
         if( expr.children.UnarySuffixOperator ){
 
@@ -178,13 +184,16 @@ class Expression {
             this.right = new Expression( expr.children.primary[0], this.scope );
 
         }else{
-            this.dispatch( expr.children.primary[0] );
+            this.dispatch( expr.children.primary[0], opts );
         }
     }
 
-    arrayAccessSuffix( expr ){
+    arrayAccessSuffix( expr, opts ){
         this.operation = this.name;
-        this.right = new Expression( expr.children.expression[0], this.scope );
+        this.right = new Expression(
+            expr.children.expression[0],
+            this.scope
+        );
     }
 
     methodInvocationSuffix( expr ){
@@ -200,7 +209,7 @@ class Expression {
             .map( arg => new Expression( arg, this.scope ) );
     }
 
-    primary( expr ){
+    primary( expr, opts ){
         let left = expr
             .children
             .primaryPrefix[0]
@@ -385,8 +394,9 @@ class Expression {
 
         let suffix = expr.children.primarySuffix;
         if( suffix ){
+            let op;
             this.right = suffix.map( s =>{
-                let op = Object.keys(s.children)[0];
+                op = Object.keys(s.children)[0];
                 if( op == "Dot" ){
                     return s.children.Identifier[0].image;
                 }else{
@@ -398,7 +408,9 @@ class Expression {
                     return op;
                 }
             });
-                
+            
+            if( op && op.operation )
+                op.isLValue = opts && opts.isLValue();
         }
     }
 }

@@ -57,7 +57,7 @@ public class Sprite implements __stub__ {
             y += screen.cameraY;
         }        
         
-        __inline_cpp__("const up_femto::uc_FrameRef &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, screen);__blit_4bpp( f.frame, x.getInteger() + f.offsetX, y.getInteger() + f.offsetY, &screen->buffer->access(0), flip, mirror )");
+        __inline_cpp__("const up_femto::uc_FrameRef &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, screen);__blit_4bpp( f.frame, x.getInteger() + f.offsetX, y.getInteger() + f.offsetY, &screen->buffer->arrayRead(0), flip, mirror )");
     }
 
     pointer getFrameDataForScreen( uint number, HiRes16Color screen ){

@@ -280,7 +280,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             let unit = toAST( fqcn );
 
             if( unit ){
-                let output = require(`${DATA.appPath}/javacompiler/cppwriter.js`).write(unit, fqcn, DATA.project.target);
+                let output = require(`${DATA.appPath}/javacompiler/cppwriter.js`).write(unit, fqcn, DATA.project.target, DATA.buildMode == "DEBUG");
                 
                 let buffer = DATA.debugBuffer;
                 if( !DATA.debugBuffer ){

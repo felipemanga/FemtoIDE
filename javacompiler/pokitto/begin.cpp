@@ -163,7 +163,7 @@ namespace up_java {
 
         class uc_Object {
         public:
-            static uint8_t __next_generation__;
+            static uint32_t __gray_count__;
             static uint16_t __first__;
             uint16_t __next__;
             uint16_t __refCount__;
@@ -178,13 +178,22 @@ namespace up_java {
 
             virtual bool __instanceof__( uint32_t id );
 
-            bool __is_marked__(){
-                return (__next__&3) == __next_generation__;
+            bool __is_marked__(int m){
+                uint32_t c = __next__&3;
+                
+                if( m == 2 ){
+                    if( !c ){
+                        __next__ |= 2;
+                        __gray_count__++;
+                    }
+                    return true;
+                }
+                
+                return c == 3;
             }
 
-            virtual void __mark__(){
-                __next__ = (__next__ & ~3) | __next_generation__;
-                // __generation__ = __next_generation__;
+            virtual void __mark__(int m){
+                __next__ |= m;
             }
             void __hold__(){ __refCount__++; }
             void __release__(){ __refCount__--; }
@@ -246,6 +255,9 @@ public:
     }
 
     T *operator ->() const {
+        if(!ptr){
+            __print__("Null pointer exception\n");
+        }
         return ptr;
     }
 
@@ -268,10 +280,9 @@ public:
 
     uc_Array() : elements(nullptr), length(0){}
 
-    uc_Array( uint32_t length ) : elements(nullptr) {
+    uc_Array( uint32_t length ) : elements(nullptr), length(length) {
         __ref__<uc_Array<T, isReference>> lock = this;
         elements = new TP[length];
-        this->length = length;
         for( uint32_t i=0; i<length; ++i )
             elements[i] = nullptr;
     }
@@ -298,16 +309,33 @@ public:
         return this;
     }
 
-    TP& access( int32_t offset ){ // to-do: bounds-check?
+    __ref__<T> arrayRead( int32_t offset ){ // to-do: bounds-check?
+        if( !elements || offset < 0 || offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
         return elements[ offset ];
     }
 
-    virtual void __mark__() override {
-        uc_Object::__mark__();
-        if( !elements ) return;
+    TP arrayWrite( int32_t offset, const TP &value ){
+        if( !elements || offset < 0 || offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+        return elements[ offset ] = value;
+    }
+
+    void __mark__(int m) override {
+        if( __is_marked__(m) )
+            return;
+        
+        uc_Object::__mark__(m);
+        
+        if( !elements )
+            return;
+        
         for( uint32_t i=0; i<length; ++i ){
-            if( elements[i] )
-                elements[i]->__mark__();
+            if( elements[i] ){
+                elements[i]->__mark__(m);
+            }
         }
     }
 
@@ -355,12 +383,18 @@ public:
         return this;
     }
 
-    T& access( uint32_t offset ){ // to-do: bounds-check?
-        if( offset >= length ){
-            T *r = (T*) &dudBytes;
-            dudBytes = 0;
-            return *r;
+    T &arrayRead( uint32_t offset ){ // to-do: bounds-check?
+        if( !elements || offset >= length ){
+            __print__("Array access out of bounds\n");
         }
+        return elements[ offset ];
+    }
+
+    T &arrayWrite( uint32_t offset, T value ){
+        if( !elements || offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+        elements[ offset ] = value;
         return elements[ offset ];
     }
 
@@ -372,7 +406,7 @@ template<typename T>
 using __array_nat = __ref__<uc_Array<T, false>>;
 
 
-uint8_t uc_Object::__next_generation__ = 1;
+uint32_t uc_Object::__gray_count__ = 0;
 uint16_t uc_Object::__first__ = 0;
 
 void __on_failed_alloc(){
@@ -381,26 +415,46 @@ void __on_failed_alloc(){
 
 void uc_Object::__gc__(){
     uc_Object *obj;
+    __gray_count__ = 0;
     for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
         obj = __objFromShort__(ptr);
-        if( obj->__refCount__ )
-            obj->__mark__();
+        uint32_t m = obj->__next__&3;
+        if( !m && obj->__refCount__ ){
+        }else if(m==2){
+            __gray_count__--;
+        }else{
+            continue;
+        }
+        obj->__mark__(3);
+    }
+    
+    while( __gray_count__ ){
+        __gray_count__ = 0;
+        for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
+            obj = __objFromShort__(ptr);
+            uint32_t m = obj->__next__&3;
+            if(m==2){
+                __gray_count__--;
+                obj->__mark__(3);
+                if( !__gray_count__ )
+                    break;
+            }
+        }
     }
 
     uint16_t *prev = &__first__;
     for( uint16_t ptr = __first__, next; ptr>>2; ptr = next ){
         uc_Object *obj = __objFromShort__(ptr);
         next = obj->__next__;
-        if( (next&3) != __next_generation__ ){
-            *prev = next&~3;
+        if( (next&3) != 3 ){
+            *prev = next & ~3;
             delete obj;
         }else{
+            obj->__next__ &= ~3;
             prev = &obj->__next__;
         }
     }
 	
-    __next_generation__ = (__next_generation__+1) & 3;
-
 }
 
 namespace up_java {
@@ -437,9 +491,14 @@ namespace up_java {
 
             bool __instanceof__( uint32_t id );
 
-            char access( uint32_t i ){
+            char arrayRead( uint32_t i ){
                 if(!ptr) return 0;
                 return ptr[i];
+            }
+
+            char arrayWrite( uint32_t i, char c ){
+                __print__("String modified exception\n");
+                return c;
             }
         
             uint32_t length(){

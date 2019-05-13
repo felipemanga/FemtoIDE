@@ -34,11 +34,11 @@ uc_ScreenMode::flush();
     "movs %[tmp], 0xF0" "\n"			\
     "str %[WRBit], [%[LCD], 124]" "\n"
 
-const uint8_t *scrbuf = (uint8_t*) &buffer->access(0);
+const uint8_t *scrbuf = (uint8_t*) &buffer->arrayRead(0);
 const uint8_t *end=&scrbuf[0x4BA0]+4;
 volatile uint32_t lpalette[16];
 for( uint32_t i=0; i<16; ++i )
-    lpalette[i] = uint32_t(palette->access(i)) << 3;
+    lpalette[i] = uint32_t(palette->arrayRead(i)) << 3;
 
 uint32_t WRBit = 1<<12, color = 0, tmp = 0;
 asm volatile(

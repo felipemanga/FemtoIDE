@@ -8,6 +8,10 @@ void miniitoa(unsigned long n, char *buf, uint8_t base=10 ){
     sprintf(buf, "%lu", n);
 }
 
+void __print__( const char *str ){
+    printf("%s", str);
+}
+
 namespace up_java {
     namespace up_lang {
         typedef int64_t uc_long;
@@ -186,7 +190,18 @@ public:
         return this;
     }
 
-    TP& access( int32_t offset ){ // to-do: bounds-check?
+    __ref__<T> arrayRead( int32_t offset ){ // to-do: bounds-check?
+        if( !elements || offset < 0 || offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+        return elements[ offset ];
+    }
+
+    TP& arrayWrite( int32_t offset, const TP &value ){
+        if( !elements || offset < 0 || offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+        elements[ offset ] = value;
         return elements[ offset ];
     }
 
@@ -243,12 +258,18 @@ public:
         return this;
     }
 
-    T& access( uint32_t offset ){ // to-do: bounds-check?
-        if( offset >= length ){
-            T *r = (T*) &dudBytes;
-            dudBytes = 0;
-            return *r;
+    T &arrayRead( uint32_t offset ){ // to-do: bounds-check?
+        if( !elements || offset >= length ){
+            __print__("Array access out of bounds\n");
         }
+        return elements[ offset ];
+    }
+
+    T &arrayWrite( uint32_t offset, T value ){
+        if( !elements || offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+        elements[ offset ] = value;
         return elements[ offset ];
     }
 

@@ -27,7 +27,7 @@ public class Image implements __stub__ {
             data,
             (int) x,
             (int) y,
-            __inline_cpp__("&screen->buffer->access(0)"),
+            __inline_cpp__("&screen->buffer->arrayRead(0)"),
             flip,
             mirror
             );
