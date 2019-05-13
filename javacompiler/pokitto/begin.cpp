@@ -150,6 +150,17 @@ void __print__( up_java::up_lang::uc_float f ){
     __print__(buff);
 }
 
+constexpr up_java::up_lang::uc_Object *__inflate_ptr__( uint16_t s ){
+    return s ? 
+        (up_java::up_lang::uc_Object *) (std::uintptr_t(s)+0x10000000) :
+        0;
+}
+
+constexpr uint16_t __deflate_ptr__( up_java::up_lang::uc_Object *obj ){
+    return obj ? std::uintptr_t(obj) - 0x10000000 : 0;
+}
+
+
 constexpr up_java::up_lang::uc_Object *__objFromShort__( uint16_t s ){
     return (up_java::up_lang::uc_Object *) (std::uintptr_t(s&~3)+0x10000000);
 }
@@ -275,16 +286,16 @@ class uc_Array : public uc_Object {
     typedef uc_Array<T, isReference> Self;
 
 public:
-    TP *elements;
+    uint16_t *elements;
     uint32_t length;
 
     uc_Array() : elements(nullptr), length(0){}
 
     uc_Array( uint32_t length ) : elements(nullptr), length(length) {
         __ref__<uc_Array<T, isReference>> lock = this;
-        elements = new TP[length];
+        elements = new uint16_t[length];
         for( uint32_t i=0; i<length; ++i )
-            elements[i] = nullptr;
+            elements[i] = 0;
     }
 
     virtual ~uc_Array(){
@@ -301,11 +312,11 @@ public:
     Self *loadValues( std::initializer_list<TP> init ){
         __ref__<uc_Array<T, isReference>> lock = this;
         release();
-        elements = new TP[init.size()];
+        elements = new uint16_t[init.size()];
         this->length = init.size();
         auto it = init.begin();
         for( uint32_t i=0; i<init.size(); ++i )
-            elements[i] = *it++;
+            elements[i] = __deflate_ptr__(*it++);
         return this;
     }
 
@@ -313,14 +324,16 @@ public:
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
         }
-        return elements[ offset ];
+        return static_cast<TP>( __inflate_ptr__(elements[ offset ]) );
     }
 
     TP arrayWrite( int32_t offset, const TP &value ){
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
         }
-        return elements[ offset ] = value;
+        
+        elements[ offset ] = __deflate_ptr__(value);
+        return value;
     }
 
     void __mark__(int m) override {
@@ -334,7 +347,7 @@ public:
         
         for( uint32_t i=0; i<length; ++i ){
             if( elements[i] ){
-                elements[i]->__mark__(m);
+                __inflate_ptr__(elements[i])->__mark__(m);
             }
         }
     }
