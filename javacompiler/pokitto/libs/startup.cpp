@@ -1,7 +1,10 @@
 extern void __on_failed_alloc();
 
-extern "C" {
+unsigned int __allocated_memory__;
 
+extern "C" {
+unsigned int malloc_usable_size( void * );
+    
 void *__wrap__sbrk( int incr ){
     
     extern char   _pvHeapStart; /* Set by linker.  */
@@ -212,8 +215,10 @@ extern "C" void *__real_malloc(size_t size);
 void *__wrap_malloc(size_t size){
     while(true){
         void *ret = __real_malloc(size);
-        if( (unsigned int) ret >= 0x10000000 )
+        if( (unsigned int) ret >= 0x10000000 ){
+            __allocated_memory__ += malloc_usable_size(ret);
             return ret;
+        }
         __on_failed_alloc();
     }
 }
@@ -225,8 +230,13 @@ void *operator new[](size_t size){
     return __wrap_malloc(size);
 }
 
-void operator delete(void *p)   {free(p);}
-void operator delete[](void *p) {free(p);}
+static void doFree(void *p){
+    __allocated_memory__ -= malloc_usable_size(p);
+    free(p);
+}
+
+void operator delete(void *p){doFree(p);}
+void operator delete[](void *p){doFree(p);}
 
     
 #endif
