@@ -7,13 +7,22 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
     public byte[] buffer;
     public ushort[] palette;
 
-    public HiRes16Color( pointer font ){
+    public HiRes16Color( pointer pal, pointer font ){
         this.font = font;
         buffer = new byte[0x4BA0];
         palette = new ushort[16];
-        for( int i=0; i<16; ++i ) palette[i] = i*0xFFFF/15;
+        loadPalette( pal );
         clear(0);
         textRightLimit = width();
+    }
+
+    public void loadPalette( pointer pal ){
+        if( pal == null )
+            return;
+        int len = Math.min(16, System.memory.LDRH(pal));
+        for( int i=0; i<len; ++i ){
+            palette[i] = System.memory.LDRH(pal+2+(i<<1));
+        }
     }
 
     public uint width(){

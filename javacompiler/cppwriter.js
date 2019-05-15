@@ -897,15 +897,6 @@ function writeRawData( data ){
     return out;
 }
 
-function writePalette( colors ){
-    let out = "";
-    out += `${indent}static const uint16_t colors[] = {${colors.join(",")}};\n`;
-    out += `${indent}auto palette = &screen->palette->arrayRead(0);\n`;
-    out += `${indent}for( uint32_t i=0; i<${colors.length}; ++i )\n`;
-    out += `${indent}	palette[i] = colors[i];\n`;
-    return out;
-}
-
 function writeBlock( block ){
     let out = "";
 

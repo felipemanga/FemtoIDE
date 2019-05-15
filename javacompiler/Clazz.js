@@ -370,37 +370,14 @@ class Clazz extends Type {
         
     }
 
-    palette( colors ){
-        let method = new Method(null, this);
-        this.methods.push( method );
-        method.isPublic = true;
-        method.isStatic = true;
-        method.artificial(
-            new TypeRef(["void"], false, this),
-            "applyTo",
-            [
-                new Field(
-                    null,
-                    // TODO: replace with 16-color interface
-                    ["femto", "mode", "HiRes16Color"],
-                    "screen",
-                    false,
-                    null,
-                    method
-                )
-            ],
-            colors
-        );
-    }
-
-    binary( data ){
+    binary( data, extension ){
         let method = new Method(null, this);
         this.methods.push( method );
         method.isPublic = true;
         method.isStatic = true;
         method.artificial(
             new TypeRef(["pointer"], false, this),
-            "data",
+            extension,
             [],
             {rawData:data}
         );

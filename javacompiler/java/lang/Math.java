@@ -6,6 +6,47 @@ public class Math implements __stub__ {
 
     public static final float PI = 3.1415926535897932384626433832795028841971f;
 
+    public static double max( double a, double b ){
+        return (a>b) ? a : b;
+    }
+
+    public static int max( int a, int b ){
+        return (a>b) ? a : b;
+    }
+
+    public static float max( float a, float b ){
+        return (a>b) ? a : b;
+    }
+
+    public static uint max( uint a, uint b ){
+        return (a>b) ? a : b;
+    }
+
+    public static byte max( byte a, byte b ){
+        return (a>b) ? a : b;
+    }
+
+    public static double min( double a, double b ){
+        return (a<b) ? a : b;
+    }
+
+    public static int min( int a, int b ){
+        return (a<b) ? a : b;
+    }
+
+    public static float min( float a, float b ){
+        return (a<b) ? a : b;
+    }
+
+    public static uint min( uint a, uint b ){
+        return (a<b) ? a : b;
+    }
+
+    public static byte min( byte a, byte b ){
+        return (a<b) ? a : b;
+    }
+    
+    
     public static double abs( double a ){
         if( a < 0 ) return -a;
         return a;

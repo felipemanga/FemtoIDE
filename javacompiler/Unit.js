@@ -118,22 +118,13 @@ class Unit {
         return ret;
     }
 
-    binary( data, name ){
+    binary( data, name, extension ){
         this.name = [...name];
         let clazzName = this.name.pop();
         const Clazz = require("./Clazz.js");
         const clazz = new Clazz( clazzName, this );
-        clazz.binary( data );
+        clazz.binary( data, extension );
         this.types.push( clazz );        
-    }
-
-    palette( colors, name ){
-        this.name = [...name];
-        let clazzName = this.name.pop();
-        const Clazz = require("./Clazz.js");
-        const clazz = new Clazz( clazzName, this );
-        clazz.palette(colors);
-        this.types.push( clazz );
     }
 
     staticImage( sprite, name ){

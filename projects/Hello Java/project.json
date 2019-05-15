@@ -30,6 +30,18 @@
 
     "CPPFlags":{
 
+
+        "DEBUG":[
+            "-Og",
+            "-g3",
+            "-ggdb"
+        ],
+
+        "RELEASE":[
+            "-flto",
+            "-O3"
+        ],
+        
 	"Pokitto":[
             "-I${appPath}/javacompiler/pokitto/includes",
             "-I${projectPath}",
@@ -47,16 +59,13 @@
             "-fomit-frame-pointer",
             "-mcpu=cortex-m0plus",
             "-mthumb",
-            "-Og",
-            "-g3",
-            "-ggdb",
             "-Wno-psabi"
 	],
 	
-	"Pokitto-release":[
-            "-I${appPath}/javacompiler/pokitto/includes",
+	"Desktop":[
+            "-I${appPath}/javacompiler/desktop/includes",
             "-I${projectPath}",
-	    "-DPOKITTO",
+	    "-DDESKTOP",
             "-fno-rtti",
             "-Wno-pointer-arith",
             "-c",
@@ -66,16 +75,7 @@
             "-fdata-sections",
             "-funsigned-char",
             "-MMD",
-            "-fno-delete-null-pointer-checks",
-            "-fomit-frame-pointer",
-            "-mcpu=cortex-m0plus",
-            "-mthumb",
-            "-flto",
-            "-O3"
-	],
-	
-	"PC":[
-	    "-DINTEL"
+            "-fno-delete-null-pointer-checks"
 	],
 	
 	"ALL":[
@@ -106,35 +106,14 @@
     },
 
     "LDFlags":{
-        "Pokitto-release":[
-            
-            "-Wl,--gc-sections",
-            "-Wl,-n",
-            "--specs=nano.specs",
-            "-Wl,--wrap,_sbrk",
-            "-Wl,--wrap,malloc",
-            "-mcpu=cortex-m0plus",
-            "-mthumb",
-            "-O3",
-            "-Wl,--undefined=g_pfnVectors",
-            "-Wl,--undefined=boot",
+        "RELEASE":[
+            "-O3"
+        ],
 
-            "-T",
-            "${appPath}/javacompiler/pokitto/link.ld",
-
-            "--output",
-            "${projectPath}/${projectName}.elf",
-
-            "$objectFiles",
-            
-            "-Wl,--start-group",
-            "-lstdc++",
-            "-lsupc++",
-            "-lm",
-            "-lc",
-            "-lgcc",
-            "-lnosys",
-            "-Wl,--end-group"
+        "DEBUG":[
+            "-Og",
+            "-g3",
+            "-ggdb"
         ],
         
         "Pokitto":[
@@ -146,9 +125,6 @@
             "-Wl,--wrap,malloc",
             "-mcpu=cortex-m0plus",
             "-mthumb",
-            "-Og",
-            "-g3",
-            "-ggdb",
             "-Wl,--undefined=g_pfnVectors",
             "-Wl,--undefined=boot",
 
@@ -175,7 +151,7 @@
 
     "pipelines":{
 	"Pokitto":["compile-java", "compile-cpp", "compile-ld", "compile-bin"],
-	"PC":["buildc", "buildcpp", "link"]
+	"Desktop":["compile-java", "compile-cpp", "compile-ld", "compile-bin"]
     }
     
 }

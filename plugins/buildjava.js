@@ -20,22 +20,26 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             APP.displayBuffer( gen );
         },
 
-        getBreakpointLocation( buffer, row ){
+        getBreakpointLocation( buffer, row, poll ){
             let file = buffer.path+"";
             let m = jcmap[ file ];
             if( !m )
-                return undefined;
+                return;
 
             while( row && m[row]===undefined )
                 row--;
 
             if( m[row] === undefined )
-                return undefined;
+                return;
 
-            return {
-                file:"generated.cpp",
-                line:m[row]
-            };
+            if( !poll[0] || poll[0].priority < 0 ){
+                poll[0] = {
+                    priority:100,
+                    file:"generated.cpp",
+                    line:m[row]
+                };
+            }
+            
         },
 
         sourceMap( file, line ){
@@ -92,10 +96,12 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             let ext = file.match(/\.([a-z]+)$/i);
             if( !ext )
                 return;
-            
+            let parserExt = ext[1];
             let parser = parsers[ ext[1] ];
-            if( !parser )
-                return;
+            if( !parser ){
+                parser = parsers.bin;
+                parserExt = "bin";
+            }
 
             if( ext[1].toUpperCase() == "PNG" ){
                 if( jsons[file.toUpperCase().replace(/\.png$/i,".JSON")] )
@@ -110,13 +116,13 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             let src = files[file];
             pending.start();
             if( parser.load ){
-                parser.load( {name:file, src}, onLoad );
+                parser.load( {name:file, type:ext[1], src}, onLoad );
             }else{
                 setTimeout( onLoad.bind(null, null, src), 0 );
             }
 
             function onLoad( err, src ){
-                let object = { name:file, src, parser:ext[1] };
+                let object = { name:file, src, type:ext[1], parser:parserExt };
                 loadToVFS( fqcn, object );
                 pending.done();
             }
@@ -126,12 +132,12 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
         function registerParsers(){
             parsers.bin={
-                run( src, name ){
+                run( src, name, type ){
                     if( src.data )
                         src = src.data;
 
                     let unit = new Unit();
-                    unit.binary(src, name);
+                    unit.binary(src, name, type);
                     return unit;
                 }
             };
@@ -163,7 +169,14 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 run( src, name ){
                     let colors = palParser( src, name[name.length-1] );
                     let unit = new Unit();
-                    unit.palette(colors, name);
+                    let arr16 = new Uint16Array( colors.colors16 );
+                    let arr8 = new Uint8Array(arr16.buffer);
+                    let arr = [
+                        colors.colors16.length,
+                        0,
+                        ...arr8
+                    ];
+                    unit.binary( arr, name, "palette");
                     return unit;
                 }
             };

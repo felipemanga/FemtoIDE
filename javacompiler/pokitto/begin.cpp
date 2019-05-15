@@ -217,8 +217,9 @@ using uc_Object = up_java::up_lang::uc_Object;
 
 template<typename T>
 class __ref__ {
-    T *ptr;
 public:
+    T *ptr;
+    
     __ref__():ptr(nullptr){
     };
 

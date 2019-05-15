@@ -43,14 +43,27 @@ let src = {
             Button:{ src:read("/femto/input/Button.java", "utf-8") }
         },
         palette:{
-            Pico8:{ src:require("./femto/palette/Pico8.js"), parser:"pal" },
-            Colodore:{ src:require("./femto/palette/Colodore.js"), parser:"pal" },
-            ErogeCopper:{ src:require("./femto/palette/ErogeCopper.js"), parser:"pal" }
+            Pico8:{ src:read("/femto/palette/Pico8.pal", "utf-8"), parser:"pal" },
+            Colodore:{ src:read("/femto/palette/Colodore.pal", "utf-8"), parser:"pal" },
+            ErogeCopper:{ src:read("/femto/palette/ErogeCopper.pal", "utf-8"), parser:"pal" }
         },
         font:{
-            Tiny:{ src:require("./femto/font/Tiny.bin"), parser:"bin" },
-            Dragon:{ src:require("./femto/font/Dragon.bin"), parser:"bin" },
-            Tic80:{ src:require("./femto/font/Tic80.bin"), parser:"bin" },
+            Adventurer:{ src:read("/femto/font/Adventurer.font"), type:"font", parser:"bin" },
+            Donut:{ src:read("/femto/font/Donut.font"), type:"font", parser:"bin" },
+            Dragon:{ src:read("/femto/font/Dragon.font"), type:"font", parser:"bin" },
+            Font3x3:{ src:read("/femto/font/Font3x3.font"), type:"font", parser:"bin" },
+            Font3x5:{ src:read("/femto/font/Font3x5.font"), type:"font", parser:"bin" },
+            Font5x7:{ src:read("/femto/font/Font5x7.font"), type:"font", parser:"bin" },
+            FontC64:{ src:read("/femto/font/FontC64.font"), type:"font", parser:"bin" },
+            FontMonkey:{ src:read("/femto/font/FontMonkey.font"), type:"font", parser:"bin" },
+            Karateka:{ src:read("/femto/font/Karateka.font"), type:"font", parser:"bin" },
+            Koubit:{ src:read("/femto/font/Koubit.font"), type:"font", parser:"bin" },
+            Mini:{ src:read("/femto/font/Mini.font"), type:"font", parser:"bin" },
+            Runes:{ src:read("/femto/font/Runes.font"), type:"font", parser:"bin" },
+            TIC80:{ src:read("/femto/font/TIC80.font"), type:"font", parser:"bin" },
+            Tight:{ src:read("/femto/font/Tight.font"), type:"font", parser:"bin" },
+            Tiny:{ src:read("/femto/font/Tiny.font"), type:"font", parser:"bin" },
+            ZXSpec:{ src:read("/femto/font/ZXSpec.font"), type:"font", parser:"bin" }
         },
         Sprite:{ src:read("/femto/Sprite.java", "utf-8") },
         Image:{ src:read("/femto/Image.java", "utf-8") },

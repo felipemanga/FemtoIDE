@@ -11,9 +11,10 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 if( classes.indexOf("unconditional") == -1 )
                     continue;
                 
-                let translated = APP.getBreakpointLocation(file, k|0);
-                if( translated )
-                    breakpoints.push(translated.file+":"+translated.line);
+                let translated = [];
+                APP.getBreakpointLocation(file, k|0, translated);
+                if( translated.length )
+                    breakpoints.push(translated[0].file+":"+translated[0].line);
             }
         }
         

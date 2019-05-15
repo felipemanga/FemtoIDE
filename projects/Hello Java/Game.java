@@ -8,44 +8,45 @@ import femto.font.Dragon;
 public class Game {
 
     public static void main(String[] args){
-        HiRes16Color screen = new HiRes16Color(Dragon.data());
-        Colodore.applyTo( screen );
-        Pattern pat = new Pattern();
+        float previousX = 0, angle;
+        int counter = 0;
+
+        HiRes16Color screen = new HiRes16Color(Colodore.palette(), Dragon.font());
+
+        Pattern background = new Pattern();
         
         Dog dog = new Dog();
-
-        dog.x = 80;
-        dog.y = 80;
-        float sx = 0, sy = 0, a = 0;
-        int counter = 0;
+        dog.setPosition(80, 80);
         dog.run();
-        System.out.println("Oh, hi!");
-        int fc = 100;
+
+        System.out.println("Hello, world!");
+        
         while(true){
-            a += 0.03f;
-            // screen.clear( 0x44 );
-            screen.textX = 10;
-            screen.textY = 10;
+            screen.setTextPosition( 10, 10 );
             
-            for( int y=0; y<176; y += pat.height() ){
-                for( int x=0; x<220; x += pat.width() ){
-                    pat.draw(screen, x, y);
+            for( int y=0; y<176; y += background.height() ){
+                for( int x=0; x<220; x += background.width() ){
+                    background.draw(screen, x, y);
                 }
             }
             
-            if( fc--<0 ){
+            angle += 0.03f;
+            if( counter--<0 ){
                 System.out.println(screen.fps());
-                fc = 100;
+                counter = 100;
             }
             
-            sx = dog.x;
-            dog.x = 80 + Math.cos(a) * 60.0f;
-            dog.y = 44 + Math.sin(a) * 50.0f;
+            previousX = dog.x;
+            dog.x = 80 + Math.cos(angle) * 60.0f;
+            dog.y = 44 + Math.sin(angle) * 50.0f;
 
-            dog.setMirrored( sx > dog.x );
+            dog.setMirrored( previousX > dog.x );
 
             dog.draw(screen);
             
+            screen.fillCircle( 110, 88, 10, 13 );
+            screen.drawCircle( 110, 88, 10, 11 );
+
             screen.flush();
         }
     }
