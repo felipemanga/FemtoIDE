@@ -173,6 +173,8 @@ class Clazz extends Type {
         for( let type of this.types ){
             if( type.name == name ){
                 trail.push( type );
+                if( !fqcn.length )
+                    return type;
                 return type.resolve( fqcn, trail );
             }
         }
@@ -180,6 +182,8 @@ class Clazz extends Type {
         for( let field of this.fields ){
             if( field.name == name ){
                 trail.push( field );
+                if( !fqcn.length )
+                    return field;
                 return field.type.resolve( fqcn, trail );
             }
         }

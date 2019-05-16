@@ -54,11 +54,11 @@ namespace up_java {
             };
             virtual bool __instanceof__( uint32_t id );
             
-            bool __is_marked__(){
+            bool __is_marked__(int m){
                 return __generation__ == __next_generation__;
             }
             
-            virtual void __mark__(){
+            virtual void __mark__(int m){
                 __generation__ = __next_generation__;
             }
             virtual void __hold__(){
@@ -205,12 +205,12 @@ public:
         return elements[ offset ];
     }
 
-    virtual void __mark__() override {
-        uc_Object::__mark__();
+    virtual void __mark__(int m) override {
+        uc_Object::__mark__(m);
         if( !elements ) return;
         for( uint32_t i=0; i<length; ++i ){
             if( elements[i] )
-                elements[i]->__mark__();
+                elements[i]->__mark__(m);
         }
     }
 
@@ -247,7 +247,7 @@ public:
     }
 
 
-    Self *loadValues( std::initializer_list<T> init ){
+    Self *loadValues( const std::initializer_list<T> &init ){
         __ref__<uc_Array<T, false>> lock = this;
         if( elements ) release();
         elements = new T[init.size()];
@@ -290,7 +290,7 @@ namespace up_java {
 
             for( uc_Object *ptr = __first__; ptr; ptr = ptr->__next__ ){
 		if( ptr->__refCount__ )
-                    ptr->__mark__();
+                    ptr->__mark__(1);
             }
 
             uc_Object **prev = &__first__;

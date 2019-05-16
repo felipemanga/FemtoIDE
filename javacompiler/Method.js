@@ -100,6 +100,7 @@ class Method {
         this.isPublic = false;
         this.isStatic = false;
         this.isAbstract = false;
+        this.isMethod = true;
         this.parameters = [];
 
         if( !node )

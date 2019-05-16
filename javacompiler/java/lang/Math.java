@@ -6,6 +6,10 @@ public class Math implements __stub__ {
 
     public static final float PI = 3.1415926535897932384626433832795028841971f;
 
+    public static float toRadians( float deg ){
+        return (deg*PI) / 180.0f;
+    }
+
     public static double max( double a, double b ){
         return (a>b) ? a : b;
     }

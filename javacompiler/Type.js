@@ -10,6 +10,7 @@ class Type {
         this.scope = parent;
         this.cppType = cppType;
         this.id = typeId++;
+        this.isType = true;
 
         if( typeof node == "string" ){
             this.name = node;

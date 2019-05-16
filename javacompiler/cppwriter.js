@@ -81,9 +81,9 @@ function writeType( type, local ){
             finalType = `__array<`;
         }
         finalType += `${writePath(type)}>`;
-    }else if( type.isReference && type.getTarget().isEnum ){
+    }else if( type.isReference && (type.isEnum || type.getTarget().isEnum) ){
         finalType = writePath(type) + "*";
-    }else if( type.isReference )
+    }else if( (type.isReference || type.isClass || type.isInterface) && !type.isNative )
         finalType = local ? `__ref__<${writePath(type)}>` : `${writePath(type)}*`;
     else
         finalType = writePath(type);
@@ -441,7 +441,8 @@ function writePath( expr, clean ){
     return out;
 }
 
-function writeExpression( expr ){
+function writeExpression( expr, typeHint ){
+    let retdata = { op:expr.operation };
     let type = "void";
     let out = "", e;
     switch( expr.operation ){
@@ -452,20 +453,6 @@ function writeExpression( expr ){
         break;
 
     case "=":
-        if( Array.isArray( expr.right ) ){
-            e = writeExpression( expr.left );
-            type = e.type;
-            out += e.out;
-            out += " " + expr.operation + " (new uc_Array<";
-            out += writeType(type.type);
-            out += ",";
-            out += !type.getTarget().isNative;
-            out += ">)->loadValues({";
-            out += expr.right.map( e => writeExpression( e ).out ).join(",");
-            out += "})";
-            break;
-        }
-
     case "+=":
     case "-=":
     case "/=":
@@ -497,6 +484,7 @@ function writeExpression( expr ){
     case "methodInvocationSuffix":
         e = expr.args.map(a=>writeExpression(a));
         out += "( " + e.map(a=>a.out).join(", ")+" )";
+        type = e.map(a=>a.type);
         break;
 
     case "arrayAccessSuffix":
@@ -511,7 +499,8 @@ function writeExpression( expr ){
             out += "->arrayRead(";
             e = writeExpression(expr.right);
             out += e.out;
-            type = null;
+            if( !typeHint.isTypeRef )
+                type = new TypeRef(null, false, expr.right.scope, typeHint);
         }
         out += ")";
         break;
@@ -521,20 +510,64 @@ function writeExpression( expr ){
         if( !expr.trail || !expr.trail.length ){
             console.log("Error: ", expr);
         }
-        type = expr.trail[ expr.trail.length-1 ].type;
+        type = expr.trail[ expr.trail.length-1 ];
+        if( type.type ) // field
+            type = type.type;
+        
+        if( type.isMethod ){
+            retdata.methodName = type.name;
+            retdata.methodScope = type.scope;
+            retdata.method = type;
+            type = null;
+        }else if( type.isType )
+            type = new TypeRef(
+                null,
+                false,
+                expr.scope,
+                type
+            );
         break;
 
     case "access":
-        e = writeExpression(expr.left);
+        let prevResult;
+        e = prevResult = writeExpression(expr.left);
         out += e.out;
         type = e.type;
         if( expr.right ){
             expr.right.forEach( e => {
-                if( typeof e != "string" ){
-                    // can be () or []
-                    out += writeExpression(e).out;
-                }else
+                if( e.operation == "methodInvocationSuffix" ){
+                    e = writeExpression(e);
+                    out += e.out;
+                    let argTypes = e.type;
+                    type = prevResult.method.result;
+                    prevResult = e;
+                }else if( e.operation == "arrayAccessSuffix" ){
+                    e = prevResult = writeExpression(e, type.getTarget() );
+                    out += e.out;
+                    type = e.type;
+                }else{
                     out += `->${e}`;
+                    if( type ){
+                        if( type.isTypeRef )
+                            type = type.getTarget();
+                        let trail = [];
+                        let field = type.resolve([e], trail);
+                        if( !field ){
+                            throw `Could not find ${e} in ${type.constructor.name} ${type.name}`;
+                        }
+                        type = field.type;
+
+                        if( field.isMethod ){
+                            prevResult = {
+                                op:"->",
+                                methodName:e,
+                                methodScope:trail[trail.length-2],
+                                method:field
+                            };
+                        }
+                    }
+                        
+                }
             } );
         }
         break;
@@ -590,7 +623,7 @@ function writeExpression( expr ){
             out += `new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>{`;
             out += expr.array.map(a => writeExpression(a).out).join(", ");
             out += '}';
-            type = expr.left.trail[expr.left.trail.length-1];
+            type = expr.left;
         }else if( expr.left.getTarget().isInline ){
             let ref = expr.left.getTarget();
             out += "([=]()->";
@@ -599,11 +632,11 @@ function writeExpression( expr ){
             out += writeClassInline(ref);
             out += "return new uc_" + ref.name;
             close = ";})()";
-            type = ref.extends.getTarget();
+            type = ref.extends;
         }else{
             out += "(new " + writePath(expr.left);
             close = ")";
-            type = expr.left.trail[expr.left.trail.length-1];
+            type = expr.left;
         }
         
         if( !expr.array ){
@@ -691,7 +724,10 @@ function writeExpression( expr ){
         }
         break;
     }
-    return {out, type};
+    
+    retdata.out = out;
+    retdata.type = type;
+    return retdata;
 
     function writeExpressionRight(right){
         
@@ -727,11 +763,33 @@ function writeStatement( stmt, block, noSemicolon ){
     case "variableDeclarator":
         let local = block.locals.find( local => local.name == stmt.name );
         out += indent;
-        out += writeType(local.type, true) + " ";
+        
         if( stmt.expression ){
-            out += writeExpression(stmt.expression).out;
+            let e;
+            if( Array.isArray( stmt.expression.right ) ){
+                out += writeType(local.type, true) + " ";
+
+                e = writeExpression( stmt.expression.left );
+                out += e.out;
+                out += " " + stmt.expression.operation + " (new uc_Array<";
+                out += writePath(e.type);
+                out += ",";
+                out += !e.type.getTarget().isNative;
+                out += ">)->loadValues({";
+                out += stmt.expression.right.map( e => writeExpression( e ).out ).join(",");
+                out += "})";
+            }else{
+                e = writeExpression(stmt.expression.right);
+                if( local.type.name == "var" )
+                    local.type = e.type;
+                out += writeType(local.type, true) + " ";
+                out += writeExpression(stmt.expression.left).out;
+                out += "=";
+                out += e.out;
+            }
         }else{
-            out += local.name;
+            out += writeType(local.type, true) + " ";
+            out += local.name + " = 0";
         }
 
         if( !noSemicolon )
@@ -961,7 +1019,7 @@ function writeClassImpl( unit ){
                     out += "volatile ";
                 if( field.isFinal )
                     out += "const ";
-                out += `${writeType(field.type, true)} ${writeType(t)}::`;
+                out += `${writeType(field.type, true)} ${writePath(t)}::`;
                 if( field.init && field.init.expression ){
                     out += writeExpression(field.init.expression).out;
                 }else

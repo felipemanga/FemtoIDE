@@ -2,10 +2,12 @@ const {Ref} = require("./Ref.js");
 const {TypeRef} = require("./TypeRef.js");
 const {ast} = require("./AST.js");
 
+let srcExpr;
+
 class Expression {
     constructor( expr, scope, opts ){
         this.scope = scope;
-        this.srcExpr = expr;
+        srcExpr = expr;
         this.dispatch(expr, opts);
     }
 
@@ -16,7 +18,7 @@ class Expression {
             this[expr.name]( expr, opts );
         else{
             console.error("Invalid expr: ", expr, this.scope);
-            ast(this.srcExpr);
+            ast(srcExpr);
             expr[0][0][0][0] = 1;
         }
     }
@@ -146,12 +148,19 @@ class Expression {
                 .AssignmentOperator[0].image;
 
             let right =  new Expression( expr.children.expression[0], this.scope );
+            
+            let nopts = null;
+            if( this.operation == "=" ){
+                nopts = {
+                    isLValue:_=>{
+                        let ret = right;
+                        right = null;
+                        return ret;
+                    }
+                };
+            }
 
-            this.left = new Expression( expr.children.unaryExpression[0], this.scope, {isLValue:_=>{
-                let ret = right;
-                right = null;
-                return ret;
-            }} );
+            this.left = new Expression( expr.children.unaryExpression[0], this.scope, nopts );
 
             this.right = right;
             return;

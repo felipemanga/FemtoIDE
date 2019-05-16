@@ -2,10 +2,23 @@ const {nativeTypeList} = require("./Type.js");
 const {getUnit} = require("./Unit.js");
 
 class TypeRef {
-    constructor( node, isArray, scope ){
+    constructor( node, isArray, scope, type ){
 
         this.scope = scope;
-        this.type = null;
+        this.type = type || null;
+        this.isTypeRef = true;
+
+        if( type ){
+            if( type.isTypeRef ){
+                console.error("TRE: ", type.constructor.name);
+                type[0][0][0] = 1;
+            }
+            this.name = type.name;
+            this.isReference = true;
+            this.isArray = false;
+            return;
+        }
+
         this.trail = [];
 
         if( Array.isArray(node) && typeof node[0] == "string" ){
