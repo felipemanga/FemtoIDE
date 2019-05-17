@@ -900,7 +900,24 @@ function writeStatement( stmt, block, noSemicolon ){
         break;
 
     case "enhancedForStatement":
-        throw "I ain't ready yet";
+        out += indent + "for( ";
+        out += writeType( stmt.iterator.type, false );
+        out += " " + stmt.iterator.name;
+        out += " : ";
+        let e = writeExpression(stmt.iterable);
+        out += e.out;
+        out += "->iterator()";
+        out += ")\n";
+        if( stmt.body.type != "block" ){
+            out += `${indent}{\n`;
+            push();
+        }
+        out += writeStatement( stmt.body, block );
+        if( stmt.body.type != "block" ){
+            pop();
+            out += `${indent}}\n`;
+        }
+
         break;
 
     case "forStatement":

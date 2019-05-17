@@ -282,11 +282,77 @@ public:
 uint32_t dudBytes;
 
 template<typename T, bool isReference>
+class uc_ArrayCPPIterator {
+public:
+    typedef T *TP;
+    typedef uc_ArrayCPPIterator<T, isReference> Self;
+    
+    uint16_t *p;
+    uc_ArrayCPPIterator(uint16_t *p) : p(p) {}
+    
+    Self& operator++() {
+        p++;
+        return *this;
+    }
+    
+    bool operator != (const Self &other){
+        return p != other.p;
+    }
+
+    T* operator *(){
+        return static_cast<TP>(__inflate_ptr__( *p ));
+    }
+};
+
+template<typename T>
+class uc_ArrayCPPIterator<T, false> {
+public:
+    typedef T *TP;
+    typedef uc_ArrayCPPIterator<T, false> Self;
+    
+    TP p;
+    uc_ArrayCPPIterator(TP p) : p(p) {}
+    
+    Self& operator++() {
+        p++;
+        return *this;
+    }
+    
+    bool operator != (const Self &other){
+        return p != other.p;
+    }
+
+    T& operator *(){
+        return *p;
+    }
+};
+
+template<typename TA, typename T, bool isReference>
+class uc_ArrayIterator {
+public:
+    const TA& array;
+    typedef uc_ArrayCPPIterator<T, isReference> Iterator;
+
+    uc_ArrayIterator(const TA &array) : array(array) {
+    }
+    
+    Iterator begin() const {
+        return Iterator(array.elements);
+    }
+
+    Iterator end() const {
+        return Iterator(array.elements + array.length);
+    }
+};
+
+
+template<typename T, bool isReference>
 class uc_Array : public uc_Object {
+public:
+
     typedef T *TP;
     typedef uc_Array<T, isReference> Self;
 
-public:
     uint16_t *elements;
     uint32_t length;
 
@@ -301,6 +367,10 @@ public:
 
     virtual ~uc_Array(){
         release();
+    }
+
+    uc_ArrayIterator<Self, T, isReference> iterator(){
+        return uc_ArrayIterator<Self, T, isReference>(*this);
     }
 
     void release(){
@@ -385,8 +455,11 @@ public:
         }
     }
 
+    uc_ArrayIterator<Self, T, false> iterator(){
+        return uc_ArrayIterator<Self, T, false>(*this);
+    }
 
-    Self *loadValues( std::initializer_list<T> init ){
+    Self *loadValues( const std::initializer_list<T> &init ){
         __ref__<uc_Array<T, false>> lock = this;
         if( elements ) release();
         elements = new T[init.size()];

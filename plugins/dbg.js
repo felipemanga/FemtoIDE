@@ -32,24 +32,28 @@ APP.addPlugin("Debug", ["Build"], _=>{
 
         onAddBreakpoint( buffer, row ){
             if( !gdb ) return;
-            let translated = APP.getBreakpointLocation( buffer, row|0 );
-            if( translated ){
-                let oldStandby = standby;
-                this.gdbCommand("b " + translated.file+":"+translated.line, true);
-                if( !oldStandby )
-                    this.gdbCommand("c", true);
-            }
+            let translated = [];
+            APP.getBreakpointLocation(buffer, row|0, translated);
+            let path = buffer.path + ":" + (row|0);
+            if( translated.length )
+                path = translated[0].file+":"+translated[0].line;
+            let oldStandby = standby;
+            this.gdbCommand("b " + path, true);
+            if( !oldStandby )
+                this.gdbCommand("c", true);
         }
 
         onRemoveBreakpoint( buffer, row ){
             if( !gdb ) return;
-            let translated = APP.getBreakpointLocation( buffer, row|0 );
-            if( translated ){
-                let oldStandby = standby;
-                this.gdbCommand("clear " + translated.file+":"+translated.line, true);
-                if( !oldStandby )
-                    this.gdbCommand("c", true);
-            }
+            let path = buffer.path + ":" + (row|0);
+            let translated = [];
+            APP.getBreakpointLocation(buffer, row|0, translated);
+            if( translated.length )
+                path = translated[0].file+":"+translated[0].line;
+            let oldStandby = standby;
+            this.gdbCommand("clear " + path, true);
+            if( !oldStandby )
+                this.gdbCommand("c", true);
         }
 
         onDebugEmulatorStarted(port){

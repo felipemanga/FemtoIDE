@@ -98,7 +98,7 @@ out = *((uint8_t*)p);
             __inline_cpp__("__print__(\"\\n\")");
         }
 
-        public static void println( int s ){
+        public static void println( long s ){
             __inline_cpp__("__print__((int) s)");
             __inline_cpp__("__print__(\"\\n\")");
         }

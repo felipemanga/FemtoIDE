@@ -145,6 +145,11 @@ class Statement {
         const {Field} = require("./Field.js");
         let bfs = node.children;
 
+        this.iterable = new Expression(
+            bfs.expression[0],
+            this.scope
+        );
+        
         this.scope = new Block(
             null,
             this.scope
@@ -158,6 +163,10 @@ class Statement {
             null,
             this.scope
         );
+
+        this.scope.locals.push( this.iterator );
+        
+        this.body = new Statement( bfs.statement[0], this.scope );
     }
 
     forStatement( node ){
