@@ -1,16 +1,13 @@
 import femto.mode.HiRes16Color;
 import femto.input.Button;
+import femto.font.TIC80;
 import femto.palette.Colodore;
-import femto.font.Tiny;
-import femto.font.Tic80;
-import femto.font.Dragon;
 
 public class Game {
 
     public static void main(String[] args){
-        HiRes16Color screen = new HiRes16Color(Dragon.data());
-        Colodore.applyTo( screen );
-
+        HiRes16Color screen = new HiRes16Color(Colodore.palette(),TIC80.font());
+        
         Dog dog = new Dog();
 
         dog.x = 80;
