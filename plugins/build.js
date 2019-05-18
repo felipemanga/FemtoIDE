@@ -14,10 +14,6 @@ APP.addPlugin("Build", ["Project"], _=>{
             APP.remove(this);
         }
         
-        clean(){
-            console.log("onCleanBuildFolder");
-        }
-
         compileAndRun(){
             APP.stopEmulator();
             this.compile(true, _=>{
@@ -26,6 +22,10 @@ APP.addPlugin("Build", ["Project"], _=>{
         }
 
         compile( release=true, callback=null ){
+            let timings = "",
+                startTime = 0,
+                stage = "";
+            
             if( busy ){
                 APP.log("Build already in progress");
                 return;
@@ -49,11 +49,19 @@ APP.addPlugin("Build", ["Project"], _=>{
                 current = -1;
                 popQueue();
             }catch( ex ){
-                console.error(ex);
+                APP.setStatus("Compilation FAILED");
+                APP.error(ex);
+                busy = false;
             }
 
             function popQueue( error ){
+                if( startTime ){
+                    let deltaTime = performance.now() - startTime;
+                    timings += stage + ":" + Math.round(deltaTime/10)/100 + "s ";
+                }
+                
                 if( error ){
+                    busy = false;
                     APP.setStatus("Compilation FAILED");
                     APP.error(error);
                     return;
@@ -61,12 +69,13 @@ APP.addPlugin("Build", ["Project"], _=>{
 
                 current++;
                 if( current >= pipeline.length ){
-                    APP.setStatus("Compilation OK " + DATA.buildFolder);
+                    APP.setStatus("Build time: " + timings);
                     cb();
                     return;
                 }
-
-                let stage = pipeline[current];
+                
+                startTime = performance.now();
+                stage = pipeline[current];
                 APP[stage]( files, popQueue );
             }
         }

@@ -1,0 +1,3 @@
+[submodule "PokittoLib"]
+	path = PokittoLib
+	url = https://github.com/Pokitto/PokittoLib

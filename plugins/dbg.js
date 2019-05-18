@@ -13,8 +13,10 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 
                 let translated = [];
                 APP.getBreakpointLocation(file, k|0, translated);
+                let path = file.path + ":" + (k|0);
                 if( translated.length )
-                    breakpoints.push(translated[0].file+":"+translated[0].line);
+                    path = translated[0].file+":"+translated[0].line;
+                breakpoints.push(path);
             }
         }
         

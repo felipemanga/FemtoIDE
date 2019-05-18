@@ -150,7 +150,14 @@
     "target":"Pokitto",
 
     "pipelines":{
-	"Pokitto":["compile-java", "compile-cpp", "compile-ld", "compile-bin"],
+	"Pokitto":[
+            "compile-java",
+            "compile-cpp",
+            "compile-ld",
+            "compile-bin",
+            "make-img"
+        ],
+        
 	"Desktop":["compile-java", "compile-cpp", "compile-ld", "compile-bin"]
     }
     
