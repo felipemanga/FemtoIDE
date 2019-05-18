@@ -13,7 +13,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 
                 let translated = [];
                 APP.getBreakpointLocation(file, k|0, translated);
-                let path = file.path + ":" + (k|0);
+                let path = file.path + ":" + ((k|0)+1);
                 if( translated.length )
                     path = translated[0].file+":"+translated[0].line;
                 breakpoints.push(path);
@@ -36,7 +36,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
             if( !gdb ) return;
             let translated = [];
             APP.getBreakpointLocation(buffer, row|0, translated);
-            let path = buffer.path + ":" + (row|0);
+            let path = buffer.path + ":" + ((row|0)+1);
             if( translated.length )
                 path = translated[0].file+":"+translated[0].line;
             let oldStandby = standby;
@@ -47,7 +47,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
 
         onRemoveBreakpoint( buffer, row ){
             if( !gdb ) return;
-            let path = buffer.path + ":" + (row|0);
+            let path = buffer.path + ":" + ((row|0)+1);
             let translated = [];
             APP.getBreakpointLocation(buffer, row|0, translated);
             if( translated.length )
