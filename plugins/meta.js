@@ -53,7 +53,12 @@ APP.addPlugin("Meta", ["Project"], _=>{
                     type: def.type,
                     value: meta[key],
                     cb( value ){
-                        return meta[key] = value;
+                        if( meta[key] === value )
+                            return value;
+
+                        meta[key] = value;
+                        APP.dirtyProject();
+                        return value;
                     }
                 };
             }

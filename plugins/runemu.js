@@ -35,6 +35,8 @@ APP.addPlugin("RunEMU", [], _=> {
 
             flags = flags || [];
 
+            APP.pollEmulatorFlags(flags);
+
             let typeFlags = DATA.project["emuFlags"];
             if( typeFlags ){
                 if( typeFlags[DATA.project.target] )

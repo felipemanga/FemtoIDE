@@ -36,9 +36,23 @@ APP.addPlugin("Project", [], _=>{
 
     };
 
-    let project = {};
+    let project = {}, dirtyHnd;
 
     APP.add({
+
+        dirtyProject(){
+            if( dirtyHnd )
+                clearTimeout(dirtyHnd);
+            dirtyHnd = setTimeout( APP.saveProject, 1000 );
+        },
+
+        saveProject(){
+            fs.writeFileSync(
+                DATA.projectPath + path.sep + "project.json",
+                JSON.stringify(DATA.project, null, "\t"),
+                "utf-8"
+            );
+        },
 
         onDeleteBuffer( buffer ){
             let pf = DATA.projectFiles;

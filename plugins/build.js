@@ -1,7 +1,7 @@
 APP.addPlugin("Build", ["Project"], _=>{
     APP.customSetVariables({buildMode:"RELEASE"});
 
-    let build;
+    let build, busy;
 
     class Build {
 
@@ -25,7 +25,19 @@ APP.addPlugin("Build", ["Project"], _=>{
             });
         }
 
-        compile( release=true, cb=null ){
+        compile( release=true, callback=null ){
+            if( busy ){
+                APP.log("Build already in progress");
+                return;
+            }
+
+            busy = true;
+            function cb(...args){
+                busy = false;
+                if( callback && typeof callback == "function" )
+                    callback(...args);
+            }
+            
             APP.clearLog();
             APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});
 
@@ -50,8 +62,7 @@ APP.addPlugin("Build", ["Project"], _=>{
                 current++;
                 if( current >= pipeline.length ){
                     APP.setStatus("Compilation OK " + DATA.buildFolder);
-                    if( cb && typeof cb == "function" )
-                        cb();
+                    cb();
                     return;
                 }
 

@@ -143,8 +143,8 @@ APP.addPlugin("Tree", [], _=>{
                   [
                       ["input", {
                           type:"checkbox",
-                          value:meta.value,
-                          onchange:evt=>evt.target.value = meta.cb(evt.target.value)
+                          checked:meta.value,
+                          onchange:evt=>meta.cb(evt.target.checked)
                       }]
                   ]]
                 ]

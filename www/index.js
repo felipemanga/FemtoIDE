@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-
 let config = {
 };
 
@@ -18,6 +17,10 @@ const APP = new Proxy(new Pool(), {
             return cache[key] = pool.call.bind(pool, key);
         };
     })()
+});
+
+require("process").on("uncaughtException", function(e) {
+    APP.error(e);
 });
 
 class Pending {

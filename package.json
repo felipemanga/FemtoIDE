@@ -8,6 +8,8 @@
     "height": 600
   },
   "dependencies": {
-    "java-parser": "^0.2.0"
+    "fatfs": "^0.10.7",
+    "java-parser": "^0.2.0",
+    "struct-fu": "^1.2.1"
   }
 }
