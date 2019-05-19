@@ -54,7 +54,7 @@ class ScreenMode {
             x -= cameraX;
             y -= cameraY;
         }
-        setPixel( (uint) x, (uint) y, color );
+        setPixel( (uint) (int) x, (uint) (int) y, color );
     }
     
     public void setPixel( uint x, uint y, int color ){}
@@ -128,7 +128,7 @@ class ScreenMode {
         }
     }
 
-    void drawCircle( int x0, int y0, int r, int color, boolean isStatic ){
+    void drawCircle( float x0, float y0, int r, int color, boolean isStatic ){
         if( !isStatic ){
             x0 -= cameraX;
             y0 -= cameraY;
@@ -171,7 +171,7 @@ class ScreenMode {
         }
     }    
 
-    void fillCircle( int x0, int y0, int r, int color, boolean isStatic ){
+    void fillCircle( float x0, float y0, int r, int color, boolean isStatic ){
         if( !isStatic ){
             x0 -= cameraX;
             y0 -= cameraY;
@@ -207,7 +207,7 @@ class ScreenMode {
         }
     }
     
-    public void drawLine(int x0, int y0, int x1, int y1, int color, boolean isStatic) {
+    public void drawLine(float x0, float y0, float x1, float y1, int color, boolean isStatic) {
         if( !isStatic ){
             x0 -= cameraX;
             x1 -= cameraX;
