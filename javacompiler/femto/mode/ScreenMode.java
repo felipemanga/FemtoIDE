@@ -128,7 +128,7 @@ class ScreenMode {
         }
     }
 
-    void drawCircle( float x0, float y0, int r, int color, boolean isStatic ){
+    void drawCircle( float x0, float y0, float r, int color, boolean isStatic ){
         if( !isStatic ){
             x0 -= cameraX;
             y0 -= cameraY;
@@ -171,7 +171,7 @@ class ScreenMode {
         }
     }    
 
-    void fillCircle( float x0, float y0, int r, int color, boolean isStatic ){
+    void fillCircle( float x0, float y0, float r, int color, boolean isStatic ){
         if( !isStatic ){
             x0 -= cameraX;
             y0 -= cameraY;
