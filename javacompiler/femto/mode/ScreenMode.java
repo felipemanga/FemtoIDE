@@ -51,8 +51,8 @@ class ScreenMode {
     
     public void setPixel( float x, float y, int color, boolean isStatic ){
         if( !isStatic ){
-            x += cameraX;
-            y += cameraY;
+            x -= cameraX;
+            y -= cameraY;
         }
         setPixel( (uint) x, (uint) y, color );
     }
@@ -61,8 +61,8 @@ class ScreenMode {
     
     public void drawHLine( float x, float y, float w, int color, boolean isStatic ){
         if( !isStatic ){
-            x += cameraX;
-            y += cameraY;
+            x -= cameraX;
+            y -= cameraY;
         }
         drawHLine( (int) x, (int) y, (int) w, color );
     }
@@ -71,8 +71,8 @@ class ScreenMode {
     
     public void drawVLine( float x, float y, float h, int color, boolean isStatic ){
         if( !isStatic ){
-            x += cameraX;
-            y += cameraY;
+            x -= cameraX;
+            y -= cameraY;
         }
         drawVLine( (int) x, (int) y, (int) h, color );
     }
@@ -81,8 +81,8 @@ class ScreenMode {
     
     public void drawRect( float x, float y, float w, float h, int color, boolean isStatic ){
         if( !isStatic ){
-            x += cameraX;
-            y += cameraY;
+            x -= cameraX;
+            y -= cameraY;
         }
         drawRect( (int) x, (int) y, (int) w, (int) h, color );
     }
@@ -96,8 +96,8 @@ class ScreenMode {
 
     public void fillRect( float x, float y, float w, float h, int color, boolean isStatic ){
         if( !isStatic ){
-            x += cameraX;
-            y += cameraY;
+            x -= cameraX;
+            y -= cameraY;
         }
         fillRect( (int) x, (int) y, (int) w, (int) h, color );
     }
@@ -130,8 +130,8 @@ class ScreenMode {
 
     void drawCircle( int x0, int y0, int r, int color, boolean isStatic ){
         if( !isStatic ){
-            x0 += cameraX;
-            y0 += cameraY;
+            x0 -= cameraX;
+            y0 -= cameraY;
         }
         drawCircle( (int) x0, (int) y0, (int) r, color );
     }
@@ -173,8 +173,8 @@ class ScreenMode {
 
     void fillCircle( int x0, int y0, int r, int color, boolean isStatic ){
         if( !isStatic ){
-            x0 += cameraX;
-            y0 += cameraY;
+            x0 -= cameraX;
+            y0 -= cameraY;
         }
         fillCircle( (int) x0, (int) y0, (int) r, color );
     }
@@ -209,10 +209,10 @@ class ScreenMode {
     
     public void drawLine(int x0, int y0, int x1, int y1, int color, boolean isStatic) {
         if( !isStatic ){
-            x0 += cameraX;
-            x1 += cameraX;
-            y0 += cameraY;
-            y1 += cameraY;
+            x0 -= cameraX;
+            x1 -= cameraX;
+            y0 -= cameraY;
+            y1 -= cameraY;
         }
         
         drawLine((int) x0, (int) y0, (int) x1, (int) y1, color);

@@ -53,8 +53,8 @@ public class Sprite implements __stub__ {
         boolean flip = flags&4;
 
         if( !(flags&1) ){
-            x += screen.cameraX;
-            y += screen.cameraY;
+            x -= screen.cameraX;
+            y -= screen.cameraY;
         }        
         
         __inline_cpp__("const up_femto::uc_FrameRef &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, screen);__blit_4bpp( f.frame, x.getInteger() + f.offsetX, y.getInteger() + f.offsetY, &screen->buffer->arrayRead(0), flip, mirror )");

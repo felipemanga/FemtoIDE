@@ -17,8 +17,8 @@ public class Image implements __stub__ {
     void draw( HiRes16Color screen, float x, float y, boolean mirror, boolean flip, boolean isStatic ){
 
         if( !isStatic ){
-            x += screen.cameraX;
-            y += screen.cameraY;
+            x -= screen.cameraX;
+            y -= screen.cameraY;
         }
 
         pointer data = getImageDataForScreen( screen );
