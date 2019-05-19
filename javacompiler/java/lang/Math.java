@@ -93,7 +93,7 @@ public class Math implements __stub__ {
     public static float cos( float angle ){}
 
     public static float sin( float angle ){
-        return cos( angle + PI );
+        return cos( angle + PI*0.5f );
     }
 
     public static float atan2( float fy, float fx ){}

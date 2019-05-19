@@ -36,23 +36,23 @@ static const std::uint8_t cosTable[] = {
 if( angle < 0 ){
     constexpr uc_float::InternalType c = ~0 >> (32 - uc_float::FractionSize - 2);
     angle = uc_float::fromInternal(
-        c - ((-angle).getInternal() & c)
-        );
+         c - ((-angle).getInternal() & c)
+         );
 }
 
-std::uint32_t iangle = (angle.getInternal() >> (uc_float::FractionSize - 8));
+std::uint32_t iangle = angle.getInternal()*326 >> 9;
 std::uint32_t quadrant = (iangle >> 8) & 3;
 iangle &= 0xFF;
 
 switch( quadrant ){
 case 0:
-    return uc_float::fromInternal( cosTable[iangle] );
+    return uc_float::fromInternal( int32_t(cosTable[iangle]) );
 case 1:
-    return uc_float::fromInternal( -cosTable[255-iangle] );
+    return uc_float::fromInternal( -int32_t(cosTable[255-iangle]) );
 case 2:
-    return uc_float::fromInternal( -cosTable[iangle] );
+    return uc_float::fromInternal( -int32_t(cosTable[iangle]) );
 case 3:
-    return uc_float::fromInternal( cosTable[255-iangle] );
+    return uc_float::fromInternal( int32_t(cosTable[255-iangle]) );
 default:
     return 0;
 }
