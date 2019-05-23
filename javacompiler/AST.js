@@ -87,7 +87,7 @@ function ast( node, depth=0, name ){
     }
 
     if( !depth )
-        throw "Unsupported node: " + msg;
+        throw new Error("Unsupported node: " + msg);
 }
 
 

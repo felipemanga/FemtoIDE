@@ -31,7 +31,7 @@ class TypeRef {
 
         }else{
 
-            if( node.name == "unannType" )
+            if( node.name == "unannType" || node.name == "unannClassType" )
                 node = Object.values(node.children)[0][0];
 
             if( Array.isArray(node) )
@@ -51,12 +51,14 @@ class TypeRef {
             }
 
             if( nc.name == "classOrInterfaceType" ){
+                this.isReference = true;
                 this.name = nc.children
                     .classType[0]
                     .children
                     .Identifier
                     .map( idNode => idNode.image );
-            }else if( nc.name == "unannClassOrInterfaceType" ){
+            }else if( nc.name == "unannClassOrInterfaceType" || nc.name == "unannClassType" ){
+                this.isReference = true;
                 this.name = nc.children
                     .unannClassType[0]
                     .children
@@ -85,9 +87,8 @@ class TypeRef {
         }
 
         if(!this.name){
+            const {ast} = require("./AST.js");
             ast(node);
-            console.log("Bad typeref: ", this);
-            throw "Bacon";
         }
     }
 
@@ -95,22 +96,34 @@ class TypeRef {
         if( this.type == null ){
             const {getUnit} =  require("./Unit.js");
             let unit = getUnit(this.scope);
-            this.type = unit.resolve(this.name, this.trail, this.scope);
+            this.type = unit.resolve(this.name, this.trail, x=>x.isType, this.scope );
         }
         return this.type;
     }
 
-    resolve( fqcn, trail ){
+    resolve( fqcn, trail, test ){
+
+        if( trail == this.trail )
+            return null;
 
         if( this.isArray ){
             let unit = getUnit(this.scope);
             return unit
-                .resolve("Array", [], this.scope)
-                .resolve( fqcn, trail );
+                .resolve("Array", [], x=>x.isType, this.scope)
+                .resolve( fqcn, trail, test );
         }
 
-        // console.log("FQCN TypeRef: ", fqcn);
-        return this.getTarget().resolve( fqcn, trail );                
+        let target = this.getTarget();
+        
+        if( !target.resolve ){
+            let ctx = target, str=[];
+            while(ctx){
+                str.unshift(ctx.name);
+                ctx = ctx.scope;
+            }
+            throw new Error(`Resolve ${fqcn.join(".")} on ${target && target.constructor.name} in ${str.join(" in ")}`);
+        }
+        return target.resolve( fqcn, trail, test );                
     }
 }
 

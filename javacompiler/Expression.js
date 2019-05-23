@@ -289,13 +289,31 @@ class Expression {
             // ast(expr);
             this.operation = "new";
             if( isArray ){
-                this.array = left
+                let acex = left
                     .newExpression[0].children
-                    .arrayCreationExpression[0].children
-                    .arrayCreationDefaultInitSuffix[0].children
-                    .dimExprs[0].children
-                    .dimExpr
-                    .map( expr => new Expression( expr.children.expression[0] ) );
+                    .arrayCreationExpression[0].children;
+                
+                if( acex.arrayCreationExplicitInitSuffix ){
+                    this.arrayInitializer = acex.arrayCreationExplicitInitSuffix[0]
+                        .children
+                        .arrayInitializer[0].children
+                        .variableInitializerList[0].children
+                        .variableInitializer.map( ai => new Expression(
+                            ai.children
+                                .expression[0],
+                            this.scope) );
+                }else if( acex.arrayCreationDefaultInitSuffix ){
+                    this.array = acex
+                        .arrayCreationDefaultInitSuffix[0].children
+                        .dimExprs[0].children
+                        .dimExpr
+                        .map( expr => new Expression( expr.children.expression[0] ) );                    
+                }else{
+                    ast( left
+                         .newExpression[0].children
+                         .arrayCreationExpression[0] );
+                }
+                
             }
             let ex = Object.values(left.newExpression[0].children)[0][0];
             if( isArray ){

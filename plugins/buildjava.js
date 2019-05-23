@@ -286,30 +286,34 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         }
 
         function onDoneLoadingVFS(){
-
-            // global.console = console;
-
-            let fqcn = mainClass.split(".");
-            let unit = toAST( fqcn );
-
-            if( unit ){
-                let output = require(`${DATA.appPath}/javacompiler/cppwriter.js`).write(unit, fqcn, DATA.project.target, DATA.buildMode == "DEBUG");
+            try {
                 
-                let buffer = DATA.debugBuffer;
-                if( !DATA.debugBuffer ){
-                    buffer = new Buffer();
-                    APP.customSetVariables({debugBuffer:buffer});
+                // global.console = console;
+
+                let fqcn = mainClass.split(".");
+                let unit = toAST( fqcn );
+
+                if( unit ){
+                    let output = require(`${DATA.appPath}/javacompiler/cppwriter.js`).write(unit, fqcn, DATA.project.target, DATA.buildMode == "DEBUG");
+                    
+                    let buffer = DATA.debugBuffer;
+                    if( !DATA.debugBuffer ){
+                        buffer = new Buffer();
+                        APP.customSetVariables({debugBuffer:buffer});
+                    }
+
+                    output = makeSourceMap(output);
+
+                    buffer.modified = true;
+                    buffer.data = output;
+                    buffer.name = "generated.cpp";
+                    buffer.type = "CPP";
+                    buffer.transform = null;
+                    buffers.push(buffer);
+                    onDone();
                 }
-
-                output = makeSourceMap(output);
-
-                buffer.modified = true;
-                buffer.data = output;
-                buffer.name = "generated.cpp";
-                buffer.type = "CPP";
-                buffer.transform = null;
-                buffers.push(buffer);
-                onDone();
+            }catch( ex ){
+                onDone(ex);
             }
         }
 

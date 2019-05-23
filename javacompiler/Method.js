@@ -79,14 +79,21 @@ class Constructor {
 
     }
 
-    resolve( fqcn, trail ){
-        // console.log("FQCN constructor: ", fqcn);
+    resolve( fqcn, trail, test ){
         fqcn = [...fqcn];
         let name = fqcn.shift();
+
         for( let field of this.parameters ){
             if( field.name == name ){
+                if( !fqcn.length ){
+                    if( !test(field) )
+                        continue;
+                    trail.push( field );
+                    return field;
+                }
+                
                 trail.push( field );
-                return field.type.resolve( fqcn, trail );
+                return field.type.resolve( fqcn, trail, test );
             }
         }
         return null;
@@ -198,15 +205,22 @@ class Method {
         this.body = body;
     }
 
-    resolve( fqcn, trail ){
+    resolve( fqcn, trail, test ){
         // console.log("FQCN method: ", fqcn);
         fqcn = [...fqcn];
         let name = fqcn.shift();
 
         for( let field of this.parameters ){
             if( field.name == name ){
+                if( !fqcn.length ){
+                    if( !test(field) )
+                        continue;
+                    trail.push( field );
+                    return field;
+                }
+                
                 trail.push( field );
-                return field.type.resolve( fqcn, trail );
+                return field.type.resolve( fqcn, trail, test );
             }
         }
         return null;

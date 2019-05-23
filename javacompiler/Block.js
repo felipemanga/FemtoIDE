@@ -21,7 +21,6 @@ class Block {
 
     notStatement( node ){
         ast(node);
-        throw "Eh?!";
     }
 
     statementExpressionList( node ){
@@ -39,14 +38,15 @@ class Block {
         this.statements.push( new Statement( Object.values(node.children)[0][0], this ) );
     }
 
-    resolve( fqcn, trail ){
-        // console.log("FQCN block: ", fqcn);
+    resolve( fqcn, trail, test){
         fqcn = [...fqcn];
         let name = fqcn.shift();
         for( let field of this.locals ){
-            if( field.name == name ){
+            if( field.name == name ){                
                 trail.push( field );
-                return field.type.resolve( fqcn, trail );
+                if( !fqcn.length && test(field) )
+                    return field;
+                return field.type.resolve( fqcn, trail, test);
             }
         }
         return null;

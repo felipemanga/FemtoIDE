@@ -26,11 +26,11 @@ class Type {
         }else{
             let declNode = (node.children[ key ]||[])[0];
             if( !declNode )
-                throw "Expected " + key + JSON.stringify(node);
+                throw new Error("Expected " + key + JSON.stringify(node));
             
             let identNode = (declNode.children.typeIdentifier||[])[0];
             if( !identNode )
-                throw "Expected typeIdentifier";
+                throw new Error("Expected typeIdentifier");
 
             this.name = identNode.children
                 .Identifier[0].image.replace(/^__(.*?)_internal_placeholder__$/, "$1");

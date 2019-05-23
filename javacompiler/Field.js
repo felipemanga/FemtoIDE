@@ -8,6 +8,7 @@ class Field {
         this.isStatic = false;
         this.isFinal = false;
         this.isVolatile = false;
+        this.isField = true;
 
         if( modifier ){
             modifier.forEach(mod=>{

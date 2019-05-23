@@ -1,5 +1,6 @@
 
 let unitId = 1;
+let depth = 0;
 class Unit {
     
     constructor(){
@@ -10,7 +11,16 @@ class Unit {
         this.file = "";
     }
 
-    resolve( fqcn, trail, scope, dbg ){
+    resolve( fqcn, trail, test, scope ){
+        if( !test )
+            test = _=>true;
+
+        depth++;
+
+        if( typeof test != "function" ){
+            throw new Error(`Type of test is ${typeof test}: ${test?test.constructor.name:test}`);
+        }
+        
         let ret;
         const {Ref} = require("./Ref.js");
         if( fqcn instanceof Ref )
@@ -21,11 +31,12 @@ class Unit {
         else
             fqcn = [...fqcn];
         
+        if( depth==20 ){
+            // throw new Error(`d=10: ${fqcn.join(".")}`);
+        }
+
         let srcfqcn = [...fqcn];
         
-        if( dbg )
-            console.log("Looking for: ", fqcn);
-
         for( let impdecl of this.imports ){
             let imp = impdecl.fqcn;
             if( impdecl.star ){
@@ -44,9 +55,7 @@ class Unit {
             while( scope && !ret ){
                 if( scope.resolve ){
                     trail.length = len;
-                    if( dbg )
-                        console.log( "in: ", scope.name );
-                    ret = scope.resolve( fqcn, trail );
+                    ret = scope.resolve( fqcn, trail, test );
                 }
                 scope = scope.scope;
             }
@@ -61,7 +70,7 @@ class Unit {
                     oscope = oscope.scope;
                 }
             }
-            
+            depth--;
             return ret;
         }else{
             let name = fqcn[0];
@@ -73,9 +82,12 @@ class Unit {
                     if( !type.resolve ){
                         console.error("Error: ", type, fqcn);
                     }
-                    ret = type.resolve(fqcn.splice(1,fqcn.length), trail);
+                    ret = type.resolve(fqcn.splice(1,fqcn.length), trail, test);
                 }
-                else return type;
+                else{
+                    depth--;
+                    return type;
+                }
             }
         }
 
@@ -91,7 +103,7 @@ class Unit {
                 dirs.pop();
             }
             if( unit && unit != this ){
-                ret = unit.resolve(path, trail, null);
+                ret = unit.resolve(path, trail, test, null);
             }
         }
 
@@ -102,7 +114,7 @@ class Unit {
                     continue;
 
                 let cfqcn = [...impdecl.fqcn, ...fqcn];
-                ret = this.resolve( cfqcn, trail );
+                ret = this.resolve( cfqcn, trail, test, null );
 
                 if( ret )
                     break;
@@ -111,10 +123,10 @@ class Unit {
 
         
         if( !ret ){
-            console.error( "Could not find " + srcfqcn.join(".") );
-            throw ( "Could not find " + srcfqcn.join(".") );
+            throw new Error( "Could not find " + srcfqcn.join(".") );
         }
         
+        depth--;
         return ret;
     }
 
@@ -154,7 +166,7 @@ class Unit {
 
         let ocu = node.children.ordinaryCompilationUnit[0];
         if( !ocu )
-            throw "No compilation unit in file";
+            throw new Error("No compilation unit in file");
 
         let packageDeclNodes = ocu.children["packageDeclaration"] || [];
         if( packageDeclNodes.length ){
@@ -183,7 +195,7 @@ class Unit {
                         clazz = Enum;
 
                     if( !clazz )
-                        throw "Unknown type declaration: " + JSON.stringify(kdeclNode);
+                        throw new Error("Unknown type declaration: " + JSON.stringify(kdeclNode));
 
                     this.types.push( new clazz(kdeclNode, this) );
                 }

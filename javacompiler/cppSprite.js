@@ -10,7 +10,7 @@ function writeDraw( sprite ){
         ]);
 
     if( !palette ){
-        throw `image ${sprite.name} has no palette`;
+        throw new Error(`image ${sprite.name} has no palette`);
     }
 
     out += sprite.frames.map( (src, frameNumber) => {

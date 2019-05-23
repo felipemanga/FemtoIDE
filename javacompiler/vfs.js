@@ -7,6 +7,7 @@ function read(file, fmt){
 let src = {
     java:{
         lang:{
+            Exception:{ src:read("/java/lang/Exception.java", "utf-8") },
             Runtime:{ src:read("/java/lang/Runtime.java", "utf-8") },
             System:{ src:read("/java/lang/System.java", "utf-8") },
             String:{ src:require("./java/lang/String.js") },

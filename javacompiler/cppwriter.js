@@ -1,9 +1,11 @@
 let fs = require("fs");
 const {TypeRef} = require("./TypeRef.js");
 
-let platform, platformDir;
+let platform, platformDir, lblId = 0;
 
 let indent, units, isDebugMode;
+
+let VOID, UINT;
 
 function push(){
     indent += "\t";    
@@ -74,6 +76,9 @@ function writeForwardDecl( unit ){
 
 function writeType( type, local ){
     let finalType;
+    if( type.getTarget && !type.isArray )
+        type = type.getTarget();
+    
     if( type.isArray ){
         if( type.getTarget().isNative ){
             finalType = `__array_nat<`;
@@ -81,7 +86,7 @@ function writeType( type, local ){
             finalType = `__array<`;
         }
         finalType += `${writePath(type)}>`;
-    }else if( type.isReference && (type.isEnum || type.getTarget().isEnum) ){
+    }else if( type.isEnum ){
         finalType = writePath(type) + "*";
     }else if( (type.isReference || type.isClass || type.isInterface) && !type.isNative )
         finalType = local ? `__ref__<${writePath(type)}>` : `${writePath(type)}*`;
@@ -506,15 +511,15 @@ function writeExpression( expr, typeHint ){
         break;
         
     case "resolve":
-        out += writePath(expr);
+        let p =  writePath(expr);
+        out += p;
         if( !expr.trail || !expr.trail.length ){
             console.log("Error: ", expr);
         }
         type = expr.trail[ expr.trail.length-1 ];
-        if( type.type ) // field
+        if( type.type ){ // field
             type = type.type;
-        
-        if( type.isMethod ){
+        }else if( type.isMethod ){
             retdata.methodName = type.name;
             retdata.methodScope = type.scope;
             retdata.method = type;
@@ -534,12 +539,19 @@ function writeExpression( expr, typeHint ){
         out += e.out;
         type = e.type;
         if( expr.right ){
-            expr.right.forEach( e => {
+            expr.right.forEach( (e, index) => {
+                let next = expr.right[index+1];
+                
                 if( e.operation == "methodInvocationSuffix" ){
                     e = writeExpression(e);
                     out += e.out;
                     let argTypes = e.type;
-                    type = prevResult.method.result;
+                    if( !prevResult.method ){
+                        type = VOID;
+                        // throw new Error(out + " is not a method");
+                    }else{
+                        type = prevResult.method.result;
+                    }
                     prevResult = e;
                 }else if( e.operation == "arrayAccessSuffix" ){
                     e = prevResult = writeExpression(e, type.getTarget() );
@@ -551,9 +563,12 @@ function writeExpression( expr, typeHint ){
                         if( type.isTypeRef )
                             type = type.getTarget();
                         let trail = [];
-                        let field = type.resolve([e], trail);
+                        let test = _=>true;
+                        if( next && next.operation == "methodInvocationSuffix" )
+                            test = x=>x.isMethod;
+                        let field = type.resolve([e], trail, test);
                         if( !field ){
-                            throw `Could not find ${e} in ${type.constructor.name} ${type.name}`;
+                            throw new Error(`Could not find ${e} in ${type.constructor.name} ${type.name}`);
                         }
                         type = field.type;
 
@@ -620,9 +635,17 @@ function writeExpression( expr, typeHint ){
     case "new":
         let close = "";
         if( expr.left.isArray ){
-            out += `new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>{`;
-            out += expr.array.map(a => writeExpression(a).out).join(", ");
-            out += '}';
+            if( expr.array ){
+                out += `new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>{`;
+                out += expr.array.map(a => writeExpression(a).out).join(", ");
+                out += '}';
+            }else{
+                out += `(new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>)`;
+                out += "->loadValues({";
+                out += expr.arrayInitializer.map( e => writeExpression( e ).out ).join(",");
+                out += "})";
+            }
+            
             type = expr.left;
         }else if( expr.left.getTarget().isInline ){
             let ref = expr.left.getTarget();
@@ -684,7 +707,7 @@ function writeExpression( expr, typeHint ){
                         out += "up_java::up_lang::uc_uint(" + left.out + ")";
                         out += ">>";
                         out += right.out;
-                        type = new TypeRef(["uint", false, expr.scope]);
+                        type = UINT;
                     }else{
                         out += left.out;
                         out += expr.operation;
@@ -739,9 +762,9 @@ function writeExpression( expr, typeHint ){
         right.forEach( ex => {
             if( typeof ex == "string" ){
                 let trail = [];
-                let target = type.resolve( [ex], trail );
+                let target = type.resolve( [ex], trail, x=>true );
                 if( !target ){
-                    throw `Could not find ${ex} in ${type.name}`;
+                    throw new Error(`Could not find ${ex} in ${type.name}`);
                 }
                 if( type.isClass || type.isInterface ) out += "->";
                 else out += ".";
@@ -758,6 +781,11 @@ function writeExpression( expr, typeHint ){
 }
 
 function writeStatement( stmt, block, noSemicolon ){
+    if( !stmt.location ){
+        console.error( "Invalid statement: ", stmt );
+        throw new Error("Invalid Statement");
+    }
+
     let out = `\n/*<MAP*${stmt.location.unit}|${stmt.location.startLine}|${stmt.location.startColumn}*MAP>*/`;
     switch( stmt.type ){
     case "variableDeclarator":
@@ -799,10 +827,30 @@ function writeStatement( stmt, block, noSemicolon ){
     case "emptyStatement":
         break;
     case "breakStatement":
-        out += `${indent}break;\n`;
-        break;
+        if( !stmt.label )
+            out += `${indent}break;\n`;
+        else{
+            let pscope = stmt.scope;
+            while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
+                pscope = pscope.scope;
+            }
+            if( !pscope )
+                throw new Error(`Label ${stmt.label} not found.`);
+            out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
+        }
+
     case "continueStatement":
-        out += `${indent}continue;\n`;
+        if( !stmt.label )
+            out += `${indent}continue;\n`;
+        else{
+            let pscope = stmt.scope;
+            while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
+                pscope = pscope.scope;
+            }
+            if( !pscope )
+                throw new Error(`Label ${stmt.label} not found.`);
+            out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
+        }
         break;
     case "switchStatement":
         out += indent + "switch( ";
@@ -831,6 +879,16 @@ function writeStatement( stmt, block, noSemicolon ){
         out += indent + writeExpression(stmt.expression).out + ";\n";
         break;
 
+    case "throwStatement":
+        {
+            let e = writeExpression(stmt.expression);
+            out += indent + "throw __ref__<"
+                + writePath(e.type)
+                + ">"
+                + e.out + ";\n";
+        }
+        break;
+        
     case "returnStatement":
         if( stmt.expression )
             out += indent + "return " + writeExpression(stmt.expression).out + ";\n";
@@ -899,55 +957,88 @@ function writeStatement( stmt, block, noSemicolon ){
 
         break;
 
-    case "enhancedForStatement":
-        out += indent + "for( ";
-        out += writeType( stmt.iterator.type, false );
-        out += " " + stmt.iterator.name;
-        out += " : ";
-        let e = writeExpression(stmt.iterable);
-        out += e.out;
-        out += "->iterator()";
-        out += ")\n";
-        if( stmt.body.type != "block" ){
-            out += `${indent}{\n`;
-            push();
-        }
-        out += writeStatement( stmt.body, block );
-        if( stmt.body.type != "block" ){
-            pop();
-            out += `${indent}}\n`;
-        }
+    case "tryStatement":
+        out += indent + "try";
+        out += writeStatement( stmt.tryBlock );
 
-        break;
-
-    case "forStatement":
-        out += indent + "for( ";
-        if( stmt.init ){
-            let backup = indent;
-            indent = "";
-            out += stmt.init.map( init => writeStatement(init, stmt.scope, true) ).join(", ");
-            indent = backup;
-        }
-        out += ";";
-
-        out += " " + (stmt.condition?writeExpression(stmt.condition).out:"");
-
-        out += "; ";
-        out += stmt.update.map(x=>writeExpression(x).out).join(",");
-        out += ")\n";
-
-        if( stmt.body.type != "block" ){
-            out += `${indent}{\n`;
-            push();
-        }
-        out += writeStatement( stmt.body, block );
-        if( stmt.body.type != "block" ){
-            pop();
-            out += `${indent}}\n`;
-        }
+        stmt.catches.forEach( cstmt=>{
+            out += "catch(";
+            out += writeType(cstmt.field.type, true);
+            out += " " + cstmt.field.name;
+            out += ")" + writeStatement(cstmt.block);
+        });
         
         break;
 
+    case "enhancedForStatement":
+        {
+            out += indent + "for( ";
+            out += writeType( stmt.iterator.type, false );
+            out += " " + stmt.iterator.name;
+            out += " : ";
+            let e = writeExpression(stmt.iterable);
+            out += e.out;
+            out += "->iterator()";
+            out += ")\n";
+
+            let needsBraces = (stmt.body.type != "block") || !!stmt.label;
+
+            if( needsBraces ){
+                out += `${indent}{\n`;
+                push();
+            }
+
+            out += writeStatement( stmt.body, block );
+
+            if( stmt.label )
+                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:\n`;
+            if( needsBraces ){
+                pop();
+                out += `${indent}}\n`;
+            }
+            if( stmt.label )
+                out += `${indent}_break_${stmt.labelId}_${stmt.label}:\n`;
+
+            break;
+        }
+        
+    case "forStatement":
+        {
+            out += indent + "for( ";
+            if( stmt.init ){
+                let backup = indent;
+                indent = "";
+                out += stmt.init.map( init => writeStatement(init, stmt.scope, true) ).join(", ");
+                indent = backup;
+            }
+            out += ";";
+
+            out += " " + (stmt.condition?writeExpression(stmt.condition).out:"");
+
+            out += "; ";
+            out += stmt.update.map(x=>writeExpression(x).out).join(",");
+            out += ")\n";
+
+            let needsBraces = (stmt.body.type != "block") || !!stmt.label;
+
+            if( needsBraces ){
+                out += `${indent}{\n`;
+                push();
+            }
+            
+            out += writeStatement( stmt.body, block );
+            if( stmt.label )
+                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:\n`;
+            if( needsBraces ){
+                pop();
+                out += `${indent}}\n`;
+            }
+            if( stmt.label )
+                out += `${indent}_break_${stmt.labelId}_${stmt.label}:\n`;
+            
+            break;
+        }
+        
     case "block":
         out += `${indent}{\n`;
         push();
@@ -999,8 +1090,20 @@ function writeBlock( block ){
         out += writeRawData( block.rawData );
     }
 //    if( block.colors32 )
-//        out += writeColors( block.colors32 );
+    //        out += writeColors( block.colors32 );
 
+    //if( out == "" )
+    //    out = Object.keys(block).map(k=>`${k}: ${block[k]}`).join("\n");
+
+    return out;
+}
+
+function callClassInitializer( type ){
+    let out = "";
+    if( !type.initializers || !type.initializers.length )
+        return out;
+    out += writePath( type );
+    out += "::__class_initializer__();\n";
     return out;
 }
 
@@ -1142,7 +1245,13 @@ function addUnit( unit ){
 
 }
 
+function init( unit ){
+    VOID = new TypeRef(["void"], false, unit);
+    UINT = new TypeRef(["uint"], false, unit);
+}
+
 function write( unit, main, plat, dbg ){
+    init(unit);
     isDebugMode = dbg;
 
     units = {};
@@ -1186,6 +1295,12 @@ function write( unit, main, plat, dbg ){
         },
         trail
     });
+
+    out += "void __initialize_classes__(){\n";
+    for( let type of types ){
+        out += callClassInitializer(type.type);
+    }
+    out += "}\n";
 
     let end = fs.readFileSync( platformDir+"/end.cpp", "utf-8" );
     end = end.replace(/\$MAINCLASS\$/, pathToMain);

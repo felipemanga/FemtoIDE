@@ -7,12 +7,20 @@ function getLocation( node, scope ){
     return Object.assign({ unit }, node.location);
 }
 
+let nextLabelId = 0;
+
 class Statement {
     
     constructor(node, scope){
         this.scope = scope;
+        if( !node ){
+            this.type = null;
+            return;
+        }
         this.location = getLocation(node, scope);
         this.defer(node);
+        if( this.scope != scope )
+            this.scope.stmt = this;
     }
 
     defer( node ){
@@ -24,7 +32,7 @@ class Statement {
             const {ast} = require("./AST.js");
             ast(node);
             console.log(node);
-            throw ("Unknown Stmt: "+this.type);
+            throw new Error("Unknown Stmt: "+this.type);
         }
     }
 
@@ -37,6 +45,13 @@ class Statement {
     }
 
     emptyStatement( node ){
+    }
+
+    throwStatement( node ){
+        this.expression = new Expression(
+            node.children
+                .expression[0],
+            this.scope);
     }
 
     returnStatement( node ){
@@ -108,8 +123,12 @@ class Statement {
         this.block = new Block(statements && statements[0], this.scope );
     }
 
-    continueStatement( node ){}
-    breakStatement( node ){}
+    continueStatement( node ){
+        this.label = node.children.Identifier ? node.children.Identifier[0].image : null;
+    }
+    breakStatement( node ){
+        this.label = node.children.Identifier ? node.children.Identifier[0].image : null;
+    }
 
     switchStatement( node ){
         const {Block} = require("./Block.js");
@@ -132,12 +151,64 @@ class Statement {
                                     this.scope )
                     :
                     undefined),
-                block: new Block( cnode.children
-                                  .blockStatements[0],
+                block: new Block( cnode.children.blockStatements &&
+                                  cnode.children.blockStatements[0],
                                   this.scope )
 
             }));
         
+    }
+
+    tryStatement( node ){
+        const {Block} = require("./Block.js");
+        const {Field} = require("./Field.js");
+        
+        this.tryBlock = new Statement(
+            node.children.block[0],
+            this.scope
+        );
+
+        if( !node.children.catches ){
+            this.catches = [];
+            return;
+        }
+
+        this.catches = node.children
+            .catches[0].children
+            .catchClause.map( cc => {
+                let block;
+
+                block = new Statement(
+                    cc.children.block[0],
+                    this.scope
+                );
+                
+                let type = cc.children
+                    .catchFormalParameter[0].children
+                    .catchType[0].children
+                    .unannClassType[0];
+                
+                let field = new Field(
+                    null,
+                    type,
+                    cc.children
+                        .catchFormalParameter[0].children
+                        .variableDeclaratorId[0].children
+                        .Identifier[0].image,
+                    false,
+                    null,
+                    block
+                );
+                
+                return {field, block};
+            });
+    }
+    
+    labeledStatement( node ){
+        let stmt = Object.values(node.children.statement[0].children)[0][0];
+        this.defer( stmt );
+        this.label = node.children.Identifier[0].image;
+        this.labelId = nextLabelId++;
     }
 
     enhancedForStatement( node ){

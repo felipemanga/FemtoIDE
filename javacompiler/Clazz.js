@@ -15,7 +15,8 @@ class Clazz extends Type {
             "class",
             parent
         );
-        
+
+        this.initializers = [];
         this.fields = [];
         this.methods = [];
         this.types = [];
@@ -36,6 +37,36 @@ class Clazz extends Type {
             this.initInterface( node );
         }
 
+        if( this.initializers.length ){
+            const {Block} = require("./Block.js");
+            const {Statement} = require("./Statement.js");
+            
+            let init = new Method(null, this);
+            init.isStatic = true;
+            init.isPublic = true;
+            init.name = "__class_initializer__";
+            init.body = new Block(null, init);
+            init.result = new TypeRef(["void"], false, this);
+
+            let scope = this.scope;
+            while( scope.scope )
+                scope = scope.scope;
+            let unit = scope.file;
+
+            this.initializers.forEach( n => {
+                let stmt = new Statement(null, init.body);
+                stmt.type = "block";
+                stmt.block = n;
+                stmt.location = {
+                    unit,
+                    startLine:0,
+                    startColumn:0
+                };
+                init.body.statements.push( stmt );
+            });
+            this.methods.push(init);
+        }
+        
     }
 
     initClass( node ){
@@ -100,7 +131,6 @@ class Clazz extends Type {
                 if( !this[decl.name] ){
                     console.error( decl );
                     ast(decl);
-                    throw "ERROR: unknown interface member node";
                 }
                 
                 this[ decl.name ]( decl );
@@ -131,26 +161,37 @@ class Clazz extends Type {
         
         memberNodes.forEach( n => {
 
-            let decl = n.children.constructorDeclaration
-                ?
-                n.children.constructorDeclaration[0]
-                : Object.values(
+            let decl;
+            if( n.children.constructorDeclaration ){
+                decl = n.children.constructorDeclaration[0];
+            }else{
+                decl = Object.values(
                     Object.values(
                         n.children
                     )[0][0].children
                 )[0][0];
+            }
+
+            if( !decl || decl.image ){
+                decl = Object.values(
+                    n.children
+                )[0][0];
+            }
 
             if( !this[decl.name] ){
-                console.error( decl );
-                ast(decl);
-                throw "ERROR: unknown member node";
+                ast(n);
             }
+            
             this[ decl.name ]( decl );
 
         });
     }
 
-    resolve( fqcn, trail ){
+    resolve( fqcn, trail, test ){
+        if( typeof test != "function" ){
+            throw new Error(`Type of test is ${typeof test}: ${test?test.constructor.name:test}`);
+        }
+
         // console.log("FQCN clazz: ", fqcn);
         if( !fqcn.length )
             return this;
@@ -161,36 +202,36 @@ class Clazz extends Type {
         let name = fqcn.shift();
         if( name == "this" ){
             trail.push( this );
-            return this.resolve(fqcn, trail);
+            return this.resolve(fqcn, trail, test);
         }
 
         if( name == "super" ){
             let superClass = this.extends.getTarget();
             trail.push( superClass );
-            return superClass.resolve(fqcn, trail);
+            return superClass.resolve(fqcn, trail, test);
         }
 
         for( let type of this.types ){
             if( type.name == name ){
                 trail.push( type );
-                if( !fqcn.length )
+                if( !fqcn.length && test(type) )
                     return type;
-                return type.resolve( fqcn, trail );
+                return type.resolve( fqcn, trail, test );
             }
         }
 
         for( let field of this.fields ){
             if( field.name == name ){
                 trail.push( field );
-                if( !fqcn.length )
+                if( !fqcn.length && test(field) )
                     return field;
-                return field.type.resolve( fqcn, trail );
+                return field.type.resolve( fqcn, trail, test );
             }
         }
 
         if( fqcn.length == 0 ){
             for( let method of this.methods ){
-                if( method.name == name && !method.isConstructor ){
+                if( method.name == name && !method.isConstructor && test(method) ){
                     trail.push(method);
                     return method;
                 }
@@ -199,7 +240,7 @@ class Clazz extends Type {
 
         if( this.extends && this.extends.name[0] != "__raw__" ){
             // console.log( this.extends.name );
-            return this.extends.getTarget().resolve( fqcnbackup, trail );
+            return this.extends.getTarget().resolve( fqcnbackup, trail, test );
         }
 
         return null;
@@ -274,6 +315,11 @@ class Clazz extends Type {
 
     constructorDeclaration( node ){
         this.methods.push( new Constructor(node, this) );
+    }
+
+    staticInitializer( node ){
+        const {Block} = require("./Block.js");
+        this.initializers.push( new Block(node.children.block[0].children.blockStatements[0], this) );
     }
 
     staticImage( image, name ){

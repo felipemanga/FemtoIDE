@@ -11,7 +11,7 @@ function writeDraw( block, src ){
         ]);
 
     if( !palette ){
-        throw `image ${block.name} has no palette`;
+        throw new Error (`image ${block.name} has no palette`);
     }
 
     let data = src.data;

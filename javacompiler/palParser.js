@@ -7,7 +7,7 @@ module.exports.parsePalette = function(str, name){
 
     let lines = str.split("\n").map(x=>x.trim());
     if( lines[0] != "JASC-PAL" )
-        throw "Invalid PAL file";
+        throw new Error("Invalid PAL file");
     
     let colorCount = parseInt(lines[2]);
     let colors32 = [];

@@ -7,6 +7,9 @@ class Ref {
         this.target = null;
         this.trail = [];
         this.operation = "resolve";
+        this.isType = false;
+        this.isTypeRef = false;
+        
         // if( this.name == "this" ){
         //     this.target = scope;
         //     while( !this.target.isClass ){
@@ -16,12 +19,10 @@ class Ref {
 
     }
 
-    getTarget( dbg ){
+    getTarget(){
         if( !this.target ){
             let unit = getUnit( this.scope );
-            this.target = unit.resolve( this.name, this.trail, this.scope, dbg );
-        }else if(dbg){
-            console.log( this.name, " already resolved", this.trail );
+            this.target = unit.resolve( this.name, this.trail, t=>!t.isType, this.scope );
         }
         return this.target;
     }

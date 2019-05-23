@@ -211,8 +211,7 @@ int __aeabi_atexit(void *object, void (*destructor)(void *), void *dso_handle) {
 #include <stdlib.h>
 
 extern "C" void *__real_malloc(size_t size);
-
-void *__wrap_malloc(size_t size){
+extern "C" void *__wrap_malloc(size_t size){
     while(true){
         void *ret = __real_malloc(size);
         if( (unsigned int) ret >= 0x10000000 ){
