@@ -698,6 +698,12 @@ class Core {
         
         cmd = this.escapeCmdArgs([APP.replaceDataInString(cmd)])[0];
 
+        let options = {};
+
+        if( typeof args[0] == "object" && args[0].cwd ){
+            Object.assign( options, args.shift() );
+        }
+
         if( Array.isArray(args[0]) )
             args = args[0];
         
@@ -707,10 +713,9 @@ class Core {
 
         if( DATA.os == "windows" ){
             this.escapeCmdArgs(args);
-            child = spawn(cmd, args, {shell:true});
-        }else{
-            child = spawn(cmd, args);
+            options.shell = true;
         }
+        child = spawn(cmd, args, options);
 
         child.stdout.on('data', data => {
             child.emit('data-out', data);

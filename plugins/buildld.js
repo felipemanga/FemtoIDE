@@ -8,11 +8,14 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
         },
 
         ["compile-ld"]( files, cb ){
+            let cwd;
             let olist = files.find( f=>f.type=="o list" );
             if( !olist ){
                 cb("Could not find O list");
                 return;
             }
+
+            cwd = DATA.buildFolder;
 
             let linkerPath = DATA[
                 "LD-" + DATA.project.target
@@ -31,10 +34,15 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
             }
 
             let i = flags.indexOf("$objectFiles");
-            if( i > -1 )
-                flags.splice( i, 1, ...olist.data);
+            if( i > -1 ){
+                flags.splice( i, 1, ...olist.data.map(p=>{
+                    if( p.startsWith(cwd) )
+                        return p.substr(cwd.length+1);
+                    return p;
+                }));
+            }
 
-            APP.spawn( linkerPath, ...flags )
+            APP.spawn( linkerPath, {cwd}, ...flags )
                 .on("data-err", err=>{
                     APP.error("LD: " + err);                    
                 })
