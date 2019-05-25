@@ -1,53 +1,72 @@
 import femto.mode.HiRes16Color;
+import femto.Game;
+import femto.State;
+
 import femto.input.Button;
-import femto.palette.Colodore;
-import femto.font.Tiny;
-import femto.font.Tic80;
-import femto.font.Dragon;
+
+import femto.palette.Psygnosia;
+import femto.font.TIC80;
+
+class Level1 extends State {
+    
+    HiRes16Color screen; // the screenmode we want to draw with
+
+    Dog dog; // an animated sprite imported from Aseprite
+    Pattern background; // static image
+    
+    float angle; // floats are actually FixedPoint (23.8)
+    int counter; // variables are automatically initialized to 0 or null
+    
+    // Avoid allocation in a State's constructor.
+    // Allocate on init instead.
+    void init(){
+        screen = new HiRes16Color(Psygnosia.palette(), TIC80.font());
+        background = new Pattern();
+        dog = new Dog();
+        dog.run(); // "run" is one of the animations in the spritesheet
+    }
+    
+    // Might help in certain situations
+    void shutdown(){
+        screen = null;
+    }
+    
+    // called by femto.Game for every frame
+    void update(){
+        
+        counter++;
+        
+        for( int y=0; y<176; y += background.height() ){
+            for( int x=0; x<220; x += background.width() ){
+                background.draw(screen, x, y);
+            }
+        }
+        
+        if( Button.A.isPressed() ){
+            while( Button.A.isPressed() );
+            femto.Game.changeState( new Level1() );
+        }
+        
+        screen.setTextPosition( 100, 84 );
+        screen.print((counter>>5)&1 ? "ROUND" : "AND");
+        
+        angle += 0.03f;
+        
+        float previousX = dog.x;
+        dog.x = 80 + Math.cos(angle) * 60.0f;
+        dog.y = 44 + Math.sin(angle) * 50.0f;
+
+        dog.setMirrored( previousX > dog.x );
+        
+        dog.draw(screen);
+        
+        screen.flush();
+    }
+    
+}
 
 public class Game {
-
     public static void main(String[] args){
-        float previousX = 0, angle;
-        int counter = 0;
-
-        HiRes16Color screen = new HiRes16Color(Colodore.palette(), Dragon.font());
-
-        Pattern background = new Pattern();
-        
-        Dog dog = new Dog();
-        dog.setPosition(80, 80);
-        dog.run();
-
-        System.out.println("Hello, world!");
-        
-        while(true){
-            screen.setTextPosition( 10, 10 );
-            
-            for( int y=0; y<176; y += background.height() ){
-                for( int x=0; x<220; x += background.width() ){
-                    background.draw(screen, x, y);
-                }
-            }
-            
-            angle += 0.03f;
-            if( counter--<0 ){
-                System.out.println(screen.fps());
-                counter = 100;
-            }
-            
-            previousX = dog.x;
-            dog.x = 80 + Math.cos(angle) * 60.0f;
-            dog.y = 44 + Math.sin(angle) * 50.0f;
-
-            dog.setMirrored( previousX > dog.x );
-
-            dog.draw(screen);
-            
-            screen.fillCircle( 110, 88, 10, 13 );
-            screen.drawCircle( 110, 88, 10, 11 );
-
-            screen.flush();
-        }
+        femto.Game.run( TIC80.font(), new Level1() );
     }
 }

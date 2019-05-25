@@ -18,6 +18,12 @@ public class Direct extends ScreenMode implements __stub__ {
         return 176;
     }
 
+    public static int rgb( ubyte r, ubyte g, ubyte b ){
+        return (((int)(r>>3))<<11)
+            | (((int)(g>>2))<<5)
+            | ((int)(b>>3));
+    }
+
     public void clear( int color ){
         beginStream();
         writeData(color);

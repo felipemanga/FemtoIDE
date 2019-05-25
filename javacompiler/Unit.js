@@ -36,18 +36,6 @@ class Unit {
         }
 
         let srcfqcn = [...fqcn];
-        
-        for( let impdecl of this.imports ){
-            let imp = impdecl.fqcn;
-            if( impdecl.star ){
-                // ignore for now
-            }else if( imp[imp.length-1] == fqcn[0] ){
-                scope = null;
-                fqcn.shift();
-                fqcn = [...imp, ...fqcn];
-                break;
-            }
-        }
 
         if( scope ){
             let len = trail.length;
@@ -73,6 +61,7 @@ class Unit {
             depth--;
             return ret;
         }else{
+
             let name = fqcn[0];
             let type = this.types.find( t => t.name == name );
             if( type ){
@@ -107,6 +96,22 @@ class Unit {
             }
         }
 
+        if( !ret ){
+            for( let impdecl of this.imports ){
+                let imp = impdecl.fqcn;
+                if( impdecl.star ){
+                    // ignore for now
+                }else if( imp[imp.length-1] == fqcn[0] ){
+                    scope = null;
+                    let cfqcn = [...fqcn];
+                    cfqcn.shift();
+                    ret = this.resolve([...imp, ...cfqcn], trail, test, null);
+                    if( ret )
+                        break;
+                }
+            }
+        }
+        
         if( !ret ){
             for( let impdecl of this.imports ){
                 let imp = impdecl.fqcn;

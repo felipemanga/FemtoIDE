@@ -132,6 +132,7 @@ class Method {
             if( key == "Public" ) this.isPublic = true;
             else if( key == "Static" ) this.isStatic = true;
             else if( key == "Abstract" ) this.isAbstract = true;
+            else if( key == "Private" ) this.isPublic = false;
             else if( key == "annotation" )
                 this.annotations.push( new AnnotationRef(mod.children.annotation[0], this) );
             else console.log("Unknown key: " + key);

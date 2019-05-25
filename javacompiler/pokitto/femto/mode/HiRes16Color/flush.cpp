@@ -1,4 +1,5 @@
 uc_ScreenMode::flush();
+beforeFlush();
 
 #define MODE15_LOOP				\
     "ands %[tmp], %[color]" "\n"		\

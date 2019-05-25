@@ -441,13 +441,29 @@ class ScreenMode {
             drawHLine(a, y, b - a + 1, col);
         }
     }
+
+    public int textHeight(){
+        return ((int) LDRB( font+1 )) + lineSpacing;
+    }
+
+    public void println( String s ){
+        print( s );
+        textX = textLeftLimit;
+        textY += textHeight();        
+    }
     
     public void print( String s ){
+        int h = textHeight();
         int i=0;
         char c;
         while(true){
             c = s[i++];
             if(!c) return;
+            if( c == '\n' ){
+                textX = textLeftLimit;
+                textY += h;
+                continue;
+            }
             putchar(c);
         }
     }

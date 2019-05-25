@@ -7,7 +7,6 @@ import femto.hardware.IRQ;
 public class Button {
     byte port;
     byte bit;
-    byte state;
 
     ButtonListener listener;
 
@@ -33,46 +32,22 @@ public class Button {
 
     @IRQ(name="PIN_INT0")
     public static void _irq0_(){
-        if( A.listener )
-            A.listener.change(A);
-        STR(LPC11U68.IST, 1<<0);
-    }
-
-    @IRQ(name="PIN_INT1")
-    public static void _irq1_(){
-        if( B.listener )
-            B.listener.change(B);
-        STR(LPC11U68.IST, 1<<1);
-    }
-
-    @IRQ(name="PIN_INT2")
-    public static void _irq2_(){
-        if( C.listener )
-            C.listener.change(C);
-        STR(LPC11U68.IST, 1<<2);
-    }
-    
-    @IRQ(name="PIN_INT3")
-    public static void _irq3_(){
         if( Flash.listener )
             Flash.listener.change(Flash);
-        STR(LPC11U68.IST, 1<<3);
+        STR(LPC11U68.IST, 1<<0);
     }
     
-    @IRQ(name="PIN_INT4")
-    public static void _irq4_(){
+    @IRQ(name="PIN_INT1")
+    public static void _irq1_(){
         if( Reset.listener )
             Reset.listener.change(Reset);
-        STR(LPC11U68.IST, 1<<4);
+        STR(LPC11U68.IST, 1<<1);
     }
     
     public static void enableInterrupts(){
-        STR(LPC11U68.PINTSEL0, A.intpin());
-        STR(LPC11U68.PINTSEL1, B.intpin());
-        STR(LPC11U68.PINTSEL2, C.intpin());
-        STR(LPC11U68.PINTSEL3, Flash.intpin());
-        STR(LPC11U68.PINTSEL4, Reset.intpin());
-        SET(LPC11U68.IENR, 0x1F);
+        STR(LPC11U68.PINTSEL0, Flash.intpin());
+        STR(LPC11U68.PINTSEL1, Reset.intpin());
+        SET(LPC11U68.IENR, 0x3);
     }
 
     static {

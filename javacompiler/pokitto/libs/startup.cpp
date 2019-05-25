@@ -175,7 +175,6 @@ extern "C" void software_init_hook(void) __attribute__((weak));
 extern "C" void SystemInit();
 
 AFTER_VECTORS void ResetISR(void) {
-    // LPC_SYSCON->SYSAHBCLKCTRL |= 1<<26;
     *((int*)0x40048080) |= 1<<26;
     SystemInit();
 

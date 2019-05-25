@@ -635,19 +635,19 @@ inline constexpr int64_t __add__(int64_t l, int64_t r){
     return l+r;
 }
 
-inline constexpr int __add__(uint32_t l, int32_t r){
+inline constexpr int32_t __add__(uint32_t l, int32_t r){
     return l+r;
 }
 
-inline constexpr int __add__(int32_t l, uint32_t r){
+inline constexpr int32_t __add__(int32_t l, uint32_t r){
     return l+r;
 }
 
-inline constexpr int __add__(uint32_t l, uint32_t r){
+inline constexpr uint32_t __add__(uint32_t l, uint32_t r){
     return l+r;
 }
 
-inline constexpr int __add__(int32_t l, int32_t r){
+inline constexpr int32_t __add__(int32_t l, int32_t r){
     return l+r;
 }
 

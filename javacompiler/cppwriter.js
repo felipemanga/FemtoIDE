@@ -5,7 +5,7 @@ let platform, platformDir, annotationHandlers;
 
 let indent, units, isDebugMode;
 
-let VOID, UINT;
+let VOID, UINT, INT, FLOAT, NULL, BOOLEAN, STRING, CHAR;
 
 function push(){
     indent += "\t";    
@@ -602,20 +602,42 @@ function writeExpression( expr, typeHint ){
         break;
 
     case "literal":
-        if( expr.literalType == "StringLiteral" ){
+        
+        switch( expr.literalType ){
+        case "StringLiteral":
             out += `__str__(${expr.left})`;
-            type = "String";
-        }else if( expr.literalType == "Null" ){
+            type = STRING;
+            break;
+            
+        case "Null":
             out += "nullptr";
-            type = "Null";
-        }else{
-            if( expr.literalType == "integerLiteral" ){
-                out += expr.left + "L";
-                type = expr.literalType;
-            }else{
-                out += expr.left;
-                type = expr.literalType;
-            }
+            type = NULL;
+            break;
+            
+        case "integerLiteral":
+            out += expr.left + "L";
+            type = INT;
+            break;
+            
+        case "booleanLiteral":
+            out += expr.left;
+            type = BOOLEAN;
+            break;
+
+        case "CharLiteral":
+            out += expr.left;
+            type = CHAR;
+            break;
+
+        case "floatingPointLiteral":
+            out += "up_java::up_lang::uc_float(" + expr.left.replace(/f$/, '') + "f)";
+            type = FLOAT;
+            break;
+
+        default:
+            out += expr.left;
+            type = expr.literalType;
+            throw new Error(`Unknown literal type ${type}`);
         }
         break;
 
@@ -676,7 +698,7 @@ function writeExpression( expr, typeHint ){
             type = expr.left;
         }
         
-        if( !expr.array ){
+        if( !expr.left.isArray ){
             out += "(";
             if( expr.args ){
                 out += expr
@@ -822,8 +844,9 @@ function writeStatement( stmt, block, noSemicolon ){
                 out += "})";
             }else{
                 e = writeExpression(stmt.expression.right);
-                if( local.type.name == "var" )
+                if( local.type.name == "var" ){
                     local.type = e.type;
+                }
                 out += writeType(local.type, true) + " ";
                 out += writeExpression(stmt.expression.left).out;
                 out += "=";
@@ -852,7 +875,8 @@ function writeStatement( stmt, block, noSemicolon ){
                 throw new Error(`Label ${stmt.label} not found.`);
             out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
         }
-
+        break;
+        
     case "continueStatement":
         if( !stmt.label )
             out += `${indent}continue;\n`;
@@ -866,6 +890,7 @@ function writeStatement( stmt, block, noSemicolon ){
             out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
         }
         break;
+        
     case "switchStatement":
         out += indent + "switch( ";
         out += writeExpression(stmt.expression).out;
@@ -1005,13 +1030,13 @@ function writeStatement( stmt, block, noSemicolon ){
             out += writeStatement( stmt.body, block );
 
             if( stmt.label )
-                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:\n`;
+                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:;\n`;
             if( needsBraces ){
                 pop();
                 out += `${indent}}\n`;
             }
             if( stmt.label )
-                out += `${indent}_break_${stmt.labelId}_${stmt.label}:\n`;
+                out += `${indent}_break_${stmt.labelId}_${stmt.label}:;\n`;
 
             break;
         }
@@ -1042,13 +1067,13 @@ function writeStatement( stmt, block, noSemicolon ){
             
             out += writeStatement( stmt.body, block );
             if( stmt.label )
-                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:\n`;
+                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:;\n`;
             if( needsBraces ){
                 pop();
                 out += `${indent}}\n`;
             }
             if( stmt.label )
-                out += `${indent}_break_${stmt.labelId}_${stmt.label}:\n`;
+                out += `${indent}_break_${stmt.labelId}_${stmt.label}:;\n`;
             
             break;
         }
@@ -1284,6 +1309,12 @@ function addUnit( unit ){
 function init( unit ){
     VOID = new TypeRef(["void"], false, unit);
     UINT = new TypeRef(["uint"], false, unit);
+    INT = new TypeRef(["int"], false, unit);
+    FLOAT = new TypeRef(["float"], false, unit);
+    NULL = new TypeRef(["Null"], false, unit);
+    BOOLEAN = new TypeRef(["boolean"], false, unit);
+    CHAR = new TypeRef(["char"], false, unit);
+    STRING = new TypeRef(["String"], false, unit);
 }
 
 function write( unit, main, plat, dbg ){
@@ -1335,9 +1366,9 @@ function write( unit, main, plat, dbg ){
 
     let trail = [];
 
-    endData.MAINCLASS = writePath({
+    endData.MAIN = writePath({
         getTarget(){
-            return unit.resolve(main, trail);
+            return unit.resolve([...main, "main"], trail);
         },
         trail
     });

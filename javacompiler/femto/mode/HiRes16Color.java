@@ -1,5 +1,5 @@
 package femto.mode;
-
+import femto.hardware.ST7775;
 import java.util.Arrays;
 
 public class HiRes16Color extends ScreenMode implements __stub__ {
@@ -49,6 +49,10 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
 
     public void drawHLine(int x, int y, int w, int color){}
     public void drawVLine(int x, int y, int h, int color){}
+
+    private void beforeFlush(){
+        ST7775.beginStream();
+    }
 
     public void flush(){}
 

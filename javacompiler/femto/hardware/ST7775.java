@@ -39,7 +39,6 @@ public class ST7775 {
     public static void beginStream(){
         writeCommand( CMD_WRITE );
         STR( CD_SET, 1 << CD_PIN );
-        STR( WR_SET, 1 << WR_PIN );        
     }
 
     public static void toggle(){

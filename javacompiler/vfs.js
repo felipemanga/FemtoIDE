@@ -127,6 +127,7 @@ let src = {
             ZXSpec:{ src:read("/femto/font/ZXSpec.font"), type:"font", parser:"bin" }
         },
         Sprite:{ src:read("/femto/Sprite.java", "utf-8") },
+        Prompt:{ src:read("/femto/Prompt.java", "utf-8") },
         Image:{ src:read("/femto/Image.java", "utf-8") },
         FrameRef:{ src:read("/femto/FrameRef.java", "utf-8") },
         State:{ src:read("/femto/State.java", "utf-8") },
