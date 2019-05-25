@@ -92,7 +92,8 @@ APP.addPlugin("Build", ["Project"], _=>{
             APP.addMenu("Build", {
                 "Clean":"clean",
                 "Build":"compile",
-                "Run":"run"
+                "Run":"run",
+                "Build & Run":"compileAndRun"
             });
         }
 
