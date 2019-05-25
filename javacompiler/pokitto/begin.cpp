@@ -78,24 +78,7 @@ void __print__( int i ){
     __print__(buff);
 }
 
-void exit( int num ){
-    uint32_t *bootinfo = (uint32_t*)0x3FFF4;
-    if (*bootinfo != 0xB007AB1E) bootinfo = (uint32_t*)0x3FF04; //allow couple of alternative locations
-    if (*bootinfo != 0xB007AB1E) bootinfo = (uint32_t*)0x3FE04; //allow couple of alternative locations
-    if (*bootinfo != 0xB007AB1E) bootinfo = (uint32_t*)0x3F004; //for futureproofing
-    if (*bootinfo != 0xB007AB1E)
-        *((uint32_t*)0xE000ED0C) = 0x05FA0004; //issue system reset
-        
-    __asm volatile ("cpsid i" : : : "memory");
-//    __disable_irq();// Start by disabling interrupts, before changing interrupt v
-    unsigned long app_link_location = *(bootinfo+2);
-
-    asm(" mov r0, %[address]"::[address] "r" (app_link_location));
-    asm(" ldr r1, [r0,#0]"); // get the stack pointer value from the program's reset vector
-    asm(" mov sp, r1");      // copy the value to the stack pointer
-    asm(" ldr r0, [r0,#4]"); // get the program counter value from the program's reset vector
-    asm(" blx r0");          // jump to the' start address
-}
+extern "C" void __wrap_exit(int);
 
 namespace up_java {
     namespace up_lang {

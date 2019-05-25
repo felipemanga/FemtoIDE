@@ -4,14 +4,21 @@ const {Method, Constructor} = require("./Method.js");
 const {Field} = require("./Field.js");
 const {ast} = require("./AST.js");
 
+function getDecl( node ){
+    if( !node.children || node.children.normalClassDeclaration )
+        return "normalClassDeclaration";
+    if( node.children.normalInterfaceDeclaration )
+        return "normalInterfaceDeclaration";
+    if( node.children.annotationTypeDeclaration )
+        return "annotationTypeDeclaration";
+    return null;
+}
+
 class Clazz extends Type {
     constructor( node, parent ){
         super(
             node,
-            (!node.children || node.children.normalClassDeclaration ?
-             "normalClassDeclaration" :
-             (node.children.normalInterfaceDeclaration ? "normalInterfaceDeclaration" : null)
-            ),
+            getDecl(node),
             "class",
             parent
         );
@@ -22,6 +29,7 @@ class Clazz extends Type {
         this.types = [];
         this.extends = null;
         this.implements = [];
+        this.isAnnotation = false;
         this.isInterface = false;
         this.isClass = true;
         this.isInline = false;
@@ -35,6 +43,11 @@ class Clazz extends Type {
             this.initAnonClass( node );
         }else if( node.children.normalInterfaceDeclaration ){
             this.initInterface( node );
+        }else if( node.children.annotationTypeDeclaration ){
+            this.initAnnotation( node );
+        }else{
+            console.log(Object.keys(node.children));
+            ast(node);
         }
 
         if( this.initializers.length ){
@@ -114,6 +127,10 @@ class Clazz extends Type {
                           .classBody[0].children
                           .classBodyDeclaration );
         
+    }
+
+    initAnnotation( node ){
+        this.isAnnotation = true;
     }
 
     initInterface( node ){

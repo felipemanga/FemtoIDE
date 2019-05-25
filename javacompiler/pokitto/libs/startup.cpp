@@ -24,6 +24,25 @@ void *__wrap__sbrk( int incr ){
 
     return (void *) prev_heap_end;
 }
+
+extern "C" void __wrap_exit( int num ){
+    unsigned int *bootinfo = (unsigned int*)0x3FFF4;
+    if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3FF04; //allow couple of alternative locations
+    if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3FE04; //allow couple of alternative locations
+    if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3F004; //for futureproofing
+    if (*bootinfo != 0xB007AB1E)
+        *((unsigned int*)0xE000ED0C) = 0x05FA0004; //issue system reset
+        
+    __asm volatile ("cpsid i" : : : "memory");
+//    __disable_irq();// Start by disabling interrupts, before changing interrupt v
+    unsigned long app_link_location = *(bootinfo+2);
+
+    asm(" mov r0, %[address]"::[address] "r" (app_link_location));
+    asm(" ldr r1, [r0,#0]"); // get the stack pointer value from the program's reset vector
+    asm(" mov sp, r1");      // copy the value to the stack pointer
+    asm(" ldr r0, [r0,#4]"); // get the program counter value from the program's reset vector
+    asm(" blx r0");          // jump to the' start address
+}
     
 #define WEAK          __attribute__ ((weak))
 #define ALIAS(f)      __attribute__ ((weak, alias (#f)))

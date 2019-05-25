@@ -7,6 +7,10 @@ public class StateMachine {
         state = null;
         nextState = null;
     }
+
+    public State getState(){
+        return nextState;
+    }
     
     public void setState( State nextState ){
         this.nextState = nextState;

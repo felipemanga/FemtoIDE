@@ -175,6 +175,7 @@ class Unit {
                 .Identifier
                 .map(n=>n.image);
         }
+
         let importDeclNodes = ocu.children["importDeclaration"] || [];
         for( let declNode of importDeclNodes ){
             this.imports.push( new ImportDeclaration(declNode) );
@@ -184,9 +185,7 @@ class Unit {
         for( let declNode of typeDeclNodes ){
             for( let key in declNode.children ){
                 for( let kdeclNode of declNode.children[key] ){
-
                     let clazz;
-
                     if( kdeclNode.name == "interfaceDeclaration" )
                         clazz = Clazz;
                     else if( kdeclNode.name == "classDeclaration" && kdeclNode.children.normalClassDeclaration )

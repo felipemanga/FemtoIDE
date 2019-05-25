@@ -42,10 +42,32 @@ APP.addPlugin("BuildBIN", ["Build"], _=> {
                     }else{
                         buffer.path = flags[flags.length-1];
                         files.push( buffer );
-                        cb( null );
+                        calculateChecksum( buffer.path );
                     }
                 });
             
+            function calculateChecksum( path ){
+                path = APP.replaceDataInString(path);
+                
+                fs.readFile( path, (err, buffer)=>{
+                    if( err )
+                        return cb( err );
+                    
+                    let acc = 0;
+                    let u32 = new Uint32Array(buffer.buffer);
+                    for( let i=0; i<4; ++i )
+                        acc -= u32[i];
+                    u32[7] = acc;
+                    
+                    fs.writeFile( path, buffer, err=>{
+                        if( err )
+                            return cb( err );
+                        return cb(null);
+                    });
+                    
+                    return undefined;
+                });
+            }
         }
     });
 });

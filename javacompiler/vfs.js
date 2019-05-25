@@ -10,6 +10,7 @@ let src = {
             Exception:{ src:read("/java/lang/Exception.java", "utf-8") },
             Runtime:{ src:read("/java/lang/Runtime.java", "utf-8") },
             System:{ src:read("/java/lang/System.java", "utf-8") },
+            Thread:{ src:read("/java/lang/Thread.java", "utf-8") },
             String:{ src:require("./java/lang/String.js") },
             Array:{ src:require("./java/lang/Array.js") },
             int:{ src:require("./java/lang/int.js") },
@@ -39,9 +40,11 @@ let src = {
         mode:{
             ScreenMode:{ src:read("/femto/mode/ScreenMode.java", "utf-8") },
             HiRes16Color:{ src:read("/femto/mode/HiRes16Color.java", "utf-8") },
+            Direct:{ src:read("/femto/mode/Direct.java", "utf-8") },
         },
         input:{
-            Button:{ src:read("/femto/input/Button.java", "utf-8") }
+            Button:{ src:read("/femto/input/Button.java", "utf-8") },
+            ButtonListener:{ src:read("/femto/input/ButtonListener.java", "utf-8") },
         },
         palette:{
             A64:{src:read("/femto/palette/A64.pal", "utf-8"), parser:"pal"},
@@ -129,6 +132,11 @@ let src = {
         State:{ src:read("/femto/State.java", "utf-8") },
         StateMachine:{ src:read("/femto/StateMachine.java", "utf-8") },
         Game:{ src:read("/femto/Game.java", "utf-8") },
+        hardware:{
+            IRQ:{ src:read("/femto/hardware/IRQ.java", "utf-8") },
+            LPC11U68:{ src:read("/femto/hardware/LPC11U68.java", "utf-8") },
+            ST7775:{ src:read("/femto/hardware/ST7775.java", "utf-8") },
+        },
     },
     __root__:{
     }

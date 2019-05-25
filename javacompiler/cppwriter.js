@@ -1,7 +1,7 @@
 let fs = require("fs");
 const {TypeRef} = require("./TypeRef.js");
 
-let platform, platformDir, lblId = 0;
+let platform, platformDir, annotationHandlers;
 
 let indent, units, isDebugMode;
 
@@ -44,6 +44,13 @@ function writeForwardDecl( unit ){
     return out;
 
     function writeTypes( t ){
+        if( t.isAnnotation ){
+            let name = writePath(t).replace(/::/g, ".");
+            if( annotationHandlers[name] && annotationHandlers[name].forwardDecl ){
+                out += annotationHandlers[name].forwardDecl(t) || "";
+            }
+            return;
+        }
 
         if( t.cppType == "enum class" ){
             out += `${indent}class ue_${t.name}{\n`;
@@ -243,6 +250,13 @@ function writeClassDecl( unit, type, dependencies ){
     function writeTypes( t ){
         if( t.cppType != "class" )
             return;
+        if( t.isAnnotation ){
+            let name = writePath(t).replace(/::/g, ".");
+            if( annotationHandlers[name] && annotationHandlers[name].decl ){
+                out += annotationHandlers[name].decl(t) || "";
+            }
+            return;
+        }
 
         if( t.implements.find( i => i.name.length == 1 && i.name[0] == "__stub_only__" ) )
             return;
@@ -1116,6 +1130,14 @@ function writeClassImpl( unit ){
     return out;
 
     function writeTypes( t ){
+        if( t.isAnnotation ){
+            let name = writePath(t).replace(/::/g, ".");
+            if( annotationHandlers[name] && annotationHandlers[name].implementation ){
+                out += annotationHandlers[name].implementation(t) || "";
+            }
+            return;
+        }
+        
         if( t.cppType == "enum class" ){
             out += `${indent}// ${t.name} enum values\n`;
             t.constantList.forEach( c => {
@@ -1176,8 +1198,22 @@ function writeClassImpl( unit ){
                     return;
                 }
 
-                out += writeMethodSignature( method, false, t.name );
+                let signature = writeMethodSignature( method, false, t.name );
 
+                out += signature;
+
+                if( method.annotations ){
+                    method.annotations.forEach( ref => {
+                        let annotation = ref.getTarget();
+                        let name = ref.name.join(".");
+                        let cname = writePath(annotation).replace(/::/g, ".");
+                        if( !annotation )
+                            throw new Error(`Annotation ${name} not found.`);
+                        if( annotationHandlers[cname] && annotationHandlers[cname].method )
+                            annotationHandlers[cname].method(method, writePath(method), ref.pairs);
+                    });
+                }
+                
                 out += writeMethodBody(method, t);
 
             });
@@ -1251,6 +1287,7 @@ function init( unit ){
 }
 
 function write( unit, main, plat, dbg ){
+    let endData = {};
     init(unit);
     isDebugMode = dbg;
 
@@ -1258,6 +1295,14 @@ function write( unit, main, plat, dbg ){
 
     platform = (plat||"desktop").toLowerCase();
     platformDir = __dirname + "/" + platform;
+
+    annotationHandlers = fs.readdirSync(platformDir + "/annotations")
+        .filter( name => /\.js$/i.test(name) )
+        .reduce( (obj, name) => {
+            let {handler} = require(platformDir + "/annotations/" + name);
+            obj[name.replace(/\.js$/i, "")] = new handler();
+            return obj;
+        }, {});
 
     addUnit(unit);
 
@@ -1289,7 +1334,8 @@ function write( unit, main, plat, dbg ){
         out += dependency.classImpl;
 
     let trail = [];
-    let pathToMain = writePath({
+
+    endData.MAINCLASS = writePath({
         getTarget(){
             return unit.resolve(main, trail);
         },
@@ -1302,9 +1348,18 @@ function write( unit, main, plat, dbg ){
     }
     out += "}\n";
 
+    for( let k in annotationHandlers ){
+        if( annotationHandlers[k].end )
+            annotationHandlers[k].end( endData );
+    }
+
     let end = fs.readFileSync( platformDir+"/end.cpp", "utf-8" );
-    end = end.replace(/\$MAINCLASS\$/, pathToMain);
+    for( let key in endData ){
+        end = end.split("$"+key+"$").join(endData[key]);
+    }
+    end = end.replace(/\$[A-Z]+\$/g, "");
     out += end;
+
     return out;
 
 }

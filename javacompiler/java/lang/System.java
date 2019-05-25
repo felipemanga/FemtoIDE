@@ -13,6 +13,7 @@ public class System extends Object {
 	public static ubyte LDRB( pointer p ){
 		return __inline_cpp__("*((uint8_t*)p)");
 	}
+
 	public static void STR( pointer p, uint v ){
 		__inline_cpp__("*((uint32_t*)p) = v;");
 	}
@@ -23,18 +24,32 @@ public class System extends Object {
 		__inline_cpp__("*((uint8_t*)p) = v;");
 	}
 
+	public static void SET( pointer p, uint v ){
+		__inline_cpp__("*((uint32_t*)p) |= v;");
+	}
+	public static void SETH( pointer p, ushort v ){
+		__inline_cpp__("*((uint16_t*)p) |= v;");
+	}
+	public static void SETB( pointer p, ubyte v ){
+		__inline_cpp__("*((uint8_t*)p) |= v;");
+	}
+
+	public static void CLR( pointer p, uint v ){
+		__inline_cpp__("*((uint32_t*)p) &= ~v;");
+	}
+	public static void CLRH( pointer p, ushort v ){
+		__inline_cpp__("*((uint16_t*)p) &= ~v;");
+	}
+	public static void CLRB( pointer p, ubyte v ){
+		__inline_cpp__("*((uint8_t*)p) &= ~v;");
+	}
+        
         public static void write32( uint p, uint v ){
-            __inline_cpp__("#ifdef POKITTO
-*((uint32_t*)p) = v;
-#endif
-");
+            __inline_cpp__("*((uint32_t*)p) = v;");
         }
         public static uint read32( uint p ){
             uint out;
-            __inline_cpp__("#ifdef POKITTO
-out = *((uint32_t*)p);
-#endif
-");
+            __inline_cpp__("out = *((uint32_t*)p);");
             return out;
         }
         public static void write8( uint p, byte v ){
@@ -54,7 +69,7 @@ out = *((uint8_t*)p);
     }
 
     public static void exit(int num){
-        __inline_cpp__("::exit(num)");
+        __inline_cpp__("::__wrap_exit(num)");
     }
 
     public static void gc(){

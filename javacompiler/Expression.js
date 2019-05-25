@@ -11,6 +11,12 @@ class Expression {
         this.dispatch(expr, opts);
     }
 
+    getString(){
+        if( this.operation != "literal" || this.literalType != "StringLiteral")
+            return null;
+        return this.left.substr(1, this.left.length-2);
+    }
+
     dispatch(expr, opts){
         this.name = expr.name;
         this.node = expr;
