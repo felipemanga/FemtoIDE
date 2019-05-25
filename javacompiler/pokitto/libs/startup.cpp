@@ -25,24 +25,67 @@ void *__wrap__sbrk( int incr ){
     return (void *) prev_heap_end;
 }
 
-extern "C" void __wrap_exit( int num ){
-    unsigned int *bootinfo = (unsigned int*)0x3FFF4;
-    if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3FF04; //allow couple of alternative locations
-    if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3FE04; //allow couple of alternative locations
-    if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3F004; //for futureproofing
-    if (*bootinfo != 0xB007AB1E)
-        *((unsigned int*)0xE000ED0C) = 0x05FA0004; //issue system reset
-        
-    __asm volatile ("cpsid i" : : : "memory");
-//    __disable_irq();// Start by disabling interrupts, before changing interrupt v
-    unsigned long app_link_location = *(bootinfo+2);
+    extern "C" void __wrap_exit( int num ){
+        using Reg = volatile unsigned int *;
+    
+        unsigned int *bootinfo = (unsigned int*)0x3FFF4;
+        if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3FF04; //allow couple of alternative locations
+        if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3FE04; //allow couple of alternative locations
+        if (*bootinfo != 0xB007AB1E) bootinfo = (unsigned int*)0x3F004; //for futureproofing
+        if (*bootinfo != 0xB007AB1E)
+            *Reg(0xE000ED0C) = 0x05FA0004; //issue system reset
 
-    asm(" mov r0, %[address]"::[address] "r" (app_link_location));
-    asm(" ldr r1, [r0,#0]"); // get the stack pointer value from the program's reset vector
-    asm(" mov sp, r1");      // copy the value to the stack pointer
-    asm(" ldr r0, [r0,#4]"); // get the program counter value from the program's reset vector
-    asm(" blx r0");          // jump to the' start address
-}
+        __asm volatile ("cpsid i" : : : "memory");
+//    __disable_irq();// Start by disabling interrupts, before changing interrupt v
+
+        unsigned long app_link_location = bootinfo[2];
+
+        *Reg(0xA0004004) = 0; // LPC_PINT->IENR = 0;
+        *Reg(0xA0004010) = 0; // LPC_PINT->IENF = 0;
+        *Reg(0xE000E010) &= ~1; // SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk & ~(SysTick_CTRL_ENABLE_Msk); //disable systick
+        *Reg(0x40048238) |= 1 << 10; // LPC_SYSCON->PDRUNCFG     |=  (1 << 10);       /* Power-down USB PHY         */
+        *Reg(0x40048238) |= 1 << 8; // LPC_SYSCON->PDRUNCFG     |=  (1 <<  8);       /* Power-down USB PLL         */
+
+// reset clock source to IRC
+        *Reg(0x40048074) = 0x01; // LPC_SYSCON->MAINCLKUEN    = 0x01;             /* Update MCLK Clock Source   */
+        *Reg(0x40048074) = 0x00; // LPC_SYSCON->MAINCLKUEN    = 0x00;             /* Toggle Update Register     */
+        while(*Reg(0x40048074) & 0x01 ); // LPC_SYSCON->MAINCLKUEN & 0x01);     /* Wait Until Updated         */
+// switch clock selection to IRC
+        *Reg(0x40048070) = 0; // LPC_SYSCON->MAINCLKSEL    = 0;             /* Select Clock Source        */
+        *Reg(0x40048074) = 0x01; // LPC_SYSCON->MAINCLKUEN    = 0x01;             /* Update MCLK Clock Source   */
+        *Reg(0x40048074) = 0x00; // LPC_SYSCON->MAINCLKUEN    = 0x00;             /* Toggle Update Register     */
+        while(*Reg(0x40048074) & 0x01 ); // LPC_SYSCON->MAINCLKUEN & 0x01);     /* Wait Until Updated         */
+//disable PLL clock output
+        *Reg(0x40048044) = 0; // LPC_SYSCON->SYSPLLCLKUEN = 0;
+        while(*Reg(0x40048044) & 0); // LPC_SYSCON->SYSPLLCLKUEN & 0x00); // Eh?!
+        *Reg(0x40048008) = 0; // LPC_SYSCON->SYSPLLCTRL = 0;
+
+//kill peripherals
+        *Reg(0x40048070) = 0; // LPC_SYSCON->MAINCLKSEL = 0;
+        *Reg(0x40048004) = 0; // LPC_SYSCON->PRESETCTRL = 0; //disable all peripherals
+
+//power down PLL
+        volatile unsigned int tmp;
+        tmp = (*Reg(0x40048238) & 0x000025FFL); // LPC_SYSCON->PDRUNCFG
+        tmp |= ((1<<7) & 0x000025FFL);
+        *Reg(0x40048238) = (tmp | 0x0000C800L); /* Power-down SYSPLL          */
+
+//Chip_Clock_SetMainClockSource(SYSCTL_MAINCLKSRC_IRC); //switch to IRC
+
+// clear all gpio states
+        *Reg(0xA0002100) = 0; // LPC_GPIO_PORT->PIN[0] = 0;
+        *Reg(0xA0002104) = 0; // LPC_GPIO_PORT->PIN[1] = 0;
+        *Reg(0xA0002108) = 0; // LPC_GPIO_PORT->PIN[2] = 0;
+
+// SCB->VTOR = app_link_location;//APPL_ADDRESS; /* Change vector table address
+        *Reg(0xE000ED08) = app_link_location;
+
+        __asm(" mov r0, %[address]"::[address] "r" (app_link_location));
+        __asm(" ldr r1, [r0,#0]"); // get the stack pointer value from the program's reset vector
+        __asm(" mov sp, r1");      // copy the value to the stack pointer
+        __asm(" ldr r0, [r0,#4]"); // get the program counter value from the program's reset vector
+        __asm(" blx r0");          // jump to the' start address
+    }
     
 #define WEAK          __attribute__ ((weak))
 #define ALIAS(f)      __attribute__ ((weak, alias (#f)))
@@ -197,7 +240,7 @@ AFTER_VECTORS void ResetISR(void) {
 
     __libc_init_array();
 
-    unsigned int *SysTick = (unsigned int *) 0xE000E010UL;
+    unsigned int *SysTick = (unsigned int *)  0xE000E010UL;
     SysTick[1] = 4800000-1;
     SysTick[2] = 0;
     SysTick[0] = 4 | 2 | 1; //CLKSOURCE=CPU clock | TICKINT | ENABLE

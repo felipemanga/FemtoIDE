@@ -1,5 +1,6 @@
 package femto;
 
+import femto.mode.ScreenMode;
 import femto.input.Button;
 import femto.input.ButtonListener;
 import femto.mode.Direct;
@@ -58,7 +59,8 @@ class MenuState extends State {
         System.gc();
         prompt.options = new String[]{
             "Total RAM: " + (Runtime.getRuntime().totalMemory() / 1024) + "KB",
-            "Free RAM: " + (Runtime.getRuntime().freeMemory() / 1024) + "KB"
+            "Free RAM: " + (Runtime.getRuntime().freeMemory() / 1024) + "KB",
+            "FPS: " + (64000.0f / ScreenMode.frameTime)
         };
         prompt.show();
     }

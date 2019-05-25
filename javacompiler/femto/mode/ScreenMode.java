@@ -8,7 +8,8 @@ class ScreenMode {
     public float textX, textY;
     public int textColor;
     public float cameraX = 0.0f, cameraY = 0.0f;
-    public int lastFrameTime, frameTimeUpdate, frameTime;
+    public int lastFrameTime, frameTimeUpdate;
+    public static int frameTime = 64000;
 
     ScreenMode(){
         font = 0;
@@ -19,7 +20,6 @@ class ScreenMode {
         textX = textY = 0;
         textColor = 1;
         lastFrameTime = System.currentTimeMillis();
-        frameTime = 64000;
         frameTimeUpdate = 64;
     }
 

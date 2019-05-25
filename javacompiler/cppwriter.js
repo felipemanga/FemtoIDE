@@ -126,7 +126,7 @@ function writeMethodSignature( method, writeStatic, writeClass ){
     out += `${method.name} (`;
 
     method.parameters.forEach( param => {
-        out += `${sep}${writeType(param.type, true)} ${param.name}`;
+        out += `${sep}${writeType(param.type, false)} ${param.name}`;
         sep = ", ";
     });
             
@@ -300,6 +300,7 @@ function writeClassDecl( unit, type, dependencies ){
             if( t.fields.length )
                 out += `${indent}virtual void __mark__(int m);\n`;
             out += `${indent}static const uint32_t __id__ = ${t.id};\n`;
+            out += `${indent}virtual uint32_t __sizeof__();\n`;
             out += `${indent}virtual bool __instanceof__( uint32_t id );\n`;
             out += `${indent}virtual ~uc_${t.name}(){}\n`;
             if( writePath(t) != "up_java::up_lang::uc_Object" ){
@@ -363,10 +364,10 @@ function writeMethodBody( method, t ){
 
     out += `{\n`;
     push();
-
+/*
     if( !method.isStatic )
         out += `${indent}__ref__<${writePath(t, false, method)}> __ref__${refid++} = this;\n`;
-
+*/
     out += writeBlock( method.body );
     
     pop();
@@ -651,7 +652,6 @@ function writeExpression( expr, typeHint ){
 
     case "cast":
         e = writeExpression(expr.left);
-        out += writeType(expr.type, true) + "(";
         if( expr.type.isReference ){
             out += "static_cast<";
             out += writeType(expr.type, false);
@@ -659,10 +659,11 @@ function writeExpression( expr, typeHint ){
             out += e.out;
             out += ")";
         }else{
+            out += writeType(expr.type, false) + "(";
             out += e.out;
+            out += ")";
         }
         
-        out += ")";
         type = expr.type.getTarget();
 
         out +=  writeExpressionRight(expr.right);
@@ -831,7 +832,7 @@ function writeStatement( stmt, block, noSemicolon ){
         if( stmt.expression ){
             let e;
             if( Array.isArray( stmt.expression.right ) ){
-                out += writeType(local.type, true) + " ";
+                out += writeType(local.type, false) + " ";
 
                 e = writeExpression( stmt.expression.left );
                 out += e.out;
@@ -847,13 +848,13 @@ function writeStatement( stmt, block, noSemicolon ){
                 if( local.type.name == "var" ){
                     local.type = e.type;
                 }
-                out += writeType(local.type, true) + " ";
+                out += writeType(local.type, false) + " ";
                 out += writeExpression(stmt.expression.left).out;
                 out += "=";
                 out += e.out;
             }
         }else{
-            out += writeType(local.type, true) + " ";
+            out += writeType(local.type, false) + " ";
             out += local.name + " = 0";
         }
 
@@ -1002,7 +1003,7 @@ function writeStatement( stmt, block, noSemicolon ){
 
         stmt.catches.forEach( cstmt=>{
             out += "catch(";
-            out += writeType(cstmt.field.type, true);
+            out += writeType(cstmt.field.type, false);
             out += " " + cstmt.field.name;
             out += ")" + writeStatement(cstmt.block);
         });
@@ -1246,6 +1247,10 @@ function writeClassImpl( unit ){
 
         if( !t.extends || t.extends.name[0] != "__raw__" ){
         // out += `${indent}const uint32_t ${t.name}::__id__ = ${t.id};\n`;
+            out += `${indent}uint32_t uc_${t.name}::__sizeof__(){
+${indent}\treturn sizeof(*this);
+${indent}}
+`;
             out += `${indent}bool uc_${t.name}::__instanceof__( uint32_t id ){
 ${indent}\tif(id == ${t.id}) return true;
 ${indent}\treturn ${t.extends&&t.extends.name[0]!="__raw__"?writePath(t.extends)+"::__instanceof__(id)":"false"};

@@ -34,8 +34,6 @@ class Level1 extends State {
     // called by femto.Game for every frame
     void update(){
         
-        counter++;
-        
         for( int y=0; y<176; y += background.height() ){
             for( int x=0; x<220; x += background.width() ){
                 background.draw(screen, x, y);
@@ -48,6 +46,7 @@ class Level1 extends State {
         }
         
         screen.setTextPosition( 100, 84 );
+        counter++;
         screen.print((counter>>5)&1 ? "ROUND" : "AND");
         
         angle += 0.03f;

@@ -169,7 +169,8 @@ namespace up_java {
             }
 
             virtual ~uc_Object(){}
-
+            
+            virtual uint32_t __sizeof__( );
             virtual bool __instanceof__( uint32_t id );
 
             bool __is_marked__(int m){
@@ -342,7 +343,6 @@ public:
     uc_Array() : elements(nullptr), length(0){}
 
     uc_Array( uint32_t length ) : elements(nullptr), length(length) {
-        __ref__<uc_Array<T, isReference>> lock = this;
         elements = new uint16_t[length];
         for( uint32_t i=0; i<length; ++i )
             elements[i] = 0;
@@ -364,7 +364,6 @@ public:
     }
 
     Self *loadValues( std::initializer_list<TP> init ){
-        __ref__<uc_Array<T, isReference>> lock = this;
         release();
         elements = new uint16_t[init.size()];
         this->length = init.size();
@@ -420,7 +419,6 @@ public:
     uc_Array() : elements(nullptr), length(0){}
 
     uc_Array( uint32_t length ) : elements(nullptr) {
-        __ref__<uc_Array<T, false>> lock = this;
         elements = new T[length];
         this->length = length;
         for( uint32_t i=0; i<length; ++i )
@@ -443,7 +441,6 @@ public:
     }
 
     Self *loadValues( const std::initializer_list<T> &init ){
-        __ref__<uc_Array<T, false>> lock = this;
         if( elements ) release();
         elements = new T[init.size()];
         this->length = init.size();
@@ -483,13 +480,31 @@ void __on_failed_alloc(){
     uc_Object::__gc__();
 }
 
+extern "C" {
+    extern void _vStackTop(void);
+}
+
 void uc_Object::__gc__(){
+    uintptr_t *stackTop = (uintptr_t *) &_vStackTop;
+    uintptr_t *stackBottom = (uintptr_t *) &stackTop;
+    
     uc_Object *obj;
     __gray_count__ = 0;
     for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
         obj = __objFromShort__(ptr);
         uint32_t m = obj->__next__&3;
-        if( !m && obj->__refCount__ ){
+        uint32_t refCount = obj->__refCount__;
+
+        if( !m && !refCount ){
+            for( uintptr_t *ptr = stackBottom; ptr != stackTop; ++ptr ){
+                if( *ptr < (uintptr_t) obj || *ptr > (uintptr_t(obj)+obj->__sizeof__()) )
+                    continue;
+                refCount = 1;
+                break;
+            }
+        }
+
+        if( !m && refCount ){
         }else if(m==2){
             __gray_count__--;
         }else{
@@ -559,6 +574,7 @@ namespace up_java {
 #endif
             }
 
+            virtual uint32_t __sizeof__( );
             bool __instanceof__( uint32_t id );
 
             char arrayRead( uint32_t i ){
@@ -578,7 +594,7 @@ namespace up_java {
                 return uintptr_t(x) - uintptr_t(ptr);
             }
 
-            bool equals( const __ref__<uc_String> other ){
+            bool equals( uc_String *other ){
                 const char *x = ptr;
                 const char *y = other->__c_str();
                 while( *x && *x == *y ){
@@ -592,13 +608,13 @@ namespace up_java {
                 return ptr;
             }
 
-            static __ref__<uc_String> valueOf( up_java::up_lang::uc_float v ){
+            static uc_String *valueOf( up_java::up_lang::uc_float v ){
                 char *c = new char[15];
                 miniftoa( v, c );
                 return new uc_String(c);
             }
             
-            static __ref__<uc_String> valueOf( int32_t v ){
+            static uc_String* valueOf( int32_t v ){
                 char *c = new char[11];
                 char *cp = c;
                 if( v < 0 ){
@@ -609,7 +625,7 @@ namespace up_java {
                 return new uc_String(c);
             }
 
-            static __ref__<uc_String> valueOf( uint32_t v ){
+            static uc_String* valueOf( uint32_t v ){
                 char *c = new char[11];
                 miniitoa( v, c, 10 );
                 return new uc_String(c);
@@ -622,9 +638,8 @@ namespace up_java {
     }    
 }
 
-__ref__<up_java::up_lang::uc_String> __str__( const char *s ){
-    up_java::up_lang::uc_String *str = new up_java::up_lang::uc_String(s);
-    return str;
+up_java::up_lang::uc_String* __str__( const char *s ){
+    return new up_java::up_lang::uc_String(s);
 }
 
 inline constexpr const void *__add__(const void *l, int32_t r ){
@@ -663,11 +678,11 @@ inline constexpr double __add__(double l, double r){
     return l+r;
 }
 
-__ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, __ref__<up_java::up_lang::uc_String> r){
+up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_String *r){
     char *ch = new char[l->length() + r->length() + 1];
     const char *lch = l->__c_str();
     const char *rch = r->__c_str();
-    __ref__<up_java::up_lang::uc_String> ret = new up_java::up_lang::uc_String( ch );
+    up_java::up_lang::uc_String *ret = new up_java::up_lang::uc_String( ch );
     char *i = ch;
     if( lch ) while( *lch ) *i++ = *lch++;
     if( rch ) while( *rch ) *i++ = *rch++;
@@ -675,13 +690,13 @@ __ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String
     return ret;
 }
 
-__ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, up_java::up_lang::uc_int r ){
-    __ref__<up_java::up_lang::uc_String> sr = up_java::up_lang::uc_String::valueOf( r );
+up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_int r ){
+    up_java::up_lang::uc_String *sr = up_java::up_lang::uc_String::valueOf( r );
     return __add__(l, sr);
 }
 
-__ref__<up_java::up_lang::uc_String> __add__(__ref__<up_java::up_lang::uc_String> l, up_java::up_lang::uc_float r ){
-    __ref__<up_java::up_lang::uc_String> sr = up_java::up_lang::uc_String::valueOf( r );
+up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_float r ){
+    up_java::up_lang::uc_String *sr = up_java::up_lang::uc_String::valueOf( r );
     return __add__(l, sr);
 }
 
