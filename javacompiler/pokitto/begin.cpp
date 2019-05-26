@@ -79,6 +79,7 @@ void __print__( int i ){
 }
 
 extern "C" void __wrap_exit(int);
+extern void *_codesize;
 
 namespace up_java {
     namespace up_lang {

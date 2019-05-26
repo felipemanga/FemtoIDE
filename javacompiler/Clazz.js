@@ -363,6 +363,19 @@ class Clazz extends Type {
             {image}
         );
 
+        if( image.isTransparent ){
+            method = new Method(null, this);
+            this.methods.push(method);
+            method.isPublic = true;
+            method.isStatic = false;
+            method.artificial(
+                new TypeRef(["boolean"], false, this),
+                "isTransparent",
+                [],
+                {returnConst:true}
+            );
+        }
+        
         method = new Method(null, this);
         this.methods.push(method);
         method.isPublic = true;

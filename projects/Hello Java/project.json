@@ -1,164 +1,180 @@
 {
-    
-    "metadata":{
-	
-    },
-
-    "lastBuffer":"Game.java",
-
-    "files":{},
-
-    "javaFlags":{
-        "mainClass":"Game"
-    },
-
-    "libs":{
-        "Pokitto":[
-            "${appPath}/javacompiler/pokitto/libs/startup.cpp",
-            "${appPath}/javacompiler/pokitto/libs/SystemInit.s"
-        ]
-    },
-
-    "SFlags":{
-        "Pokitto":[
-            "-I${appPath}/javacompiler/pokitto/includes",
-            "-I${projectPath}",
-            "-mcpu=cortex-m0plus",
-            "-mthumb"
-        ]
-    },
-
-    "CPPFlags":{
-
-
-        "DEBUG":[
-            "-Og",
-            "-g3",
-            "-ggdb"
-        ],
-
-        "RELEASE":[
-            "-flto",
-            "-O3"
-        ],
-        
-	"Pokitto":[
-            "-I${appPath}/javacompiler/pokitto/includes",
-            "-I${projectPath}",
-	    "-DPOKITTO",
-            "-fno-rtti",
-            "-Wno-pointer-arith",
-            "-c",
-            "-fno-exceptions",
-            "-fno-builtin",
-            "-ffunction-sections",
-            "-fdata-sections",
-            "-funsigned-char",
-            "-MMD",
-            "-fno-delete-null-pointer-checks",
-            "-fomit-frame-pointer",
-            "-mcpu=cortex-m0plus",
-            "-mthumb",
-            "-Wno-psabi"
-	],
-	
-	"Desktop":[
-            "-I${appPath}/javacompiler/desktop/includes",
-            "-I${projectPath}",
-	    "-DDESKTOP",
-            "-fno-rtti",
-            "-Wno-pointer-arith",
-            "-c",
-            "-fno-exceptions",
-            "-fno-builtin",
-            "-ffunction-sections",
-            "-fdata-sections",
-            "-funsigned-char",
-            "-MMD",
-            "-fno-delete-null-pointer-checks"
-	],
-	
-	"ALL":[
-	    "-std=c++14"
-	]
-	
-    },
-
-    "GDBFlags":{
-        "Pokitto":[
-            "${projectPath}/${projectName}.elf"
-        ]
-    },
-    
-    "emuFlags":{
-        "Pokitto":[
-            "${projectPath}/${projectName}.bin"            
-        ]
-    },
-
-    "ELF2BINFlags":{
-        "Pokitto":[
-            "-O",
-            "binary",
-            "${projectPath}/${projectName}.elf",
-            "${projectPath}/${projectName}.bin"
-        ]
-    },
-
-    "LDFlags":{
-        "RELEASE":[
-            "-O3"
-        ],
-
-        "DEBUG":[
-            "-Og",
-            "-g3",
-            "-ggdb"
-        ],
-        
-        "Pokitto":[
-            
-            "-Wl,--gc-sections",
-            "-Wl,-n",
-            "--specs=nano.specs",
-            "-Wl,--wrap,_sbrk",
-            "-Wl,--wrap,malloc",
-            "-mcpu=cortex-m0plus",
-            "-mthumb",
-            "-Wl,--undefined=g_pfnVectors",
-            "-Wl,--undefined=boot",
-
-            "-T",
-            "${appPath}/javacompiler/pokitto/link.ld",
-
-            "--output",
-            "${projectPath}/${projectName}.elf",
-
-            "$objectFiles",
-            
-            "-Wl,--start-group",
-            "-lstdc++",
-            "-lsupc++",
-            "-lm",
-            "-lc",
-            "-lgcc",
-            "-lnosys",
-            "-Wl,--end-group"
-        ]
-    },
-
-    "target":"Pokitto",
-
-    "pipelines":{
-	"Pokitto":[
-            "compile-java",
-            "compile-cpp",
-            "compile-ld",
-            "compile-bin",
-            "make-img"
-        ],
-        
-	"Desktop":["compile-java", "compile-cpp", "compile-ld", "compile-bin"]
-    }
-    
+	"metadata": {},
+	"lastBuffer": "Main.java",
+	"files": {
+		"Dog.json": {},
+		"Hello Java.bin": {},
+		"Hello Java.elf": {},
+		"Main.java": {},
+		"Pattern.png": {},
+		"dog.png": {},
+		"dump.bin": {},
+		"firmware.bin": {},
+		"project.json": {}
+	},
+	"javaFlags": {
+		"mainClass": "Main"
+	},
+	"libs": {
+		"Pokitto": [
+			"${appPath}/javacompiler/pokitto/libs/startup.cpp",
+			"${appPath}/javacompiler/pokitto/libs/SystemInit.s"
+		]
+	},
+	"SFlags": {
+		"Pokitto": [
+			"-I${appPath}/javacompiler/pokitto/includes",
+			"-I${projectPath}",
+			"-mcpu=cortex-m0plus",
+			"-mthumb"
+		]
+	},
+	"CPPFlags": {
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"RELEASE": [
+			"-flto",
+			"-O3"
+		],
+		"Pokitto": [
+			"-I${appPath}/javacompiler/pokitto/includes",
+			"-I${projectPath}",
+			"-DPOKITTO",
+			"-fexceptions",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wno-psabi"
+		],
+		"Desktop": [
+			"-I${appPath}/javacompiler/desktop/includes",
+			"-I${projectPath}",
+			"-DDESKTOP",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks"
+		],
+		"ALL": [
+			"-std=c++14"
+		]
+	},
+	"GDBFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.elf"
+		]
+	},
+	"emuFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"ELF2BINFlags": {
+		"Pokitto": [
+			"-O",
+			"binary",
+			"${projectPath}/${projectName}.elf",
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"LDFlags": {
+		"RELEASE": [
+			"-O3"
+		],
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"Pokitto": [
+			"-Wl,--gc-sections",
+			"-Wl,-n",
+			"--specs=nano.specs",
+			"-Wl,--wrap,_sbrk",
+			"-Wl,--wrap,exit",
+			"-Wl,--wrap,malloc",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wl,--undefined=g_pfnVectors",
+			"-Wl,--undefined=boot",
+			"-T",
+			"${appPath}/javacompiler/pokitto/link.ld",
+			"--output",
+			"${projectPath}/${projectName}.elf",
+			"$objectFiles",
+			"-Wl,--start-group",
+			"-lstdc++",
+			"-lsupc++",
+			"-lm",
+			"-lc",
+			"-lgcc",
+			"-lnosys",
+			"-Wl,--end-group"
+		]
+	},
+	"target": "Pokitto",
+	"pipelines": {
+		"Pokitto": [
+			"compile-java",
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin",
+			"make-img"
+		],
+		"Desktop": [
+			"compile-java",
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin"
+		]
+	},
+	"meta": {
+		"": {
+			"sdcard": false
+		},
+		"/Dog.json": {
+			"sdcard": false
+		},
+		"/Main.java": {
+			"sdcard": false
+		},
+		"/Hello Java.bin": {
+			"sdcard": false
+		},
+		"/Hello Java.elf": {
+			"sdcard": false
+		},
+		"/Pattern.png": {
+			"sdcard": false
+		},
+		"/dog.png": {
+			"sdcard": false
+		},
+		"/project.json": {
+			"sdcard": false
+		},
+		"/firmware.bin": {
+			"sdcard": false
+		},
+		"/dump.bin": {
+			"sdcard": false
+		}
+	}
 }

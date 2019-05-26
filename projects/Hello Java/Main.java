@@ -1,9 +1,7 @@
 import femto.mode.HiRes16Color;
 import femto.Game;
 import femto.State;
-
 import femto.input.Button;
-
 import femto.palette.Psygnosia;
 import femto.font.TIC80;
 
@@ -11,7 +9,7 @@ class Level1 extends State {
     
     HiRes16Color screen; // the screenmode we want to draw with
 
-    Dog dog; // an animated sprite imported from Aseprite
+    Dog dog; // an animated bsprite imported from Aseprite
     Pattern background; // static image
     
     float angle; // floats are actually FixedPoint (23.8)
@@ -42,7 +40,7 @@ class Level1 extends State {
         
         if( Button.A.isPressed() ){
             while( Button.A.isPressed() );
-            femto.Game.changeState( new Level1() );
+            Game.changeState( new Level1() );
         }
         
         screen.setTextPosition( 100, 84 );
@@ -64,8 +62,8 @@ class Level1 extends State {
     
 }
 
-public class Game {
+public class Main {
     public static void main(String[] args){
-        femto.Game.run( TIC80.font(), new Level1() );
+        Game.run( TIC80.font(), new Level1() );
     }
 }

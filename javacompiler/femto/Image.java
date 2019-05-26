@@ -22,16 +22,29 @@ public class Image implements __stub__ {
         }
 
         pointer data = getImageDataForScreen( screen );
-        
-        __blit_4bpp(
-            data,
-            (int) x,
-            (int) y,
-            __inline_cpp__("&screen->buffer->arrayRead(0)"),
-            flip,
-            mirror
-            );
+
+        if( isTransparent() ){
+            femto.Sprite.__blit_4bpp(
+                data,
+                (int) x,
+                (int) y,
+                __inline_cpp__("&screen->buffer->arrayRead(0)"),
+                flip,
+                mirror
+                );
+        }else{
+            __blit_4bpp(
+                data,
+                (int) x,
+                (int) y,
+                __inline_cpp__("&screen->buffer->arrayRead(0)"),
+                flip,
+                mirror
+                );
+        }
     }
+
+    boolean isTransparent(){ return false; }
 
     pointer getImageDataForScreen( HiRes16Color screen ){
         while(true);

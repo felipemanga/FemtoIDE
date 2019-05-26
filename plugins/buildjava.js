@@ -198,15 +198,28 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
                     function onLoadImage( img ){
 
-                            const canvas = document.createElement("canvas");
-                            canvas.width = img.width;
-                            canvas.height = img.height;
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.width;
+                        canvas.height = img.height;
 
-                            const ctx = canvas.getContext("2d");
-                            ctx.drawImage( img, 0, 0 );
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage( img, 0, 0 );
 
-                            let id = ctx.getImageData( 0, 0, img.width, img.height );
-                            cb( null, id );
+                        let id = ctx.getImageData( 0, 0, img.width, img.height );
+                        let isTransparent = false;
+                        for( let i=0; i<id.data.length; i+=4 ){
+                            if( id.data[i+3] < 128 ){
+                                isTransparent = true;
+                                break;
+                            }
+                        }
+                        
+                        cb( null, {
+                            isTransparent,
+                            width:id.width,
+                            height:id.height,
+                            data:id.data
+                        });
 
                     }
                     

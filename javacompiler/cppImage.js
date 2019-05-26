@@ -33,18 +33,20 @@ function writeDraw( block, src ){
             let B = data[i++];
             let A = data[i++];
 
-            for( let c=0; c<palette.length; ++c ){
-                let ca = palette[c];
-		let dist = (R-ca[0])*(R-ca[0])
-                    + (G-ca[1])*(G-ca[1])
-                    + (B-ca[2])*(B-ca[2]);
+            if( A > 128 ){
+                for( let c=0; c<palette.length; ++c ){
+                    let ca = palette[c];
+		    let dist = (R-ca[0])*(R-ca[0])
+                        + (G-ca[1])*(G-ca[1])
+                        + (B-ca[2])*(B-ca[2]);
 
-                if( dist < closestDist ){
-                    closest = c;
-                    closestDist = dist;
+                    if( dist < closestDist ){
+                        closest = c;
+                        closestDist = dist;
+                    }
                 }
             }
-
+            
             run[x>>1] = (run[x>>1]||0) + (x&1?closest:closest<<4);
         }
 

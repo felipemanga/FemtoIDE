@@ -54,13 +54,14 @@ class MenuState extends State {
         Game.instance.state = Game.instance.nextState = previous;
         previous = null;
     }
-
+    
     void statistics( Prompt prompt ){
         System.gc();
         prompt.options = new String[]{
+            "FPS: " + (64000.0f / ScreenMode.frameTime),
             "Total RAM: " + (Runtime.getRuntime().totalMemory() / 1024) + "KB",
             "Free RAM: " + (Runtime.getRuntime().freeMemory() / 1024) + "KB",
-            "FPS: " + (64000.0f / ScreenMode.frameTime)
+            "Code: " + __inline_cpp__("uint32_t(&_codesize) / 1024") + "KB"
         };
         prompt.show();
     }

@@ -96,6 +96,9 @@ SECTIONS
         KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
         KEEP (*(SORT(.dtors.*)))
         KEEP (*crtend.o(.dtors))
+
+        *(vtable)
+        PROVIDE (_codesize = .);
     } > MFlash256
 
     /*
@@ -172,7 +175,6 @@ SECTIONS
 	{
 	   FILL(0xff)
 	   _data = . ;
-	   *(vtable)
 	   *(.ramfunc*)
 	   *(.data*)
 	   . = ALIGN(4) ;
@@ -232,12 +234,4 @@ SECTIONS
     
     PROVIDE(_pvHeapStart = .);
     PROVIDE(_vStackTop = __top_Ram0_32 - 0);
-
-    PROVIDE(__valid_user_code_checksum = 0 - (
-    				       _vStackTop +
-				       (ResetISR + 1) +
-				       (NMI_Handler + 1) +
-				       (HardFault_Handler + 1)
-				       
-    ) );
 }
