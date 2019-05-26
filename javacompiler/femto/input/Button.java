@@ -7,6 +7,7 @@ import femto.hardware.IRQ;
 public class Button {
     byte port;
     byte bit;
+    byte state;
 
     ButtonListener listener;
 
@@ -56,6 +57,15 @@ public class Button {
                     STR(LPC11U68.AIRCR, 0x05FA0004);
                 }
             });
+    }
+
+    public boolean justPressed(){
+        var newState = isPressed();
+        var ret = false;
+        if( newState && !state )
+            ret = true;
+        state = newState;
+        return ret;
     }
     
     public boolean isPressed(){

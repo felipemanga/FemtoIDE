@@ -11,8 +11,8 @@ class Level1 extends State {
 
     Dog dog; // an animated sprite imported from Aseprite
     Pattern background; // static image
-    
     float angle; // floats are actually FixedPoint (23.8)
+    
     int counter; // variables are automatically initialized to 0 or null
     
     // Avoid allocation in a State's constructor.
@@ -38,8 +38,7 @@ class Level1 extends State {
             }
         }
         
-        if( Button.A.isPressed() ){
-            while( Button.A.isPressed() );
+        if( Button.A.justPressed() ){
             Game.changeState( new Level1() );
         }
         
