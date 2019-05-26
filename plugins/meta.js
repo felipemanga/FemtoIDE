@@ -43,8 +43,10 @@ APP.addPlugin("Meta", ["Project"], _=>{
             path = path.substr( projectPath.length );
             const meta = DATA.project.meta[path];
 
-            for( let key in meta )
-                actions.push( getAction(key) );
+            for( let key in meta ){
+                if( buffer.pluginData.Meta[ key ] )
+                    actions.push( getAction(key) );
+            }
 
             function getAction( key ){
                 let def = buffer.pluginData.Meta[ key ];

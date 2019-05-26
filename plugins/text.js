@@ -193,8 +193,7 @@ APP.addPlugin("Text", ["Project"], _=>{
                 buffer.data = session;            
                 APP.readBuffer( buffer, "utf-8", (err, data) => {
                     buffer.data = session;
-                    session.setValue( data );
-
+                    session.setValue( data || "" );
                 }, true);
             }
 

@@ -33,11 +33,12 @@ APP.addPlugin("SDCard", [], _=>{
     class SDCard {
 
         pollBufferMeta( buffer, meta ){
-            meta.sdcard = {
-                type:"bool",
-                label:"Copy to SD",
-                default: false
-            };
+            if( buffer.type != "directory" )
+                meta.sdcard = {
+                    type:"bool",
+                    label:"Copy to SD",
+                    default: false
+                };
         }
 
         ["make-img"]( files, cb ){
@@ -69,7 +70,7 @@ APP.addPlugin("SDCard", [], _=>{
                 let rpath = file.path
                     .substr(DATA.projectPath.length);
 
-                if( !meta[rpath].sdcard )
+                if( !meta[rpath].sdcard || file.type == "directory" )
                     return;
                 
                 rpath = rpath.split(path.sep);

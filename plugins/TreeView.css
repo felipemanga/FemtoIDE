@@ -100,9 +100,6 @@
 .frame.TreeView ul {
     padding: 0;
     margin: 0;
-}
-
-.frame.TreeView #dir {
     padding-left: 20px;
 }
 
