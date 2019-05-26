@@ -3,6 +3,44 @@
     text-align: center;
 }
 
+#NewProjectView:before {
+    content: "New Project";
+    display: block;
+    text-align: center;
+    margin: 10px;
+    font-size: 2.5em;
+    font-weight: bold;
+    font-style: italic;
+    height: 35%;
+}
+
+#NewProjectView #confirm {
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    margin: 15px;
+    font: 1.5em 'Source Code Pro';
+    padding: 5px 15px;
+    float: right;
+}
+
+#NewProjectView label {
+    display: block;
+    padding: 5px 0;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+#NewProjectView label>* {
+    margin-left: 10px;
+    border: none;
+    border-bottom: 1px solid #888;
+    background: none;
+    color: #AAA;
+    width: 75%;
+    padding: 1px 5px;
+    font: 1em 'Source Code Pro';
+}
+
 .InitView .initProjectList {
     list-style: none;
     background: #111;

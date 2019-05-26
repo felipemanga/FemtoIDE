@@ -235,13 +235,25 @@ APP.addPlugin("Project", [], _=>{
 
     const layout = [
         "div", { id:"NewProjectView" }, [
-            ["input", {id:"path"}],
-            ["input", {id:"name", value:"NewProject"}],
-            ["select", {className:"INPUT", id:"template"},
-             templates.map( text => ["option", {value:text, text}] )
-            ],
+            
+            ["label", {text:"Path"}, [
+                ["input", {id:"path"}]
+            ]],
+            
+            ["label", {text:"Name"}, [
+                ["input", {id:"name", value:"NewProject"}]
+                ]],
+
+            ["label", {text:"Type"}, [
+                ["select", {className:"INPUT", id:"template"},
+                 templates.map( text => ["option", {value:text, text}] )
+                ]
+            ]],
+            
             ["div", {id:"templateVars"}],
+            
             ["button", {id:"confirm", text:"OK"}],
+            
             ["div", {id:"errmsg"}]
         ]];
 
