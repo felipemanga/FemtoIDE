@@ -189,6 +189,8 @@ namespace up_java {
             }
 
             virtual void __mark__(int m){
+                if( (__next__&3) == 2 )
+                    __gray_count__--;
                 __next__ |= m;
             }
             void __hold__(){ __refCount__++; }
@@ -487,16 +489,35 @@ extern "C" {
 
 void uc_Object::__gc__(){
     uintptr_t *stackTop = (uintptr_t *) &_vStackTop;
-    uintptr_t *stackBottom = (uintptr_t *) &stackTop;
+    volatile uintptr_t regs[4], tmp = 0;
+    asm volatile(
+        ".syntax unified		\n"
+        "mov %[tmp], r5			\n"
+        "str %[tmp], [%[regs], 0x0]	\n"
+        "mov %[tmp], r6			\n"
+        "str %[tmp], [%[regs], 0x4]	\n"
+        "mov %[tmp], r7			\n"
+        "str %[tmp], [%[regs], 0x8]	\n"
+        "mov %[tmp], r8			\n"
+        "str %[tmp], [%[regs], 0xC]	\n"
+        :
+        [tmp]"+l"(tmp)
+        :
+        [regs]"l"(regs)
+        :
+        "memory", "cc"
+        );
+    uintptr_t *stackBottom = (uintptr_t *) regs;
     
     uc_Object *obj;
     __gray_count__ = 0;
+    
     for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
         obj = __objFromShort__(ptr);
         uint32_t m = obj->__next__&3;
         uint32_t refCount = obj->__refCount__;
 
-        if( !m && !refCount ){
+        if( !m && !refCount ){            
             for( uintptr_t *ptr = stackBottom; ptr != stackTop; ++ptr ){
                 if( *ptr < (uintptr_t) obj || *ptr > (uintptr_t(obj)+obj->__sizeof__()) )
                     continue;
@@ -505,25 +526,22 @@ void uc_Object::__gc__(){
             }
         }
 
-        if( !m && refCount ){
-        }else if(m==2){
-            __gray_count__--;
-        }else{
-            continue;
+        if( (!m && refCount) || (m == 2) ){
+            obj->__mark__(3);
         }
-        obj->__mark__(3);
     }
     
-    while( __gray_count__ ){
-        __gray_count__ = 0;
+    bool dirty = true;
+    while( dirty ){
+        dirty = false;
         for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
             obj = __objFromShort__(ptr);
             uint32_t m = obj->__next__&3;
             if(m==2){
-                __gray_count__--;
                 obj->__mark__(3);
-                if( !__gray_count__ )
-                    break;
+                dirty = true;
+                // dirty = !!__gray_count__;
+                // if( !dirty ) break;
             }
         }
     }
@@ -532,6 +550,9 @@ void uc_Object::__gc__(){
     for( uint16_t ptr = __first__, next; ptr>>2; ptr = next ){
         uc_Object *obj = __objFromShort__(ptr);
         next = obj->__next__;
+        if( (next&3) == 2 ){
+            __print__("Found Gray Exception\n");
+        }
         if( (next&3) != 3 ){
             *prev = next & ~3;
             delete obj;

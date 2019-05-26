@@ -367,7 +367,7 @@ function writeMethodBody( method, t ){
 /*
     if( !method.isStatic )
         out += `${indent}__ref__<${writePath(t, false, method)}> __ref__${refid++} = this;\n`;
-*/
+//*/
     out += writeBlock( method.body );
     
     pop();
