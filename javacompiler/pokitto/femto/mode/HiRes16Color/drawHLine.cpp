@@ -3,10 +3,15 @@ if( w<0 ){
     w = -w;
 }
 
+if( x < 0 ){
+    w += x;
+    x = 0;
+}
+
 if( x+w>=220 )
     w = 220 - x;
 
-if( x>=220 || y>=176 || !w )
+if( uint32_t(x)>=220 || uint32_t(y)>=176 || w<1 )
     return;
         
 color = (color<<4) | (color&0xF);
