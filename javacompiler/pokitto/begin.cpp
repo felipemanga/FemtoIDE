@@ -489,17 +489,31 @@ extern "C" {
 
 void uc_Object::__gc__(){
     uintptr_t *stackTop = (uintptr_t *) &_vStackTop;
-    volatile uintptr_t regs[4], tmp = 0;
+    volatile uintptr_t regs[11], tmp = 0;
     asm volatile(
         ".syntax unified		\n"
-        "mov %[tmp], r5			\n"
+        "mov %[tmp], r0			\n"
         "str %[tmp], [%[regs], 0x0]	\n"
-        "mov %[tmp], r6			\n"
+        "mov %[tmp], r1			\n"
         "str %[tmp], [%[regs], 0x4]	\n"
-        "mov %[tmp], r7			\n"
+        "mov %[tmp], r2			\n"
         "str %[tmp], [%[regs], 0x8]	\n"
-        "mov %[tmp], r8			\n"
+        "mov %[tmp], r3			\n"
         "str %[tmp], [%[regs], 0xC]	\n"
+        "mov %[tmp], r4			\n"
+        "str %[tmp], [%[regs], 0x10]	\n"
+        "mov %[tmp], r5			\n"
+        "str %[tmp], [%[regs], 0x14]	\n"
+        "mov %[tmp], r6			\n"
+        "str %[tmp], [%[regs], 0x18]	\n"
+        "mov %[tmp], r7			\n"
+        "str %[tmp], [%[regs], 0x1C]	\n"
+        "mov %[tmp], r8			\n"
+        "str %[tmp], [%[regs], 0x20]	\n"
+        "mov %[tmp], r9			\n"
+        "str %[tmp], [%[regs], 0x24]	\n"
+        "mov %[tmp], r10		\n"
+        "str %[tmp], [%[regs], 0x28]	\n"
         :
         [tmp]"+l"(tmp)
         :

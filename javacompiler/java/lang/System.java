@@ -5,51 +5,51 @@ public class System extends Object {
     public static class memory {
 
 	public static uint LDR( pointer p ){
-		return __inline_cpp__("*((uint32_t*)p)");
+		return __inline_cpp__("*((volatile uint32_t*)p)");
 	}
 	public static ushort LDRH( pointer p ){
-		return __inline_cpp__("*((uint16_t*)p)");
+		return __inline_cpp__("*((volatile uint16_t*)p)");
 	}
 	public static ubyte LDRB( pointer p ){
-		return __inline_cpp__("*((uint8_t*)p)");
+		return __inline_cpp__("*((volatile uint8_t*)p)");
 	}
 
 	public static void STR( pointer p, uint v ){
-		__inline_cpp__("*((uint32_t*)p) = v;");
+		__inline_cpp__("*((volatile uint32_t*)p) = v;");
 	}
 	public static void STRH( pointer p, ushort v ){
-		__inline_cpp__("*((uint16_t*)p) = v;");
+		__inline_cpp__("*((volatile uint16_t*)p) = v;");
 	}
 	public static void STRB( pointer p, ubyte v ){
-		__inline_cpp__("*((uint8_t*)p) = v;");
+		__inline_cpp__("*((volatile uint8_t*)p) = v;");
 	}
 
 	public static void SET( pointer p, uint v ){
-		__inline_cpp__("*((uint32_t*)p) |= v;");
+		__inline_cpp__("*((volatile uint32_t*)p) |= v;");
 	}
 	public static void SETH( pointer p, ushort v ){
-		__inline_cpp__("*((uint16_t*)p) |= v;");
+		__inline_cpp__("*((volatile uint16_t*)p) |= v;");
 	}
 	public static void SETB( pointer p, ubyte v ){
-		__inline_cpp__("*((uint8_t*)p) |= v;");
+		__inline_cpp__("*((volatile uint8_t*)p) |= v;");
 	}
 
 	public static void CLR( pointer p, uint v ){
-		__inline_cpp__("*((uint32_t*)p) &= ~v;");
+		__inline_cpp__("*((volatile uint32_t*)p) &= ~v;");
 	}
 	public static void CLRH( pointer p, ushort v ){
-		__inline_cpp__("*((uint16_t*)p) &= ~v;");
+		__inline_cpp__("*((volatile uint16_t*)p) &= ~v;");
 	}
 	public static void CLRB( pointer p, ubyte v ){
-		__inline_cpp__("*((uint8_t*)p) &= ~v;");
+		__inline_cpp__("*((volatile uint8_t*)p) &= ~v;");
 	}
         
         public static void write32( uint p, uint v ){
-            __inline_cpp__("*((uint32_t*)p) = v;");
+            __inline_cpp__("*((volatile uint32_t*)p) = v;");
         }
         public static uint read32( uint p ){
             uint out;
-            __inline_cpp__("out = *((uint32_t*)p);");
+            __inline_cpp__("out = *((volatile uint32_t*)p);");
             return out;
         }
         public static void write8( uint p, byte v ){

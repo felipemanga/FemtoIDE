@@ -16,7 +16,7 @@ public class Button {
         this.bit = bit;
     }
 
-    public boolean attach( ButtonListener listener ){
+    public void attach( ButtonListener listener ){
         this.listener = listener;
     }
 
