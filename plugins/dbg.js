@@ -1,5 +1,5 @@
 APP.addPlugin("Debug", ["Build"], _=>{
-    let gdb, standby, pendingCommands, sigSent;
+    let gdb, jlink, standby, pendingCommands, sigSent;
 
     function getBreakpoints(){
         let breakpoints = [];
@@ -60,10 +60,11 @@ APP.addPlugin("Debug", ["Build"], _=>{
 
         onDebugEmulatorStarted(port){
             sigSent = false;
-            
             pendingCommands = getBreakpoints()
                 .map(c => "b " + c);
-            pendingCommands.push("c");
+            // pendingCommands.push("c");
+            if( jlink )
+                pendingCommands.unshift("load");
             
             let gdbPath =DATA[
                 "GDB-" + DATA.project.target
@@ -206,6 +207,91 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 APP.killChild(gdb);
         }
 
+        stopEmulator(){
+            if( jlink )
+                APP.killChild( jlink );
+        }
+
+        runJLink(){
+
+            if( jlink ){
+                APP.error("JLink already running");
+                return;
+            }
+
+            let execPath = (DATA[
+                "JLINK"
+            ] || "JLinkGDBServer") + DATA.executableExt;
+
+            if( !execPath )
+                return;
+
+            let flags = [];
+            let typeFlags = DATA.project["jlinkFlags"];
+            if( typeFlags ){
+                if( typeFlags[DATA.project.target] )
+                    flags.push(...typeFlags[DATA.project.target]);
+                if( typeFlags.ALL )
+                    flags.push( ...typeFlags.ALL );
+            }else{
+                flags = [
+                    "-select",
+                    "USB",
+                    "-device",
+                    "LPC11U68",
+                    "-endian",
+                    "little",
+                    "-if",
+                    "SWD",
+                    "-speed",
+                    "4000",
+                    "-noir",
+                    "-noLocalhostOnly"
+                ];
+            }
+
+            flags = APP.replaceDataInString(flags);
+
+            APP.setStatus("Running JLink...");
+            jlink = APP.spawn( execPath, ...flags );
+
+            setTimeout( _=>{
+                if( jlink ){
+                    APP.onDebugEmulatorStarted(2331, true);
+                }
+            }, 500);
+
+            jlink.stdout.on('data', data => {
+                APP.log(data);
+            });
+
+            jlink.stderr.on('data', data => {
+                APP.error(data);
+            });
+
+            jlink.on('close', code => {
+                APP.onEmulatorStopped();
+                APP.setStatus("JLink ended");
+                jlink = null;
+            });
+
+        }
+
+        debugJLink(){
+            if( jlink ){
+                APP.stopJLink();
+            }
+
+            if( gdb ){
+                APP.stopEmulator();
+                APP.stopGDB();
+            }
+
+            APP.compile( false, _=>{
+                APP.runJLink();
+            });
+        }
+
         debug(){
             if( gdb ){
                 APP.stopEmulator();
@@ -226,6 +312,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
         queryMenus(){
             APP.addMenu("Debug", {
                 "Start":"debug",
+                "Start J-Link":"debugJLink",
                 "Stop":"stopEmulator",
                 "Continue / Pause":"debugContinue",
                 "Step In":"debugStepIn",

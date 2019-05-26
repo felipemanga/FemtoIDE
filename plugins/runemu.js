@@ -16,7 +16,8 @@ APP.addPlugin("RunEMU", [], _=> {
         },
 
         stopEmulator(){
-            APP.killChild( running );
+            if( running )
+                APP.killChild( running );
         },
 
         run( flags ){
