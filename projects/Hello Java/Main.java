@@ -6,10 +6,10 @@ import femto.palette.Psygnosia;
 import femto.font.TIC80;
 
 class Level1 extends State {
-    
+
     HiRes16Color screen; // the screenmode we want to draw with
 
-    Dog dog; // an animated bsprite imported from Aseprite
+    Dog dog; // an animated sprite imported from Aseprite
     Pattern background; // static image
     
     float angle; // floats are actually FixedPoint (23.8)

@@ -2,13 +2,14 @@ let buffer = new Buffer();
 buffer.name = "*init*";
 
 APP.add({
-
+/*
     queryMenus(){
         APP.addMenu("File", {
             "Open Project":"openProject"
         });
     },
-
+*/
+    
     openProject(...args){
         if( !args.length ) 
             APP.displayBuffer( buffer );

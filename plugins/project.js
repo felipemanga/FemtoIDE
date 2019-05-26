@@ -61,14 +61,14 @@ APP.addPlugin("Project", [], _=>{
                 return;
             pf.splice(index, 1);
         },
-
+/*
         queryMenus(){
             APP.addMenu("File", {
                 "New Project":"newProject",
                 "Exit":"exit"
             });
         },
-        
+*/        
         pollViewForBuffer( buffer, vf ){
 
             if( buffer.name == "*New Project*" ){
