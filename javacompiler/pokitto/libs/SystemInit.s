@@ -86,11 +86,9 @@ wordset:
 .func poll
 .align 4
 poll:
-	movs r2, 1
-1:	
 	ldr r1, [r0]
-	ands r1, r2
-	beq 1b
+        lsls r1, 31
+	beq poll
 	bx lr
 .endfunc
 
@@ -186,21 +184,12 @@ lcdCmd: 				// r0 = cmd<<16 + arg
 .align 4
 PV_INIT_GPIO:
 	// system_LPC11U6x.c: 487
-	// enable GPIO | IOCON | SRAM1+SRAM2 | USART0 | RTC | PINT
-	OR LPC_SYSAHBCLKCTRL, (1<<16) | (1<<6) | (3<<26) | (1<<12) | (1<<30) | (1<<19)
-
+	// enable GPIO | IOCON | SRAM1+SRAM2 | USART0
+	OR LPC_SYSAHBCLKCTRL, (1<<16) | (1<<6) | (1<<30) | (1<<19) | (3<<26) | (1<<12)
         AND LPC_RTCCTRL, ~1
         SET LPC_RTCCTRL, (1<<7)
-        
-	// 488
-	SET LPC_SYSPLLCTRL, 0x23
-	
-	// 494, 495
-	SET PIO2_0, 1
-	SET PIO2_1, 1
 
         // init buttons
-        SET 0x40044000,0x89
         SET 0x40044084,0x88
         SET 0x40044070,0x88
         SET 0x40044088,0x88
@@ -208,6 +197,13 @@ PV_INIT_GPIO:
         SET 0x4004406c,0x88
         SET 0x400440c4,0x88
         SET 0x4004407c,0x88
+
+	// 488 // same is repeated further down.
+	// SET LPC_SYSPLLCTRL, 0x23
+	
+	// 494, 495
+	SET PIO2_0, 1
+	SET PIO2_1, 1
 
 	// 497 - Redundant? Default is already 0.
 	SET LPC_SYSOSCCTRL, 0
@@ -223,8 +219,8 @@ PV_INIT_GPIO:
 	// 508
 	CALL toggle, LPC_SYSPLLCLKUEN
 
-	// 511
-	CALL poll, LPC_SYSPLLCLKUEN
+	// 511 // this line in system_LPC11U6x.c makes no sense.
+	// CALL poll, LPC_SYSPLLCLKSTAT
 
 	// 522
 	OR LPC_PDRUNCFG, 1<<7
@@ -442,5 +438,8 @@ PV_INIT_GPIO:
 	SET LCD_WR_CLR, (1<<LCD_WR_PIN)
 	SET LCD_WR_SET, (1<<LCD_WR_PIN)
 	SET LCD_CD_SET, (1<<LCD_CD_PIN)
+
+        // Set Reset button to GPIO
+        // SET 0x40044000,0x89
 	
 	END

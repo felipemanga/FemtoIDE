@@ -62,9 +62,13 @@ APP.addPlugin("Debug", ["Build"], _=>{
             sigSent = false;
             pendingCommands = getBreakpoints()
                 .map(c => "b " + c);
-            // pendingCommands.push("c");
-            if( jlink )
+
+            if( jlink ){
                 pendingCommands.unshift("load");
+                pendingCommands.push("mon reset 0");
+            }
+
+            pendingCommands.push("c");
             
             let gdbPath =DATA[
                 "GDB-" + DATA.project.target
