@@ -1180,8 +1180,10 @@ function writeClassImpl( unit ){
             out += `${indent}// ${t.name} static fields\n`;
 
             t.fields.forEach( field => {
-                if( !field.isStatic ) 
+                if( !field.isStatic ){
+                    writePath(field.type); // This fixes a bug.
                     return;
+                }
                 out += `${indent}`;
                 if( field.isVolatile )
                     out += "volatile ";
