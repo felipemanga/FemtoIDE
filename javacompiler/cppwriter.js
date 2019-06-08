@@ -5,6 +5,8 @@ let platform, platformDir, annotationHandlers;
 
 let indent, units, isDebugMode;
 
+let currentFile;
+
 let VOID, UINT, INT, FLOAT, NULL, BOOLEAN, STRING, CHAR;
 
 function push(){
@@ -138,7 +140,7 @@ function writeMethodSignature( method, writeStatic, writeClass ){
     return out;
 }
 
-function sortTypes(){
+function getTypeList(){
     let unitList = Object.values(units)
         .map(k=>k.unit)
         .reverse();
@@ -159,27 +161,6 @@ function sortTypes(){
             });
         }
     }
-
-    let hadShuffle;
-    do{
-        hadShuffle = false;
-        for( let i=0; i<typeList.length; ++i ){
-            let obj = typeList[i];
-            for( let j=0; j<obj.dependencies.length; ++j ){
-                let target = obj.dependencies[j];
-                for( let k=i+1; k<typeList.length; ++k ){
-                    let candidate = typeList[k];
-                    if( candidate.type != target )
-                        continue;
-                    typeList.splice(k, 1);
-                    typeList.splice(i, 0, candidate);
-                    hadShuffle = true;
-                    ++i;
-                    break;
-                }
-            }
-        }
-    }while( hadShuffle );
 
     return typeList;
 
@@ -205,7 +186,33 @@ function sortTypes(){
         ));
 
         return ret;
-    }    
+    }
+}
+
+function sortTypes( typeList ){
+
+    let hadShuffle;
+    do{
+        hadShuffle = false;
+        for( let i=0; i<typeList.length; ++i ){
+            let obj = typeList[i];
+            for( let j=0; j<obj.dependencies.length; ++j ){
+                let target = obj.dependencies[j];
+                for( let k=i+1; k<typeList.length; ++k ){
+                    let candidate = typeList[k];
+                    if( candidate.type != target )
+                        continue;
+                    typeList.splice(k, 1);
+                    typeList.splice(i, 0, candidate);
+                    hadShuffle = true;
+                    ++i;
+                    break;
+                }
+            }
+        }
+    }while( hadShuffle );
+
+    return typeList;    
 }
 
 function writeClassInline( type ){
@@ -461,15 +468,104 @@ function writePath( expr, clean ){
     return out;
 }
 
+function access( exprList, prevResult ){
+    if( !exprList )
+        return null;
+    
+    let out = "";
+    let type = prevResult.type;
+    
+    exprList.forEach( (e, index) => {
+        let next = exprList[index+1];
+        
+        if( e.operation == "methodInvocationSuffix" ){
+            e = writeExpression(e);
+            out += e.out;
+            let argTypes = e.type;
+            if( !prevResult.method ){
+                type = VOID;
+                // throw new Error(out + " is not a method");
+            }else{
+                type = prevResult.method.result;
+            }
+            prevResult = e;
+        }else if( e.operation == "arrayAccessSuffix" ){
+            e = prevResult = writeExpression(e, type.getTarget() );
+            out += e.out;
+            type = e.type;
+        }else{
+            out += `->${e}`;
+            if( type ){
+                if( type.isTypeRef )
+                    type = type.getTarget();
+                let trail = [];
+                let test = _=>true;
+                if( next && next.operation == "methodInvocationSuffix" )
+                    test = x=>x.isMethod;
+                let field = type.resolve([e], trail, test);
+                if( !field ){
+                    throw new Error(currentFile+`: Could not find ${e} in ${type.constructor.name} ${type.name}`);
+                }
+                type = field.type;
+
+                if( field.isMethod ){
+                    prevResult = {
+                        op:"->",
+                        methodName:e,
+                        methodScope:trail[trail.length-2],
+                        method:field
+                    };
+                }
+            }
+            
+        }
+    } );
+
+    return {out, type};
+}
+
 function writeExpression( expr, typeHint ){
     let retdata = { op:expr.operation };
     let type = "void";
     let out = "", e;
     switch( expr.operation ){
     case "inline":
-        if( expr.backend != "cpp" )
-            break;
-        out += expr.lines.join("\n");
+        if( expr.backend == "cpp" )
+            out += expr.lines.join("\n");
+        else if( expr.backend == "asm" ){
+            out += "asm volatile(\".syntax unified\\n\"\n";
+            let operands = {input:[], output:[], clobber:[]};
+            (expr.lines.join("\n").split("\n")).forEach(line=>{
+                line = line.trim();
+                if( !line )
+                    return;
+                
+                if( line[0] != '@' ){
+                    out += `${indent}"${line.replace(/@([a-zA-Z_0-9]+)/, '%[$1]')}	\\n"\n`;
+                    return;
+                }
+                
+                let match = line.match(/^@([a-z]+)\s+([^:\s]+)(?::(.+))?/);
+                if( !match || !operands[match[1]]){
+                    throw new Error(currentFile+": Invalid asm preprocessor directive: " + line);
+                }
+
+                operands[match[1]].push({
+                    name:match[2],
+                    constraint:match[3] || "+h"
+                });
+            });
+
+            out += indent + ":\n";
+            out += operands.output.map(l=>`${indent}[${l.name}] "${l.constraint}" (${l.name})`).join(",\n");
+
+            out += indent + ":\n";
+            out += operands.input.map(l=>`${indent}[${l.name}] "${l.constraint}" (${l.name})`).join(",\n");
+
+            out += indent + ":\n";
+            out += operands.clobber.map(l=>`${indent}"${l.name}"`).join(",\n");
+            out += ")";
+        }
         break;
 
     case "=":
@@ -549,56 +645,13 @@ function writeExpression( expr, typeHint ){
         break;
 
     case "access":
-        let prevResult;
-        e = prevResult = writeExpression(expr.left);
+        e = writeExpression(expr.left);
         out += e.out;
         type = e.type;
-        if( expr.right ){
-            expr.right.forEach( (e, index) => {
-                let next = expr.right[index+1];
-                
-                if( e.operation == "methodInvocationSuffix" ){
-                    e = writeExpression(e);
-                    out += e.out;
-                    let argTypes = e.type;
-                    if( !prevResult.method ){
-                        type = VOID;
-                        // throw new Error(out + " is not a method");
-                    }else{
-                        type = prevResult.method.result;
-                    }
-                    prevResult = e;
-                }else if( e.operation == "arrayAccessSuffix" ){
-                    e = prevResult = writeExpression(e, type.getTarget() );
-                    out += e.out;
-                    type = e.type;
-                }else{
-                    out += `->${e}`;
-                    if( type ){
-                        if( type.isTypeRef )
-                            type = type.getTarget();
-                        let trail = [];
-                        let test = _=>true;
-                        if( next && next.operation == "methodInvocationSuffix" )
-                            test = x=>x.isMethod;
-                        let field = type.resolve([e], trail, test);
-                        if( !field ){
-                            throw new Error(`Could not find ${e} in ${type.constructor.name} ${type.name}`);
-                        }
-                        type = field.type;
-
-                        if( field.isMethod ){
-                            prevResult = {
-                                op:"->",
-                                methodName:e,
-                                methodScope:trail[trail.length-2],
-                                method:field
-                            };
-                        }
-                    }
-                        
-                }
-            } );
+        e = access(expr.right, e);
+        if( e ){
+            out += e.out;
+            type = e.type;
         }
         break;
 
@@ -608,6 +661,11 @@ function writeExpression( expr, typeHint ){
         case "StringLiteral":
             out += `__str__(${expr.left})`;
             type = STRING;
+            e = access( expr.right, {type});
+            if( e ){
+                out += e.out;
+                type = e.type;
+            }
             break;
             
         case "Null":
@@ -638,7 +696,7 @@ function writeExpression( expr, typeHint ){
         default:
             out += expr.left;
             type = expr.literalType;
-            throw new Error(`Unknown literal type ${type}`);
+            throw new Error(currentFile+`: Unknown literal type ${type}`);
         }
         break;
 
@@ -801,7 +859,7 @@ function writeExpression( expr, typeHint ){
                 let trail = [];
                 let target = type.resolve( [ex], trail, x=>true );
                 if( !target ){
-                    throw new Error(`Could not find ${ex} in ${type.name}`);
+                    throw new Error(currentFile+`: Could not find ${ex} in ${type.name}`);
                 }
                 if( type.isClass || type.isInterface ) out += "->";
                 else out += ".";
@@ -820,7 +878,7 @@ function writeExpression( expr, typeHint ){
 function writeStatement( stmt, block, noSemicolon ){
     if( !stmt.location ){
         console.error( "Invalid statement: ", stmt );
-        throw new Error("Invalid Statement");
+        throw new Error(currentFile+": Invalid Statement");
     }
 
     let out = `\n/*<MAP*${stmt.location.unit}|${stmt.location.startLine}|${stmt.location.startColumn}*MAP>*/`;
@@ -873,7 +931,7 @@ function writeStatement( stmt, block, noSemicolon ){
                 pscope = pscope.scope;
             }
             if( !pscope )
-                throw new Error(`Label ${stmt.label} not found.`);
+                throw new Error(currentFile+`: Label ${stmt.label} not found.`);
             out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
         }
         break;
@@ -1103,6 +1161,13 @@ function writeRawData( data ){
     return out;
 }
 
+function writeStringData( data ){
+    let out = "static const char d[] = \"";
+    out += JSON.stringify(data);
+    out += "\";\nreturn new uc_String(d);\n";
+    return out;
+}
+
 function writeBlock( block ){
     let out = "";
 
@@ -1123,11 +1188,23 @@ function writeBlock( block ){
     if( block.sprite )
         out += require("./cppSprite.js")( block );
 
-    if( block.colors16 )
-        out += writePalette( block.colors16 );
-
     if( block.rawData ){
         out += writeRawData( block.rawData );
+    }
+
+    if( block.xmlData )
+        out += require("./cppXML.js")( block.xmlData );
+
+    if( block.textData ){
+        out += writeStringData( block.textData );
+    }
+
+    if( block.resourceLookup ){
+        out += require("./Resources.js")
+            .writeCPP( block.resourceLookup.map(({path, call})=>({
+                path,
+                call:writePath(call)
+            })) );
     }
 //    if( block.colors32 )
     //        out += writeColors( block.colors32 );
@@ -1236,7 +1313,7 @@ function writeClassImpl( unit ){
                         let name = ref.name.join(".");
                         let cname = writePath(annotation).replace(/::/g, ".");
                         if( !annotation )
-                            throw new Error(`Annotation ${name} not found.`);
+                            throw new Error(currentFile+`: Annotation ${name} not found.`);
                         if( annotationHandlers[cname] && annotationHandlers[cname].method )
                             annotationHandlers[cname].method(method, writePath(method), ref.pairs);
                     });
@@ -1344,6 +1421,8 @@ function write( unit, main, plat, dbg ){
 
     addUnit(unit);
 
+    let out = fs.readFileSync( platformDir+"/begin.cpp", "utf-8" );
+
     let pending;
     do{
         pending = false;
@@ -1352,13 +1431,16 @@ function write( unit, main, plat, dbg ){
             if( dependency.classImpl )
                 continue;
             pending = true;
-            writeDependency( dependency );
+
+            currentFile = (dependency.unit.name||[]).join(".");
+            dependency.forwardDecl = writeForwardDecl( dependency.unit );
+            dependency.classImpl = writeClassImpl( dependency.unit );
         }
     }while(pending);
 
-    let out = fs.readFileSync( platformDir+"/begin.cpp", "utf-8" );
+    let types = getTypeList();
 
-    let types = sortTypes();
+    types = sortTypes(types);
 
     let list = Object.values(units).reverse();
     for( let dependency of list )
@@ -1399,16 +1481,6 @@ function write( unit, main, plat, dbg ){
     out += end;
 
     return out;
-
-}
-
-function writeDependency( dep ){
-
-    if( dep.forwardDecl )
-        return;
-
-    dep.forwardDecl = writeForwardDecl( dep.unit );
-    dep.classImpl = writeClassImpl( dep.unit );
 
 }
 

@@ -2,7 +2,13 @@ const vfsfunc = require('./vfs.js');
 const sourcepath = vfsfunc.sourcepath;
 let vfs = {};
 
-const parsers = {};
+const parsers = {
+    resources:{
+        run( src, name, type ){
+            return require('./Resources.js').unit();
+        }
+    }
+};
 
 function reset(){
     for( let k in vfs )

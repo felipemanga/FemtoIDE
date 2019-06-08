@@ -101,6 +101,8 @@ public class LPC11U68 {
     public static final pointer  PIO0_6 = (pointer) 0x40044018;
     public static final pointer  PIO0_8 = (pointer) 0x40044020;
     public static final pointer  PIO0_9 = (pointer) 0x40044024;
+    public static final pointer  PIO0_11 = (pointer) 0x4004402C;
+    public static final pointer  PIO1_19 = (pointer) 0x400440AC;
     public static final pointer  PIO1_31 = (pointer) 0x400440DC;
     public static final pointer  PIO2_0 = (pointer) 0x400440F0;
     public static final pointer  PIO2_1 = (pointer) 0x400440F4;

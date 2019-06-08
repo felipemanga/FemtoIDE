@@ -7,6 +7,10 @@ public class Runtime {
 
     public static Runtime getRuntime(){ return _instance; }
     public int availableProcessors(){ return 1; }
-    public int totalMemory(){ return 0x8000; }
-    public int freeMemory(){ return 0x8000 - __inline_cpp__("__allocated_memory__"); }
+    public int totalMemory(){
+        int total;
+        __inline_cpp__("total = int(&__top_Ram0_32)");
+        return total - 0x10000000;
+    }
+    public int freeMemory(){ return totalMemory() - __inline_cpp__("__allocated_memory__"); }
 }

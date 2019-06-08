@@ -40,6 +40,7 @@ APP.addPlugin("Build", ["Project"], _=>{
             
             APP.clearLog();
             APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});
+            APP.setStatus("Compiling...");
 
             let pipeline, files, current;
             try{
@@ -47,7 +48,7 @@ APP.addPlugin("Build", ["Project"], _=>{
                 pipeline = DATA.project.pipelines[target];
                 files = [...DATA.projectFiles];
                 current = -1;
-                popQueue();
+                setTimeout(_=>popQueue(),0);
             }catch( ex ){
                 APP.setStatus("Compilation FAILED");
                 APP.error(ex);
@@ -73,10 +74,14 @@ APP.addPlugin("Build", ["Project"], _=>{
                     cb();
                     return;
                 }
-                
-                startTime = performance.now();
                 stage = pipeline[current];
-                APP[stage]( files, popQueue );
+                console.log("Starting stage: " + stage);
+                startTime = performance.now();
+                try{
+                    APP[stage]( files, popQueue );
+                }catch(ex){
+                    popQueue(ex);
+                }
             }
         }
 

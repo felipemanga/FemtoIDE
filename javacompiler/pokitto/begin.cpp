@@ -5,6 +5,9 @@
 #define FIXED_POINTS_USE_NAMESPACE
 #define FIXED_POINTS_NO_RANDOM
 #include "FixedPoints/FixedPoints.h"
+
+#ifndef POKITTO_BAS
+
 typedef struct {
     int quot;
     int rem;
@@ -65,6 +68,34 @@ void miniitoa(unsigned long n, char *buf, uint8_t base=10 ){
 
 }
 
+#else
+
+void miniitoa(unsigned long n, char *buf, uint8_t base=10 ){
+    unsigned long i = 0;
+
+    do{
+	// UIDIV_RETURN_T div = ((*(LPC_ROM_API_T * *) 0x1FFF1FF8UL)->divApiBase->uidivmod( n, base ));
+	char digit = n % base;
+
+	if( digit < 10 ) digit += '0';
+	else digit += 'A';
+	    
+	buf[i++] = digit;
+	n /= base;
+	
+    }while( n > 0 );
+
+    buf[i--] = 0;
+
+    for( unsigned long j=0; i>j; --i, ++j ){
+	char tmp = buf[i];
+	buf[i] = buf[j];
+	buf[j] = tmp;
+    }
+
+}
+#endif
+
 void __print__( const char *str ){
     char *usart = (char*) 0x40008000;
     usart[0xC] = 3;
@@ -80,6 +111,7 @@ void __print__( int i ){
 
 extern "C" void __wrap_exit(int);
 extern void *_codesize;
+extern "C" void __top_Ram0_32();
 
 namespace up_java {
     namespace up_lang {
@@ -153,6 +185,8 @@ constexpr uint16_t __shortFromObj__( up_java::up_lang::uc_Object *obj ){
     return std::uintptr_t(obj) - 0x10000000;
 }
 
+bool __managed__ = true;
+
 namespace up_java {
     namespace up_lang {
 
@@ -164,9 +198,14 @@ namespace up_java {
             uint16_t __refCount__;
 
             uc_Object(){
-                __refCount__ = 0;
-                __next__ = __first__;
-                __first__ = __shortFromObj__(this);
+                if( __managed__ ){
+                    __refCount__ = 0;
+                    __next__ = __first__;
+                    __first__ = __shortFromObj__(this);
+                }else{
+                    __next__ = 3;
+                    __refCount__ = 1;
+                }
             }
 
             virtual ~uc_Object(){}
@@ -483,13 +522,11 @@ void __on_failed_alloc(){
     uc_Object::__gc__();
 }
 
-extern "C" {
-    extern void _vStackTop(void);
-}
+extern "C" void _vStackTop(void);
 
 void uc_Object::__gc__(){
     uintptr_t *stackTop = (uintptr_t *) &_vStackTop;
-    volatile uintptr_t regs[11], tmp = 0;
+    volatile uintptr_t regs[13], tmp = 0;
     asm volatile(
         ".syntax unified		\n"
         "mov %[tmp], r0			\n"
@@ -513,6 +550,10 @@ void uc_Object::__gc__(){
         "mov %[tmp], r9			\n"
         "str %[tmp], [%[regs], 0x24]	\n"
         "mov %[tmp], r10		\n"
+        "str %[tmp], [%[regs], 0x28]	\n"
+        "mov %[tmp], r11		\n"
+        "str %[tmp], [%[regs], 0x28]	\n"
+        "mov %[tmp], r12		\n"
         "str %[tmp], [%[regs], 0x28]	\n"
         :
         [tmp]"+l"(tmp)
@@ -544,7 +585,7 @@ void uc_Object::__gc__(){
             obj->__mark__(3);
         }
     }
-    
+
     bool dirty = true;
     while( dirty ){
         dirty = false;
@@ -554,12 +595,10 @@ void uc_Object::__gc__(){
             if(m==2){
                 obj->__mark__(3);
                 dirty = true;
-                // dirty = !!__gray_count__;
-                // if( !dirty ) break;
             }
         }
     }
-
+    
     uint16_t *prev = &__first__;
     for( uint16_t ptr = __first__, next; ptr>>2; ptr = next ){
         uc_Object *obj = __objFromShort__(ptr);
@@ -613,6 +652,10 @@ namespace up_java {
             virtual uint32_t __sizeof__( );
             bool __instanceof__( uint32_t id );
 
+            char *getPointer(){
+                return (char*) ptr;
+            }
+
             char arrayRead( uint32_t i ){
                 if(!ptr) return 0;
                 return ptr[i];
@@ -630,16 +673,66 @@ namespace up_java {
                 return uintptr_t(x) - uintptr_t(ptr);
             }
 
-            bool equals( uc_String *other ){
+            bool equals( const char *other ){
+                if( !other )
+                    return false;
+
                 const char *x = ptr;
-                const char *y = other->__c_str();
+                const char *y = other;
                 while( *x && *x == *y ){
                     x++;
                     y++;
                 }
+
                 return *x == *y;
             }
-        
+
+            bool equals( uc_String *other ){
+                if( !other )
+                    return false;
+                return equals( other->__c_str() );
+            }
+
+            int hashCode(){
+                int hash = 7;
+                for( int i=0; ptr[i]; ++i ){
+                    hash = hash*31 + ptr[i];
+                }
+                return hash;
+            }
+
+            int indexOf( char c ){
+                for( int i=0; ptr[i]; ++i ){
+                    if(ptr[i] == c)
+                        return i;
+                }
+                return -1;
+            }
+
+            uc_String *substring(int start, int end){
+                const char *r = ptr;
+                while( start ){
+                    if( !*r )
+                        return new uc_String("");
+                    r++;
+                    start--;
+                    end--;
+                }
+                
+                char *w = new char[end + 1];
+                while( end && *r ){
+                    *w++ = *r++;
+                    end--;
+                }
+                *w = 0;
+                
+                return new uc_String(w);
+            }
+
+            uc_String *substring(int start){
+                return substring(0, length());
+            }
+
             const char *__c_str(){
                 return ptr;
             }

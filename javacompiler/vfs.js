@@ -12,6 +12,7 @@ let src = {
             System:{ src:read("/java/lang/System.java", "utf-8") },
             Thread:{ src:read("/java/lang/Thread.java", "utf-8") },
             String:{ src:require("./java/lang/String.js") },
+            Integer:{ src:read("./java/lang/Integer.java", "utf-8") },
             Array:{ src:require("./java/lang/Array.js") },
             int:{ src:require("./java/lang/int.js") },
             uint:{ src:require("./java/lang/uint.js") },
@@ -127,6 +128,8 @@ let src = {
             ZXSpec:{ src:read("/femto/font/ZXSpec.font"), type:"font", parser:"bin" }
         },
         Sprite:{ src:read("/femto/Sprite.java", "utf-8") },
+        XMLNode:{ src:read("/femto/XMLNode.java", "utf-8") },
+        StringPair:{ src:read("/femto/StringPair.java", "utf-8") },
         Prompt:{ src:read("/femto/Prompt.java", "utf-8") },
         Image:{ src:read("/femto/Image.java", "utf-8") },
         FrameRef:{ src:read("/femto/FrameRef.java", "utf-8") },
@@ -137,8 +140,10 @@ let src = {
             IRQ:{ src:read("/femto/hardware/IRQ.java", "utf-8") },
             LPC11U68:{ src:read("/femto/hardware/LPC11U68.java", "utf-8") },
             ST7775:{ src:read("/femto/hardware/ST7775.java", "utf-8") },
+            EXT:{ src:read("/femto/hardware/EXT.java", "utf-8") },
         },
     },
+    Resources:{src:"sauce", parser:"resources"},
     __root__:{
     }
 };

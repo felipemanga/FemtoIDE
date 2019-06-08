@@ -9,6 +9,7 @@ class Unit {
         this.types = [];
         this.id = unitId++;
         this.file = "";
+        this.isUnit = true;
     }
 
     resolve( fqcn, trail, test, scope ){
@@ -128,13 +129,54 @@ class Unit {
 
         
         if( !ret ){
-            throw new Error( "Could not find " + srcfqcn.join(".") );
+            throw new Error( this.name + ": Could not find " + srcfqcn.join(".") );
         }
         
         depth--;
         return ret;
     }
 
+    resources(){
+        this.name = ["Resources"];
+        let clazzName = this.name.pop();
+        const Clazz = require("./Clazz.js");
+        const clazz = new Clazz( clazzName, this );
+        this.types.push( clazz );
+        return clazz;
+    }
+
+    text( data, name ){
+        this.name = [...name];
+        let clazzName = this.name.pop();
+        const Clazz = require("./Clazz.js");
+        const clazz = new Clazz( clazzName, this );
+        clazz.text( data, "txt" );
+        this.types.push( clazz );                
+    }
+
+    xml( data, name, type ){
+        const {toAST} = require("./AST.js");
+        this.name = [...name];
+
+        this.imports.push({
+            fqcn:"femto.XMLNode".split("."),
+            star:false,
+            isStatic:false
+        });
+
+        this.imports.push({
+            fqcn:"femto.StringPair".split("."),
+            star:false,
+            isStatic:false
+        });
+
+        let clazzName = this.name.pop();
+        const Clazz = require("./Clazz.js");
+        const clazz = new Clazz( clazzName, this );
+        clazz.xml( data, type );
+        this.types.push( clazz );                
+    }
+    
     binary( data, name, extension ){
         this.name = [...name];
         let clazzName = this.name.pop();

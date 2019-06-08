@@ -3,6 +3,7 @@ extern void __on_failed_alloc();
 unsigned int __allocated_memory__;
 
 extern "C" {
+extern void _vStackTop(void);
 unsigned int malloc_usable_size( void * );
     
 void *__wrap__sbrk( int incr ){
@@ -16,7 +17,7 @@ void *__wrap__sbrk( int incr ){
 
     prev_heap_end = heap_end;
 
-    if (heap_end + incr >= (&_pvHeapStart)+(30*1024)){
+    if (heap_end + incr >= ((char*)&_vStackTop)-(2*1024)){
         return (void*) -1;
     }
    
@@ -99,7 +100,6 @@ extern unsigned int __bss_section_table_end;
 
 extern void __libc_init_array(void);
 extern int main(void);
-extern void _vStackTop(void);
 extern void (* const g_pfnVectors[])(void);
 
      void ResetISR(void);

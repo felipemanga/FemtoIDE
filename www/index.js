@@ -138,7 +138,7 @@ class Frame {
             if( err ) throw err;
             else{
                 buffer.path = newName;
-                buffer.name = newName.path.split(/[\\/]/).pop();
+                buffer.name = newName.split(/[\\/]/).pop();
                 APP.onRenameBuffer( buffer );
             }
         });

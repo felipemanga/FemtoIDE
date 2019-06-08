@@ -1,3 +1,7 @@
+Object.assign(encoding, {
+    "IMG":null
+});
+
 APP.addPlugin("SDCard", [], _=>{
     let fatfs = require("fatfs");
     

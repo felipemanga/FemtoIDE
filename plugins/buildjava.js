@@ -9,6 +9,14 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     const mapexpr = /\n(?:\/\*<MAP\*([^|]*)\|([0-9]+)\|([0-9]+)\*MAP>\*\/)?/g;
     
     APP.add({
+        pollBufferMeta( buffer, meta ){
+            if( buffer.type == "XML" )
+                meta.putInResources = {
+                    type:"bool",
+                    label:"Put in Resources",
+                    default: false
+                };
+        },
 
         displayGeneratedCPP(){
             let gen = DATA.debugBuffer;
@@ -60,6 +68,8 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                  || f.type=="JSON"
                  || f.type=="PAL"
                  || f.type=="BIN"
+                 || f.type=="XML"
+                 || f.type=="TXT"
                 ),
                 compileJava.bind(null, cb, files) );
         }
@@ -78,6 +88,8 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         const { reset, parsers, toAST, resolveVFS, vfs } = require(`${DATA.appPath}/javacompiler/AST.js`);
 
         reset();
+        require(`${DATA.appPath}/javacompiler/Resources.js`).reset();
+        
         registerParsers();
 
         let pending = new Pending(onDoneLoadingVFS);
@@ -128,9 +140,25 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             }
         });
 
-        
+        function loadToResources( file ){
+            let meta = DATA.project.meta;
+            if( !meta ) return;
+
+            if( !file.startsWith(DATA.projectPath) )
+                return;
+            
+            let rpath = file
+                .substr(DATA.projectPath.length);
+            
+            if( !meta[rpath] || !meta[rpath].putInResources )
+                return;
+
+            require(`${DATA.appPath}/javacompiler/Resources.js`)
+                .addResource(rpath.substr(1));
+        }
 
         function registerParsers(){
+
             parsers.bin={
                 run( src, name, type ){
                     if( src.data )
@@ -226,6 +254,29 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 }
             };
 
+            parsers.xml={
+                run( src, name, type ){
+                    if( src.data )
+                        src = src.data;
+                    var parser = new DOMParser();
+                    var xmlDoc = parser.parseFromString(src, "text/"+type);
+
+                    let unit = new Unit();                    
+                    unit.xml( xmlDoc, name, type );
+                    return unit;
+                }
+            };
+
+            parsers.txt={
+                run( txt, name ){
+                    if( txt.data )
+                        txt = txt.data;
+                    let unit = new Unit();
+                    unit.text( txt, name );
+                    return unit;
+                }
+            };
+
             parsers.json={
 
                 run( json, name ){
@@ -299,6 +350,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         }
 
         function onDoneLoadingVFS(){
+            Object.keys(files)
+                .forEach(file=>loadToResources( file ));
+            
             try {
                 
                 // global.console = console;

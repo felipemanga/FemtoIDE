@@ -229,7 +229,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                     cb( buffer
                         .error
                         .split("\n")
-                        .filter(x=>x.indexOf("error:") != -1 )
+                        .filter(x=>x.indexOf("rror:") != -1 )
                         .join("\n")
                         .substr(0, 512)
                       );

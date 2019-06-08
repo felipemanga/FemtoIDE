@@ -23,6 +23,7 @@ class Clazz extends Type {
             parent
         );
 
+        this.resourceFactories = null;
         this.initializers = [];
         this.fields = [];
         this.methods = [];
@@ -339,6 +340,43 @@ class Clazz extends Type {
         this.initializers.push( new Block(node.children.block[0].children.blockStatements[0], this) );
     }
 
+    resource( path ){
+        if( !this.resourceFactories ){
+            this.resourceFactories = {};
+        }
+
+        let fqcn = path.split(/[\/.]/);
+        let ext = fqcn[fqcn.length-1].toLowerCase();
+        let call = this.scope.resolve(fqcn, [], null, null);
+        if( !call )
+            throw new Error("Could not resolve '" + path + "'");
+        
+        let method = this.resourceFactories[ext];
+        if( !method ){
+            method = new Method(null, this);
+            this.methods.push(method);
+            method.isPublic = true;
+            method.isStatic = true;
+            method.artificial(
+                call.result,
+                ext,
+                [
+                    new Field(
+                        null,
+                        ["String"],
+                        "path",
+                        false,
+                        null,
+                        method
+                    )
+                ],
+                {resourceLookup:[]}
+            );
+            this.resourceFactories[ext] = method;
+        }
+        method.body.resourceLookup.push({ path, call });
+    }
+
     staticImage( image, name ){
         this.extends = new TypeRef(["femto", "Image"], false, this.scope);
 
@@ -448,6 +486,32 @@ class Clazz extends Type {
             );            
         }
         
+    }
+
+    text( data, extension ){
+        let method = new Method(null, this);
+        this.methods.push( method );
+        method.isPublic = true;
+        method.isStatic = true;
+        method.artificial(
+            new TypeRef(["String"], false, this),
+            extension,
+            [],
+            {textData:data}
+        );
+    }
+
+    xml( data, extension ){
+        let method = new Method(null, this);
+        this.methods.push( method );
+        method.isPublic = true;
+        method.isStatic = true;
+        method.artificial(
+            new TypeRef(["femto", "XMLNode"], false, this),
+            extension,
+            [],
+            {xmlData:data}
+        );
     }
 
     binary( data, extension ){
