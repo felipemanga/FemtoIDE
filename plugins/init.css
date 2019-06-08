@@ -1,3 +1,8 @@
+.InitView {
+    display: flex;
+    flex-direction: column;
+}
+
 .InitView h1 {
     font-style: italic;
     text-align: center;
@@ -42,6 +47,7 @@
 }
 
 .InitView .initProjectList {
+    overflow: auto;
     list-style: none;
     background: #111;
     margin: 30px;
