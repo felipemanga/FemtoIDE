@@ -33,6 +33,7 @@
             args.join(" ")
                 .split("\n")
                 .forEach( line => this.logLine(line) );
+            APP.onResize();
         },
 
         error( ...args ){
@@ -43,6 +44,7 @@
 
         logErrorLine( ...args ){
             getNode("error").textContent = args.join(" ");
+            APP.onResize();
         },
 
         logLine( ...args ){

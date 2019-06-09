@@ -166,24 +166,51 @@ void __print__( up_java::up_lang::uc_float f ){
     __print__(buff);
 }
 
-constexpr up_java::up_lang::uc_Object *__inflate_ptr__( uint16_t s ){
+#ifndef POKITTO_BAS
+
+using sptr_t = uint16_t;
+
+constexpr up_java::up_lang::uc_Object *__inflate_ptr__( sptr_t s ){
     return s ? 
         (up_java::up_lang::uc_Object *) (std::uintptr_t(s)+0x10000000) :
         0;
 }
 
-constexpr uint16_t __deflate_ptr__( up_java::up_lang::uc_Object *obj ){
+constexpr sptr_t __deflate_ptr__( up_java::up_lang::uc_Object *obj ){
     return obj ? std::uintptr_t(obj) - 0x10000000 : 0;
 }
 
 
-constexpr up_java::up_lang::uc_Object *__objFromShort__( uint16_t s ){
+constexpr up_java::up_lang::uc_Object *__objFromShort__( sptr_t s ){
     return (up_java::up_lang::uc_Object *) (std::uintptr_t(s&~3)+0x10000000);
 }
 
-constexpr uint16_t __shortFromObj__( up_java::up_lang::uc_Object *obj ){
+constexpr sptr_t __shortFromObj__( up_java::up_lang::uc_Object *obj ){
     return std::uintptr_t(obj) - 0x10000000;
 }
+
+#else
+
+using sptr_t = uintptr_t;
+
+constexpr up_java::up_lang::uc_Object *__inflate_ptr__( sptr_t s ){
+    return (up_java::up_lang::uc_Object *) s;
+}
+
+constexpr sptr_t __deflate_ptr__( up_java::up_lang::uc_Object *obj ){
+    return (sptr_t) obj;
+}
+
+
+constexpr up_java::up_lang::uc_Object *__objFromShort__( sptr_t s ){
+    return (up_java::up_lang::uc_Object *) std::uintptr_t(s&~3);
+}
+
+constexpr sptr_t __shortFromObj__( up_java::up_lang::uc_Object *obj ){
+    return std::uintptr_t(obj);
+}
+
+#endif
 
 bool __managed__ = true;
 
@@ -193,8 +220,8 @@ namespace up_java {
         class uc_Object {
         public:
             static uint32_t __gray_count__;
-            static uint16_t __first__;
-            uint16_t __next__;
+            static sptr_t __first__;
+            sptr_t __next__;
             uint16_t __refCount__;
 
             uc_Object(){
@@ -313,8 +340,8 @@ public:
     typedef T *TP;
     typedef uc_ArrayCPPIterator<T, isReference> Self;
     
-    uint16_t *p;
-    uc_ArrayCPPIterator(uint16_t *p) : p(p) {}
+    sptr_t *p;
+    uc_ArrayCPPIterator(sptr_t *p) : p(p) {}
     
     Self& operator++() {
         p++;
@@ -379,13 +406,13 @@ public:
     typedef T *TP;
     typedef uc_Array<T, isReference> Self;
 
-    uint16_t *elements;
+    sptr_t *elements;
     uint32_t length;
 
     uc_Array() : elements(nullptr), length(0){}
 
     uc_Array( uint32_t length ) : elements(nullptr), length(length) {
-        elements = new uint16_t[length];
+        elements = new sptr_t[length];
         for( uint32_t i=0; i<length; ++i )
             elements[i] = 0;
     }
@@ -407,7 +434,7 @@ public:
 
     Self *loadValues( std::initializer_list<TP> init ){
         release();
-        elements = new uint16_t[init.size()];
+        elements = new sptr_t[init.size()];
         this->length = init.size();
         auto it = init.begin();
         for( uint32_t i=0; i<init.size(); ++i )
@@ -516,7 +543,7 @@ using __array_nat = __ref__<uc_Array<T, false>>;
 
 extern unsigned int __allocated_memory__;
 uint32_t uc_Object::__gray_count__ = 0;
-uint16_t uc_Object::__first__ = 0;
+sptr_t uc_Object::__first__ = 0;
 
 void __on_failed_alloc(){
     uc_Object::__gc__();
@@ -567,7 +594,7 @@ void uc_Object::__gc__(){
     uc_Object *obj;
     __gray_count__ = 0;
     
-    for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
+    for( sptr_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
         obj = __objFromShort__(ptr);
         uint32_t m = obj->__next__&3;
         uint32_t refCount = obj->__refCount__;
@@ -589,7 +616,7 @@ void uc_Object::__gc__(){
     bool dirty = true;
     while( dirty ){
         dirty = false;
-        for( uint16_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
+        for( sptr_t ptr = __first__; ptr>>2; ptr = obj->__next__ ){
             obj = __objFromShort__(ptr);
             uint32_t m = obj->__next__&3;
             if(m==2){
@@ -599,8 +626,8 @@ void uc_Object::__gc__(){
         }
     }
     
-    uint16_t *prev = &__first__;
-    for( uint16_t ptr = __first__, next; ptr>>2; ptr = next ){
+    sptr_t *prev = &__first__;
+    for( sptr_t ptr = __first__, next; ptr>>2; ptr = next ){
         uc_Object *obj = __objFromShort__(ptr);
         next = obj->__next__;
         if( (next&3) == 2 ){
@@ -693,7 +720,7 @@ namespace up_java {
                 return equals( other->__c_str() );
             }
 
-            int hashCode(){
+            up_java::up_lang::uc_int hashCode(){
                 int hash = 7;
                 for( int i=0; ptr[i]; ++i ){
                     hash = hash*31 + ptr[i];

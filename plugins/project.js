@@ -110,6 +110,10 @@ APP.addPlugin("Project", [], _=>{
                 )
             });
 
+            document.title = DATA.projectName
+                + " - "
+                + require("../package.json").name;
+
             APP.onOpenProject();
 
             let oldMeta = DATA.project.files;

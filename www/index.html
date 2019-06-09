@@ -18,7 +18,7 @@
     <div id="contents"></div>
     <div id="logPane">
       <div id="logContainer"></div>
-      <div id="cmdContainer"><input id="cmd" onkeydown="event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')"></div>
+      <div id="cmdContainer"><input id="cmd" onkeydown="(event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')) || APP.onCMDKey(event)"></div>
     </div>
     
     <script src="uwa.js"></script>

@@ -21,7 +21,7 @@ APP.addPlugin("Text", ["Project"], _=>{
                 this.ace.resize(true);
             });
         }
-
+/*
         onCommandStarted(){
             this.ace.setReadOnly(true);
         }
@@ -29,7 +29,7 @@ APP.addPlugin("Text", ["Project"], _=>{
         onCommandEnded(){
             this.ace.setReadOnly(false);
         }
-
+*/
         clearHighlight( buffer ){
             let session = this.ace.session, classes;
             if( buffer && buffer.data != session )
