@@ -82,7 +82,7 @@ APP.addPlugin("Backtrace", [], _=>{
 
             function addVariables( args ){
                 (args+"")
-                    .split("\n")
+                    .split(/\r?\n/)
                     .forEach( arg => {
                         let match = arg.match(/^\s*([^=]+)=\s*(.*)$/);
                         if( !match )
@@ -100,7 +100,7 @@ APP.addPlugin("Backtrace", [], _=>{
                     this.list.removeChild( this.list.lastChild );
 
                 (bt+"")
-                    .split("\n")
+                    .split(/\r?\n/)
                     .forEach((frame, number)=>{
                         if( frame[0] != "#" )
                             return;
