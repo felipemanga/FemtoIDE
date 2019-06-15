@@ -1,6 +1,6 @@
 {
   "name": "FemtoIDE",
-  "main": "www/index.html",
+  "main": "www/main.js",
   "window": {
     "toolbar": false,
     "frame": true,
