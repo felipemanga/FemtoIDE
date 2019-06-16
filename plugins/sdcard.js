@@ -5,17 +5,40 @@ Object.assign(encoding, {
 APP.addPlugin("SDCard", [], _=>{
     let fatfs = require("fatfs");
     
-    let image, header, imagePath;
+    let image, imagePath, nonzero;
     fs.readFile("www/blank.img", (err, data)=>{
         image = data.buffer;
-        header = new Uint8Array(data.buffer, 0, 0x610);
+        loadNonZero();
     });
+
+    function loadNonZero(){
+        nonzero = {};
+        let addr = 0, c = 0;
+        let full = new Uint8Array(image);
+        for( let i=0; i<full.length; ++i ){
+            let b = full[i];
+            if( !b ){
+                if( addr == -1 )
+                    continue;
+                c++;
+                if( c<128 )
+                    continue;
+                c = 0;
+                nonzero[addr] = full.slice( addr, i-128+1 );
+                addr = -1;
+            }else{
+                c = 0;
+                if( addr == -1 )
+                    addr = i;
+            }
+        }
+    }
     
     class ABDriver {
         
         constructor(){
             this.sectorSize=512;
-            this.numSectors=63488; // 2000
+            this.numSectors=image.byteLength/this.sectorSize|0;
         }
 
         readSectors( i, dest, cb ){
@@ -30,7 +53,12 @@ APP.addPlugin("SDCard", [], _=>{
     }
 
     function format(){
-        // image.fill(0);
+        let full = new Uint8Array(image);
+        full.fill(0);
+        for( let addr in nonzero ){
+            let chunk = nonzero[addr];
+            full.set( chunk, addr|0 );
+        }
         // image.set(header);
     }
     
