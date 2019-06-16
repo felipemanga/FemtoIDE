@@ -70,7 +70,6 @@ APP.addPlugin("Backtrace", [], _=>{
             if( !this.stale )
                 return;
 
-            this.container.parentElement.style.display = "block";
             this.stale = false;
             APP.onResize();
 
@@ -79,6 +78,10 @@ APP.addPlugin("Backtrace", [], _=>{
 
             APP.gdbQuery("info args -q", addVariables.bind(this));
             APP.gdbQuery("info locals -q", addVariables.bind(this));
+
+            function show(){
+                this.container.parentElement.style.display = "block";
+            }
 
             function addVariables( args ){
                 (args+"")
@@ -90,6 +93,7 @@ APP.addPlugin("Backtrace", [], _=>{
                         let name = match[1].trim();
                         let value = match[2].trim();
                         new VariableNode({name, value}, this.variables);
+                        show.call(this);
                     });
             }
             
@@ -119,6 +123,8 @@ APP.addPlugin("Backtrace", [], _=>{
                             file,
                             line
                         }, this.list);
+
+                        show.call(this);
                     });
             });
         }
