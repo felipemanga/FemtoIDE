@@ -81,7 +81,7 @@ return c${rootId};
             out += `}),\n`;
         }
         
-        out += (typeof node.nodeValue != "string") ? "nullptr" : str(node.nodeValue.trim().replace(/[ \t]+/g, " ").replace(/[\r\n]+/g, "\n"));
+        out += (typeof node.nodeValue != "string") ? "nullptr" : str(node.nodeValue.replace(/[ \t\n\r]+/g, " ").replace(/[\r\n]+/g, "\n"));
         
         out += `);\n\n`;
         return id;
