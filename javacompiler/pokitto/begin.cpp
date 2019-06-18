@@ -407,13 +407,13 @@ public:
     typedef uc_Array<T, isReference> Self;
 
     sptr_t *elements;
-    uint32_t length;
+    up_java::up_lang::uc_int length;
 
     uc_Array() : elements(nullptr), length(0){}
 
-    uc_Array( uint32_t length ) : elements(nullptr), length(length) {
+    uc_Array( up_java::up_lang::uc_int length ) : elements(nullptr), length(length) {
         elements = new sptr_t[length];
-        for( uint32_t i=0; i<length; ++i )
+        for( up_java::up_lang::uc_int i=0; i<length; ++i )
             elements[i] = 0;
     }
 
@@ -467,7 +467,7 @@ public:
         if( !elements )
             return;
         
-        for( uint32_t i=0; i<length; ++i ){
+        for( up_java::up_lang::uc_int i=0; i<length; ++i ){
             if( elements[i] ){
                 __inflate_ptr__(elements[i])->__mark__(m);
             }
@@ -483,14 +483,14 @@ class uc_Array<T, false> : public uc_Object {
 
 public:
     T *elements;
-    uint32_t length;
+    up_java::up_lang::uc_int length;
 
     uc_Array() : elements(nullptr), length(0){}
 
-    uc_Array( uint32_t length ) : elements(nullptr) {
+    uc_Array( up_java::up_lang::uc_int length ) : elements(nullptr) {
         elements = new T[length];
         this->length = length;
-        for( uint32_t i=0; i<length; ++i )
+        for( up_java::up_lang::uc_int i=0; i<length; ++i )
             elements[i] = 0;
     }
 
