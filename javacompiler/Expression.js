@@ -313,7 +313,7 @@ class Expression {
                         .arrayCreationDefaultInitSuffix[0].children
                         .dimExprs[0].children
                         .dimExpr
-                        .map( expr => new Expression( expr.children.expression[0] ) );                    
+                        .map( expr => new Expression( expr.children.expression[0], this.scope ) );
                 }else{
                     ast( left
                          .newExpression[0].children
