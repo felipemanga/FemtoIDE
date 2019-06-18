@@ -10,6 +10,9 @@ APP.addPlugin("Text", ["Project"], _=>{
             APP.add(this);
             APP.async(_=>this.ace.resize(true))
             this.ace.focus();
+            if( !this.buffer.data ){
+                this.onFileChanged(this.buffer);
+            }
         }
 
         detach(){
@@ -127,13 +130,14 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         constructor( frame, buffer ){
-            
+            this.buffer = buffer;
             let id = "text_" + (textViewInstance++);
             this.DOM = DOC.create( frame, "div", {
                 id,
                 className: "IDE"
             });
-            
+
+            this.ignoreChange = false;
             this.ace = ace.edit( id );
             this.ace.setTheme( DATA.aceTheme || "ace/theme/kuroir" );
             let hnd;
@@ -142,6 +146,9 @@ APP.addPlugin("Text", ["Project"], _=>{
             
             session.setUndoManager( new ace.UndoManager() );
             session.on("change", _=>{
+                if( this.ignoreChange )
+                    return;
+
                 buffer.modified = true;
                 if( hnd ) clearTimeout( hnd );
                 hnd = setTimeout( save, 1000 );
@@ -187,16 +194,31 @@ APP.addPlugin("Text", ["Project"], _=>{
             buffer.transform = "transformSessionToString";
             
             if( typeof buffer.data == "string" ){
-                session.setValue( buffer.data );
+                this._setValue(buffer.data);
                 buffer.data = session;            
             }else{
                 buffer.data = session;            
                 APP.readBuffer( buffer, "utf-8", (err, data) => {
                     buffer.data = session;
-                    session.setValue( data || "" );
+                    this._setValue( data || "" );
                 }, true);
             }
 
+        }
+
+        onFileChanged( buffer ){
+            if( buffer != this.buffer )
+                return;
+            APP.readBuffer( buffer, "utf-8", (err, data) => {
+                buffer.data = this.ace.session;
+                this._setValue( data || "" );
+            }, true);            
+        }
+
+        _setValue(value){
+            this.ignoreChange = true;
+            this.ace.session.setValue( value );
+            this.ignoreChange = false;
         }
 
     };

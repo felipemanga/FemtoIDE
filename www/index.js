@@ -537,8 +537,10 @@ class Core {
         let data = buffer.data;
         if( typeof buffer.transform == "string" )
             data = APP[buffer.transform]( data );
-            
+
+        APP.onBeforeWriteBuffer(buffer);
         fs.writeFileSync( buffer.path, data, buffer.encoding );
+        APP.onAfterWriteBuffer(buffer);
 
         buffer.modified = false;
     }

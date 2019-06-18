@@ -36,7 +36,7 @@ APP.addPlugin("Project", [], _=>{
 
     };
 
-    let project = {}, dirtyHnd;
+    let project = {}, dirtyHnd, strproject;
 
     APP.add({
 
@@ -47,9 +47,13 @@ APP.addPlugin("Project", [], _=>{
         },
 
         saveProject(){
+            let str = JSON.stringify(DATA.project, null, "\t");
+            if( strproject == str )
+                return;
+            strproject = str;
             fs.writeFileSync(
                 DATA.projectPath + path.sep + "project.json",
-                JSON.stringify(DATA.project, null, "\t"),
+                strproject,
                 "utf-8"
             );
         },
@@ -93,6 +97,10 @@ APP.addPlugin("Project", [], _=>{
             if( !projectPath )
                 return;
 
+            strproject = fs.readFileSync(
+                projectPath + path.sep + "project.json", "utf-8"
+            );
+
             if( DATA.project )
                 APP.onCloseProject();
 
@@ -103,11 +111,7 @@ APP.addPlugin("Project", [], _=>{
                 projectPath,
                 projectFiles:[],
                 projectName:projectPath.split(path.sep).pop(),
-                project: JSON.parse(
-                    fs.readFileSync(
-                        projectPath + path.sep + "project.json", "utf-8"
-                    )
-                )
+                project: JSON.parse(strproject)
             });
 
             document.title = DATA.projectName
