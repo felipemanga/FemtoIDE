@@ -9,10 +9,16 @@ APP.addPlugin("Image", [], _ => {
     
     class ImageView {
         constructor( frame, buffer ){
+            this.DOM = DOC.create( frame, "iframe", {
+                className:"ImageView",
+                src: "piskel/index.html?" + buffer.path
+            });
+            /*
             this.DOM = DOC.create( frame, "img", {
                 className:"ImageView",
                 src: "file://" + buffer.path
             });
+*/
         }
     }
 
