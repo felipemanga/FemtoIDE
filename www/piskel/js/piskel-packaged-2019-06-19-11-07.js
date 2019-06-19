@@ -30252,7 +30252,7 @@ return Q;
         var str = canvas.toDataURL("image/png");
         str = str.substr(str.indexOf(",")+1);
         var fs = require("fs");
-        fs.writeFile(location.search.substr(1), str, "base64", function(error){
+        fs.writeFile(unescape(location.search).substr(1), str, "base64", function(error){
             if( error )
                 console.error(error);
         });
