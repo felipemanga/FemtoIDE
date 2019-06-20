@@ -1,0 +1,1 @@
+#define PROJ_FAST_16COLOR 1
