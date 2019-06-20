@@ -58,6 +58,19 @@ APP.addPlugin("Project", [], _=>{
             );
         },
 
+        writeBuffer( buffer ){
+            if( buffer.path != DATA.projectPath + path.sep + "project.json" )
+                return;
+            let data = buffer.data;
+            if( data == strproject )
+                return;
+            let json = JSON.parse(data);
+            strproject = data;
+            APP.customSetVariables({
+                project: json
+            });
+        },
+
         onDeleteBuffer( buffer ){
             let pf = DATA.projectFiles;
             let index = pf.indexOf(buffer);

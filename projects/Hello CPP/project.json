@@ -8,6 +8,11 @@
 		"main.cpp": {},
 		"project.json": {}
 	},
+	"PNGFlags": {
+		"ALL": [
+			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp"
+		]
+	},
 	"libs": {
 		"Pokitto": [
 			{
@@ -33,7 +38,6 @@
 			"-O3"
 		],
 		"Pokitto": [
-			"-DPROJ_MODE15=1",
 			"-DPROJ_FPS=60",
 			"-I${projectPath}",
 			"-DPOKITTO",
@@ -229,6 +233,7 @@
 	"target": "Pokitto",
 	"pipelines": {
 		"Pokitto": [
+			"img-to-c",
 			"compile-cpp",
 			"compile-ld",
 			"compile-bin",

@@ -319,7 +319,8 @@ APP.addPlugin("Tree", [], _=>{
                             if( !fb ) return;
                             if( DATA.projectFiles.indexOf(fb) > -1 )
                                 return;
-                            APP.writeBuffer(fb);
+                            
+                            APP.touchBuffer(fb);
                             APP.registerProjectFile(fb);
                             DATA.projectFiles.push(fb);
                         }
