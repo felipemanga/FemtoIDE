@@ -133,9 +133,6 @@ APP.addPlugin("Project", [], _=>{
 
             APP.onOpenProject();
 
-            let oldMeta = DATA.project.files;
-            DATA.project.files = {};
-
             loadProjectFiles(_=>{
 
                 APP.findFile( `${projectPath}${path.sep}${DATA.project.lastBuffer}`, true );
@@ -175,13 +172,6 @@ APP.addPlugin("Project", [], _=>{
                                 if( stat.isDirectory() ){
                                     buffer.type = "directory";
                                     readdir( full );
-                                }else{
-                                    let relative = full.substr(projectPath.length+1);
-                                    let meta = oldMeta[relative];
-                                    if( !meta )
-                                        meta = {};
-                                    DATA.project.files[relative] = meta;
-                                    
                                 }
 
                                 APP.registerProjectFile(buffer);

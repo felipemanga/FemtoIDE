@@ -13,7 +13,7 @@ APP.addPlugin("BuildPNG", ["Build"], _=> {
                     pnglist.forEach( buffer=>{
                         pending.start();
                         let img = new Image();
-                        img.src = "file://" + buffer.path;
+                        img.src = "file://" + buffer.path + "?" + Math.random();
                         img.onload = _=>{
                             let canvas = document.createElement("canvas");
                             canvas.width = img.width;
@@ -89,7 +89,7 @@ ${img.width}, ${img.height}`;
                 run[(x/ppb)|0] = (run[(x/ppb)|0]||0) + (closest<<shift);
             }
 
-            out += run.join(",");
+            out += run.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",");
         }
         
         out += "\n};\n";
