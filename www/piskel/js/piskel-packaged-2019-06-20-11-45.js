@@ -30269,6 +30269,7 @@ return Q;
             pskl.app.framesListController.container.style.display = "none";
             
             var importedImage = new Image();
+            importedImage.onerror = function(){}; // happens on new images
             importedImage.onload = function(){
                 console.log("Loaded image");
                 pskl.app.importService.newPiskelFromImage(
