@@ -1,11 +1,9 @@
 {
-	"metadata": {},
 	"lastBuffer": "main.cpp",
-	"files": {
-		"cpp.bin": {},
-		"main.cpp": {},
-		"cpp.elf": {},
-		"project.json": {}
+	"PNGFlags": {
+		"ALL": [
+			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp"
+		]
 	},
 	"libs": {
 		"Pokitto": [
@@ -32,7 +30,6 @@
 			"-O3"
 		],
 		"Pokitto": [
-			"-DPROJ_MODE15=1",
 			"-DPROJ_FPS=60",
 			"-I${projectPath}",
 			"-DPOKITTO",
@@ -228,6 +225,7 @@
 	"target": "Pokitto",
 	"pipelines": {
 		"Pokitto": [
+			"img-to-c",
 			"compile-cpp",
 			"compile-ld",
 			"compile-bin",
@@ -240,19 +238,38 @@
 		]
 	},
 	"meta": {
-		"": {
+		"": {},
+		"/Bacon.png": {
 			"sdcard": false
+		},
+		"/Hello CPP.bin": {
+			"sdcard": false
+		},
+		"/File.cpp": {
+			"sdcard": false
+		},
+		"/Hello CPP.elf": {
+			"sdcard": false
+		},
+		"/My_settings.h": {
+			"sdcard": false
+		},
+		"/Smile.h": {
+			"sdcard": false
+		},
+		"/Smile.png": {
+			"sdcard": false
+		},
+		"/Test.h": {
+			"sdcard": false
+		},
+		"/Test.png": {
+			"sdcard": true
 		},
 		"/main.cpp": {
 			"sdcard": false
 		},
 		"/project.json": {
-			"sdcard": false
-		},
-		"/cpp.bin": {
-			"sdcard": false
-		},
-		"/cpp.elf": {
 			"sdcard": false
 		}
 	}
