@@ -1,3 +1,15 @@
+
+This project would not be possible without these other opensource projects:
+- NW.js - MIT - https://nwjs.io/
+- Java-Parser - MIT - https://github.com/jhipster/prettier-java/packages/java-parser
+- FixedPoints - Apache 2.0 - https://github.com/Pharap/FixedPointsArduino
+- Ace - BSD - https://ace.c9.io/
+- PokittoLib - BSD - https://github.com/Pokitto/PokittoLib
+- GCC - GPL
+- libSDL2 - zlib
+- VisualBoyAdvance - GPL - https://github.com/visualboyadvance/visualboyadvance
+- fatfs - Apache 2.0 - https://github.com/natevw/fatfs
+
 MIT License
 
 Copyright (c) 2019 Felipe Manga
@@ -19,3 +31,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
