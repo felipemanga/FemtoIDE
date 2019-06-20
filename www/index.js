@@ -530,6 +530,16 @@ class Core {
         nw.Window.get().reload();
     }
 
+    touchBuffer( buffer ){
+        let fd;
+        try {
+            fd = fs.openSync( buffer.path, 'a' );
+        } finally {
+            if( fd !== undefined )
+                fs.closeSync( fd );
+        }
+    }
+
     writeBuffer( buffer ){
         if( !buffer.path || !buffer.data )
             return;
