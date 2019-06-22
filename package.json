@@ -1,11 +1,11 @@
 {
-  "name": "FemtoIDE-v0.0.12b",
+  "name": "FemtoIDE-v0.0.13b",
   "main": "www/main.js",
   "window": {
     "toolbar": false,
     "frame": true,
-    "width": 800,
-    "height": 600
+    "width": 1024,
+    "height": 768
   },
   "dependencies": {
     "fatfs": "^0.10.7",

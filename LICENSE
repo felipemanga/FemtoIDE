@@ -9,6 +9,7 @@ This project would not be possible without these other opensource projects:
 - libSDL2 - zlib
 - VisualBoyAdvance - GPL - https://github.com/visualboyadvance/visualboyadvance
 - fatfs - Apache 2.0 - https://github.com/natevw/fatfs
+- Piskel - Apache 2.0 - https://github.com/piskelapp/piskel
 
 MIT License
 
