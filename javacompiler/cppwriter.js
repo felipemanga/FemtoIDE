@@ -218,6 +218,20 @@ function sortTypes( typeList ){
 function writeClassInline( type ){
     let out = `class uc_${type.name} : public ${writePath(type.extends)} {`;
     out += "public:\n";
+
+    let base = type.extends.getTarget();
+    base.methods.forEach( method => {
+        if( !method.isConstructor )
+            return;
+        out += `${indent}uc_${type.name}(`;
+        let sep = '', nameList = '';
+        method.parameters.forEach( param => {
+            nameList += `${sep} ${param.name}`;
+            out += `${sep}${writeType(param.type, false)} ${param.name}`;
+            sep = ", ";
+        });
+        out += `) : ${writePath(type.extends)}( ${nameList} ){}\n`;
+    });
     
     type.fields.forEach( field => {
         out += `${indent}${writeFieldDecl(field)}`;

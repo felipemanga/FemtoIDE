@@ -1,5 +1,5 @@
 {
-  "name": "FemtoIDE",
+  "name": "FemtoIDE-v0.0.12b",
   "main": "www/main.js",
   "window": {
     "toolbar": false,
