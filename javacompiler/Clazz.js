@@ -470,6 +470,28 @@ class Clazz extends Type {
             {sprite}
         );
 
+        method = new Method(null, this);
+        this.methods.push(method);
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["int"], false, this),
+            "height",
+            [],
+            {returnConst:sprite.frames ? sprite.frames[0].height : -1}
+        );
+
+        method = new Method(null, this);
+        this.methods.push(method);
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["int"], false, this),
+            "width",
+            [],
+            {returnConst:sprite.frames ? sprite.frames[0].width : -1}
+        );
+
         for( let name in sprite.animations ){
             if( !/[a-z_][a-zA-Z0-9_]*/ )
                 continue;

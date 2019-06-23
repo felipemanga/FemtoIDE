@@ -19,16 +19,16 @@ function writeDraw( sprite ){
         let data = src.data;
         let lines = "";
 
-        out += src.width + "," + src.height;
+        out += src.trimmedWidth + "," + src.trimmedHeight;
 
         let i=0, len, bytes;
         let run = [];
 
-        for( let y=0; y<src.height; ++y ){
+        for( let y=0; y<src.trimmedHeight; ++y ){
             out += ",\n";
             run.length = 0;
 
-            for( let x=0; x<src.width; ++x ){
+            for( let x=0; x<src.trimmedWidth; ++x ){
                 let closest = 0;
                 let closestDist = Number.POSITIVE_INFINITY;
                 let R = data[i][0];

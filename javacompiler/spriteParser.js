@@ -6,16 +6,20 @@ class Frame {
     constructor( data, image ){
         this.data = [];
         this.name = "";
-        this.width = data.spriteSourceSize.w;
-        this.height = data.spriteSourceSize.h;
+        this.width = data.sourceSize.w;
+        this.height = data.sourceSize.h;
+        this.trimmedWidth = data.spriteSourceSize.w;
+        this.trimmedHeight = data.spriteSourceSize.h;
+        let srcWidth = data.spriteSourceSize.w;
+        let srcHeight = data.spriteSourceSize.h;
         this.offsetX = data.spriteSourceSize.x;
         this.offsetY = data.spriteSourceSize.y;
         this.duration = data.duration;
         let width = image.width;
         let sy = data.frame.y;
         let sx = data.frame.x;
-        for( let y=0; y<this.height; ++y ){
-            for( let x=0; x<this.width; ++x ){
+        for( let y=0; y<srcHeight; ++y ){
+            for( let x=0; x<srcWidth; ++x ){
                 let i = ((y+sy)*width+x+sx)*4;
                 let c = [
                     image.data[i+0],
