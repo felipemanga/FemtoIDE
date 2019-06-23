@@ -68,14 +68,17 @@ ${img.width}, ${img.height}`;
                 let R = data[i++];
                 let G = data[i++];
                 let B = data[i++];
+                let M = (R*1.25+G*1.5+B);
                 let A = data[i++];
 
                 if( A > 128 ){
                     for( let c=1; c<max; ++c ){
                         let ca = palette[c];
+                        let m = (ca[0]*1.25 + ca[1]*1.5 + ca[2]);
 		        let dist = (R-ca[0])*(R-ca[0])
                             + (G-ca[1])*(G-ca[1])
-                            + (B-ca[2])*(B-ca[2]);
+                            + (B-ca[2])*(B-ca[2])
+                            + (M-m)*(M-m);
 
                         if( dist < closestDist ){
                             closest = c;
