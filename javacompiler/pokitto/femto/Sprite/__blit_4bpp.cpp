@@ -18,7 +18,7 @@ uint8_t *buffer = (uint8_t *)out;
 uint32_t width = data[0];
 uint32_t height = data[1];
 const uint8_t *img = data+2;
-
+width += width & 1;
 if( x <= -int32_t(width) || x >= int32_t(displayWidth) || y <= -int32_t(height) || y >= int32_t(displayHeight) )
     return;
 
@@ -133,7 +133,6 @@ if( osx & 1 ){
 
     if( mirror ){
         img -= isx>>1;
-
 
         for( ; y > 0; y--, img += istride, buffer += ostride ){
             for( x = sx+1; x > 0; x--, buffer-- ){
