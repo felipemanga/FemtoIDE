@@ -548,9 +548,9 @@ class Core {
         if( typeof buffer.transform == "string" )
             data = APP[buffer.transform]( data );
 
-        APP.onBeforeWriteBuffer(buffer);
+        APP.onBeforeWriteBuffer(buffer, data);
         fs.writeFileSync( buffer.path, data, buffer.encoding );
-        APP.onAfterWriteBuffer(buffer);
+        APP.onAfterWriteBuffer(buffer, data);
 
         buffer.modified = false;
     }

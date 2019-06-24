@@ -58,13 +58,19 @@ APP.addPlugin("Project", [], _=>{
             );
         },
 
-        writeBuffer( buffer ){
+        onAfterWriteBuffer( buffer, data ){
             if( buffer.path != DATA.projectPath + path.sep + "project.json" )
                 return;
-            let data = buffer.data;
             if( data == strproject )
                 return;
-            let json = JSON.parse(data);
+
+            let json;
+            try{
+                json = JSON.parse(data);
+            }catch( ex ){
+                return;
+            }
+
             strproject = data;
             APP.customSetVariables({
                 project: json
