@@ -89,12 +89,16 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         const path = require("path");
         const fs = require("fs");
         const javaParser = require("java-parser").parse;
-        const palParser = require(`${DATA.appPath}/javacompiler/palParser.js`).parsePalette;
+        const palParser = require(`${DATA.appPath}/javacompiler/palParser.js`);
         const spriteParser = require(`${DATA.appPath}/javacompiler/spriteParser.js`);
         const {Unit, getUnit, nativeTypeList} = require(`${DATA.appPath}/javacompiler/Unit.js`);
         const { reset, parsers, toAST, resolveVFS, vfs } = require(`${DATA.appPath}/javacompiler/AST.js`);
 
         reset();
+        
+        palParser.reset();
+        palParser.setLuminanceBias( DATA.project.luminanceBias );
+        
         require(`${DATA.appPath}/javacompiler/Resources.js`).reset();
         
         registerParsers();
@@ -210,7 +214,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             parsers.pal={
                 run( src, name ){
-                    let colors = palParser( src, name[name.length-1] );
+                    let colors = palParser.parsePalette( src, name[name.length-1] );
                     let unit = new Unit();
                     let arr16 = new Uint16Array( colors.colors16 );
                     let arr8 = new Uint8Array(arr16.buffer);

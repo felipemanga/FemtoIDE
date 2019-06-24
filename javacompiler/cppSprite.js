@@ -1,7 +1,8 @@
-const {palettes} = require("./palParser.js");
 
 function writeDraw( sprite ){
     let out = "";
+    let palettes = require("./palParser.js").getPalettes();
+    let lumBias = require("./palParser.js").getLuminanceBias();
     let palette = palettes[ (sprite.palette||Object.keys(palettes)[0]) ]
         .colors32.map( c => [
             (c>>16)&0xFF,
@@ -34,14 +35,17 @@ function writeDraw( sprite ){
                 let R = data[i][0];
                 let G = data[i][1];
                 let B = data[i][2];
+                let L = (R*0.2126 + G*0.7152 + B*0.0722)*lumBias;
                 let A = data[i++][3];
 
                 if( A > 128 ){
                     for( let c=1; c<palette.length; ++c ){
                         let ca = palette[c];
+                        let lum = (ca[0]*0.2126 + ca[1]*0.7152 + ca[2]*0.0722)*lumBias;
 		        let dist = (R-ca[0])*(R-ca[0])
                             + (G-ca[1])*(G-ca[1])
-                            + (B-ca[2])*(B-ca[2]);
+                            + (B-ca[2])*(B-ca[2])
+                            + (L-lum)*(L-lum);
 
                         if( dist < closestDist ){
                             closest = c;

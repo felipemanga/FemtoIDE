@@ -1,8 +1,10 @@
 let palettes = {};
-
+let lumBias = 1;
 let nextPaletteId = 0;
-
-module.exports.palettes = palettes;
+module.exports.setLuminanceBias = bias => lumBias = typeof bias == "number" ? bias : 1;
+module.exports.getLuminanceBias = _=>lumBias;
+module.exports.reset = _=>{palettes = {};};
+module.exports.getPalettes = _=>palettes;
 module.exports.parsePalette = function(str, name){
 
     let lines = str.split("\n").map(x=>x.trim());

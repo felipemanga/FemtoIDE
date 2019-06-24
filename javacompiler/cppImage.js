@@ -1,8 +1,8 @@
 
 function writeDraw( block, src ){
-    let out = `static const uint8_t data[] = {\n`;
-    
+    let out = `static const uint8_t data[] = {\n`;    
     let palettes = require("./palParser.js").getPalettes();
+    let lumBias = require("./palParser.js").getLuminanceBias();
     let palette = palettes[ (block.palette||Object.keys(palettes)[0]) ]
         .colors32.map( c => [
             (c>>16)&0xFF,
@@ -31,14 +31,17 @@ function writeDraw( block, src ){
             let R = data[i++];
             let G = data[i++];
             let B = data[i++];
+            let L = (R*0.2126 + G*0.7152 + B*0.0722)*lumBias;
             let A = data[i++];
 
             if( A > 128 ){
                 for( let c=0; c<palette.length; ++c ){
                     let ca = palette[c];
+                    let lum = (ca[0]*0.2126 + ca[1]*0.7152 + ca[2]*0.0722)*lumBias;
 		    let dist = (R-ca[0])*(R-ca[0])
                         + (G-ca[1])*(G-ca[1])
-                        + (B-ca[2])*(B-ca[2]);
+                        + (B-ca[2])*(B-ca[2])
+                        + (L-lum)*(L-lum);
 
                     if( dist < closestDist ){
                         closest = c;
