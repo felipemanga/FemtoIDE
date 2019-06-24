@@ -574,6 +574,10 @@ class Core {
             cb(data);
     }
 
+    getBufferLength( buffer ){
+        return fs.statSync( buffer.path ).size;
+    }
+
     readBuffer( buffer, en, cb, force){
         if( buffer.data && !force ){
 
