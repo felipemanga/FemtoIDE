@@ -186,23 +186,23 @@ class Unit {
         this.types.push( clazz );        
     }
 
-    staticImage( sprite, name ){
+    staticImage( sprite, name, interfaces ){
         this.name = [...name];
         console.log("Static Image: ", this.name);
         let clazzName = this.name.pop();
         const Clazz = require("./Clazz.js");
         const clazz = new Clazz( clazzName, this );
-        clazz.staticImage( sprite );
+        clazz.staticImage( sprite, interfaces );
         this.types.push( clazz );
     }
 
-    image( sprite, name ){
+    image( sprite, name, interfaces ){
         this.name = [...name];
         console.log("Image: ", this.name);
         let clazzName = this.name.pop();
         const Clazz = require("./Clazz.js");
         const clazz = new Clazz( clazzName, this );
-        clazz.image( sprite );
+        clazz.image( sprite, interfaces );
         this.types.push( clazz );
     }
 

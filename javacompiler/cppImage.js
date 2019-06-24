@@ -1,8 +1,8 @@
-const {palettes} = require("./palParser.js");
 
 function writeDraw( block, src ){
     let out = `static const uint8_t data[] = {\n`;
     
+    let palettes = require("./palParser.js").getPalettes();
     let palette = palettes[ (block.palette||Object.keys(palettes)[0]) ]
         .colors32.map( c => [
             (c>>16)&0xFF,

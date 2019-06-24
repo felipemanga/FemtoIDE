@@ -136,6 +136,22 @@ APP.addPlugin("Tree", [], _=>{
             }]];
         }
 
+        _makeAction_input( meta ){
+            return (
+                [["label",
+                  {text:meta.label},
+                  [
+                      ["input", {
+                          value:meta.value,
+                          onchange:evt=>{
+                              meta.value = meta.cb(evt.target.value);
+                          }
+                      }]
+                  ]]
+                ]
+            );
+        }
+
         _makeAction_bool( meta ){
             return (
                 [["label",

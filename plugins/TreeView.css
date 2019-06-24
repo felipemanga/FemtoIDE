@@ -75,9 +75,12 @@
     display: none;
     flex-direction: row;
     flex-wrap: wrap;
-    max-width: 200px;
+    max-width: 215px;
     padding: 1;
     background-color: #303030;
+    position: fixed;
+    left: 10px;
+    z-index: 999;
 }
 
 .FileList #actions .action {

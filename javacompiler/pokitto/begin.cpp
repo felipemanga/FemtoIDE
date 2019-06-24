@@ -677,8 +677,9 @@ namespace up_java {
             }
 
             virtual uint32_t __sizeof__( );
-            bool __instanceof__( uint32_t id );
-
+            virtual bool __instanceof__( uint32_t id );
+            virtual void __mark__(int m);
+            
             char *getPointer(){
                 return (char*) ptr;
             }

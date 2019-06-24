@@ -284,8 +284,7 @@ function writeClassDecl( unit, type, dependencies ){
 
         let sep = ', ';
         out += `${indent}class uc_${t.name} `;
-        if( t.isInterface ){
-        }else{
+        if( !t.isInterface ){
             if( !t.extends || t.extends.name[0] != "__raw__" ){
                 out += ': public ';
                 let base = t.extends ? writePath(t.extends) : "up_java::up_lang::uc_Object";
@@ -307,6 +306,35 @@ function writeClassDecl( unit, type, dependencies ){
             out += `${indent}${writeFieldDecl(field)}\n`;
         });
 
+        if( !t.isInterface ){
+            t.implements.forEach( impl =>{
+                if( impl.name.length == 1 && impl.name[0] == "__stub__" )
+                    return;
+                
+                let interface = impl.getTarget();
+                interface.methods.forEach( method => {
+                    if( method.isStatic )
+                        return;
+                    
+                    let trail = [];
+                    let impl = t.resolve( [method.name], trail, x=>x.isMethod );
+                    if( impl && impl.scope != t ){
+                        out += writeMethodSignature(
+                            Object.assign({}, method, {isAbstract:false}),
+                            false
+                        );
+                        out += `{ ${writePath(impl.scope)}::${method.name}(`;
+                        let sep = ' ';
+                        method.parameters.forEach( param => {
+                            out += `${sep}${param.name}`;
+                            sep = ", ";
+                        });
+                        out += ' ); }\n';
+                    }
+                });
+            });
+        }
+
         t.methods.forEach( method => {
             out += writeMethodSignature( method, true );
             out += ";\n";
@@ -317,9 +345,9 @@ function writeClassDecl( unit, type, dependencies ){
             out += `${indent}virtual ~uc_${t.name}(){}\n`;
             out += `${indent}virtual void __hold__() = 0;\n`;
             out += `${indent}virtual void __release__() = 0;\n`;
+            out += `${indent}virtual void __mark__(int m) = 0;\n`;
         }else if( !t.extends || t.extends.name[0] != "__raw__" ){
-            if( t.fields.length )
-                out += `${indent}virtual void __mark__(int m);\n`;
+            out += `${indent}virtual void __mark__(int m);\n`;
             out += `${indent}static const uint32_t __id__ = ${t.id};\n`;
             out += `${indent}virtual uint32_t __sizeof__();\n`;
             out += `${indent}virtual bool __instanceof__( uint32_t id );\n`;
@@ -1340,10 +1368,14 @@ function writeClassImpl( unit ){
 
         if( !t.extends || t.extends.name[0] != "__raw__" ){
         // out += `${indent}const uint32_t ${t.name}::__id__ = ${t.id};\n`;
+
+            if( !t.isInterface ){
             out += `${indent}uint32_t uc_${t.name}::__sizeof__(){
 ${indent}\treturn sizeof(*this);
 ${indent}}
 `;
+            }
+            
             out += `${indent}bool uc_${t.name}::__instanceof__( uint32_t id ){
 ${indent}\tif(id == ${t.id}) return true;
 ${indent}\treturn ${t.extends&&t.extends.name[0]!="__raw__"?writePath(t.extends)+"::__instanceof__(id)":"false"};
@@ -1352,9 +1384,7 @@ ${indent}}
             if( !t.isInterface && writePath(t) != "up_java::up_lang::uc_Object" ){
                 out += `${indent}void uc_${t.name}::__hold__(){ uc_Object::__hold__(); }\n`;
                 out += `${indent}void uc_${t.name}::__release__(){ uc_Object::__release__(); }\n`;
-            }
-            
-            if( t.fields.length && !t.isInterface ){
+
                 out += `${indent}void uc_${t.name}::__mark__(int m){\n`;
                 push();
                 out += `${indent}if(__is_marked__(m)) return;\n`;

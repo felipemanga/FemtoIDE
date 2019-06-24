@@ -377,8 +377,16 @@ class Clazz extends Type {
         method.body.resourceLookup.push({ path, call });
     }
 
-    staticImage( image, name ){
+    staticImage( image, name, interfaces ){
         this.extends = new TypeRef(["femto", "Image"], false, this.scope);
+
+        if( interfaces ){
+            this.implements.push( ... interfaces.map( name => new TypeRef(
+                name.split("."),
+                false,
+                this.scope
+            )));
+        }
 
         let method = new Method(null, this);
         this.methods.push( method );
@@ -438,8 +446,16 @@ class Clazz extends Type {
         
     }
 
-    image( sprite ){
+    image( sprite, interfaces ){
         this.extends = new TypeRef(["femto", "Sprite"], false, this.scope);
+
+        if( interfaces ){
+            this.implements.push( ... interfaces.map( name => new TypeRef(
+                name.split("."),
+                false,
+                this.scope
+            )));
+        }
 
         let method = new Method(null, this);
         this.methods.push( method );

@@ -55,6 +55,9 @@ APP.addPlugin("Meta", ["Project"], _=>{
                     type: def.type,
                     value: meta[key],
                     cb( value ){
+                        if( def.cb )
+                            value = def.cb(value);
+                        
                         if( meta[key] === value )
                             return value;
 

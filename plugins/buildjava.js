@@ -16,6 +16,13 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     label:"Put in Resources",
                     default: false
                 };
+            if( buffer.type == "JSON" || buffer.type == "PNG" )
+                meta.implements = {
+                    type:"input",
+                    label:"implements",
+                    cb:path=>path.replace(/[^a-zA-Z.0-9_]/g, ""),
+                    default: ""
+                };
         },
 
         displayGeneratedCPP(){
@@ -140,19 +147,27 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             }
         });
 
-        function loadToResources( file ){
+        function getMeta( file ){
             let meta = DATA.project.meta;
-            if( !meta ) return;
+            if( !meta )
+                return null;
 
             if( !file.startsWith(DATA.projectPath) )
-                return;
+                return null;
             
             let rpath = file
                 .substr(DATA.projectPath.length);
-            
-            if( !meta[rpath] || !meta[rpath].putInResources )
+
+            return meta[rpath];
+        }
+
+        function loadToResources( file ){
+            let meta = getMeta(file);
+            if( !meta.putInResources )
                 return;
 
+            let rpath = file
+                .substr(DATA.projectPath.length);
             require(`${DATA.appPath}/javacompiler/Resources.js`)
                 .addResource(rpath.substr(1));
         }
@@ -210,9 +225,19 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             };
 
             parsers.png={
-                run( png, name ){
+                run( png, name, type, res ){
+                    let interfaces = [];
+                    let meta = getMeta( res.name );
+                    if( meta && meta.implements ){
+                        interfaces = meta
+                            .implements
+                            .split(",")
+                            .map(x=>x.trim())
+                            .filter(x=>x.length);
+                    }
+
                     let unit = new Unit();
-                    unit.staticImage(png, name);
+                    unit.staticImage(png, name, interfaces);
                     return unit;
                 },
 
@@ -279,10 +304,20 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             parsers.json={
 
-                run( json, name ){
+                run( json, name, type, res ){
+                    let interfaces = [];
+                    let meta = getMeta( res.name );
+                    if( meta && meta.implements ){
+                        interfaces = meta
+                            .implements
+                            .split(",")
+                            .map(x=>x.trim())
+                            .filter(x=>x.length);
+                    }
+
                     let sprite = spriteParser( json, name );
                     let unit = new Unit();
-                    unit.image(sprite, name);
+                    unit.image(sprite, name, interfaces);
                     return unit;
                 },
 
