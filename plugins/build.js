@@ -74,11 +74,21 @@ APP.addPlugin("Build", ["Project"], _=>{
                     cb();
                     return;
                 }
-                stage = pipeline[current];
+                stage = (pipeline[current]+"").trim();
                 console.log("Starting stage: " + stage);
                 startTime = performance.now();
                 try{
-                    APP[stage]( files, popQueue );
+                    if( stage[0] == "#" ){
+                        APP.shell(stage.substr(1))
+                            .on("close", error=>{
+                                popQueue(error);
+                            })
+                            .on("error", error=>{
+                                popQueue(error);
+                            });
+                    } else {
+                        APP[stage]( files, popQueue );
+                    }
                 }catch(ex){
                     popQueue(ex);
                 }

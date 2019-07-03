@@ -709,6 +709,17 @@ class Core {
         nw.process.exit(code||0);
     }
 
+    shell( cmd ){
+        cmd = cmd.split(" ");
+        return APP.spawn(...cmd)
+            .on("data-out", str=>{
+                APP.log(str);
+            })
+            .on("data-err", str=>{
+                APP.error(str);
+            });
+    }
+
     spawn( cmd, ...args ){
         const { spawn } = require('child_process');
         
@@ -733,13 +744,21 @@ class Core {
         }
         child = spawn(cmd, args, options);
 
-        child.stdout.on('data', data => {
-            child.emit('data-out', data);
-        });
+        if( child.exitCode ){
+            setTimeout(_=>{
+                child.emit("error", child.exitCode);
+            }, 1);
+        } else {
+        
+            child.stdout.on('data', data => {
+                child.emit('data-out', data);
+            });
 
-        child.stderr.on('data', data => {
-            child.emit('data-err', data);
-        });
+            child.stderr.on('data', data => {
+                child.emit('data-err', data);
+            });
+
+        }
 
         child.on('close', error=>{
             if( error )

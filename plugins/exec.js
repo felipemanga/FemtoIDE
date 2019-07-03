@@ -60,6 +60,11 @@ APP.addPlugin("Exec", [], _=>{
                 return (new Function([], `return (_=>${cmd.substr(1)})();`))();
             }
 
+            if( cmd[0] == '#' ){
+                APP.shell(cmd.substr(1));
+                return "shell>" + cmd.substr(1);
+            }
+
             const m = cmd.match(/^\s*([^(\s]+)\s*\((.*)\)$/);
             if( !m ) return undefined;
             const name = m[1];
