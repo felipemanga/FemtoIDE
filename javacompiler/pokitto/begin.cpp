@@ -579,9 +579,9 @@ void uc_Object::__gc__(){
         "mov %[tmp], r10		\n"
         "str %[tmp], [%[regs], 0x28]	\n"
         "mov %[tmp], r11		\n"
-        "str %[tmp], [%[regs], 0x28]	\n"
+        "str %[tmp], [%[regs], 0x2C]	\n"
         "mov %[tmp], r12		\n"
-        "str %[tmp], [%[regs], 0x28]	\n"
+        "str %[tmp], [%[regs], 0x30]	\n"
         :
         [tmp]"+l"(tmp)
         :

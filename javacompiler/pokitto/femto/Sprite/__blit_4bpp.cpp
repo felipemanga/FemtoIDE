@@ -40,12 +40,16 @@ if( y < 0 ){
 }
 
 if( y + height >= displayHeight ){
-    iey = displayHeight - y;
+    if( flip ){
+        isy += (y + height) - displayHeight;
+    }else{
+        iey = displayHeight - y;
+    }
 }
 
 int32_t ostride;
 if( flip ){
-    buffer += (displayWidth * (iey - isy)) >> 1;
+    buffer += (displayWidth * (iey - isy - 1)) >> 1;
     ostride = -(((displayWidth + (iex - isx)) >> 1));
 }else{
     ostride = ((displayWidth - (iex - isx)) >> 1);
@@ -67,6 +71,7 @@ if( mirror ){
 }
 
 if( osx & 1 ){
+    
     if( flip )
         ostride -= iex&1;
 

@@ -431,12 +431,15 @@ class Expression {
             this.right = suffix.map( s =>{
                 op = Object.keys(s.children)[0];
                 if( op == "Dot" ){
+                    if( !s.children.Identifier ){
+                        ast(s);
+                    }
                     return s.children.Identifier[0].image;
                 }else{
                     op = new Expression( s
-                                           .children
-                                            [op][0],
-                                            this.scope
+                                         .children
+                                         [op][0],
+                                         this.scope
                                        );
                     return op;
                 }
