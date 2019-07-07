@@ -70,6 +70,8 @@ APP.addPlugin("Watch", [], _=>{
                         let buffer = APP.findFile( filePath, false );
                         if( !err ){
                             if( DATA.projectFiles.indexOf(buffer) == -1 ){
+                                if( !buffer.type && stat.isDirectory() )
+                                    buffer.type = "directory";
                                 // APP.log("File Added: ", filePath);
                                 DATA.projectFiles.push(buffer);
                                 APP.registerProjectFile(buffer);
@@ -86,6 +88,8 @@ APP.addPlugin("Watch", [], _=>{
                     });
                     
                 }else{
+                    if( !buffer.type && stat.isDirectory() )
+                        buffer.type = "directory";
                     // APP.log("File Changed: ", path);
                     buffer.modified = false;
                     buffer.data = null;

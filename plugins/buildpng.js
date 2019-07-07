@@ -1,6 +1,6 @@
 APP.addPlugin("BuildPNG", ["Build"], _=> {
     APP.add({
-
+        
         ["img-to-c"]( files, cb ){
             loadSettings(files, settings=>{
                 getPalette(settings, files, palette=>{
@@ -10,7 +10,7 @@ APP.addPlugin("BuildPNG", ["Build"], _=> {
                     settings.palette = palette;
                     settings.pending = pending;
                     
-                    pnglist.forEach( buffer=>{
+                    pnglist.forEach( buffer=>{                        
                         pending.start();
                         let img = new Image();
                         img.src = "file://" + buffer.path + "?" + Math.random();
@@ -21,11 +21,7 @@ APP.addPlugin("BuildPNG", ["Build"], _=> {
                             let ctx = canvas.getContext("2d");
                             ctx.drawImage(img, 0, 0);
                             let imgData = ctx.getImageData( 0, 0, img.width, img.height );
-                            convert(
-                                imgData,
-                                settings,
-                                buffer
-                            );
+                            convert( imgData, settings, buffer );
                         };
                         img.onerror = _=>{
                             pending.error("Could not load image " + buffer.name);
@@ -58,6 +54,15 @@ ${img.width}, ${img.height}`;
         let i=0, len, bytes, data = img.data;
         let ppb = 8 / settings.bpp;
         let run = [], max = Math.min(palette.length, 1<<settings.bpp);
+
+        let transparent = false;
+
+        for( i=3; !transparent && i<data.length; i+=4 ){
+            transparent = data[i] < 128;
+        }
+
+        i=0;
+
         for( let y=0; y<img.height; ++y ){
             out += ",\n";
             run.length = 0;
@@ -71,8 +76,8 @@ ${img.width}, ${img.height}`;
                 let M = (R*1.25+G*1.5+B);
                 let A = data[i++];
 
-                if( A > 128 ){
-                    for( let c=1; c<max; ++c ){
+                if( A > 128 || !transparent ){
+                    for( let c=transparent|0; c<max; ++c ){
                         let ca = palette[c];
                         let m = (ca[0]*1.25 + ca[1]*1.5 + ca[2]);
 		        let dist = (R-ca[0])*(R-ca[0])

@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <style>
+         head, body, canvas {
+             margin: 0;
+             padding: 0;
+             background-color: #121;
+             color: #6B6;
+             width: 100%;
+             height: 100%;
+         }
+         
+         canvas {
+             height: 80%;
+         }
+
+         #sampleRate {
+             position: absolute;
+             width: 100%;
+             text-align: center;
+             font-size: 32px;
+             background: #000500;
+             border: none;
+             color: #6B6;
+         }
+
+        </style>
+        <script>
+         nw.Window.get().window.moveTo(0, 40);
+         let freq = 48 * 1024 * 1024;
+         let socket;
+         const history = [];
+         
+         const pins = {
+             P0_0:"Reset",
+             P1_19:"EXT0",
+             P0_11:"EXT1",
+             P0_12:"EXT2",
+             P0_13:"EXT3",
+             P0_14:"EXT4",
+             P0_17:"EXT5",
+             P0_18:"EXT6",
+             P0_19:"EXT7",
+             P1_20:"EXT8",
+             P1_21:"EXT9",
+             P1_22:"EXT10",
+             P1_23:"EXT11",
+             P1_5: "EXT12",
+             P1_6: "EXT13",
+             P1_8: "EXT14",
+             P1_26:"EXT15",
+             P0_16:"EXT17",
+         };
+
+         function onChangeSampleRate(value){
+             value = parseInt(value)|0;
+             if( value <= 1 ) value = 1;
+             
+             document.getElementById("sampleRate").value = value;
+
+             if(!socket) return;
+
+             let sampleFreq = Math.round(freq / value);
+             socket.write(`f${sampleFreq};`);
+             history.forEach( (row) => { row.length=0; });
+         }
+
+         function init(){
+             
+             let canvas = document.getElementById("scope");
+             canvas.width = 400;
+             canvas.height = 500;
+             let ctx = canvas.getContext("2d");
+             let img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+             let net = require("net");
+             socket = net.connect(2000, "localhost", _=>socket.write("l;"));
+
+             socket.on("close", _=>{
+                 nw.Window.get().close();
+             });
+
+             nw.Window.get().on("close", _=>{
+                 if( socket ){
+                     socket.end();
+                     socket = null;
+                 }
+                 nw.Window.get().close(true);
+             });
+
+             ctx.strokeStyle = "#66BB66";
+             let i = 0;
+             for( let port=0; port<3; ++port ){
+                 for( let bit=0; bit<32; ++bit ){
+                     let key = "P" + port + "_" + bit;
+                     let lbl = pins[key];
+                     if( !lbl )
+                         continue;
+                     history[i] = [];
+                     ctx.strokeText(lbl, 10, 40 + i*24);
+                     i++;
+                 }
+             }
+             
+             let x = 0, maxSamples = 100;
+             socket.on("data", bytes=>{
+                 let i = 0;
+                 let words = new Uint32Array(bytes.buffer);
+                 for( let port=0; port<3; ++port ){
+                     for( let bit=0; bit<32; ++bit ){
+                         let key = "P" + port + "_" + bit;
+                         let lbl = pins[key];
+                         if( !lbl )
+                             continue;
+                         let value = (words[port] >>> bit) & 1;
+                         history[i].push(value);
+                         if( history[i].length > maxSamples ){
+                             history[i].shift();
+                         }
+                         i++;
+                     }
+                 }
+                 
+                 ctx.fillStyle = "#242";
+                 ctx.fillRect(50, 20, canvas.width - 99, 24+17*24);
+                 
+                 history.forEach( (row, i) => {
+                     let w = (canvas.width-100) / maxSamples;
+                     
+                     ctx.beginPath();
+                     row.forEach( (sample, j) => {
+                         let x = 50+(j+1)*w;
+                         let y = 40 + i*24 - sample*17;
+                         if( j )
+                             ctx.lineTo(x, y);
+                         else
+                             ctx.moveTo(x, y);
+                     });
+                     ctx.stroke();
+                 });
+
+             });
+             
+         }
+        </script>
+    </head>
+    <body onload="init()">
+        <canvas id="scope">
+        </canvas>
+        <label>
+            <p style="text-align:center">Samples Per Second:</p>
+            <input id="sampleRate" onchange="onChangeSampleRate(this.value)" value="16">
+        </label>
+    </body>
+</html>

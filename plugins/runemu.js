@@ -3,8 +3,12 @@ APP.addPlugin("RunEMU", [], _=> {
 
     APP.add({
 
+        isEmulatorRunning(){
+            return !!running;
+        },
+
         runDebug(){
-            this.run(["-g"]);
+            this.run(["-g", "-x"]);
             APP.setStatus("Debugging " + DATA.buildFolder);
             if( DATA.debugBuffer )
                 APP.displayBuffer( DATA.debugBuffer );

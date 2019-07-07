@@ -1,5 +1,5 @@
 APP.addPlugin("Debug", ["Build"], _=>{
-    let gdb, jlink, standby, pendingCommands, sigSent;
+    let gdb, jlink, standby, pendingCommands, sigSent, isEmulator;
 
     function getBreakpoints(){
         let breakpoints = [];
@@ -88,7 +88,9 @@ APP.addPlugin("Debug", ["Build"], _=>{
             APP.log("GDB: " + data);
         }
 
-        onDebugEmulatorStarted(port){
+        onDebugEmulatorStarted(port, isJLink){
+            isEmulator = !isJLink;
+
             sigSent = false;
             pendingCommands = getBreakpoints()
                 .map(c => "b " + c);
@@ -175,6 +177,11 @@ APP.addPlugin("Debug", ["Build"], _=>{
             this.stopGDB();
         }
 
+        sendBreak(){
+            if( gdb && !isEmulator )
+                gdb.kill('SIGINT');
+        }
+
         debugContinue(){
             if( !gdb ) return;
 
@@ -182,7 +189,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 if( sigSent )
                     return;
                 sigSent = true;
-                gdb.kill('SIGINT');
+                APP.sendBreak();                
             }else{
                 APP.clearHighlight();
                 this.gdbCommand("continue");

@@ -35,14 +35,8 @@ APP.addPlugin("Meta", ["Project"], _=>{
         }
 
         pollBufferActions( buffer, actions ){
-            let path = buffer.path;
-            const projectPath = DATA.projectPath;
-            if( !path.startsWith(projectPath) )
-                return;
-
-            path = path.substr( projectPath.length );
-            const meta = DATA.project.meta[path];
-
+            const meta = this.getBufferMeta(buffer);
+            
             for( let key in meta ){
                 if( buffer.pluginData.Meta[ key ] )
                     actions.push( getAction(key) );
@@ -72,7 +66,14 @@ APP.addPlugin("Meta", ["Project"], _=>{
         setMeta( buffer, key, value ){
         }
 
-        getMeta( buffer, key ){
+        getBufferMeta( buffer, key ){
+            let path = buffer.path;
+            const projectPath = DATA.projectPath;
+            if( !path.startsWith(projectPath) )
+                return null;
+
+            path = path.substr( projectPath.length );
+            return DATA.project.meta[path];
         }
 
         addMeta( buffer, key, type, args ){

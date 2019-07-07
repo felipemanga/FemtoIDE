@@ -10,6 +10,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     
     APP.add({
         pollBufferMeta( buffer, meta ){
+            if( !DATA.project.javaFlags )
+                return;
+            
             if( buffer.type == "XML" )
                 meta.putInResources = {
                     type:"bool",
