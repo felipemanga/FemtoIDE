@@ -1,6 +1,14 @@
 APP.addPlugin("BreakEMU", [], _=> {
     let socket;
 
+    function close(){
+	if( !socket ) return;
+	try{
+	    socket.end();
+	}catch(ex){}
+        socket = null;	
+    }
+
     APP.add({
 
         onDebugEmulatorStarted(port, isJLink){
@@ -8,14 +16,13 @@ APP.addPlugin("BreakEMU", [], _=> {
                 return;
 
             if( socket )
-                socket.end();
+                close();
 
             setTimeout(_=>{
                 let net = require("net");
                 socket = net.connect(2000, "localhost");
                 socket.on("close", _=>{
-                    socket.end();
-                    socket = null;
+                    close();
                 });
             });
             
