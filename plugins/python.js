@@ -1,10 +1,10 @@
-APP.addPlugin("CPP", ["Text"], TextView => {
-    const extensions = ["CPP", "C", "H", "HPP", "CC"];
+APP.addPlugin("Python", ["Text"], TextView => {
+    const extensions = ["py"];
     
-    class CPPView extends TextView {
+    class PythonView extends TextView {
         constructor( frame, buffer ){
             super(frame, buffer);
-            this.ace.session.setMode("ace/mode/c_cpp");
+            this.ace.session.setMode("ace/mode/python");
         }
 
         doAction(){
@@ -17,7 +17,7 @@ APP.addPlugin("CPP", ["Text"], TextView => {
         pollViewForBuffer( buffer, vf ){
 
             if( extensions.indexOf(buffer.type) != -1 && vf.priority < 1 ){
-                vf.view = CPPView;
+                vf.view = PythonView;
                 vf.priority = 1;
             }
             
@@ -25,5 +25,5 @@ APP.addPlugin("CPP", ["Text"], TextView => {
         
     });
 
-    return CPPView;
+    return PythonView;
 });

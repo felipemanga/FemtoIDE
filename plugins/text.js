@@ -6,9 +6,18 @@ APP.addPlugin("Text", ["Project"], _=>{
 
     class TextView {
 
+        action(){
+            if( !this.ace.isFocused() )
+                return;
+            this.doAction();
+        }
+
+        doAction(){
+        }
+
         attach(){
             APP.add(this);
-            APP.async(_=>this.ace.resize(true))
+            APP.async(_=>this.ace.resize(true));
             this.ace.focus();
             if( !this.buffer.data ){
                 this.onFileChanged(this.buffer);

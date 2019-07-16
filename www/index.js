@@ -357,7 +357,7 @@ class Keys {
     }
 
     defineKey( map, str, cb ){
-        str = str.trim().replace(/\s+/g, ' ');
+        str = str.replace(/^ +| +$/g, "").replace(/ +/g, ' ');
 
         let full = [ map ];
         let num = 0;
@@ -371,7 +371,7 @@ class Keys {
                 let n = parseInt(str.substr(i+1))|0;
                 num += 111 + n;
                 i += (n+"").length;
-            }else if( c.charCodeAt(0) > 32 ){
+            }else if( c.charCodeAt(0) != 32 ){
                 num |= c.toUpperCase().charCodeAt(0);
             }else if( num & 0xFF ){
                 full.push(num);

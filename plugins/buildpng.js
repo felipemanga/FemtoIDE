@@ -62,6 +62,7 @@ ${img.width}, ${img.height}`;
         }
 
         i=0;
+        let PC = undefined, PCC = 0;
 
         for( let y=0; y<img.height; ++y ){
             out += ",\n";
@@ -70,27 +71,36 @@ ${img.width}, ${img.height}`;
             for( let x=0; x<img.width; ++x ){
                 let closest = 0;
                 let closestDist = Number.POSITIVE_INFINITY;
-                let R = data[i++];
-                let G = data[i++];
-                let B = data[i++];
-                let M = (R*1.25+G*1.5+B);
-                let A = data[i++];
+                let R = data[i++]|0;
+                let G = data[i++]|0;
+                let B = data[i++]|0;
+                let C = (R<<16) + (G<<8) + B;
+                let M = (R*1.25+G*1.5+B)|0;
+                let A = data[i++]|0;
 
-                if( A > 128 || !transparent ){
+                if(C === PC){
+                    closest = PCC;
+                } else if( A > 128 || !transparent ) {
+                    
                     for( let c=transparent|0; c<max; ++c ){
-                        let ca = palette[c];
-                        let m = (ca[0]*1.25 + ca[1]*1.5 + ca[2]);
-		        let dist = (R-ca[0])*(R-ca[0])
-                            + (G-ca[1])*(G-ca[1])
-                            + (B-ca[2])*(B-ca[2])
-                            + (M-m)*(M-m);
+                        const ca = palette[c];
+                        const PR = ca[0]|0;
+                        const PG = ca[1]|0;
+                        const PB = ca[2]|0;
+                        const PM = (PR*1.25 + PG*1.5 + PB)|0;
+		        const dist = (R-PR)*(R-PR)
+                            + (G-PG)*(G-PG)
+                            + (B-PB)*(B-PB)
+                            + (M-PM)*(M-PM);
 
                         if( dist < closestDist ){
                             closest = c;
                             closestDist = dist;
                         }
                     }
-
+                    
+                    PC = C;
+                    PCC = closest;
                 }
 
                 let shift = (ppb - 1 - x%ppb) * settings.bpp;

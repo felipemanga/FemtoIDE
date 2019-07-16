@@ -1,23 +1,19 @@
-APP.addPlugin("CPP", ["Text"], TextView => {
-    const extensions = ["CPP", "C", "H", "HPP", "CC"];
+APP.addPlugin("XML", ["Text"], TextView => {
+    const extensions = ["XML", "TMX", "HTML", "SVG", "HTM"];
     
-    class CPPView extends TextView {
+    class XMLView extends TextView {
         constructor( frame, buffer ){
             super(frame, buffer);
-            this.ace.session.setMode("ace/mode/c_cpp");
-        }
-
-        doAction(){
-            APP.compileAndRun();
+            this.ace.session.setMode("ace/mode/xml");
         }
     }
-
+    
     APP.add({
         
         pollViewForBuffer( buffer, vf ){
 
             if( extensions.indexOf(buffer.type) != -1 && vf.priority < 1 ){
-                vf.view = CPPView;
+                vf.view = XMLView;
                 vf.priority = 1;
             }
             
@@ -25,5 +21,5 @@ APP.addPlugin("CPP", ["Text"], TextView => {
         
     });
 
-    return CPPView;
+    return XMLView;
 });
