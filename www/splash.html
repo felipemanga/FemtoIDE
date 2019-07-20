@@ -1,0 +1,76 @@
+<html>
+    <head>
+        <style>
+         @font-face {
+             font-family: 'Source Code Pro';
+             font-style: normal;
+             font-weight: 400;
+             font-display: swap;
+             src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWjMY.woff2) format('woff2');
+             unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+         }
+         /* latin */
+         @font-face {
+             font-family: 'Source Code Pro';
+             font-style: normal;
+             font-weight: 400;
+             font-display: swap;
+             src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevW.woff2) format('woff2');
+             unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+         }
+         
+         html, body, video {
+             margin: 0;
+             border: 0;
+             padding: 0;
+             width: 100%;
+             height: 100%;
+             font-family: 'Source Code Pro', sans-serif;
+         }
+
+         video {
+             position: absolute;
+         }
+
+         @keyframes fadein {
+             0%, 50% { opacity: 0; }
+             100%   { opacity: 1; }
+         }
+
+         h1, h2 {
+             text-align: center;
+             color: #550000;
+             position: fixed;
+             width: 100%;
+             font-style: italic;
+             animation: fadein 2s forwards;
+         }
+
+         h1 {
+             font-size: 5em;
+             top: 50%;
+         }
+
+         h2 {
+             top: 80%;
+             background-color: rgba(255,255,255,0.4);
+         }
+
+        </style>
+    </head>
+    <body>
+        <script>
+         const video = document.createElement("video");
+         const source = document.createElement("source");
+         video.setAttribute("width", "100%");
+         video.setAttribute("height", "100%");
+         source.setAttribute("src", `splash${Math.random()*3|0}.webm`);
+         source.setAttribute("type", "video/mp4");
+         video.appendChild(source);
+         document.body.appendChild(video);
+         video.play();
+        </script>
+        <h1>FemtoIDE</h1>
+        <h2>Undead Compo Edition v0.0.15b</h2>
+    </body>
+</html>
