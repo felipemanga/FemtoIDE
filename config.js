@@ -1,4 +1,5 @@
 APP.bindKeys("global", {
+    "C-\x0D": APP.action,
     "C-b": APP.compile,
     "C-r": APP.run,
     "C-g":APP.compileAndRun,
@@ -6,27 +7,38 @@ APP.bindKeys("global", {
     "M-c g":APP.displayGeneratedCPP,
     "F4": APP.stopEmulator,
     "F5": APP.debug,
+    "S-F5": APP.debugJLink,
     "F8": APP.debugContinue,
     "F10": APP.debugStepOver,
     "F11": APP.debugStepIn,
     "F6": APP.debugStepOut,
     "C-q": APP.exit,
-    "M-c d": _=>nw.Window.get().showDevTools(),
+    "M-c M-d": _=>nw.Window.get().showDevTools(),
     "C-w": APP.killRegion,
     "C-y": APP.yank,
     "M-y": APP.yankPop,
     "M-w": APP.killRingSave,
     "M-x": _=>document.querySelector("#cmd").focus(),
     "C-M-f": APP.beautify,
+    
+    "C-c": APP.copy,
+    "C-x": APP.cut,
+    "C-v": APP.paste,
+    "C-/": APP.toggleComment,
+    "C-,": APP.goBack,
+    "C-.": APP.goForward
 });
 
 APP.add({
     onCreateACE( ace ){
+        ace.setOption( "printMargin" , false);
         ace.commands.bindKeys({
             "ctrl-l":null,
             "alt-y":null,
             "ctrl-y":null,
-            "alt-w":null
+            "alt-w":null,
+            "ctrl-.":null,
+            "ctrl-,":null
         });
     }
 });
@@ -37,8 +49,9 @@ let platform = process
     .startsWith("win") ? "windows" : process.platform.toLowerCase();
 
 APP.customSetVariables({
-    "aceTheme":"ace/theme/chaos",
+    "aceTheme":"ace/theme/monokai",
     "projectsPath":DATA.appPath + path.sep + "projects",
+    "JLINK":"JLinkGDBServer",
 
     "os": platform,
 

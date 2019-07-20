@@ -440,9 +440,9 @@ class Keys {
                 console.error( ex.message );
             }
         }else{
-            if( evt.which != evt.key.charCodeAt(0) ){
+            if( evt.which != evt.key.toUpperCase().charCodeAt(0) ){
                 this.onKeyDown({
-                    which: evt.key.charCodeAt(0),
+                    which: evt.key.toUpperCase().charCodeAt(0),
                     key:evt.key,
                     ctrlKey:evt.ctrlKey,
                     altKey:evt.altKey,

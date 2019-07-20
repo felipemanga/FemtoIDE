@@ -1,4 +1,7 @@
 APP.addPlugin("Git", ["Project"], _=>{
+
+return;
+    
     const log = APP.log;
     const git = require('isomorphic-git');
     const fs = require('fs');
@@ -19,7 +22,7 @@ APP.addPlugin("Git", ["Project"], _=>{
         
         onOpenProject(){
             dir = DATA.projectPath + path.sep + ".git";
-            if( !fs.existsSync() ){
+            if( !fs.existsSync(dir) ){
                 git.init({dir}).then(result=>{
                     log("New git initialized");
                 }).catch(ex=>{

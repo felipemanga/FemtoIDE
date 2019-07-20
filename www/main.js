@@ -21,9 +21,9 @@ nw.App.on('open', (...args)=>{
     boot();
 });
 
-nw.Window.open("www/splash.jpg", {
-    width:690,
-    height:350,
+nw.Window.open("www/splash.html", {
+    width:768,
+    height:432,
     position:"center",
     frame:false
 }, splash =>{
@@ -31,6 +31,6 @@ nw.Window.open("www/splash.jpg", {
     setTimeout(_=>{
         boot();
         splash.close(true);
-    }, 1000);
+    }, 3000);
 
 });

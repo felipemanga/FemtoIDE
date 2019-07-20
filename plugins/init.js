@@ -49,8 +49,6 @@ class ProjectsListView {
             projectsList = [];
         }
 
-        DOC.create("h1", {text:"FemtoIDE"}, frame);
-
         DOC.create(
             frame,
             "ul",
