@@ -1,4 +1,15 @@
 APP.addPlugin("Tree", [], _=>{
+    function makeAction( meta ){
+        let type = "_makeAction_" + meta.type;
+        if( !this[type] )
+            type = "_makeAction_";
+        return [
+            "li",
+            { className:"action " + type },
+            this[type]( meta ),
+            this.DOM.actions
+        ];
+    }
 
     class TreeNode {
 
@@ -7,6 +18,7 @@ APP.addPlugin("Tree", [], _=>{
             this.buffer = buffer;
             this.parent = null;
             this.children = [];
+            this.actions = {};
             this.y = 0;
             buffer.pluginData.TreeNode = this;
 
@@ -110,28 +122,37 @@ APP.addPlugin("Tree", [], _=>{
             let actions = [];
             APP.pollBufferActions( buffer, actions );
 
-            actions.forEach( a => DOC.create(...makeAction.call(this, a)) );
+            actions.forEach( a => {
+                this.actions[a.label] = DOC.create(...makeAction.call(this, a));
+            });
 
-            function makeAction( meta ){
-                let type = "_makeAction_" + meta.type;
-                if( !this[type] )
-                    type = "_makeAction_";
-                return [
-                    "li",
-                    { className:"action " + type },
-                    this[type]( meta ),
-                    this.DOM.actions
-                ];
-            }
+        }
+
+        setBufferAction(buffer, meta){
+            if( buffer != this.buffer )
+                return;
+
+            if( this.actions[meta.label] )
+                this.DOM.actions.removeChild(this.actions[meta.label]);
+
+            this.actions[meta.label] = DOC.create(...makeAction.call(this, meta));
         }
 
         _makeAction_( meta ){
             return [[{ text: "Unknown: " + meta.type }]];
         }
 
+        _makeAction_info( meta ){
+            return [[{
+                className:"info",
+                text:meta.label + ": " + meta.text
+            }]];
+        }
+
         _makeAction_button( meta ){
             return [[{
-                text:meta.label,
+                className:"button",
+                text:(meta.label || "") + (meta.label&&meta.text?": ":"") + (meta.text || ""),
                 onclick:meta.cb,
             }]];
         }
