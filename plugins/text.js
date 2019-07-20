@@ -92,6 +92,32 @@ APP.addPlugin("Text", ["Project"], _=>{
             }, 500);
         }
 
+        cut(){
+            let range = this.ace.selection.getRange();
+            let text = this.ace.session.getTextRange( range );
+            this.ace.session.replace( range, "" );
+            nw.Clipboard.get().set(text, "text");
+        }
+
+        copy(){
+            let range = this.ace.selection.getRange();
+            let text = this.ace.session.getTextRange( range );
+            nw.Clipboard.get().set(text, "text");
+        }
+
+        paste(){
+            let start = this.ace.getCursorPosition();
+            
+            this.ace.session.insert(
+                start,
+                nw.Clipboard.get().get("text")
+            );
+        }
+
+        toggleComment(){
+            this.ace.execCommand("togglecomment");
+        }
+
         yank(){
             if( !killRing.length ) return;
             let start = this.ace.getCursorPosition();

@@ -197,7 +197,11 @@ class Frame {
         if( !this.currentFrame )
             APP.createFrameInParent(document.querySelector("#contents"));
 
-        return APP.displayBufferInFrame( buffer, this.currentFrame );
+        let ret = APP.displayBufferInFrame( buffer, this.currentFrame );
+        if( ret )
+            APP.onDisplayBuffer(ret);
+        
+        return ret;
     }
 
     displayBufferInRightFrame( buffer, horizontal ){
@@ -234,6 +238,7 @@ class Frame {
                     v.frame = null;
                     if( v.view.detach )
                         v.view.detach();
+                    APP.onDetachView(v.view, b);
                 }
             });
         });
@@ -245,22 +250,21 @@ class Frame {
         if( view ){
             view.elements.forEach( c => frame.appendChild( c ) );
             view.frame = frame;
-            frame.className = "frame " + (view.view.css || view.view.constructor.name);
-            if( view.view.attach )
-                view.view.attach();
+            view = view.view;
         }else{
             let viewCandidate = { view:null, priority:-1 };
             APP.pollViewForBuffer( buffer, viewCandidate );
             view = new viewCandidate.view( frame, buffer );
             let elements = [...frame.children];
             buffer.views.push({ view, elements, frame });
-            frame.className = "frame " + (view.css || view.constructor.name);
-            if( view.attach )
-                view.attach();
         }
 
+        frame.className = "frame " + (view.css || view.constructor.name);
+        if( view.attach )
+            view.attach();
+        APP.onAttachView(view);
         
-        return true;
+        return buffer;
     }
 
     findFile( filePath, doDisplay ){
@@ -436,6 +440,16 @@ class Keys {
                 console.error( ex.message );
             }
         }else{
+            if( evt.which != evt.key.charCodeAt(0) ){
+                this.onKeyDown({
+                    which: evt.key.charCodeAt(0),
+                    key:evt.key,
+                    ctrlKey:evt.ctrlKey,
+                    altKey:evt.altKey,
+                    shiftKey:evt.shiftKey
+                });
+                return;
+            }
             console.warn("Shortcut is undefined.");
         }
 
@@ -512,7 +526,9 @@ class Chrome {
     renderChrome(){
         clearTimeout( this.hnd );
         this.hnd = 0;
-        this.menuList.forEach( item => this._renderChromeItem(...item) );
+        this.menuList
+            .sort()
+            .forEach( item => this._renderChromeItem(...item) );
     }
 }
 
@@ -575,7 +591,11 @@ class Core {
     }
 
     getBufferLength( buffer ){
-        return fs.statSync( buffer.path ).size;
+        try{
+            return fs.statSync( buffer.path ).size;
+        }catch(ex){
+            return undefined;
+        }
     }
 
     readBuffer( buffer, en, cb, force){

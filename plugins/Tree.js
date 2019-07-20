@@ -11,8 +11,8 @@ APP.addPlugin("Tree", [], _=>{
             buffer.pluginData.TreeNode = this;
 
 	    this.DOM = DOC.index( DOC.create(
-                "li",
                 parent,
+                "li",
                 { className:"item " + buffer.type + " closed"},
                 [
                     ["div", {id:"itemContainer"}, [
@@ -65,7 +65,7 @@ APP.addPlugin("Tree", [], _=>{
                 }
             } );
             
-            APP.async(_=>this._render(parent));
+            APP.async(_=>this._render());
 
         }
 
@@ -105,7 +105,7 @@ APP.addPlugin("Tree", [], _=>{
             else this.DOM.itemContainer.classList.add("hidden");            
         }
 
-        _render( parent ){
+        _render( ){
             let buffer = this.buffer;
             let actions = [];
             APP.pollBufferActions( buffer, actions );
@@ -167,7 +167,10 @@ APP.addPlugin("Tree", [], _=>{
             );
         }
 
-        displayBuffer( buffer ){
+        onDisplayBuffer( buffer ){
+            if( !buffer || !buffer.pluginData )
+                return;
+            
             let open = buffer == this.buffer;
             let unfolded = this.folded;
             
@@ -222,8 +225,15 @@ APP.addPlugin("Tree", [], _=>{
             }else if( path.length == 1 ){
                 if( this.children.find( child => child.buffer == buffer ) )
                     return;
-                let child = new TreeNode(buffer, this.DOM.dir);
+                let next = this.children.find( child => child.buffer.name > buffer.name );
+                
+                let child = new TreeNode(buffer);
                 child.parent = this;
+                if( next ){
+                    this.DOM.dir.insertBefore( child.DOM.__ROOT__, next.DOM.__ROOT__ );
+                }else{
+                    this.DOM.dir.appendChild( child.DOM.__ROOT__ );
+                }
                 this.children.push( child );
             }else{
                 let child = this.children.find( child => child.buffer.name == path[0] );

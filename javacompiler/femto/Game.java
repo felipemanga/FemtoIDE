@@ -5,6 +5,7 @@ import femto.input.Button;
 import femto.input.ButtonListener;
 import femto.mode.Direct;
 import femto.Prompt;
+import femto.hardware.LPC11U68;
 import java.lang.Exception;
 
 class MenuState extends State {

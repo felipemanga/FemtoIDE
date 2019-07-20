@@ -1,6 +1,24 @@
+function boot(){
+    try{
+        let width = (localStorage.getItem("width")|0) || 800;
+        let height = (localStorage.getItem("height")|0) || 600;
+        
+        nw.Window.open('www/index.html', {width, height}, win=>{
+            win.on("close", _=>{
+                width = win.width;
+                height = win.height;
+                localStorage.setItem("width", width);
+                localStorage.setItem("height", height);
+                win.close(true);
+            });
+        });
+    }catch(ex){
+        console.log(ex);
+    }
+}
+
 nw.App.on('open', (...args)=>{
-    console.log("Opening ", args);
-    nw.Window.open('www/index.html');
+    boot();
 });
 
 nw.Window.open("www/splash.jpg", {
@@ -11,7 +29,7 @@ nw.Window.open("www/splash.jpg", {
 }, splash =>{
 
     setTimeout(_=>{
-        nw.Window.open('www/index.html');
+        boot();
         splash.close(true);
     }, 1000);
 

@@ -101,6 +101,14 @@ APP.addPlugin("Project", [], _=>{
             
         },
 
+        onDisplayBuffer( buffer ){
+            document.title = buffer.name
+                + " - "
+                + DATA.projectName
+                + " - "
+                + require("../package.json").name;
+        },
+
         newProject(){
             let name = "*New Project*";
             let buffer = DATA.buffers.find( b=>b.name == name);
@@ -132,10 +140,6 @@ APP.addPlugin("Project", [], _=>{
                 projectName:projectPath.split(path.sep).pop(),
                 project: JSON.parse(strproject)
             });
-
-            document.title = DATA.projectName
-                + " - "
-                + require("../package.json").name;
 
             APP.onOpenProject();
 
