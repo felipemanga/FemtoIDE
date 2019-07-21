@@ -9,6 +9,23 @@ APP.addPlugin("JS", ["Text"], TextView => {
         return fs.readFileSync( DATA.projectPath + path.sep + file, "utf-8" );
     }
 
+    function readImage(file){
+        return new Promise((resolve, reject)=>{
+            let img = new Image();
+            img.src = "file://" + DATA.projectPath + path.sep + file + "?" + Math.random();
+            img.onload = _=>{
+                let canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                let ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                resolve(ctx.getImageData( 0, 0, img.width, img.height ));
+            };
+
+            img.onerror = ex => reject(ex);
+        });
+    }
+
     function write(file, str){
         fs.writeFileSync( DATA.projectPath + path.sep + file, str, "utf-8" );
     }

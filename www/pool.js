@@ -59,6 +59,24 @@ function Pool() {
         }
     }
 
+    this.documentation = function(){
+        return Object.keys(methods)
+            .map(name=>{
+                let calls = methods[name];
+                let largest = Object.values(calls)
+                    .reduce((a, b)=>a.method.length>b.method.length?a:b, {method:[]});
+                return largest.THIS.constructor.name
+                    + "."
+                    + name
+                    + "("
+                    + largest.method.toString()
+                      .replace(/[^\(]*\(([^)]*)[\s\S]*/, "$1")
+                    + ")";
+            })
+            .sort()
+            .join("\n");
+    };
+
     this.registerEvents = function(target, args) {
         if (!args && target && DOC.typeOf(target) == "array") {
             args = target;

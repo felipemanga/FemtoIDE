@@ -193,6 +193,7 @@ APP.addPlugin("Text", ["Project"], _=>{
                 }
             });
             
+            this.ace.onPaste = function() { return ""; };
 	    this.ace.on("guttermousedown", e => {
 	        let target = e.domEvent.target; 
 	        if (target.className.indexOf("ace_gutter-cell") == -1) 
