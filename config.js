@@ -1,3 +1,8 @@
+APP.customSetVariables({
+    name:"YourName",
+    email:"Your@Email.com"
+});
+
 APP.bindKeys("global", {
     "M-h": APP.toggleHCPP,
     "\x1B": APP.clearLog,
