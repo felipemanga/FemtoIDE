@@ -194,6 +194,9 @@ class Frame {
     }
 
     displayBuffer( buffer ){
+        if( !buffer )
+            return;
+        
         if( !this.currentFrame )
             APP.createFrameInParent(document.querySelector("#contents"));
 

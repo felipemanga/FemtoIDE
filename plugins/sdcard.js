@@ -102,7 +102,7 @@ APP.addPlugin("SDCard", [], _=>{
                 let rpath = file.path
                     .substr(DATA.projectPath.length);
 
-                if( !meta[rpath].sdcard || file.type == "directory" )
+                if( !meta[rpath] || !meta[rpath].sdcard || file.type == "directory" )
                     return;
                 
                 rpath = rpath.split(path.sep);

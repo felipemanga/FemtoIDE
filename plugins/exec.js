@@ -5,7 +5,7 @@ APP.addPlugin("Exec", [], _=>{
 
     APP.customSetVariables({ execMode:"APP" });
 
-    APP.add({
+    APP.add(new class Exec {
         onCMDKey( event ){
             let key = event.key;
             let element = event.target;
@@ -29,7 +29,7 @@ APP.addPlugin("Exec", [], _=>{
                 element.value = log[logCursor];
                 break;
             }
-        },
+        }
 
         pushExecMode( mode ){
             let i = modes.indexOf(mode);
@@ -39,14 +39,14 @@ APP.addPlugin("Exec", [], _=>{
                 modes.push( mode );
             }
             APP.customSetVariables({ execMode:mode });
-        },
+        }
 
         popExecMode(){
             modes.pop();
             APP.customSetVariables({
                 execMode:modes[modes.length-1] || "APP"
             });
-        },
+        }
 
         exec( cmd ){
             if( log[log.length-1] != cmd ){

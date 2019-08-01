@@ -1,5 +1,6 @@
 APP.bindKeys("global", {
     "M-h": APP.toggleHCPP,
+    "\x1B": APP.clearLog,
     "C-\x0D": APP.action,
     "C-b": APP.compile,
     "C-r": APP.run,
