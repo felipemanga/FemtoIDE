@@ -13,19 +13,21 @@ APP.addPlugin("Tree", [], _=>{
 
     class TreeNode {
 
-        constructor( buffer, parent ){
+        constructor( buffer, depth, parent ){
             APP.add(this);
             this.buffer = buffer;
             this.parent = null;
             this.children = [];
             this.actions = {};
             this.y = 0;
+            this.depth = depth;
+            
             buffer.pluginData.TreeNode = this;
 
 	    this.DOM = DOC.index( DOC.create(
                 parent,
                 "li",
-                { className:"item " + buffer.type + " closed"},
+                { className:"item " + buffer.type + " " + (depth == 1 ? "open" : "closed")},
                 [
                     ["div", {id:"itemContainer"}, [
                         ["button", {
@@ -35,7 +37,16 @@ APP.addPlugin("Tree", [], _=>{
                                 this.DOM.__ROOT__.classList.toggle("expand");
                             }
                         }],
-                        ["div", { text:buffer.name, id:"name" }],
+                        ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line" }, [
+                            (buffer.type == "directory" ? ["div", {
+                                className:"dirMark",
+                                onclick:_=>{
+                                    this.DOM.__ROOT__.classList.toggle("closed");
+                                    this.DOM.__ROOT__.classList.toggle("open");
+                                }
+                            }] : null),
+                            ["div", {id:"name", text:buffer.name}]
+                        ]],
                         [
                             "ul",
                             { id:"actions" },
@@ -128,6 +139,12 @@ APP.addPlugin("Tree", [], _=>{
 
         }
 
+        setBufferColor(buffer, color){
+            if( buffer != this.buffer )
+                return;
+            this.DOM.itemExpander[0].style.background = color;
+        }
+
         setBufferAction(buffer, meta){
             if( buffer != this.buffer )
                 return;
@@ -188,33 +205,6 @@ APP.addPlugin("Tree", [], _=>{
             );
         }
 
-        onDisplayBuffer( buffer ){
-            if( !buffer || !buffer.pluginData )
-                return;
-            
-            let open = buffer == this.buffer;
-            let unfolded = this.folded;
-            
-            if( !unfolded && buffer.pluginData.TreeNode ){
-                let node = buffer.pluginData.TreeNode;
-                while( node ){
-                    if( node == this ){
-                        unfolded = true;
-                        break;
-                    }
-                    node = node.parent;
-                }
-            }
-            
-            if( open ){
-                this.DOM.__ROOT__.classList.remove("closed");
-                this.DOM.__ROOT__.classList.add("open");
-            }else{
-                this.DOM.__ROOT__.classList.add("closed");
-                this.DOM.__ROOT__.classList.remove("open");
-            }
-        }
-
         detach(){
             APP.remove(this);
             this.children.forEach( c => c.detach() );
@@ -247,8 +237,10 @@ APP.addPlugin("Tree", [], _=>{
                 if( this.children.find( child => child.buffer == buffer ) )
                     return;
                 let next = this.children.find( child => child.buffer.name > buffer.name );
+                if( [...this.DOM.dir.children].indexOf(next) == -1 )
+                    next = null;
                 
-                let child = new TreeNode(buffer);
+                let child = new TreeNode(buffer, this.depth+1);
                 child.parent = this;
                 if( next ){
                     this.DOM.dir.insertBefore( child.DOM.__ROOT__, next.DOM.__ROOT__ );
@@ -300,12 +292,19 @@ APP.addPlugin("Tree", [], _=>{
 
             this.fileList = DOC.create(
                 "ul",
-                {className:"FileList"},
+                {className:"FileList notfiltering"},
                 container
             );
 
             this.root = null;
 
+        }
+
+        filterFiles(str){
+            if( str != "" )
+                this.fileList.classList.remove("notfiltering");
+            else
+                this.fileList.classList.add("notfiltering");
         }
 
         focusFilter(){
@@ -319,7 +318,7 @@ APP.addPlugin("Tree", [], _=>{
 
         registerProjectFile( file ){
             if( !this.root )
-                this.root = new TreeNode( file, this.fileList );
+                this.root = new TreeNode( file, 1, this.fileList );
             else{
                 let relative = file.path;
                 if( relative.startsWith( DATA.projectPath ) )

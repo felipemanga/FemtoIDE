@@ -51,16 +51,12 @@
 }
 
 .frame.TreeView #itemContainer {
-    padding: 3px;
 }
 
 .FileList .itemExpander {
-    position: absolute;
-    left: -15px;
     border: none;
     border-radius: 10px;
     padding: 1px;
-    top: 2px;
     height: 0.75em;
     width: 0.75em;
     background: #404040;
@@ -78,8 +74,6 @@
     max-width: 215px;
     padding: 1;
     background-color: #303030;
-    position: fixed;
-    left: 10px;
     z-index: 999;
 }
 
@@ -91,10 +85,22 @@
     text-align: center;
 }
 
-.FileList .open>#name {
-    background-color: #171717;
-    margin: 1px -1px 1px -1px;
-    padding: 3px;
+.FileList #line, #name, .dirMark {
+    display: inline-block;
+}
+
+.notfiltering .closed>#dir {
+    display: none;
+}
+
+.open>#itemContainer>#line>.dirMark:after {
+    content: "-";
+    margin: 0 0 0 -10px;
+}
+
+.closed>#itemContainer>#line>.dirMark:after {
+    content: "+";
+    margin: 0 0 0 -10px;
 }
 
 .FileList .expand>.itemExpander {
@@ -104,11 +110,11 @@
 .frame.TreeView ul {
     padding: 0;
     margin: 0;
-    padding-left: 20px;
 }
 
 .FileList .item #name {
     color: bisque;
+    display: inline-block;
 }
 
 .FileList .item.directory>#itemContainer #name {color: inherit;}
