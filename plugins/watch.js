@@ -19,11 +19,14 @@ APP.addPlugin("Watch", [], _=>{
                 return;
 
             watches[buffer.path] = true;
-            
-            fs.watch(buffer.path, {
-                persistent:false,
-                recursive:false
-            }, onFileChanged.bind(null, buffer.path));
+            try{
+                fs.watch(buffer.path, {
+                    persistent:false,
+                    recursive:false
+                }, onFileChanged.bind(null, buffer.path));
+            }catch(ex){
+                // file might have been deleted by this point
+            }
         }
     });
 
