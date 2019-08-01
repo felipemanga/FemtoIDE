@@ -106,10 +106,8 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         paste(){
-            let start = this.ace.getCursorPosition();
-            
-            this.ace.session.insert(
-                start,
+            this.ace.session.replace(
+                this.ace.selection.getRange(),
                 nw.Clipboard.get().get("text")
             );
         }
