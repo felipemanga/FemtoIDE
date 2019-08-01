@@ -10,6 +10,17 @@ APP.addPlugin("CPP", ["Text"], TextView => {
         doAction(){
             APP.compileAndRun();
         }
+
+        toggleHCPP(){
+            let match = DATA.projectFiles.find(file=>{
+                return file.type != "directory"
+                    && file.type != this.buffer.type
+                    && file.name.replace(/\..*/, "").toUpperCase() == this.buffer.name.toUpperCase().replace(/\..*/, "");
+            });
+            
+            if( match )
+                APP.displayBuffer(match);
+        }
     }
 
     APP.add({
