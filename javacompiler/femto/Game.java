@@ -87,7 +87,7 @@ public class Game extends StateMachine {
         menuState = new MenuState(font);
 
         // Turn the Reset button into a regular input
-        System.memory.STR( (pointer) 0x40044000, 0x89 );
+        System.memory.STR( LPC11U68.PIO0_0, 0x81 );
         Button.Reset.attach(new ButtonListener(){
                 void change(Button b){
                     if( instance.menuState.previous == null ){
