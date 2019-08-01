@@ -1,9 +1,28 @@
-APP.addPlugin("BuildPNG", ["Build"], _=> {
-    APP.add({
+APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
+    function loadSettings( callback ){
+        let buffer = DATA
+            .projectFiles
+            .find( f=>f.name.toLowerCase()=="my_settings.h" );
+        if( buffer ){
+            APP.readBuffer( buffer, null, (error, data)=>{
+                callback(parseSettings(data));
+            });
+        } else {
+            callback(parseSettings(""));
+        }
+    }
+
+    APP.add(new class BuildPNG {
+
+        getPalette( callback ){
+            loadSettings(settings=>{
+                getPalette(settings, callback);
+            });
+        }
         
         ["img-to-c"]( files, cb ){
-            loadSettings(files, settings=>{
-                getPalette(settings, files, palette=>{
+            loadSettings(settings=>{
+                getPalette(settings, palette=>{
                     
                     let pnglist = files.filter( f=>f.type=="PNG" );
                     let pending = new Pending(cb, cb);
@@ -21,8 +40,17 @@ APP.addPlugin("BuildPNG", ["Build"], _=> {
                             let ctx = canvas.getContext("2d");
                             ctx.drawImage(img, 0, 0);
                             let imgData = ctx.getImageData( 0, 0, img.width, img.height );
-                            convert( imgData, settings, buffer );
+                            let name = buffer.name.replace(/\..*/, '');
+                            let str = convert( imgData, settings.palette, name );
+                            let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, '.h'), false);
+                            target.data = str;
+                            target.modified = true;
+                            target.transform = null;
+                            APP.writeBuffer(target);
+                            
+                            settings.pending.done();
                         };
+                        
                         img.onerror = _=>{
                             pending.error("Could not load image " + buffer.name);
                         };
@@ -30,30 +58,30 @@ APP.addPlugin("BuildPNG", ["Build"], _=> {
                 });
             });
         }
-        
+
+        convertImage( imgData, palette, name ){
+            return convert(imgData, palette);
+        }
     });
 
-    function loadSettings( files, callback ){
-        let buffer = files.find( f=>f.name.toLowerCase()=="my_settings.h" );
+    function convert( img, palette, name ){
+        let out;
+        let bpp = (Math.log(palette.length) / Math.log(2))|0;
 
-        APP.readBuffer( buffer, null, (error, data)=>{
-            callback(getSettings(files, data));
-        });
-
-    }
-
-    function convert( img, settings, buffer ){
-        let name = buffer.name.replace(/\..*/, '');
-        let palette = settings.palette;
-        let out = `// Automatically generated file, do not edit.
+        if( name ){
+            out = `// Automatically generated file, do not edit.
 
 #pragma once
 
 const uint8_t ${name}[] = {
 ${img.width}, ${img.height}`;
+        }else{
+            out = "";
+        }
+        
         let i=0, len, bytes, data = img.data;
-        let ppb = 8 / settings.bpp;
-        let run = [], max = Math.min(palette.length, 1<<settings.bpp);
+        let ppb = 8 / bpp;
+        let run = [], max = Math.min(palette.length, 1<<bpp);
 
         let transparent = false;
 
@@ -65,7 +93,9 @@ ${img.width}, ${img.height}`;
         let PC = undefined, PCC = 0;
 
         for( let y=0; y<img.height; ++y ){
-            out += ",\n";
+            if(out)
+                out += ",\n";
+            
             run.length = 0;
 
             for( let x=0; x<img.width; ++x ){
@@ -103,25 +133,20 @@ ${img.width}, ${img.height}`;
                     PCC = closest;
                 }
 
-                let shift = (ppb - 1 - x%ppb) * settings.bpp;
+                let shift = (ppb - 1 - x%ppb) * bpp;
                 run[(x/ppb)|0] = (run[(x/ppb)|0]||0) + (closest<<shift);
             }
 
             out += run.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",");
         }
-        
-        out += "\n};\n";
 
-        let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, '.h'), false);
-        target.data = out;
-        target.modified = true;
-        target.transform = null;
-        APP.writeBuffer(target);
-        
-        settings.pending.done();
+        if( name )
+            out += "\n};\n";
+
+        return out;
     }
 
-    function getPalette(settings, files, callback){
+    function getPalette(settings, callback){
         if( Array.isArray(settings.palette) ){
             callback( settings.palette );
         }
@@ -129,7 +154,7 @@ ${img.width}, ${img.height}`;
         if( typeof settings.palette != "string" )
             settings.palette = "${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp";
         let fileName = APP.replaceDataInString(settings.palette);
-        let file = files.find( f=>f.path == fileName );
+        let file = DATA.projectFiles.find( f=>f.path == fileName );
         if( !file )
             file = APP.findFile(fileName, false);
         
@@ -149,7 +174,7 @@ ${img.width}, ${img.height}`;
         });
     }
 
-    function getSettings(files, settingsFile){
+    function parseSettings(settingsFile){
         let flags = [];
         let settings={ transparent:0 };
         

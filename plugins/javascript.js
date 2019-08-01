@@ -12,17 +12,32 @@ APP.addPlugin("JS", ["Text"], TextView => {
     function readImage(file){
         return new Promise((resolve, reject)=>{
             let img = new Image();
-            img.src = "file://" + DATA.projectPath + path.sep + file + "?" + Math.random();
-            img.onload = _=>{
-                let canvas = document.createElement("canvas");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                let ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0);
-                resolve(ctx.getImageData( 0, 0, img.width, img.height ));
-            };
+            fs.readFile(
+                DATA.projectPath + path.sep + file,
+                (error, data)=>{
+                    if( error ){
+                        reject(error);
+                        return;
+                    }
 
-            img.onerror = ex => reject(ex);
+                    let url = URL.createObjectURL( new Blob([data], {type:"image/png"}));
+                    img.src = url;
+                    img.onload = _=>{
+                        URL.revokeObjectURL(url);
+                        let canvas = document.createElement("canvas");
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        let ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0);
+                        resolve(ctx.getImageData( 0, 0, img.width, img.height ));
+                    };
+
+                    img.onerror = ex => {
+                        URL.revokeObjectURL(url);
+                        reject(ex);
+                    };
+                }
+            );
         });
     }
 
@@ -39,6 +54,14 @@ APP.addPlugin("JS", ["Text"], TextView => {
             return null;
         }
     }
+
+    function run(src){
+        try {
+            eval(src);
+        } catch(ex){
+            APP.error(ex);
+        }
+    }
     
     class JSView extends TextView {
         constructor( frame, buffer ){
@@ -47,15 +70,38 @@ APP.addPlugin("JS", ["Text"], TextView => {
         }
 
         doAction(){
-            try{
-                eval(this.ace.session.getValue());
-            }catch(ex){
-                APP.error(ex);
-            }
+            run(this.ace.session.getValue());
         }
     }
 
-    APP.add({
+    APP.add(new class JavaScript {
+
+        registerProjectFile( buffer ){
+            if( !/\.js$/.test(buffer.name) )
+                return;
+            APP.readBuffer( buffer, undefined, (err, src)=>{
+                if( err )
+                    return;
+                
+                let match = src.match(/^\/\/!MENU-ENTRY:\s*([^\n]+)/);
+                if( !match )
+                    return;
+
+                let binding = src.match(/\/\/!MENU-SHORTCUT:\s*([^\n]+)/);
+                if( binding ){
+                    APP.bindKeys("global", {[binding[1].trim()]:doAction});
+                }
+                
+                APP.addMenu("Scripts", {[match[1]]:doAction});
+
+                function doAction(){
+                    APP.readBuffer( buffer, undefined, (err, src)=>{
+                        if(!err)
+                            eval(src);
+                    });
+                }
+            });
+        }
         
         pollViewForBuffer( buffer, vf ){
 
