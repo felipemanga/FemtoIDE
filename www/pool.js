@@ -63,15 +63,17 @@ function Pool() {
         return Object.keys(methods)
             .map(name=>{
                 let calls = methods[name];
+                let classes = Object.values(calls)
+                    .reduce((a, b)=>(a[b.THIS.constructor.name]=1, a), {});
                 let largest = Object.values(calls)
                     .reduce((a, b)=>a.method.length>b.method.length?a:b, {method:[]});
-                return largest.THIS.constructor.name
-                    + "."
-                    + name
+                
+                return name
                     + "("
                     + largest.method.toString()
                       .replace(/[^\(]*\(([^)]*)[\s\S]*/, "$1")
-                    + ")";
+                    + "): "
+                    + Object.keys(classes).join(", ");
             })
             .sort()
             .join("\n");
@@ -126,7 +128,7 @@ function Pool() {
             var l = arr.length;
             for (var i = 0; i < l; ++i) {
                 var m = arr[i];
-                if (m && m[0] != "_") {
+                if (m && m[0] != "_" && m != "constructor") {
                     this.listen(obj, m, enableDirectMsg);
                     if (clazz.meta[m] && clazz.meta[m].silence) this.silence(m);
                 }
@@ -139,7 +141,8 @@ function Pool() {
 
             for ( var k in properties ) {
                 if (typeof obj[k] != "function") continue;
-                if (k && k[0] != "_") this.listen(obj, k);
+                if (k && k[0] != "_" && k != "constructor")
+                    this.listen(obj, k);
             }
         }
     };
