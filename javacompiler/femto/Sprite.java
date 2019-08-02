@@ -72,6 +72,31 @@ __blit_4bpp(
   mirror 
 )");
     }
+		       
+    public void draw( HiRes16Color screen, float x, float y){
+	updateAnimation();
+        float x = x;
+        float y = y;
+        boolean mirror = flags&2;
+        boolean flip = flags&4;
+
+        if( !(flags&1) ){
+            x -= screen.cameraX;
+            y -= screen.cameraY;
+        }
+
+        __inline_cpp__("
+const auto &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, screen);
+int frameWidth = ((char*)f.frame)[0];
+__blit_4bpp( 
+  f.frame, 
+  x.getInteger() + (mirror?this->width()-(frameWidth+(frameWidth&1)+f.offsetX):f.offsetX), 
+  y.getInteger() + f.offsetY, 
+  &screen->buffer->arrayRead(0), 
+  flip, 
+  mirror 
+)");
+    }
 
     public pointer getFrameDataForScreen( uint number, HiRes16Color screen ){
         return 0;
