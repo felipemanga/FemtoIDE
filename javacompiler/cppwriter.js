@@ -377,7 +377,7 @@ function writeMethodBody( method, t ){
     if( method.isConstructor){
         let inits = [];
 
-        if( t.extends ){
+        if( t.extends && t.extends.name[0] != "__raw__" ){
             inits.push(
                 writePath(t.extends)
                     + "("

@@ -34,6 +34,8 @@ class Clazz extends Type {
         this.isInterface = false;
         this.isClass = true;
         this.isInline = false;
+        this.hasConstructor = false;
+        this.needsConstructor = false;
 
         if( typeof node == "string" )
             return;
@@ -127,6 +129,10 @@ class Clazz extends Type {
                           .normalClassDeclaration[0].children
                           .classBody[0].children
                           .classBodyDeclaration );
+
+        if( !this.hasConstructor && this.needsConstructor ){
+            this.methods.push( new Constructor(this.name, this) );
+        }
         
     }
 
@@ -305,7 +311,7 @@ class Clazz extends Type {
             .variableDeclaratorList[0].children
             .variableDeclarator;
         varDeclNodes.forEach( node => {
-            this.fields.push( new Field(
+            let field = new Field(
                 modifierNodes,
                 typeNode,
                 node.children
@@ -319,7 +325,11 @@ class Clazz extends Type {
                     .dims,
                 node,
                 this
-            ) );
+            );
+            this.fields.push( field );
+            if( !field.isStatic && field.init && field.init.expression ){
+                this.needsConstructor = true;
+            }
         });
     }
 
@@ -332,6 +342,7 @@ class Clazz extends Type {
     }
 
     constructorDeclaration( node ){
+        this.hasConstructor = true;
         this.methods.push( new Constructor(node, this) );
     }
 

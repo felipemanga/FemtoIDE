@@ -8,6 +8,15 @@ class Constructor {
 
         this.isConstructor = true;
         this.scope = scope;
+        this.superArgs = [];
+        this.isPublic = false;
+        this.parameters = [];
+
+        if( typeof node == "string" ){
+            this.name = node;
+            return;
+        }
+        
         let modifier = node.children.constructorModifier || [];
         let headNode = node.children.constructorDeclarator;
 
@@ -16,8 +25,6 @@ class Constructor {
 
         if( bodyNode )
             bodyNode = bodyNode[0];
-
-        this.superArgs = [];
 
         if( bodyChildren.explicitConstructorInvocation ){
             const {Expression} = require("./Expression.js");
@@ -34,7 +41,6 @@ class Constructor {
             
         }
 
-        this.isPublic = false;
         modifier.forEach(mod=>{
             let key = Object.keys(mod.children)[0];
             if( key == "Public" ) this.isPublic = true;
@@ -47,9 +53,7 @@ class Constructor {
             .Identifier[0]
             .image;
 
-        if( !headNode[0].children.formalParameterList )
-            this.parameters = [];
-        else{
+        if( headNode[0].children.formalParameterList ){
             this.parameters = headNode[0]
                 .children
                 .formalParameterList[0]
