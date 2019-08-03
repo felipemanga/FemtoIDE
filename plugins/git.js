@@ -146,7 +146,7 @@ APP.addPlugin("Git", ["Project"], _=>{
         
         onOpenProject(){
             dir = DATA.projectPath;
-            if( !fs.existsSync(dir) ){
+            if( !fs.existsSync(dir + path.sep + ".git") ){
                 noGit = true;
                 return;
                 git.init({dir}).then(result=>{

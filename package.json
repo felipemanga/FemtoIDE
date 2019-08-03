@@ -1,5 +1,5 @@
 {
-  "name": "FemtoIDE-v0.0.15b",
+  "name": "FemtoIDE-v0.0.16b",
   "main": "www/main.js",
   "window": {
     "toolbar": false,
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "fatfs": "^0.10.7",
+    "isomorphic-git": "^0.55.6",
     "java-parser": "^0.2.0",
     "struct-fu": "^1.2.1"
   }
