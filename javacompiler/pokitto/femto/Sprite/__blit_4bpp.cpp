@@ -11,6 +11,7 @@
         else __pixel = (__pixel&0x0F) | (__col<<4);   \
         buffer[__i] = __pixel;                        \
     }
+
 const uint32_t displayWidth = 220,
     displayHeight = 176;
 const uint8_t *data = (uint8_t *)src;
@@ -36,7 +37,11 @@ if( x + width >= displayWidth ){
 
 if( y < 0 ){
     osy = 0;
-    isy = -y;
+    if( flip ){
+        iey = height + y;
+    }else{
+        isy = -y;
+    }
 }
 
 if( y + height >= displayHeight ){

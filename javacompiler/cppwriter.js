@@ -323,7 +323,11 @@ function writeClassDecl( unit, type, dependencies ){
                             Object.assign({}, method, {isAbstract:false}),
                             false
                         );
-                        out += `{ ${writePath(impl.scope)}::${method.name}(`;
+                        out += `{`;
+                        if( writeType(method.result) != "void" ){
+                            out += "return ";
+                        }
+                        out += `${writePath(impl.scope)}::${method.name}(`;
                         let sep = ' ';
                         method.parameters.forEach( param => {
                             out += `${sep}${param.name}`;

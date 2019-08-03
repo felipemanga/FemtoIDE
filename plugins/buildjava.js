@@ -170,7 +170,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
         function loadToResources( file ){
             let meta = getMeta(file);
-            if( !meta.putInResources )
+            if( !meta || !meta.putInResources )
                 return;
 
             let rpath = file

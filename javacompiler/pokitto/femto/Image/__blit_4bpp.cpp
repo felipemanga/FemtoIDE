@@ -19,7 +19,7 @@ uint8_t *buffer = (uint8_t *)out;
 uint32_t width = data[0];
 uint32_t height = data[1];
 const uint8_t *img = data+2;
-
+width += width & 1;
 if( x <= -int32_t(width) || x >= int32_t(displayWidth) || y <= -int32_t(height) || y >= int32_t(displayHeight) )
     return;
 
@@ -37,16 +37,24 @@ if( x + width >= displayWidth ){
 
 if( y < 0 ){
     osy = 0;
-    isy = -y;
+    if( flip ){
+        iey = height + y;
+    }else{
+        isy = -y;
+    }
 }
 
 if( y + height >= displayHeight ){
-    iey = displayHeight - y;
+    if( flip ){
+        isy += (y + height) - displayHeight;
+    }else{
+        iey = displayHeight - y;
+    }
 }
 
 int32_t ostride;
 if( flip ){
-    buffer += (displayWidth * (iey - isy)) >> 1;
+    buffer += (displayWidth * (iey - isy - 1)) >> 1;
     ostride = -(((displayWidth + (iex - isx)) >> 1));
 }else{
     ostride = ((displayWidth - (iex - isx)) >> 1);
@@ -68,6 +76,7 @@ if( mirror ){
 }
 
 if( osx & 1 ){
+    
     if( flip )
         ostride -= iex&1;
 

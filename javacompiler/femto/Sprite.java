@@ -13,6 +13,18 @@ public class Sprite implements __stub__ {
         flags = 0;
     }
 
+    public int getCurrentFrame(){
+        return currentFrame;
+    }
+
+    public int getStartFrame(){
+        return startFrame;
+    }
+
+    public int getEndFrame(){
+        return endFrame;
+    }
+
     abstract public int width();
     abstract public int height();
 
