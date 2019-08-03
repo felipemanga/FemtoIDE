@@ -84,6 +84,11 @@ __blit_4bpp(
   mirror 
 )");
     }
+		       
+    public void draw( HiRes16Color screen, float x, float y ){
+        this.setPosition( x, y );
+        this.draw( screen );
+    }       
 
     public pointer getFrameDataForScreen( uint number, HiRes16Color screen ){
         return 0;
