@@ -45,7 +45,10 @@ APP.addPlugin("Git", ["Project"], _=>{
     function gitAdd( buffer ){
         let relative = buffer.path.substr( DATA.projectPath.length+1 );
         git.add({dir, filepath:relative}).then(_=>{
-            gitStatus(buffer);
+            if( buffer.type == "directory" )
+                APP.gitRefresh();
+            else
+                gitStatus(buffer);
         }).catch(ex=>{
         });
     }

@@ -7,8 +7,10 @@ APP.addPlugin("Edit", ["Project"], _=>{
         onDisplayBuffer(buffer){
             if( ignore ) return;
             if( index && history[index-1] == buffer.name ) return;
-            history[index++] = buffer.name;
             history.length = index;
+            history = history.filter(x=>x!=buffer.name);
+            history.push(buffer.name);
+            index = history.length;
             console.log(index, "History", history);
         },
 

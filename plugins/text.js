@@ -3,6 +3,7 @@ APP.addPlugin("Text", ["Project"], _=>{
     let textViewInstance = 0;
     let killRing = [];
     let yankRange;
+    let highlightView = null;
 
     class TextView {
 
@@ -18,10 +19,13 @@ APP.addPlugin("Text", ["Project"], _=>{
         attach(){
             APP.add(this);
             APP.async(_=>this.ace.resize(true));
+            this.refreshBreakpoints();
             this.ace.focus();
             if( !this.buffer.data ){
                 this.onFileChanged(this.buffer);
             }
+            if(highlightView != this)
+                this.clearHighlight();
         }
 
         detach(){
@@ -64,10 +68,15 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         highlightLine( buffer, line, jump ){
             let session = this.ace.session, classes;
-            if( buffer.data != session )
+            if( buffer && buffer.data != session ){
+                if( this.highlight )
+                    this.clearHighlight( this.buffer.data );
                 return;
+            }
 
-            this.clearHighlight( buffer.data );
+            highlightView = this;
+
+            this.clearHighlight( this.buffer.data );
             
             let breakpoints = session.getBreakpoints();
 
@@ -77,11 +86,16 @@ APP.addPlugin("Text", ["Project"], _=>{
             session.setBreakpoint( line-1, classes.join(" ") );
 
             if( jump )
-                this.jumpToLine( buffer, line );
+                this.jumpToLine( this.buffer, line );
         }
 
         jumpToLine(buffer, line){
-            if( buffer.data != this.ace.session )
+            if( arguments.length == 1 ){
+                line = buffer;
+                buffer = null;
+            }
+
+            if( buffer && buffer.data != this.ace.session )
                 return;
             
             this.ace.scrollToLine(line, true, false, function () {});
@@ -162,6 +176,22 @@ APP.addPlugin("Text", ["Project"], _=>{
             this.DOM.innerHTML = "";
         }
 
+        refreshBreakpoints(){
+            let buffer = this.buffer;
+            let session = this.ace.session;
+            this.ignoreBPEvents = true;
+            this.ace.session.clearBreakpoints();
+
+            for( let row in buffer.pluginData.breakpoints ){
+                let classes = buffer.pluginData.breakpoints[row];
+                if( classes.length ){
+                    session.setBreakpoint( row, classes );
+                }
+            }
+
+            this.ignoreBPEvents = false;
+        }
+
         constructor( frame, buffer ){
             this.buffer = buffer;
             let id = "text_" + (textViewInstance++);
@@ -170,12 +200,14 @@ APP.addPlugin("Text", ["Project"], _=>{
                 className: "IDE"
             });
 
+            this.ignoreBPEvents = false;
             this.ignoreChange = false;
+            this.highlight = undefined;
+
             this.ace = ace.edit( id );
             this.ace.setTheme( DATA.aceTheme || "ace/theme/kuroir" );
             let hnd;
             let session = this.ace.session;
-            this.highlight = undefined;
             
             session.setUndoManager( new ace.UndoManager() );
             session.on("change", _=>{
@@ -193,9 +225,13 @@ APP.addPlugin("Text", ["Project"], _=>{
             
             this.ace.onPaste = function() { return ""; };
 	    this.ace.on("guttermousedown", e => {
+                if( this.ignoreBPEvents )
+                    return;
+                
 	        let target = e.domEvent.target; 
 	        if (target.className.indexOf("ace_gutter-cell") == -1) 
 		    return; 
+
 	        e.stop();
                 let row = e.getDocumentPosition().row;
                 let breakpoints = session.getBreakpoints();

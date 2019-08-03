@@ -48,6 +48,23 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 this.gdbCommand("c", true);
         }
 
+        removeAllBreakpoints(){
+            for( let file of DATA.projectFiles ){
+                if( !file.pluginData.breakpoints )
+                    continue;
+                for( let k in file.pluginData.breakpoints ){
+                    let classes = (file.pluginData.breakpoints[k]||"").split(" ");
+                    let index = classes.indexOf("unconditional");
+                    if( index == -1 ) continue;
+                    classes.splice(index, 1);
+                    file.pluginData.breakpoints[k] = classes.join(" ");
+                    this.onRemoveBreakpoint( file, k );
+                }
+            }
+            
+            APP.refreshBreakpoints();
+        }
+
         onRemoveBreakpoint( buffer, row ){
             if( !gdb ) return;
             let path = buffer.path + ":" + ((row|0)+1);
@@ -353,10 +370,10 @@ APP.addPlugin("Debug", ["Build"], _=>{
         }
     }
 
-    APP.add({
+    APP.add(new class Debugger {
         onOpenProject(){
             new Debug();
-        },
+        }
 
         queryMenus(){
             APP.addMenu("Debug", {
@@ -366,7 +383,8 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 "Continue / Pause":"debugContinue",
                 "Step In":"debugStepIn",
                 "Step Over":"debugStepOver",
-                "Step Out":"debugStepOut"
+                "Step Out":"debugStepOut",
+                "Clear breakpoints":"removeAllBreakpoints"
             });
         }
     });

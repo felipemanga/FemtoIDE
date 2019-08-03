@@ -34,7 +34,11 @@ APP.addPlugin("Tree", [], _=>{
                             className: "itemExpander",
                             text: " ",
                             onclick:_=>{
-                                this.DOM.__ROOT__.classList.toggle("expand");
+                                let isExpanded = this.DOM.__ROOT__.classList.contains("expand");
+                                APP.hideTreeActions();
+                                
+                                if( !isExpanded )
+                                    this.DOM.__ROOT__.classList.add("expand");
                             }
                         }],
                         ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line" }, [
@@ -90,6 +94,10 @@ APP.addPlugin("Tree", [], _=>{
             
             APP.async(_=>this._render());
 
+        }
+
+        hideTreeActions(){
+            this.DOM.__ROOT__.classList.remove("expand");
         }
 
         pollFirstVisibleTreeItem( ret ){
