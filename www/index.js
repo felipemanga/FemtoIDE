@@ -603,6 +603,7 @@ class Core {
 
     readBuffer( buffer, en, cb, force){
         if( buffer.data && !force ){
+            let data = buffer.data;
 
             if( buffer.modified )
                 APP.writeBuffer( buffer );
@@ -610,7 +611,6 @@ class Core {
             setTimeout( bob, 1 );
             
             function bob(){
-                let data = buffer.data;
                 if( typeof buffer.transform == "string" )
                     data = APP[buffer.transform]( data );                
                 cb(null, data);
