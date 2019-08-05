@@ -96,6 +96,14 @@ APP.addPlugin("Tree", [], _=>{
 
         }
 
+        onDisplayBuffer( buffer ){
+            if( buffer == this.buffer ){
+                this.DOM.__ROOT__.classList.add("current");
+            }else{
+                this.DOM.__ROOT__.classList.remove("current");
+            }
+        }
+
         hideTreeActions(){
             this.DOM.__ROOT__.classList.remove("expand");
         }

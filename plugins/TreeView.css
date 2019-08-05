@@ -71,10 +71,11 @@
     display: none;
     flex-direction: row;
     flex-wrap: wrap;
-    max-width: 215px;
     padding: 1;
     background-color: #303030;
     z-index: 999;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .FileList #actions .action {
@@ -87,6 +88,10 @@
 
 .FileList #line, #name, .dirMark {
     display: inline-block;
+}
+
+.FileList .current>#itemContainer {
+    background-color: #505050;
 }
 
 .notfiltering .closed>#dir {
