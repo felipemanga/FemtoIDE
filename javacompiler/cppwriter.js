@@ -252,10 +252,15 @@ function writeClassInline( type ){
 
 function writeFieldDecl(field) {
     let out = "";
+    let type = field.type.getTarget();
     if( field.isVolatile ) out += "volatile ";
     if( field.isStatic ) out += "static ";
-    if( field.isFinal ) out += "const ";
-    out += `${writeType(field.type, field.isStatic)} ${field.name};\n`;
+    if( field.isFinal && type.isNative ) out += "const ";
+    out += writeType(field.type, field.isStatic);
+    out += " ";
+    if( field.isFinal && !type.isNative ) out += "const ";
+    out += field.name;
+    out += `;\n`;
     return out;
 }
 
