@@ -89,6 +89,18 @@ APP.addPlugin("Text", ["Project"], _=>{
                 this.jumpToLine( this.buffer, line );
         }
 
+        jumpTo(buffer, line, column){
+            if( buffer != this.buffer )
+                return;
+            
+            this.ace.scrollToLine(line, true, false, function () {});
+            this.ace.gotoLine(line, column, false);
+            setTimeout(_=>{
+                this.ace.scrollToLine(line, true, false, function () {});
+                this.ace.gotoLine(line, column, false);
+            }, 500);
+        }
+
         jumpToLine(buffer, line){
             if( arguments.length == 1 ){
                 line = buffer;
@@ -128,6 +140,16 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         toggleComment(){
             this.ace.execCommand("togglecomment");
+        }
+
+        jumpToDeclaration(){
+            let pos = this.ace.getCursorPosition();
+            pos = this.ace.session.doc.positionToIndex(pos);
+            let location = APP.findDeclaration( this.buffer, pos );
+            if( location ){
+                let buffer = APP.findFile(location.unit, true);
+                APP.jumpTo(buffer, location.startLine, location.startColumn-1);
+            }
         }
 
         yank(){

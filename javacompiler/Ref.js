@@ -9,6 +9,8 @@ class Ref {
         this.operation = "resolve";
         this.isType = false;
         this.isTypeRef = false;
+        this.unit = require("./Unit.js").getUnit(scope);
+        this.location = null;
         
         // if( this.name == "this" ){
         //     this.target = scope;
@@ -22,7 +24,25 @@ class Ref {
     getTarget(){
         if( !this.target ){
             let unit = getUnit( this.scope );
-            this.target = unit.resolve( this.name, this.trail, t=>!t.isType, this.scope );
+
+            try{
+                this.target = unit.resolve( this.name, this.trail, t=>!t.isType, this.scope );
+            }catch(ex){
+                if( this.location && this.location.startLine ){
+                    throw new Error(
+                        this.location.unit +
+                            ", line " + this.location.startLine +
+                            ", column " + this.location.startColumn +
+                            ": " + ex.message
+                    );
+                }else if( this.location ){
+                    throw new Error(
+                        this.location.unit +
+                            ": " + ex.message
+                    );                    
+                }else
+                    throw ex;
+            }
         }
         return this.target;
     }

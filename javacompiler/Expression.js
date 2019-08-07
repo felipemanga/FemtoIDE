@@ -1,12 +1,14 @@
 const {Ref} = require("./Ref.js");
 const {TypeRef} = require("./TypeRef.js");
 const {ast} = require("./AST.js");
+const getLocation = require("./getLocation.js");
 
 let srcExpr;
 
 class Expression {
     constructor( expr, scope, opts ){
         this.scope = scope;
+        this.unit = require("./Unit.js").getUnit(scope);
         srcExpr = expr;
         this.dispatch(expr, opts);
     }
@@ -37,7 +39,15 @@ class Expression {
                 .children
                 .Identifier[0]
                 .image], this.scope);
-
+        
+        getLocation(this.left, 
+                    expr
+                    .children
+                    .variableDeclaratorId[0]
+                    .children
+                    .Identifier[0]
+                   );
+        
         let init = expr
             .children
             .variableInitializer[0]
@@ -68,6 +78,8 @@ class Expression {
             false,
             this.scope
         );
+        getLocation( this.left, expr.children.classOrInterfaceType[0] );
+        
         this.operation = "referenceType";
     }
 
@@ -231,8 +243,9 @@ class Expression {
             .children;
         
         if( left.fqnOrRefType ){
-            let ref = left
-                .fqnOrRefType[0]
+            let identifier;
+            let ref = (identifier = left
+                       .fqnOrRefType[0])
                 .children
                 .fqnOrRefTypePart.map( part =>{
                     return part.children.Super ? "super" : part
@@ -267,6 +280,7 @@ class Expression {
                 ref,
                 this.scope
             );
+            getLocation(this.left, identifier);
 
             this.operation = "access";
             
@@ -332,6 +346,10 @@ class Expression {
                         true,
                         this.scope
                     );
+
+                    getLocation(this.left, ex.children
+                                .classOrInterfaceType[0]);
+                    
                 }else if( ex.children.primitiveType ){
                     this.left = new TypeRef(
                         [Object.values(
@@ -367,6 +385,7 @@ class Expression {
                         false,
                         this.scope
                     );
+                    getLocation(this.left, ucice);
                 }
                 
                 let args = left
@@ -402,6 +421,8 @@ class Expression {
                     false,
                     this.scope
                 );
+                getLocation(this.type, pce);
+                
                 this.left = new Expression(
                     pce.unaryExpression[0],
                     this.scope
@@ -413,6 +434,8 @@ class Expression {
                     false,
                     this.scope
                 );
+                getLocation( this.type, pce );
+                
                 this.left = new Expression(
                     pce.unaryExpressionNotPlusMinus[0],
                     this.scope
@@ -421,6 +444,7 @@ class Expression {
         }else if( left.This ){
             this.operation = "access";
             this.left = new Ref("this", this.scope);
+            getLocation(this.left, left);
         }else{
             console.error( "ERROR: unknown primary ", left );
         }

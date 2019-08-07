@@ -5,6 +5,7 @@ class AnnotationRef {
         const {Expression} = require("./Expression.js");
 
         this.scope = scope;
+        this.unit = require("./Unit.js").getUnit(scope);
         
         this.name = node.children
                 .typeName[0].children

@@ -9,6 +9,7 @@ class Field {
         this.isFinal = false;
         this.isVolatile = false;
         this.isField = true;
+        this.unit = require("./Unit.js").getUnit(scope);
 
         if( modifier ){
             modifier.forEach(mod=>{

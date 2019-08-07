@@ -1,4 +1,5 @@
 const {ast} = require("./AST.js");
+const getLocation = require("./getLocation.js");
 
 class Block {
     constructor( node, scope ){
@@ -6,6 +7,7 @@ class Block {
         this.init = [];
         this.statements = [];
         this.scope = scope;
+        this.unit = require("./Unit.js").getUnit(scope);
 
         if( node && node.children && node.children.blockStatement ){
             node.children.blockStatement.forEach( node => {
@@ -86,6 +88,11 @@ class Block {
                     null,
                     this
                 );
+
+                getLocation(field, 
+                            varDeclNode.children
+                            .variableDeclaratorId[0]
+                           );
 
                 this.locals.push( field );
                 this.statements.push( new Statement( varDeclNode, this ) );

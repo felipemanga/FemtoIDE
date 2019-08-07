@@ -1,5 +1,6 @@
 const {nativeTypeList} = require("./Type.js");
 const {getUnit} = require("./Unit.js");
+const getLocation = require("./getLocation.js");
 
 class TypeRef {
     constructor( node, isArray, scope, type ){
@@ -7,7 +8,9 @@ class TypeRef {
         this.scope = scope;
         this.type = type || null;
         this.isTypeRef = true;
-
+        this.unit = require("./Unit.js").getUnit(scope);
+        this.location = null;
+        
         if( type ){
             if( type.isTypeRef ){
                 console.error("TRE: ", type.constructor.name);
@@ -36,6 +39,8 @@ class TypeRef {
 
             if( Array.isArray(node) )
                 node = node[0];
+
+            getLocation(this, node);
 
             this.isReference = (
                 node.name == "unannReferenceType"
@@ -96,7 +101,24 @@ class TypeRef {
         if( this.type == null ){
             const {getUnit} =  require("./Unit.js");
             let unit = getUnit(this.scope);
-            this.type = unit.resolve(this.name, this.trail, x=>x.isType, this.scope );
+            try{
+                this.type = unit.resolve(this.name, this.trail, x=>x.isType, this.scope );
+            }catch(ex){
+                if( this.location && this.location.startLine ){
+                    throw new Error(
+                        this.location.unit +
+                            ", line " + this.location.startLine +
+                            ", column " + this.location.startColumn +
+                            ": " + ex.message
+                    );
+                }else if( this.location ){
+                    throw new Error(
+                        this.location.unit +
+                            ": " + ex.message
+                    );                    
+                }else
+                    throw ex;
+            }
         }
         return this.type;
     }

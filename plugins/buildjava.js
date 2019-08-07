@@ -206,7 +206,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 },
 
                 postRun( res ){
-                    res.unit.file = res.name || "???";
+                    res.unit.file = res.filePath || "???";
                     let cst;
                     try{
                         cst = javaParser( res.src );
@@ -451,11 +451,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
                 line = line|0;
                 column = column|0;
-                file = DATA.projectPath
-                    + "/"
-                    + file.replace(/\./g, "/")
-                    + ".java";
-                file = file.replace(/\//g, path.sep);
+
                 let arr = jcmap[file];
                 if( !arr ) jcmap[file] = arr = [];
                 arr[line-1] = cppline;

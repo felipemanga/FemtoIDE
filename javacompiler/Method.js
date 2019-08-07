@@ -1,4 +1,5 @@
 const {ast} = require("./AST.js");
+const getLocation = require("./getLocation.js");
 
 class Constructor {
     constructor( node, scope ){
@@ -11,6 +12,9 @@ class Constructor {
         this.superArgs = [];
         this.isPublic = false;
         this.parameters = [];
+        this.unit = require("./Unit.js").getUnit(scope);
+        this.location = null;
+        this.node = node;
 
         if( typeof node == "string" ){
             this.name = node;
@@ -19,6 +23,8 @@ class Constructor {
         
         let modifier = node.children.constructorModifier || [];
         let headNode = node.children.constructorDeclarator;
+
+        getLocation(this, headNode);
 
         let bodyChildren = node.children.constructorBody[0].children;
         let bodyNode = bodyChildren.blockStatements;
@@ -60,7 +66,7 @@ class Constructor {
                 .children
                 .formalParameter.map( param => {
                     let vprp = param.children.variableParaRegularParameter[0];
-                    return new Field(
+                    let field = new Field(
                         null,
                         vprp.children.unannType[0],
                         vprp.children
@@ -75,6 +81,13 @@ class Constructor {
                         null,
                         scope
                     );
+
+                    getLocation(field, 
+                                vprp.children
+                                .variableDeclaratorId[0]
+                               );
+                    
+                    return field;
                 });
         }
 
@@ -114,9 +127,14 @@ class Method {
         this.isMethod = true;
         this.parameters = [];
         this.annotations = [];
+        this.unit = require("./Unit.js").getUnit(scope);
+        this.location = null;
+        this.node = node;
 
         if( !node )
             return;
+
+        getLocation(this, node);
 
         if( node.name == "interfaceMethodDeclaration" ){
             this.isAbstract = !node.children.methodBody ||
@@ -185,7 +203,7 @@ class Method {
                 .children
                 .formalParameter.map( param => {
                     let vprp = param.children.variableParaRegularParameter[0];
-                    return new Field(
+                    let field = new Field(
                         null,
                         vprp.children.unannType[0],
                         vprp.children
@@ -200,6 +218,13 @@ class Method {
                         null,
                         scope
                     );
+
+                    getLocation(field, 
+                                vprp.children
+                                .variableDeclaratorId[0]
+                               );
+                    
+                    return field;
                 });
         }
 

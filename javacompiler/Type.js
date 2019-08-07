@@ -1,4 +1,5 @@
 let {Unit, getUnit} = require("./Unit.js");
+const getLocation = require("./getLocation.js");
 
 const nativeTypeList = "long,ulong,int,uint,short,ushort,char,byte,ubyte,boolean,float,void,double,pointer".split(",");
 
@@ -11,7 +12,9 @@ class Type {
         this.cppType = cppType;
         this.id = typeId++;
         this.isType = true;
-
+        this.unit = require("./Unit.js").getUnit(this.scope);
+        this.location = null;
+        
         if( typeof node == "string" ){
             this.name = node;
             this.isPublic = true;
@@ -19,6 +22,8 @@ class Type {
             return;
         }
 
+        getLocation(this, node);
+        
         let modifierNode = (node.children.classModifier||[])[0];
         this.isPublic = (modifierNode && !!modifierNode.children.Public) || false;
         if( !key ){

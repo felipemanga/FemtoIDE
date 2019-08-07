@@ -3,6 +3,7 @@ const {TypeRef} = require("./TypeRef.js");
 const {Method, Constructor} = require("./Method.js");
 const {Field} = require("./Field.js");
 const {ast} = require("./AST.js");
+const getLocation = require("./getLocation.js");
 
 function getDecl( node ){
     if( !node.children || node.children.normalClassDeclaration )
@@ -87,7 +88,7 @@ class Clazz extends Type {
 
     initClass( node ){
 
-        if( node.children.normalClassDeclaration[0].children.superclass )
+        if( node.children.normalClassDeclaration[0].children.superclass ){
             this.extends = new TypeRef(
                 node
                     .children
@@ -102,6 +103,12 @@ class Clazz extends Type {
                 this.scope
             );
 
+            getLocation( this.extends,
+                         node
+                         .children
+                         .normalClassDeclaration[0]
+                       );
+        }
 
         if( node.children.normalClassDeclaration[0].children.superinterfaces )
             node
@@ -114,14 +121,20 @@ class Clazz extends Type {
             .children
             .interfaceType
             .forEach( intType => {
-                this.implements.push( new TypeRef(
-                    Object
-                        .values(intType.children)[0][0]
+                let node = Object
+                    .values(intType.children)[0][0];
+
+                let ref = new TypeRef(
+                    node
                         .children
                         .Identifier.map( i => i.image ),
                     false,
                     this.scope
-                ));
+                );
+                
+                getLocation( ref, node );
+
+                this.implements.push( ref );
             });
         
         
@@ -148,7 +161,7 @@ class Clazz extends Type {
             .interfaceMemberDeclaration
             .forEach( n => {
 
-                let decl =Object.values(
+                let decl = Object.values(
                     n.children
                 )[0][0];
 
@@ -297,6 +310,12 @@ class Clazz extends Type {
                 node,
                 this
             );
+
+            getLocation(
+                field,
+                node.children
+                    .variableDeclaratorId[0]
+            );
             
             field.isStatic = true;
             
@@ -326,6 +345,14 @@ class Clazz extends Type {
                 node,
                 this
             );
+            
+
+            getLocation(
+                field,
+                node.children
+                    .variableDeclaratorId[0]
+            );
+
             this.fields.push( field );
             if( !field.isStatic && field.init && field.init.expression ){
                 this.needsConstructor = true;

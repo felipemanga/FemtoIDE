@@ -1,11 +1,5 @@
 const {Expression} = require("./Expression.js");
-
-function getLocation( node, scope ){
-    while( scope.scope )
-        scope = scope.scope;
-    let unit = scope.file;
-    return Object.assign({ unit }, node.location);
-}
+const getLocation = require("./getLocation.js");
 
 let nextLabelId = 0;
 
@@ -13,11 +7,15 @@ class Statement {
     
     constructor(node, scope){
         this.scope = scope;
+        this.unit = require("./Unit.js").getUnit(scope);
         if( !node ){
             this.type = null;
             return;
         }
-        this.location = getLocation(node, scope);
+
+        this.location = null;
+        getLocation(this, node);
+        
         this.defer(node);
         if( this.scope != scope )
             this.scope.stmt = this;
@@ -199,7 +197,13 @@ class Statement {
                     null,
                     block
                 );
-                
+
+                getLocation(field, 
+                            cc.children
+                            .catchFormalParameter[0].children
+                            .variableDeclaratorId[0]
+                           );
+
                 return {field, block};
             });
     }
@@ -234,6 +238,10 @@ class Statement {
             null,
             this.scope
         );
+
+        getLocation( this.iterator,
+                     bfs.variableDeclaratorId[0]
+                   );
 
         this.scope.locals.push( this.iterator );
         

@@ -10,6 +10,8 @@ class Unit {
         this.id = unitId++;
         this.file = "";
         this.isUnit = true;
+        this.unit = this;
+        this.index = [];
     }
 
     resolve( fqcn, trail, test, scope ){
@@ -129,7 +131,7 @@ class Unit {
 
         
         if( !ret ){
-            throw new Error( this.name + ": Could not find " + srcfqcn.join(".") );
+            throw new Error( "Could not find " + srcfqcn.join(".") );
         }
         
         depth--;
@@ -253,9 +255,11 @@ class Unit {
 }
 
 function getUnit( scope ){
-    while( scope.scope )
+    if( scope.unit )
+        return scope.unit;
+    while( scope.scope && !scope.unit )
         scope = scope.scope;
-    return scope;
+    return scope.unit;
 }
 
 module.exports = { Unit, getUnit };
