@@ -61,7 +61,8 @@ function toAST( fqcn ){
 
     pkg.splice( pkg.length-fqcn.length+1, fqcn.length );
 
-    let parser = parsers[ res.parser||"java" ];
+    res.parser = res.parser || "java";
+    let parser = parsers[ res.parser ];
     res.unit = parser.run( res.src, pkg, res.type, res );
     res.name = pkg.join(".");
     if( parser.postRun )

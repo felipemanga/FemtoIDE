@@ -148,7 +148,14 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             }
 
             function onLoad( err, src ){
-                let object = { name:file, src, type:ext[1], parser:parserExt };
+                let object = {
+                    name:file,
+                    filePath:file,
+                    src,
+                    type:ext[1],
+                    parser:parserExt
+                };
+
                 loadToVFS( fqcn, object );
                 pending.done();
             }
@@ -419,6 +426,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     buffer.type = "CPP";
                     buffer.transform = null;
                     buffers.push(buffer);
+
+                    APP.updateProjectIndexFromVFS( vfs );
+                    
                     onDone();
                 }
             }catch( ex ){
