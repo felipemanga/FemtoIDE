@@ -28,6 +28,14 @@ public class Sprite implements __stub__ {
     abstract public int width();
     abstract public int height();
 
+    /// @brief
+    /// Returns whether or not the `Sprite` is static.
+    ///
+    /// @details
+    /// If a `Sprite` is static, the sprite's position will not be affected by the screen's camera offset.
+    ///
+    /// @see
+    /// Sprite::setStatic()
     public boolean isStatic(){
         return (boolean) (flags & 1);
     }
@@ -40,11 +48,23 @@ public class Sprite implements __stub__ {
         return (boolean) (flags & 4);
     }
 
+    /// @brief
+    /// Sets whether or not the `Sprite` is static.
+    ///
+    /// @details
+    /// If a `Sprite` is static, the sprite's position will not be affected by the screen's camera offset.
+    ///
+    /// @note
+    /// This functionality is intended to be used for implementing HUD elements.
+    ///
+    /// @see
+    /// Sprite::isStatic()
     public void setStatic( boolean s ){
         if( s ) flags |= 1;
         else flags &= ~1;
     }
 
+    /// If set to true, the sprite will appear mirrored.
     public void setMirrored( boolean s ){
         if( s ) flags |= 2;
         else flags &= ~2;
@@ -55,11 +75,13 @@ public class Sprite implements __stub__ {
         else flags &= ~4;
     }
 
+    /// Sets the position of the `Sprite`.
     public void setPosition( float x, float y ){
         this.x = x;
         this.y = y;
     }
 
+    /// Updates the animation and draws onto the screen.
     public void draw( HiRes16Color screen ){
 	updateAnimation();
         float x = this.x;

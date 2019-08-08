@@ -4,9 +4,13 @@ import java.util.Arrays;
 
 public class HiRes16Color extends ScreenMode implements __stub__ {
 
+    /// The screen buffer.
     public byte[] buffer;
+
+    /// The screen mode's palette.
     public ushort[] palette;
 
+    /// Constructs a `HiRes16Color` object with the corresponding palette `pal` and font `font`
     public HiRes16Color( pointer pal, pointer font ){
         this.font = font;
         buffer = new byte[0x4BA0];
@@ -16,6 +20,7 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         textRightLimit = width();
     }
 
+    /// Loads the specified palette.
     public void loadPalette( pointer pal ){
         if( pal == null )
             return;
@@ -25,14 +30,17 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         }
     }
 
+    /// @copydoc ScreenMode::width()
     public uint width(){
         return 220;
     }
 
+    /// @copydoc ScreenMode::height()
     public uint height(){
         return 176;
     }
 
+    /// Fills the entire screen with the specified color.
     public void clear( int color ){}
 
     public void setPixel(uint x, uint y, int color){
@@ -53,6 +61,7 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         ST7775.beginStream();
     }
 
+    /// @copydoc ScreenMode::flush()
     public void flush(){}
 
 }

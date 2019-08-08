@@ -5,25 +5,30 @@ import static femto.hardware.ST7775.*;
 
 public class Direct extends ScreenMode implements __stub__ {
 
+    /// Constructs a `Direct` object with the corresponding `font`
     public Direct( pointer font ){
         this.font = font;
         textRightLimit = width();
     }
 
+    /// @copydoc ScreenMode::width()
     public uint width(){
         return 220;
     }
 
+    /// @copydoc ScreenMode::height()
     public uint height(){
         return 176;
     }
 
+    /// Packs the specified RGB888 triple into a packed RGB565 value.
     public static int rgb( ubyte r, ubyte g, ubyte b ){
         return (((int)(r>>3))<<11)
             | (((int)(g>>2))<<5)
             | ((int)(b>>3));
     }
 
+    /// Fills the entire screen with the specified color.
     public void clear( int color ){
         beginStream();
         writeData(color);

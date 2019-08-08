@@ -7,13 +7,17 @@ public class Image implements __stub__ {
     Image(){
     }
 
+    /// Returns the height of the image in pixels.
     int height(){ return 0; }
+
+    /// Returns the width of the image in pixels.
     int width(){ return 0; }
 
     void draw( HiRes16Color screen, float x, float y ){
         draw( screen, x, y, false, false, false );
     }
 
+    /// Draws an image. If `isStatic` is `false`, the screen's camera coordinates are taken into consideration. Set it to `true` for images that are part of the HUD.
     void draw( HiRes16Color screen, float x, float y, boolean mirror, boolean flip, boolean isStatic ){
 
         if( !isStatic ){
