@@ -20,24 +20,45 @@ TAB_SIZE = 4
 
 MARKDOWN_SUPPORT = YES
 
-OPTIMIZE_OUTPUT_JAVA   = YES
+OPTIMIZE_OUTPUT_JAVA = YES
 
 # Disable LaTeX generation
 GENERATE_LATEX = NO
 
+INHERIT_DOCS = YES
 
+#
+# Aliases
+#
+
+# This tag can be used to specify a number of aliases that act as commands in
+# the documentation. An alias has the form:
+# name=value
+# For example adding
+# "sideeffect=@par Side Effects:\n"
+# will allow you to put the command \sideeffect (or @sideeffect) in the
+# documentation, which will result in a user-defined paragraph with heading
+# "Side Effects:". You can put \n's in the value part of an alias to insert
+# newlines (in the resulting output). You can put ^^ in the value part of an
+# alias to insert a newline as if a physical newline was in the original file.
+# When you need a literal { or } or , in the value part of an alias you have to
+# escape them by means of a backslash (\), this can lead to conflicts with the
+# commands \{ and \} for these it is advised to use the version @{ and @} or use
+# a double escape (\\{ and \\})
+
+ALIASES =
 
 #
 # Input options
 #
 
-INPUT = java
+INPUT = java femto examples
 
 RECURSIVE = YES
 
 INPUT_ENCODING = UTF-8
 
-FILE_PATTERNS = *.java
+FILE_PATTERNS = *.java *.md
 
 EXCLUDE = *.js
 
@@ -51,7 +72,7 @@ EXCLUDE_SYMBOLS =
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH =
+IMAGE_PATH = examples\images
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
@@ -311,23 +332,6 @@ MULTILINE_CPP_IS_BRIEF = NO
 # The default value is: NO.
 
 SEPARATE_MEMBER_PAGES  = NO
-
-# This tag can be used to specify a number of aliases that act as commands in
-# the documentation. An alias has the form:
-# name=value
-# For example adding
-# "sideeffect=@par Side Effects:\n"
-# will allow you to put the command \sideeffect (or @sideeffect) in the
-# documentation, which will result in a user-defined paragraph with heading
-# "Side Effects:". You can put \n's in the value part of an alias to insert
-# newlines (in the resulting output). You can put ^^ in the value part of an
-# alias to insert a newline as if a physical newline was in the original file.
-# When you need a literal { or } or , in the value part of an alias you have to
-# escape them by means of a backslash (\), this can lead to conflicts with the
-# commands \{ and \} for these it is advised to use the version @{ and @} or use
-# a double escape (\\{ and \\})
-
-ALIASES =
 
 # The size of the symbol lookup cache can be set using LOOKUP_CACHE_SIZE. This
 # cache is used to resolve symbols given their name and scope. Since this can be
