@@ -18,6 +18,6 @@ public class Runtime {
         return total - 0x10000000;
     }
 
-    /// Returns the amount of free memory.
+    /// Returns the amount of free memory in bytes.
     public int freeMemory(){ return totalMemory() - __inline_cpp__("__allocated_memory__"); }
 }

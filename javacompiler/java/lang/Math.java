@@ -7,7 +7,14 @@ public class Math implements __stub__ {
     /// The `float` value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter.
     public static final float PI = 3.1415926535897932384626433832795028841971f;
 
+    /// @brief
     /// Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
+    ///
+    /// @param
+    ///deg An angle expressed in degrees.
+    ///
+    /// @return
+    /// An angle expressed in radians.
     public static float toRadians( float deg ){
         return (deg*PI) / 180.0f;
     }
@@ -22,6 +29,7 @@ public class Math implements __stub__ {
         return (a>b) ? a : b;
     }
 
+    /// @brief
     /// Returns the greater of two `float` values.
     ///
     /// @note This function is non-standard
@@ -29,6 +37,7 @@ public class Math implements __stub__ {
         return (a>b) ? a : b;
     }
 
+    /// @brief
     /// Returns the greater of two `uint` values.
     ///
     /// @note This function is non-standard
@@ -36,6 +45,7 @@ public class Math implements __stub__ {
         return (a>b) ? a : b;
     }
 
+    /// @brief
     /// Returns the greater of two `byte` values.
     ///
     /// @note This function is non-standard
@@ -53,6 +63,7 @@ public class Math implements __stub__ {
         return (a<b) ? a : b;
     }
 
+    /// @brief
     /// Returns the lesser of two `float` values.
     ///
     /// @note This function is non-standard
@@ -60,6 +71,7 @@ public class Math implements __stub__ {
         return (a<b) ? a : b;
     }
 
+    /// @brief
     /// Returns the lesser of two `uint` values.
     ///
     /// @note This function is non-standard
@@ -67,6 +79,7 @@ public class Math implements __stub__ {
         return (a<b) ? a : b;
     }
 
+    /// @brief
     /// Returns the lesser of two `byte` values.
     ///
     /// @note This function is non-standard
@@ -125,18 +138,29 @@ public class Math implements __stub__ {
         return rng.nextInt(max-min) + min;
     }
 
+    /// @brief
     /// Returns the trigonometric cosine of an angle.
+    /// The angle must be expressed in radians.
     public static float cos( float angle ){}
 
+    /// @brief
     /// Returns the trigonometric sine of an angle.
+    /// The angle must be expressed in radians.
     public static float sin( float angle ){
         return cos( angle - PI*0.5f );
     }
 
+    /// @brief
     /// Returns the angle theta from the conversion of rectangular coordinates (x, y) to polar coordinates (r, theta).
+    ///
+    /// @details
+    /// The returned value is the arctangent of the quotient of its arguments, as a numeric value between `-PI` and `PI` radians. The number returned represents the anticlockwise/counterclockwise angle in radians between the positive x axis and the point (x, y).
+    ///
+    /// @return
+    /// An angle expressed in radians, between the values of `-PI` and `PI`.
     public static float atan2( float y, float x ){}
 
-    /// Returns the correctly rounded positive square root of a `float` value.
+    /// Returns the square root of a `float` value.
     public static float sqrt( float x ){
         uint t, q, b, r;
         r = __inline_cpp__("x.getInternal()");
