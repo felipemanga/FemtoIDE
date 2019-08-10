@@ -1,6 +1,17 @@
 
 let unitId = 1;
-let depth = 0;
+let depth = 0, note = "";
+let stack = [];
+
+function push(id){
+    stack.push(id + "/" + note);
+}
+
+function pop(){
+    stack.pop();
+    note = "";
+}
+
 class Unit {
     
     constructor(){
@@ -18,7 +29,7 @@ class Unit {
         if( !test )
             test = _=>true;
 
-        depth++;
+        push(this.id);
 
         if( typeof test != "function" ){
             throw new Error(`Type of test is ${typeof test}: ${test?test.constructor.name:test}`);
@@ -34,8 +45,8 @@ class Unit {
         else
             fqcn = [...fqcn];
         
-        if( depth==20 ){
-            // throw new Error(`d=10: ${fqcn.join(".")}`);
+        if( stack.length==50 ){
+            throw new Error(`Could not find "${fqcn.join(".")}"\n${stack.join(', ')}`);
         }
 
         let srcfqcn = [...fqcn];
@@ -46,6 +57,7 @@ class Unit {
             while( scope && !ret ){
                 if( scope.resolve ){
                     trail.length = len;
+                    note = "scope " + scope.name;
                     ret = scope.resolve( fqcn, trail, test );
                 }
                 scope = scope.scope;
@@ -61,7 +73,7 @@ class Unit {
                     oscope = oscope.scope;
                 }
             }
-            depth--;
+            pop();
             return ret;
         }else{
 
@@ -74,10 +86,11 @@ class Unit {
                     if( !type.resolve ){
                         console.error("Error: ", type, fqcn);
                     }
+                    note = "no-scope";
                     ret = type.resolve(fqcn.splice(1,fqcn.length), trail, test);
                 }
                 else{
-                    depth--;
+                    pop();
                     return type;
                 }
             }
@@ -95,11 +108,13 @@ class Unit {
                 dirs.pop();
             }
             if( unit && unit != this ){
+                note = "ast";
                 ret = unit.resolve(path, trail, test, null);
             }
         }
 
         if( !ret ){
+            const {toAST} = require("./AST.js");
             for( let impdecl of this.imports ){
                 let imp = impdecl.fqcn;
                 if( impdecl.star ){
@@ -108,9 +123,19 @@ class Unit {
                     scope = null;
                     let cfqcn = [...fqcn];
                     cfqcn.shift();
-                    ret = this.resolve([...imp, ...cfqcn], trail, test, null);
-                    if( ret )
-                        break;
+                    let dirs = [...this.name];
+                    let path, unit;
+                    while( !unit ){
+                        path = [ ...dirs, ...imp, ...cfqcn ];
+                        unit = toAST(path);
+                        if( !dirs.length ) break;
+                        dirs.pop();
+                    }
+                    if( unit && unit != this ){
+                        ret = unit.resolve(path, trail, test, null);
+                        if( ret )
+                            break;
+                    }
                 }
             }
         }
@@ -122,6 +147,7 @@ class Unit {
                     continue;
 
                 let cfqcn = [...impdecl.fqcn, ...fqcn];
+                note = "more-imports";
                 ret = this.resolve( cfqcn, trail, test, null );
 
                 if( ret )
@@ -131,10 +157,10 @@ class Unit {
 
         
         if( !ret ){
-            throw new Error( "Could not find " + srcfqcn.join(".") );
+            throw new Error( "Could not find \"" + srcfqcn.join(".") + "\"");
         }
         
-        depth--;
+        pop();
         return ret;
     }
 
