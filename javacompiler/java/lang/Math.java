@@ -7,6 +7,9 @@ public class Math implements __stub__ {
     /// The `float` value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter.
     public static final float PI = 3.1415926535897932384626433832795028841971f;
 
+    /// The `float` value that is closer than any other to e, the base of the natural logarithms.
+    public static final float E = 2.7182818284590452353602874713526624977572f;
+
     /// @brief
     /// Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
     ///
@@ -19,6 +22,18 @@ public class Math implements __stub__ {
         return (deg*PI) / 180.0f;
     }
 
+    /// @brief
+    /// Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
+    ///
+    /// @param
+    /// radians An angle expressed in radians.
+    ///
+    /// @return
+    /// An angle expressed in degrees.
+    public static float toDegrees( float radians ){
+        return ((radians * 180.0f) / PI);
+    }
+
     /// Returns the greater of two `double` values.
     public static double max( double a, double b ){
         return (a>b) ? a : b;
@@ -29,11 +44,13 @@ public class Math implements __stub__ {
         return (a>b) ? a : b;
     }
 
-    /// @brief
     /// Returns the greater of two `float` values.
-    ///
-    /// @note This function is non-standard
     public static float max( float a, float b ){
+        return (a>b) ? a : b;
+    }
+
+    /// Returns the greater of two `long` values.
+    public static long max( long a, long b ){
         return (a>b) ? a : b;
     }
 
@@ -63,11 +80,13 @@ public class Math implements __stub__ {
         return (a<b) ? a : b;
     }
 
-    /// @brief
     /// Returns the lesser of two `float` values.
-    ///
-    /// @note This function is non-standard
     public static float min( float a, float b ){
+        return (a<b) ? a : b;
+    }
+
+    /// Returns the lesser of two `long` values.
+    public static long min( long a, long b ){
         return (a<b) ? a : b;
     }
 
@@ -179,5 +198,17 @@ public class Math implements __stub__ {
         }
         q >>= 12;
         return __inline_cpp__("up_java::up_lang::uc_float::fromInternal(q)");
+    }
+
+    /// @brief
+    /// Returns the signum function of the argument; zero if the argument is zero,
+    /// 1.0f if the argument is greater than zero, -1.0f if the argument is less than zero. 
+    public static float signum( float f ){
+        // Get the internal fixed point representation as a signed integer.
+        int internal = (int)__inline_cpp__("f.getInternal()");
+
+        // The rest of the logic works as normal,
+        // no pesky `NaN`s or `-0.0f`s to worry about.
+        return (internal == 0) ? 0.0f : (internal < 0) ? -1.0f : 1.0f;
     }
 }
