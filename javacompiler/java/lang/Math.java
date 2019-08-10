@@ -19,6 +19,18 @@ public class Math implements __stub__ {
         return (deg*PI) / 180.0f;
     }
 
+    /// @brief
+    /// Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
+    ///
+    /// @param
+    /// radians An angle expressed in radians.
+    ///
+    /// @return
+    /// An angle expressed in degrees.
+    public static float toDegrees( float radians ){
+        return ((radians * 180.0f) / PI);
+    }
+
     /// Returns the greater of two `double` values.
     public static double max( double a, double b ){
         return (a>b) ? a : b;
