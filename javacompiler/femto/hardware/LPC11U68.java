@@ -1,6 +1,9 @@
 package femto.hardware;
 
 public class LPC11U68 {
+    public static final pointer  SCS_BASE = (pointer) 0xE000E000;
+    public static final pointer  NVIC_BASE = (pointer) 0xE000E100;
+    
     public static final pointer  SYSPLLCTRL = (pointer) 0x40048008;
     public static final pointer  SYSOSCCTRL = (pointer) 0x40048020;
     public static final pointer  SYSPLLCLKSTAT = (pointer) 0x4004800C;
@@ -199,4 +202,73 @@ public class LPC11U68 {
      
     public static final pointer  ARM_NVIC_ISER = (pointer) 0xe000e100;
     public static final pointer AIRCR = (pointer) 0xE000ED0C;
+
+    public static final pointer PMU_BASE = (pointer) 0x40038000;
+    public static final pointer IOCON_BASE = (pointer) 0x40044000;
+    public static final pointer SYSCTL_BASE = (pointer) 0x40048000;
+    public static final pointer GPIO_PORT_BASE = (pointer) 0xA0000000;
+    public static final pointer GPIO_P0_BASE = (pointer) 0xA0000000;
+    public static final pointer GPIO_P1_BASE = (pointer) 0xA0000020;
+    public static final pointer GPIO_P2_BASE = (pointer) 0xA0000040;
+    public static final pointer GPIO_GROUP_INT0_BASE = (pointer) 0x4005C000;
+    public static final pointer GPIO_GROUP_INT1_BASE = (pointer) 0x40060000;
+    public static final pointer PIN_INT_BASE = (pointer) 0xA0004000;
+    public static final pointer USART0_BASE = (pointer) 0x40008000;
+    public static final pointer USART1_BASE = (pointer) 0x4006C000;
+    public static final pointer USART2_BASE = (pointer) 0x40070000;
+    public static final pointer USART3_BASE = (pointer) 0x40074000;
+    public static final pointer USART4_BASE = (pointer) 0x4004C000;
+    public static final pointer I2C0_BASE = (pointer) 0x40000000;
+    public static final pointer I2C1_BASE = (pointer) 0x40020000;
+    public static final pointer SSP0_BASE = (pointer) 0x40040000;
+    public static final pointer SSP1_BASE = (pointer) 0x40058000;
+    public static final pointer USB0_BASE = (pointer) 0x40080000;
+    public static final pointer ADC_BASE = (pointer) 0x4001C000;
+    public static final pointer SCT0_BASE = (pointer) 0x5000C000;
+    public static final pointer SCT1_BASE = (pointer) 0x5000E000;
+    public static final pointer TIMER16_0_BASE = (pointer) 0x4000C000;
+    public static final pointer TIMER16_1_BASE = (pointer) 0x40010000;
+    public static final pointer TIMER32_0_BASE = (pointer) 0x40014000;
+    public static final pointer TIMER32_1_BASE = (pointer) 0x40018000;
+    public static final pointer RTC_BASE = (pointer) 0x40024000;
+    public static final pointer WWDT_BASE = (pointer) 0x40004000;
+    public static final pointer DMA_BASE = (pointer) 0x50004000;
+    public static final pointer CRC_BASE = (pointer) 0x50000000;
+    public static final pointer FLASH_BASE = (pointer) 0x4003C000;
+    public static final pointer DMATRIGMUX_BASE = (pointer) 0x40028000;
+
+    public static class SYSCTL_CLOCK {
+	public static final int SYS = 0;
+        public static final int ROM = 1;
+        public static final int RAM0 = 2;
+        public static final int FLASHREG = 3;
+        public static final int FLASHARRAY = 4;
+        public static final int I2C0 = 5;
+        public static final int GPIO = 6;
+        public static final int CT16B0 = 7;
+        public static final int CT16B1 = 8;
+        public static final int CT32B0 = 9;
+        public static final int CT32B1 = 10;
+        public static final int SSP0 = 11;
+        public static final int UART0 = 12;
+        public static final int ADC = 13;
+        public static final int USB = 14;
+        public static final int WDT = 15;
+        public static final int IOCON = 16;
+        public static final int RESERVED17 = 17;
+        public static final int SSP1 = 18;
+        public static final int PINT = 19;
+        public static final int USART1 = 20;
+        public static final int USART2 = 21;
+        public static final int USART3_4 = 22;
+        public static final int P0INT = 23;
+        public static final int P1INT = 24;
+        public static final int I2C1 = 25;
+        public static final int RAM1 = 26;
+        public static final int USBRAM = 27;
+        public static final int CRC = 28;
+        public static final int DMA = 29;
+        public static final int RTC = 30;
+        public static final int SCT0_1 = 31;
+    }
 }
