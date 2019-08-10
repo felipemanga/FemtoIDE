@@ -177,7 +177,7 @@ public class Math implements __stub__ {
     ///
     /// @return
     /// An angle expressed in radians, between the values of `-PI` and `PI`.
-    public static float atan2( float y, float x ){}
+    public static float atan2( float fy, float fx ){}
 
     /// Returns the square root of a `float` value.
     public static float sqrt( float x ){
