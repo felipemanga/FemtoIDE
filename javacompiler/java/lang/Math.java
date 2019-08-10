@@ -29,10 +29,7 @@ public class Math implements __stub__ {
         return (a>b) ? a : b;
     }
 
-    /// @brief
     /// Returns the greater of two `float` values.
-    ///
-    /// @note This function is non-standard
     public static float max( float a, float b ){
         return (a>b) ? a : b;
     }
@@ -63,10 +60,7 @@ public class Math implements __stub__ {
         return (a<b) ? a : b;
     }
 
-    /// @brief
     /// Returns the lesser of two `float` values.
-    ///
-    /// @note This function is non-standard
     public static float min( float a, float b ){
         return (a<b) ? a : b;
     }
