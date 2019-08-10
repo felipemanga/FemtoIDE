@@ -180,12 +180,17 @@ class Unit {
     }
     
     binary( data, name, extension ){
+        const clazz = this.clazz(name);
+        clazz.binary( data, extension );
+    }
+
+    clazz( name ){
         this.name = [...name];
         let clazzName = this.name.pop();
         const Clazz = require("./Clazz.js");
         const clazz = new Clazz( clazzName, this );
-        clazz.binary( data, extension );
-        this.types.push( clazz );        
+        this.types.push( clazz );
+        return clazz;
     }
 
     staticImage( sprite, name, interfaces ){

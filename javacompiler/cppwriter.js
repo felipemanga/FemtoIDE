@@ -1212,6 +1212,17 @@ function writeRawData( data ){
     return out;
 }
 
+function writeStreamData( data, index, end ){
+    let out = "static const uint8_t d[] = {\n";
+    for( let i=0; i<data.length; ++i ){
+        out += `0x` + data[i].toString(16) + ",";
+    }
+    out += "\n};\n";
+    out += `if( ${index} < 0 || ${index} >= sizeof(d) ) return ${end};\n`;
+    out += `return d[${index}++];\n`;
+    return out;
+}
+
 function writeStringData( data ){
     let out = "static const char d[] = \"";
     out += JSON.stringify(data);
@@ -1239,9 +1250,11 @@ function writeBlock( block ){
     if( block.sprite )
         out += require("./cppSprite.js")( block );
 
-    if( block.rawData ){
+    if( block.rawData )
         out += writeRawData( block.rawData );
-    }
+
+    if( block.stream )
+        out += writeStreamData( block.stream, block.index, block.endOfData|0 );
 
     if( block.xmlData )
         out += require("./cppXML.js")( block.xmlData );

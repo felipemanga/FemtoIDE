@@ -28,17 +28,17 @@ class Ref {
             try{
                 this.target = unit.resolve( this.name, this.trail, t=>!t.isType, this.scope );
             }catch(ex){
-                if( this.location && this.location.startLine ){
+                if( this.location && this.location.startLine && ex.message ){
                     throw new Error(
                         this.location.unit +
                             ", line " + this.location.startLine +
                             ", column " + this.location.startColumn +
-                            ": " + ex.message
+                            ": " + (ex.message || ex)
                     );
                 }else if( this.location ){
                     throw new Error(
                         this.location.unit +
-                            ": " + ex.message
+                            ": " + (ex.message || ex)
                     );                    
                 }else
                     throw ex;

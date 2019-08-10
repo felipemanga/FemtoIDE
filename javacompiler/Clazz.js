@@ -591,16 +591,45 @@ class Clazz extends Type {
     }
 
     binary( data, extension ){
-        let method = new Method(null, this);
-        this.methods.push( method );
-        method.isPublic = true;
-        method.isStatic = true;
-        method.artificial(
-            new TypeRef(["pointer"], false, this),
+        this.addArtificial(
+            "pointer",
             extension,
             [],
             {rawData:data}
+        ).isStatic = true;
+    }
+
+    addArtificial( retType, name, args, innards ){
+
+        if( typeof retType == "string" )
+            retType = this.getTypeRef(retType);
+        
+        let method = new Method(null, this);
+
+        this.methods.push( method );
+        method.isPublic = true;
+        method.artificial(
+            retType,
+            name,
+            args.map(arg=>this.getTypeRef(arg)),
+            innards
         );
+
+        return method;
+    }
+
+    getTypeRef( name, useParentScope ){
+        if( typeof name == "object" )
+            return name;
+        
+        let isArray = false;
+        name = name.trim();
+        if( name.endsWith("[]") ){
+            isArray = true;
+            name = name.substr(0, name.length-2);
+        }
+
+        return new TypeRef(name.split("."), isArray, useParentScope ? this.scope : this);
     }
 }
 

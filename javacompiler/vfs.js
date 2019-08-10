@@ -146,9 +146,15 @@ let src = {
         State:read("/femto/State.java", "utf-8"),
         StateMachine:read("/femto/StateMachine.java", "utf-8"),
         Game:read("/femto/Game.java", "utf-8"),
+
+        sound:{
+            Mixer:read("/femto/sound/Mixer.java", "utf-8"),
+            Procedural:read("/femto/sound/Procedural.java", "utf-8"),
+        },
         
         hardware:{
             IRQ:read("/femto/hardware/IRQ.java", "utf-8"),
+            Timer:read("/femto/hardware/Timer.java", "utf-8"),
             LPC11U68:read("/femto/hardware/LPC11U68.java", "utf-8"),
             ST7775:read("/femto/hardware/ST7775.java", "utf-8"),
             EXT:read("/femto/hardware/EXT.java", "utf-8"),

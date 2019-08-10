@@ -1,6 +1,9 @@
 Object.assign(encoding, {
     "PNG":null,
-    "BIN":null
+    "BIN":null,
+    "MP3":null,
+    "OGG":null,
+    "WAV":null
 });
 
 APP.addPlugin("BuildJava", ["Build"], _ => {
@@ -80,6 +83,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                  || f.type=="BIN"
                  || f.type=="XML"
                  || f.type=="TXT"
+                 || f.type=="MP3"
+                 || f.type=="WAV"
+                 || f.type=="OGG"
                 ),
                 compileJava.bind(null, cb, files) );
         }
@@ -119,11 +125,11 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         });
         
         Object.keys(files).forEach( file => {
-            let ext = file.match(/\.([a-z]+)$/i);
+            let ext = file.match(/\.([a-z0-9]+)$/i);
             if( !ext )
                 return;
             let parserExt = ext[1];
-            let parser = parsers[ ext[1] ];
+            let parser = parsers[ ext[1].toLowerCase() ];
             if( !parser ){
                 parser = parsers.bin;
                 parserExt = "bin";
@@ -148,6 +154,11 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             }
 
             function onLoad( err, src ){
+                if( err ){
+                    pending.error();
+                    return;
+                }
+
                 let object = {
                     name:file,
                     filePath:file,
@@ -187,6 +198,34 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         }
 
         function registerParsers(){
+
+            parsers.wav={
+                run( src, name, type ){
+                    let unit = new Unit();
+                    const clazz = unit.clazz(name);
+                    clazz.extends = clazz.getTypeRef("femto.sound.Procedural", true);
+                    clazz.addArtificial("byte", "update", [], {
+                        stream:src,
+                        index:"t",
+                        endOfData:0 // or 127 for unsigned
+                    });
+                    return unit;
+                },
+
+                load( file, cb ){
+                    APP.readAudio((new Uint8Array(file.src)).buffer)
+                        .then(data=>{
+                            let uint8 = new Uint8Array(data);
+                            cb(null, uint8);
+                        })
+                        .catch(ex=>{
+                            cb(ex);
+                        });
+                }
+            };
+
+            parsers.mp3 = parsers.wav;
+            parsers.ogg = parsers.wav;
 
             parsers.bin={
                 run( src, name, type ){
