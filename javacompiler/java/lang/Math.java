@@ -7,6 +7,9 @@ public class Math implements __stub__ {
     /// The `float` value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter.
     public static final float PI = 3.1415926535897932384626433832795028841971f;
 
+    /// The `float` value that is closer than any other to e, the base of the natural logarithms.
+    public static final float E = 2.7182818284590452353602874713526624977572f;
+
     /// @brief
     /// Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
     ///
