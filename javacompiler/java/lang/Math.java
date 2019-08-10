@@ -34,6 +34,11 @@ public class Math implements __stub__ {
         return (a>b) ? a : b;
     }
 
+    /// Returns the greater of two `long` values.
+    public static long max( long a, long b ){
+        return (a>b) ? a : b;
+    }
+
     /// @brief
     /// Returns the greater of two `uint` values.
     ///
@@ -62,6 +67,11 @@ public class Math implements __stub__ {
 
     /// Returns the lesser of two `float` values.
     public static float min( float a, float b ){
+        return (a<b) ? a : b;
+    }
+
+    /// Returns the lesser of two `long` values.
+    public static long min( long a, long b ){
         return (a<b) ? a : b;
     }
 
