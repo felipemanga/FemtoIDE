@@ -68,15 +68,18 @@ out = *((uint8_t*)p);
         }
     }
 
+    /// Terminates the program.
     public static void exit(int num){
         __inline_cpp__("::__wrap_exit(num)");
     }
 
+    /// Runs the garbage collector.
     public static void gc(){
         __inline_cpp__("uc_Object::__gc__()");
     }
 
     private static long bootTime;
+
     public static long currentTimeMillis(){
         __inline_cpp__("
 #ifdef POKITTO
@@ -98,26 +101,32 @@ out = *((uint8_t*)p);
         return 0;
     }
 
+    /// Contains functions for manipulating the standard output stream.
     public static class out {
 
+        /// Prints a `String` to the standard output stream.
         public static void print( String s ){
             __inline_cpp__("__print__(s->__c_str())");
         }
 
+        /// Prints an `int` to the standard output stream.
         public static void print( int s ){
             __inline_cpp__("__print__((int) s)");
         }
 
+        /// Prints a `String` to the standard output stream, and then terminates the line.
         public static void println( String s ){
             __inline_cpp__("__print__(s->__c_str())");
             __inline_cpp__("__print__(\"\\n\")");
         }
 
+        /// Prints a `long` to the standard output stream, and then terminates the line.
         public static void println( long s ){
             __inline_cpp__("__print__((int) s)");
             __inline_cpp__("__print__(\"\\n\")");
         }
 
+        /// Prints a `float` to the standard output stream, and then terminates the line.
         public static void println( float s ){
             __inline_cpp__("__print__( s)");
             __inline_cpp__("__print__(\"\\n\")");

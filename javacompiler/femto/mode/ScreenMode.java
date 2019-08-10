@@ -2,13 +2,21 @@ package femto.mode;
 
 import static java.lang.System.memory.*;
 
-class ScreenMode {
+public class ScreenMode {
+
+    /// The font used by this screen mode.
     public pointer font;
+
     public int textLeftLimit, textRightLimit, lineSpacing, charSpacing;
+
     public float textX, textY;
+
     public int textColor;
+
     public float cameraX = 0.0f, cameraY = 0.0f;
+
     public int lastFrameTime, frameTimeUpdate;
+
     public static int frameTime = 64000;
 
     ScreenMode(){
@@ -23,12 +31,18 @@ class ScreenMode {
         frameTimeUpdate = 64;
     }
 
+    /// @brief
+    /// Returns an int with the average framerate.
+    ///
+    /// @note
+    /// The returned value is inaccurate for the first 64 frames.
     public float fps(){
         float f = 64000.0f;
         f /= frameTime;
         return f;
     }
 
+    /// Copies the framebuffer data to the LCD.
     public void flush(){
         if( frameTimeUpdate-- ) return;
         frameTimeUpdate = 64;
@@ -37,18 +51,24 @@ class ScreenMode {
         lastFrameTime = now;
     }
 
+    /// Sets the coordinates for text drawing.
     public void setTextPosition( float x, float y ){
         textX = x;
         textY = y;
     }
 
+    /// Sets the color used for text drawing.
     public void setTextColor( int color ){
         textColor = color;
     }
 
+    /// Returns the width of the screen in pixels (varies per screen mode).
     abstract public uint width();
+
+    /// Returns the height of the screen in pixels (varies per screen mode).
     abstract public uint height();
-    
+
+    /// Plots a pixel in the framebuffer. Does not take camera offset into consideration.
     public void setPixel( float x, float y, int color, boolean isStatic ){
         if( !isStatic ){
             x -= cameraX;
@@ -357,6 +377,7 @@ class ScreenMode {
         }
     }
 
+    /// Draws a filled triangle.
     public void fillTriangle( int x0, int y0,
                               int x1, int y1,
                               int x2, int y2,
