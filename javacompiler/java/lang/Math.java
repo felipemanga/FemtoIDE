@@ -196,4 +196,16 @@ public class Math implements __stub__ {
         q >>= 12;
         return __inline_cpp__("up_java::up_lang::uc_float::fromInternal(q)");
     }
+
+    /// @brief
+    /// Returns the signum function of the argument; zero if the argument is zero,
+    /// 1.0f if the argument is greater than zero, -1.0f if the argument is less than zero. 
+    public static float signum( float f ){
+        // Get the internal fixed point representation as a signed integer.
+        int internal = (int)__inline_cpp__("f.getInternal()");
+
+        // The rest of the logic works as normal,
+        // no pesky `NaN`s or `-0.0f`s to worry about.
+        return (internal == 0) ? 0.0f : (internal < 0) ? -1.0f : 1.0f;
+    }
 }
