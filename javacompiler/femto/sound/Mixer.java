@@ -9,6 +9,8 @@ public class Mixer {
     private static Procedural channel1;
     private static Procedural channel2;
     private static Procedural channel3;
+    private static int multiplier = 1;
+    private static int shifter = 0;
 
     public static void init( int frequency ){
         if( frequency <= 0 )
@@ -39,17 +41,28 @@ public class Mixer {
         proc.reset();
     }
 
+    public static void setVolume(int volume){
+        switch(volume){
+        case 0: multiplier = 0; shifter = 0; return;
+        case 1: multiplier = 1; shifter = 2; return;
+        case 2: multiplier = 1; shifter = 0; return;
+        case 3: multiplier = 2; shifter = 0; return;
+        case 4: multiplier = 4; shifter = 0; return;
+        }
+    }
+
     @IRQ(name="TIMER32_0")
     public static void onIRQ(){
         if( !Timer.match(0) ) return;
 
         int out = 0;
-        if( channel0 ) out += channel0.update();
-        if( channel1 ) out += channel1.update();
-        if( channel2 ) out += channel2.update();
-        if( channel3 ) out += channel3.update();
+        if( channel0 ) out += channel0.update() - 128;
+        if( channel1 ) out += channel1.update() - 128;
+        if( channel2 ) out += channel2.update() - 128;
+        if( channel3 ) out += channel3.update() - 128;
 
-        out += 128;
+        out = (out*multiplier>>shifter) + 128;
+
         if( out < 0 ) out = 0;
         if( out > 255 ) out = 255;
 

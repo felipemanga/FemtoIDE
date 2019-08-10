@@ -112,7 +112,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         
         registerParsers();
 
-        let pending = new Pending(onDoneLoadingVFS);
+        let pending = new Pending(onDoneLoadingVFS, onDone);
         
         let mainClass = DATA.project.javaFlags.mainClass;
 
@@ -155,7 +155,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             function onLoad( err, src ){
                 if( err ){
-                    pending.error();
+                    pending.error(err);
                     return;
                 }
 
@@ -204,10 +204,13 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     let unit = new Unit();
                     const clazz = unit.clazz(name);
                     clazz.extends = clazz.getTypeRef("femto.sound.Procedural", true);
-                    clazz.addArtificial("byte", "update", [], {
+
+                    clazz.addForwardingConstructors();
+
+                    clazz.addArtificial("ubyte", "update", [], {
                         stream:src,
                         index:"t",
-                        endOfData:0 // or 127 for unsigned
+                        endOfData:128
                     });
                     return unit;
                 },

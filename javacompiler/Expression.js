@@ -10,7 +10,8 @@ class Expression {
         this.scope = scope;
         this.unit = require("./Unit.js").getUnit(scope);
         srcExpr = expr;
-        this.dispatch(expr, opts);
+        if( expr )
+            this.dispatch(expr, opts);
     }
 
     getString(){

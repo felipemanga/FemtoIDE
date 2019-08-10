@@ -618,6 +618,25 @@ class Clazz extends Type {
         return method;
     }
 
+    addForwardingConstructors(){
+        const {Expression} = require("./Expression.js");
+        const {Ref} = require("./Ref.js");
+
+        const base = this.extends.getTarget();
+        base.methods
+            .filter(m=>m.isConstructor)
+            .forEach(c=>{
+                let nc = new Constructor(this.name, this);
+                c.parameters.forEach(p =>{
+                    nc.parameters.push(p);
+                    nc.superArgs.push(new Ref([p.name], nc));
+                });
+
+                this.methods.push(nc);
+                this.hasConstructor = true;
+            });
+    }
+
     getTypeRef( name, useParentScope ){
         if( typeof name == "object" )
             return name;

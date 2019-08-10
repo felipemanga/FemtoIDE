@@ -7,6 +7,7 @@ import femto.mode.Direct;
 import femto.Prompt;
 import femto.hardware.LPC11U68;
 import java.lang.Exception;
+import femto.sound.Mixer;
 
 class MenuState extends State {
     pointer font;
@@ -70,6 +71,7 @@ class MenuState extends State {
     void volume( Prompt prompt ){
         prompt.options = new String[]{"Off", "Low", "Medium", "Loud", "Very Loud"};
         int v = prompt.show();
+        Mixer.setVolume(v);
     }
 }
 
