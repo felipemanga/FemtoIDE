@@ -2060,7 +2060,7 @@ if (!Object.values) {
                         }
 
                         // a = 1.e-7 is valid, so we test for . then e in one loop
-                        if (allow_e && input.testChar(/[Ee]/)) {
+                        if (allow_e && input.testChar(/[EeFf]/)) {
                             c += input.next();
 
                             if (input.testChar(/[+-]/)) {
