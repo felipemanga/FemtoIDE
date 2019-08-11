@@ -27,7 +27,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
         sql`DROP TABLE IF EXISTS tags`;
     }
 */
-    let units;
+    let units, wasWarned = false;
 
     function reset(){
         units = {};
@@ -77,7 +77,9 @@ APP.addPlugin("VFS", ["Project"], _=>{
                 return undefined;
 
             if( !units ){
-                APP.error("Build project to create index");
+                if( !wasWarned )
+                    APP.error("Build project to create index");
+                wasWarned = true;
                 return null;
             }
             
