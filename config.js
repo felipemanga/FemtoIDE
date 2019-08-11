@@ -27,6 +27,7 @@ APP.bindKeys("global", {
     "M-w": APP.killRingSave,
     "M-x": _=>document.querySelector("#cmd").focus(),
     "C-M-f": APP.beautify,
+    "M-.": APP.jumpToDeclaration,
     
     "C-c": APP.copy,
     "C-x": APP.cut,

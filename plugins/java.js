@@ -5,6 +5,17 @@ APP.addPlugin("Java", ["Text"], TextView => {
         constructor( frame, buffer ){
             super(frame, buffer);
             this.ace.session.setMode("ace/mode/java");
+            ace.require("ace/ext/language_tools");
+            this.ace.setOptions({
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true
+            });
+
+            this.ace.completers = [{
+                getCompletions(editor, session, pos, prefix, callback) {
+                    callback(null, APP.complete() || []);
+                }
+            }];
         }
 
         beautify(){
@@ -12,6 +23,12 @@ APP.addPlugin("Java", ["Text"], TextView => {
                 return;
             let ret = js_beautify(this.ace.session.getValue());
             this.ace.session.setValue(ret);
+        }
+
+        complete(){
+            let pos = this.ace.getCursorPosition();
+            pos = this.ace.session.doc.positionToIndex(pos);
+            return APP.completionAtPoint(this.buffer, pos);
         }
     }
 

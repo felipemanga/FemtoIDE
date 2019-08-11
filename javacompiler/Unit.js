@@ -22,7 +22,7 @@ class Unit {
         this.file = "";
         this.isUnit = true;
         this.unit = this;
-        this.index = [];
+        this.index = [this];
     }
 
     resolve( fqcn, trail, test, scope ){

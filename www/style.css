@@ -83,3 +83,6 @@ div {
 .ace_content {
     cursor: text;
 }
+.ace_editor.ace_autocomplete {
+    width: 700px;
+}

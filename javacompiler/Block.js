@@ -10,6 +10,7 @@ class Block {
         this.unit = require("./Unit.js").getUnit(scope);
 
         if( node && node.children && node.children.blockStatement ){
+            getLocation(this, node);
             node.children.blockStatement.forEach( node => {
                 node = Object.values(node.children)[0][0];
                 this.addNode( node );

@@ -72,7 +72,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
             }
         }
 
-        findDeclaration(buffer, offset){
+        _findScope(buffer, offset){
             if( !buffer )
                 return undefined;
 
@@ -88,18 +88,132 @@ APP.addPlugin("VFS", ["Project"], _=>{
                 return null;
             }
             let next = unit.findIndex( entry => entry.location.startOffset > offset );
-            if( next == -1 ){
+            if( next == -1 )
                 next = unit.length;
+
+            let scope = unit[next-1];
+            if( !scope )
+                scope = unit;
+            while( !scope.resolve )
+                scope = scope.scope;
+            return scope;
+        }
+
+        completionAtPoint(buffer, offset){
+
+            let list = [];
+            let scope = this._findScope(buffer, offset);
+            if( !scope ) 
+                return list;
+
+            let identifier = this.getIdentifierUnderCursor(buffer, offset);
+
+            let incomplete = identifier.pop();
+
+            let entry = scope;
+            if( identifier.length ){
+                entry = null;
+                while( scope && !entry ){
+                    try{
+                        entry = scope.resolve(identifier, [], _=>true);
+                    }catch(ex){}
+                    scope = scope.scope;
+                }
             }
 
-            let entry = unit[next-1];
-            if( !entry ){
-                APP.error("Entry not found");
-                return null;
+            if( !entry )
+                return list;
+
+            if( identifier.length ){
+                list.push( ...search(entry) );
+            }else{
+                while( scope ){
+                    list.push( ...search(scope) );
+                    scope = scope.scope;
+                }
             }
 
-            if( entry.getTarget )
-                entry = entry.getTarget();
+            list = list.sort((a, b)=>a.score - b.score);
+
+            return list;
+
+            function search(entry){
+                if( entry.isField )
+                    entry = entry.type;
+                if( entry.isTypeRef )
+                    entry = entry.getTarget();
+
+                let partial = [];
+                if( entry.types && entry.types.length )
+                    partial.push(...filter(entry.types));
+                if( entry.methods && entry.methods.length )
+                    partial.push(...filter(entry.methods));
+                if( entry.fields && entry.fields.length )
+                    partial.push(...filter(entry.fields));
+                if( entry.parameters && entry.parameters.length )
+                    partial.push(...filter(entry.parameters));
+                if( entry.extends )
+                    partial.push(...search(entry.extends));
+                return partial;
+            }
+
+            function filter(list){
+                let out = [];
+                for( let entry of list ){
+                    let entryName = entry.name;
+                    if( entry.isConstructor || typeof entryName != "string" )
+                        continue;
+                    let isMatch = true;
+                    let score = 0;
+                    let pos = -1;
+                    for( let i=0; i<incomplete.length; ++i ){
+                        let ch = incomplete[i];
+                        let found = entryName.indexOf(ch, pos+1);
+                        if( found == -1 ){
+                            isMatch = false;
+                            break;
+                        }
+                        score += found - (pos+1);
+                        pos = found;
+                    }
+
+                    if( isMatch ){
+                        score += entryName.length - pos;
+                        let value = entryName;
+                        let meta = (entry.scope||{}).name||"";
+
+                        if( entry.isMethod ){
+                            entryName += `(${entry.parameters.map(p=>p.type.getTarget().name + " " + p.name).join(", ")})`;
+                            value += `(${entry.parameters.map(p=>p.name).join(", ")})`;
+                        }
+
+                        out.push({
+                            caption:entryName,
+                            value,
+                            meta,
+                            score
+                        });
+                    }
+                }
+                return out;
+            }
+
+        }
+
+        findDeclaration(buffer, offset){
+            let scope = this._findScope(buffer, offset);
+            if( !scope )
+                return [];
+
+            let identifier = this.getIdentifierUnderCursor(buffer, offset);
+
+            let entry;
+            while( scope && !entry ){
+                try{
+                    entry = scope.resolve(identifier, [], _=>true);
+                }catch(ex){}
+                scope = scope.scope;
+            }
 
             if( !entry || !entry.location ){
                 APP.error("Declaration not found");
@@ -107,6 +221,28 @@ APP.addPlugin("VFS", ["Project"], _=>{
             }
 
             return entry && entry.location;
+        }
+
+        getIdentifierUnderCursor(buffer, offset, autocomplete=false){
+            let start = offset;
+            let end = offset;
+            let str = buffer.data;
+            if( typeof buffer.transform == "string" )
+                str = APP[buffer.transform](buffer.data);
+
+            while( start && isIdentifierChar(str[start-1]) )
+                start--;
+
+            if( !autocomplete ){
+                while( end < str.length && isIdentifierChar(str[end]) )
+                    end++;
+            }
+
+            return str.substr(start, end - start).split(".");
+
+            function isIdentifierChar(c){
+                return /[a-zA-Z0-9_.]/.test(c);
+            }
         }
     });
 
