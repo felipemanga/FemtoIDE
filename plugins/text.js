@@ -132,10 +132,10 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         paste(){
-            this.ace.session.replace(
-                this.ace.selection.getRange(),
-                nw.Clipboard.get().get("text")
-            );
+            let range = this.ace.selection.getRange();
+            this.ace.selection.clearSelection();
+            this.ace.session.replace(range, "");
+            this.ace.session.insert(range.start, nw.Clipboard.get().get("text"));
         }
 
         toggleComment(){
