@@ -56,8 +56,9 @@ function writeForwardDecl( unit ){
 
         if( t.cppType == "enum class" ){
             out += `${indent}class ue_${t.name}{\n`;
-            out += `${indent}\tue_${t.name}(){}\n`;
+            out += `${indent}\tue_${t.name}(std::uint32_t o) : __ordinal__(o){}\n`;
             out += `${indent}\n${indent}public:\n`;
+            out += `${indent}\tconst std::uint32_t __ordinal__;\n`;
             push();
             t.constantList.forEach( c => {
                 out += `${indent}static ue_${t.name} ${c.name};\n`;
@@ -503,13 +504,17 @@ function writePath( expr, clean ){
                 next = "->";
                 break;
             }
+            out += next + n.name;
+            next = "->";
+            break;
+
+        case "EnumConstant":
+            out = "&" + out;
+            out += next + n.name;
+            next = "->";
+            break;
             
         default:
-            if( isInEnum ){
-                out = "&" + out;
-                isInEnum = false;
-            }
-
             out += next + n.name;
             next = "->";
             break;
@@ -673,7 +678,7 @@ function writeExpression( expr, typeHint ){
         break;
         
     case "resolve":
-        let p =  writePath(expr);
+        let p = writePath(expr);
         out += p;
         if( !expr.trail || !expr.trail.length ){
             console.log("Error: ", expr);
@@ -1002,13 +1007,37 @@ function writeStatement( stmt, block, noSemicolon ){
         break;
         
     case "switchStatement":
+        let e = writeExpression(stmt.expression);
+        let type = e.type.getTarget();
         out += indent + "switch( ";
-        out += writeExpression(stmt.expression).out;
+        let switchScope = null;
+        if( type.isEnum ){
+            out += `(${e.out})->__ordinal__`;
+            switchScope = type;
+        }else if( type.isNative ){
+            out += e.out;
+        }else{
+            throw new Error(`Invalid type in switch: ${Object.keys(type)}`);
+        }
+
         out += " ){\n";
+
         stmt.cases.forEach( c => {
             if( c.value ){
                 out += `${indent}case `;
-                out += writeExpression(c.value).out;
+
+                if( switchScope ){
+                    c.value.left.scope = switchScope;
+                }
+
+                let e = writeExpression(c.value);
+                let type = e.type;
+                if( type.getTarget )
+                    type = type.getTarget();
+                if( type.isEnum )
+                    out += c.value.left.getTarget().ordinal;
+                else
+                    out += e.out;
             }else{
                 out += `${indent}default`;
             }
@@ -1017,7 +1046,9 @@ function writeStatement( stmt, block, noSemicolon ){
             out += writeBlock(c.block);
             pop();
         });
+
         out += `${indent}}\n`;
+
         break;
 
     case "statementExpression":
@@ -1308,7 +1339,7 @@ function writeClassImpl( unit ){
         if( t.cppType == "enum class" ){
             out += `${indent}// ${t.name} enum values\n`;
             t.constantList.forEach( c => {
-                out += `${indent}ue_${t.name} ue_${t.name}::${c.name};\n`;
+                out += `${indent}ue_${t.name} ue_${t.name}::${c.name}(${c.ordinal});\n`;
             });            
         }
 
