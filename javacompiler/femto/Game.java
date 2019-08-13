@@ -59,11 +59,13 @@ class MenuState extends State {
     
     void statistics( Prompt prompt ){
         System.gc();
+        int size;
+        __inline_cpp__("size = uint32_t(&_codesize) / 1024");
         prompt.options = new String[]{
             "FPS: " + (64000.0f / ScreenMode.frameTime),
             "Total RAM: " + (Runtime.getRuntime().totalMemory() / 1024) + "KB",
             "Free RAM: " + (Runtime.getRuntime().freeMemory() / 1024) + "KB",
-            "Code: " + __inline_cpp__("uint32_t(&_codesize) / 1024") + "KB"
+            "Code: " + size + "KB"
         };
         prompt.show();
     }

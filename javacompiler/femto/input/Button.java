@@ -8,13 +8,13 @@ import femto.hardware.IRQ;
 public class Button {
     byte port;
     byte bit;
-    byte state;
+    boolean state;
 
     ButtonListener listener;
 
-    Button( uint port, uint bit ){
-        this.port = port;
-        this.bit = bit;
+    Button( int port, int bit ){
+        this.port = (byte) port;
+        this.bit = (byte) bit;
     }
 
     /// Registers the specified `ButtonListener` to this button.
@@ -28,8 +28,8 @@ public class Button {
         this.listener = null;
     }
 
-    public uint intpin(){
-        uint r = bit;
+    public int intpin(){
+        int r = bit;
         if( port == 1 ) r += 24;
         else if( port == 2 ) r += 56;
         return r;
@@ -66,9 +66,7 @@ public class Button {
     /// Returns `true` if the button has just transition from being released to being pressed.
     public boolean justPressed(){
         var newState = isPressed();
-        var ret = false;
-        if( newState && !state )
-            ret = true;
+        var ret = newState && !state;
         state = newState;
         return ret;
     }
@@ -76,7 +74,7 @@ public class Button {
     /// Returns `true` if the button is pressed.
     public boolean isPressed(){
         pointer addr = LPC11U68.GPIO_BYTE;
-        addr += port*0x20;
+        addr += port * 0x20;
         addr += bit;
         return LDRB( addr ) != 0;
     }

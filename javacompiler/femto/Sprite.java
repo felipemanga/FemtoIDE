@@ -9,7 +9,8 @@ public class Sprite implements __stub__ {
 
     Sprite(){
         x = y = 0;
-        currentFrame = startFrame = endFrame = frameTime = 0;
+        currentFrame = startFrame = endFrame = 0;
+        frameTime = (uint) 0;
         flags = 0;
     }
 
@@ -37,15 +38,15 @@ public class Sprite implements __stub__ {
     /// @see
     /// Sprite::setStatic()
     public boolean isStatic(){
-        return (boolean) (flags & 1);
+        return (flags & 1) != 0;
     }
 
     public boolean isMirrored(){
-        return (boolean) (flags & 2);
+        return (flags & 2) != 0;
     }
 
     public boolean isFlipped(){
-        return (boolean) (flags & 4);
+        return (flags & 4) != 0;
     }
 
     /// @brief
@@ -89,7 +90,7 @@ public class Sprite implements __stub__ {
         boolean mirror = flags&2;
         boolean flip = flags&4;
 
-        if( !(flags&1) ){
+        if( (flags&1) == 0 ){
             x -= screen.cameraX;
             y -= screen.cameraY;
         }
@@ -125,9 +126,13 @@ __blit_4bpp(
             int delta = now - frameTime;
             pointer frameData;
 
-            while( __inline_cpp__("((up_femto::uc_FrameRef*)(frameData=getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_HiRes16Color*)nullptr)))->duration") < delta ){
+            while( true ){
+                int duration;
+                __inline_cpp__("duration = ((up_femto::uc_FrameRef*)(getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_HiRes16Color*)nullptr)))->duration");
+                if( duration >= delta )
+                    break;
+                
                 currentFrame++;
-                int duration = __inline_cpp__("((up_femto::uc_FrameRef*)frameData)->duration");
                 delta -= duration;
 
                 if( currentFrame > endFrame )

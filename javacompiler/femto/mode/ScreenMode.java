@@ -20,14 +20,14 @@ public class ScreenMode {
     public static int frameTime = 64000;
 
     ScreenMode(){
-        font = 0;
+        font = null;
         textLeftLimit = 0;
         textRightLimit = 0;
         lineSpacing = 1;
         charSpacing = 1;
         textX = textY = 0;
         textColor = 1;
-        lastFrameTime = System.currentTimeMillis();
+        lastFrameTime = (int) System.currentTimeMillis();
         frameTimeUpdate = 64;
     }
 
@@ -47,7 +47,7 @@ public class ScreenMode {
         if( frameTimeUpdate-- ) return;
         frameTimeUpdate = 64;
         uint now = System.currentTimeMillis();
-        frameTime = now - lastFrameTime;
+        frameTime = now - (uint) lastFrameTime;
         lastFrameTime = now;
     }
 
@@ -242,7 +242,7 @@ public class ScreenMode {
         int height = (int) this.height();
         int width = (int) this.width();
         
-        if ((uint)x0 >= width || (uint)y0 >= height || (uint)x1 >= width || (uint)y1 >= height ) {
+        if ((uint)x0 >= (uint)width || (uint)y0 >= (uint)height || (uint)x1 >= (uint)width || (uint)y1 >= (uint)height ) {
 
             {
                 // Check X bounds
@@ -475,22 +475,26 @@ public class ScreenMode {
     
     public void print( String s ){
         int h = textHeight();
-        int i=0;
+        int i = 0;
         char c;
         while(true){
             c = s[i++];
-            if(!c) return;
+
+            if( c == 0 )
+                return;
+
             if( c == '\n' ){
                 textX = textLeftLimit;
                 textY += h;
                 continue;
             }
+
             putchar(c);
         }
     }
 
     public void print( uint v ){
-        if( !v ){
+        if( v == 0 ){
             putchar('0');
             return;
         }
@@ -499,7 +503,7 @@ public class ScreenMode {
     }
 
     public void print( int v ){
-        if( !v ){
+        if( v == 0 ){
             putchar('0');
             return;
         }
@@ -529,12 +533,12 @@ while(*c)
     }
     
     public void putchar( char index ){
-        if( !font || textY >= (int)height() ) return;
+        if( font == null || textY >= (int)height() ) return;
         uint screenWidth = width();
         uint screenHeight = height();
         uint w = LDRB( font );
         uint h = LDRB( font+1 );
-        index -= LDRB( font+2 );
+        index -= (char) LDRB( font+2 );
         uint x = (int) textX;
         uint y = (int) textY;
         uint color = textColor;
@@ -549,8 +553,8 @@ while(*c)
         for( int i=0; i<numBytes; ++i ){
             column = LDRB(bitmap++);
             if(x < screenWidth){
-                for( int j=0; j<=h; ++j ){
-                    if( (column&1) && y<screenHeight )
+                for( uint j=0; j<=h; ++j ){
+                    if( (column&1) != 0 && y<screenHeight )
                         setPixel(x, y+j, color);
                     column >>= 1;
                 }

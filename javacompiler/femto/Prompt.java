@@ -68,7 +68,7 @@ public class Prompt {
                 clear = false;
             }
             
-            if( !ignore || !ignore.isPressed() ){
+            if( ignore == null || !ignore.isPressed() ){
                 if( ignore == Button.A ){
                     return selection;
                 }

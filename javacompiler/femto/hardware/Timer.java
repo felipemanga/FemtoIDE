@@ -62,7 +62,7 @@ public class Timer {
         Chip_Clock_EnablePeriphClock(clk);
         LPC_SYSCTL->SYSAHBCLKCTRL |= (1 << clk);
         */
-		SET( LPC11U68.SYSAHBCLKCTRL, 1 << (number == 0 ? LPC11U68.SYSCTL_CLOCK.CT32B0 : LPC11U68.SYSCTL_CLOCK.CT32B1) );
+        SET( LPC11U68.SYSAHBCLKCTRL, 1 << (number == 0 ? LPC11U68.SYSCTL_CLOCK.CT32B0 : LPC11U68.SYSCTL_CLOCK.CT32B1) );
         
         /*
         syspllinclock = Chip_Clock_GetMainOscRate() = 12000000;
@@ -78,8 +78,8 @@ public class Timer {
     	timerFreq = Chip_Clock_GetMainClockRate() / LPC_SYSCTL->SYSAHBCLKDIV;
         */
 
-	    int msel = (LDR(LPC11U68.SYSPLLCTRL) & 0x1F) + 1;
-	    int timerFreq = 12000000 * msel / LDR(LPC11U68.SYSAHBCLKDIV);
+        int msel = (LDR(LPC11U68.SYSPLLCTRL) & 0x1F) + 1;
+        int timerFreq = 12000000 * msel / (int) LDR(LPC11U68.SYSAHBCLKDIV);
         
         reset(number);
         

@@ -21,13 +21,13 @@ public class EXT {
     public void pullUp(){ mode = 2; }
     public void repeater(){ mode = 3; }
 
-    public void setSpecial(uint func){
-        if( !func ) func = 1;
-        this.func = func;
+    public void setSpecial(int func){
+        if( func == 0 ) func = 1;
+        this.func = (byte) func;
         setFunction();
     }
     
-    public uint special(uint v){}
+    public int special(int v){}
 
     public void setInput(){
         func = 0;
@@ -55,7 +55,7 @@ public class EXT {
             }
 
             // PIO1_19 U2_CTS SCT0_OUT0 R_28
-            public void setSpecial(uint func){ // PWM
+            public void setSpecial(int func){ // PWM
                 if(func == 0) func = 2;
                 this.func = func;
                 setFunction();

@@ -44,13 +44,13 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
     public void clear( int color ){}
 
     public void setPixel(uint x, uint y, int color){
-        if( y>=176 || x>=220 )
+        if( y >= (uint) 176 || x >= (uint) 220 )
             return;
-        uint i = y*(110) + (x>>1);
-        byte pixel = buffer[i];
+        uint i = y*((uint)110) + (x>>(uint)1);
+        int pixel = buffer[i];
         color &= 0xF;
-        if (x&1) pixel = (pixel&0xF0)|(color);
-        else pixel = (pixel&0x0F) | (color*16);
+        if ( ((int)x & 1) != 0 ) pixel = (pixel & 0xF0) | color;
+        else pixel = (pixel&0x0F) | (color * 16);
         buffer[i] = pixel;
     }    
 

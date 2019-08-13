@@ -5,13 +5,19 @@ public class System extends Object {
     public static class memory {
 
 	public static uint LDR( pointer p ){
-		return __inline_cpp__("*((volatile uint32_t*)p)");
+            uint ret;
+            __inline_cpp__("ret = *((volatile uint32_t*)p)");
+            return ret;
 	}
 	public static ushort LDRH( pointer p ){
-		return __inline_cpp__("*((volatile uint16_t*)p)");
+            ushort ret;
+            __inline_cpp__("ret = *((volatile uint16_t*)p)");
+            return ret;
 	}
 	public static ubyte LDRB( pointer p ){
-		return __inline_cpp__("*((volatile uint8_t*)p)");
+            ubyte ret;
+            __inline_cpp__("ret = *((volatile uint8_t*)p)");
+            return ret;
 	}
 
 	public static void STR( pointer p, uint v ){

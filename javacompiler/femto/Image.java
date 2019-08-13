@@ -26,13 +26,15 @@ public class Image implements __stub__ {
         }
 
         pointer data = getImageDataForScreen( screen );
-
+        pointer ptr;
+        __inline_cpp__("ptr = &screen->buffer->arrayRead(0)");
+        
         if( isTransparent() ){
             femto.Sprite.__blit_4bpp(
                 data,
                 (int) x,
                 (int) y,
-                __inline_cpp__("&screen->buffer->arrayRead(0)"),
+                ptr,
                 flip,
                 mirror
                 );
@@ -41,7 +43,7 @@ public class Image implements __stub__ {
                 data,
                 (int) x,
                 (int) y,
-                __inline_cpp__("&screen->buffer->arrayRead(0)"),
+                ptr,
                 flip,
                 mirror
                 );

@@ -9,16 +9,12 @@ public class Random {
     }
 
     /// Creates a new random number generator using a single long seed.
-    ///
-    /// @note This function is non-standard
-    public Random(uint seed){
+    public Random(int seed){
         setSeed(seed);
     }
 
     /// Sets the seed of this random number generator using a single long seed.
-    ///
-    /// @note This function is non-standard
-    public void setSeed( uint seed ){
+    public void setSeed( int seed ){
         jsr = seed ^ 0x5DEECE66L;
     }
 
@@ -37,7 +33,9 @@ public class Random {
 
     /// Returns the next pseudorandom, uniformly distributed float value between `0.0` and `1.0` from this random number generator's sequence.
     float nextFloat(){
-        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal(next(8))");
+        float f;
+        __inline_cpp__("f = up_java::up_lang::uc_float::fromInternal(next(8))");
+        return f;
     }
 
     /// Returns the next pseudorandom, uniformly distributed `int` value from this random number generator's sequence.

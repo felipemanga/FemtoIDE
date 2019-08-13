@@ -132,28 +132,34 @@ public class Math implements __stub__ {
 
     /// Returns the largest (closest to positive infinity) `float` value that is less than or equal to the argument and is equal to a mathematical integer.
     public static float floor( float a ){
-        return (float) __inline_cpp__("a.getInteger()");
+        int b;
+        __inline_cpp__("b = a.getInteger()");
+        return (float) b;
     }
 
     public static float round( float a ){
-        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal((a.getInternal()+128)&~0xFF)");
+        float f;
+        __inline_cpp__("f = up_java::up_lang::uc_float::fromInternal((a.getInternal()+128)&~0xFF)");
+        return f;
     }
 
     public static float ceil( float a ){
-        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal((a.getInternal()+255)&~0xFF)");
+        float f;
+        __inline_cpp__("f = up_java::up_lang::uc_float::fromInternal((a.getInternal()+255)&~0xFF)");
+        return f;
     }
 
     private static Random rng;
 
     /// Returns a `float` value with a positive sign, greater than or equal to `0.0` and less than `1.0`.
     public static float random(){
-        if( !rng ) rng = new Random();
+        if( rng == null ) rng = new Random();
         return rng.nextFloat();
     }
 
     /// Returns an `int` value, greater than or equal to `min` and less than `max`
     public static int random(int min, int max){
-        if( !rng ) rng = new Random();
+        if( rng == null ) rng = new Random();
         return rng.nextInt(max-min) + min;
     }
 
@@ -182,10 +188,10 @@ public class Math implements __stub__ {
     /// Returns the square root of a `float` value.
     public static float sqrt( float x ){
         uint t, q, b, r;
-        r = __inline_cpp__("x.getInternal()");
+        __inline_cpp__("r = x.getInternal()");
         b = 0x40000000;
         q = 0;
-        while( b > 0x40 ){
+        while( b > (uint) 0x40 ){
             t = q;
             t += b;
             if( r >= t )
@@ -197,7 +203,8 @@ public class Math implements __stub__ {
             b >>= 1;
         }
         q >>= 12;
-        return __inline_cpp__("up_java::up_lang::uc_float::fromInternal(q)");
+        __inline_cpp__("x = up_java::up_lang::uc_float::fromInternal(q)");
+        return x;
     }
 
     /// @brief
@@ -205,7 +212,8 @@ public class Math implements __stub__ {
     /// 1.0f if the argument is greater than zero, -1.0f if the argument is less than zero. 
     public static float signum( float f ){
         // Get the internal fixed point representation as a signed integer.
-        int internal = (int)__inline_cpp__("f.getInternal()");
+        int internal;
+        __inline_cpp__("internal = f.getInternal()");
 
         // The rest of the logic works as normal,
         // no pesky `NaN`s or `-0.0f`s to worry about.

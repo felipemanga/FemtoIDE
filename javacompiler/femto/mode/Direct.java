@@ -38,7 +38,7 @@ public class Direct extends ScreenMode implements __stub__ {
     }
     
     public void setPixel(uint x, uint y, int color){
-        if( x >= 220 || y >= 176 )
+        if( x >= (uint) 220 || y >= (uint) 176 )
             return;
         setX(x);
         setY(y);
