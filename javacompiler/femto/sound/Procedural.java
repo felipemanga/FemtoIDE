@@ -10,9 +10,15 @@ public class Procedural {
         this.channel = channel;
     }
 
-    public void play(){ Mixer.setChannel(channel, this); }
+    public void play(){
+        Mixer.setChannel(channel, this);
+    }
 
-    public void reset(){ t = 0; }
+    public void reset(){
+        t = 0;
+    }
 
-    public ubyte update(){ return 0; }
+    public ubyte update(){
+        return 0;
+    }
 }
