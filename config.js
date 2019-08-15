@@ -34,7 +34,9 @@ APP.bindKeys("global", {
     "C-v": APP.paste,
     "C-/": APP.toggleComment,
     "C-,": APP.goBack,
-    "C-.": APP.goForward
+    "C-.": APP.goForward,
+
+    "C-S-g": APP.gitCommitAll,
 });
 
 APP.add({

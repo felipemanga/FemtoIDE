@@ -99,8 +99,37 @@ APP.addPlugin("Git", ["Project"], _=>{
             APP.addMenu("Git", {
                 "Refresh":APP.gitRefresh,
                 "Log":APP.gitLog,
-                "Commit":APP.gitCommit
+                "Commit":APP.gitCommit,
+                "Commit All":APP.gitCommitAll,
             });
+        }
+
+        gitCommitAll(){
+            git.statusMatrix({dir})
+                .then(matrix=>{
+                    return Promise.all(
+                        matrix
+                            .filter(([file, head, work, stage])=>{
+                                return (head != 1 || work != 1 || stage != 1);
+                            })
+                            .map(([filepath, head, work, stage])=>{
+                                if( work == 0 )
+                                    return git.remove({dir, filepath});
+                                return git.add({dir, filepath});
+                            })
+                    );
+                })
+                .then(res=>{
+                    if( res.length == 0 ){
+                        APP.log("Nothing to commit");
+                    }else{
+                        APP.log("Added all");
+                        APP.gitCommit();
+                    }
+                })
+                .catch(ex=>{
+                    APP.error((ex && ex.message) || ex);
+                });
         }
 
         registerProjectFile( buffer ){
