@@ -12,12 +12,19 @@ let VOID, UINT, INT, FLOAT,
     CHAR, BYTE, POINTER, DOUBLE,
     UBYTE, LONG;
 
+class StdError extends Error {
+    constructor( location, msg ){
+        super(msg);
+        this.location = location;
+    }
+}
+
 function throwError(location, msg){
     msg = (location ? location.unit +
                ", line " + location.startLine +
                ", column " + location.startColumn +
                ":\n" : "") + msg;
-    throw new Error(msg);
+    throw new StdError(location, msg);
 }
 
 function push(){
@@ -566,8 +573,7 @@ function getReturnType( {methodName, method}, args, location ){
     }
 
     if( !candidates.length ){
-        throw "Could not find " + methodName + " with " + args.length + " in " + acc.join(" ");
-        return null;
+        throwError(location, "Could not find matching " + methodName + " inside " + method.scope.name);
     }
     
     return candidates[0].result;
@@ -1335,322 +1341,333 @@ function writeStatement( stmt, block, noSemicolon ){
         throw new Error(currentFile+": Invalid Statement");
     }
 
-    let out = `\n/*<MAP*${stmt.location.unit}|${stmt.location.startLine}|${stmt.location.startColumn}*MAP>*/`;
-    switch( stmt.type ){
-    case "variableDeclarator":
-        let local = block.locals.find( local => local.name == stmt.name );
-        out += indent;
-        
-        if( stmt.expression ){
-            let e;
-            if( Array.isArray( stmt.expression.right ) ){
-                out += writeType(local.type, false) + " ";
-
-                e = writeExpression( stmt.expression.left );
-                out += e.out;
-                out += " " + stmt.expression.operation + " (new uc_Array<";
-                out += writePath(e.type);
-                out += ",";
-                out += !e.type.getTarget().isNative;
-                out += ">)->loadValues({";
-                out += stmt.expression.right.map( e => writeExpression( e ).out ).join(",");
-                out += "})";
-            }else{
-                e = writeExpression(stmt.expression.right);
-                if( local.type.name == "var" ){
-                    local.type = e.type;
-                }
-                out += writeType(local.type, false) + " ";
-                out += writeExpression(stmt.expression.left).out;
-                out += "=";
-                out += e.out;
-            }
-        }else{
-            out += writeType(local.type, false) + " ";
-            out += local.name + " = 0";
+    try{
+        return inner();
+    }catch(ex){
+        if( !(ex instanceof StdError) || !ex.location ){
+            throwError( stmt.location, ex.message || ex );
         }
+        throw ex;
+    }
+    
+    function inner(){
+        let out = `\n/*<MAP*${stmt.location.unit}|${stmt.location.startLine}|${stmt.location.startColumn}*MAP>*/`;
+        switch( stmt.type ){
+        case "variableDeclarator":
+            let local = block.locals.find( local => local.name == stmt.name );
+            out += indent;
+            
+            if( stmt.expression ){
+                let e;
+                if( Array.isArray( stmt.expression.right ) ){
+                    out += writeType(local.type, false) + " ";
 
-        if( !noSemicolon )
-            out += ";\n";
-        
-        break;
-    case "emptyStatement":
-        break;
-    case "breakStatement":
-        if( !stmt.label )
-            out += `${indent}break;\n`;
-        else{
-            let pscope = stmt.scope;
-            while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
-                pscope = pscope.scope;
-            }
-            if( !pscope )
-                throwError(stmt.location, `Label ${stmt.label} not found.`);
-            out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
-        }
-        break;
-        
-    case "continueStatement":
-        if( !stmt.label )
-            out += `${indent}continue;\n`;
-        else{
-            let pscope = stmt.scope;
-            while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
-                pscope = pscope.scope;
-            }
-            if( !pscope )
-                throwError(stmt.location, `Label ${stmt.label} not found.`);
-            out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
-        }
-        break;
-        
-    case "switchStatement":
-        let e = writeExpression(stmt.expression);
-        if( !e.type.getTarget )
-            throw e.out;
-
-        let type = e.type.getTarget();
-        out += indent + "switch( ";
-        let switchScope = null;
-        if( type.isEnum ){
-            out += `(${e.out})->__ordinal__`;
-            switchScope = type;
-        }else if( type.isNative ){
-            out += e.out;
-        }else{
-            throwError(stmt.expression.location, `Invalid type in switch: ${Object.keys(type)}`);
-        }
-
-        out += " ){\n";
-
-        stmt.cases.forEach( c => {
-            if( c.value ){
-                out += `${indent}case `;
-
-                if( switchScope ){
-                    c.value.left.scope = switchScope;
-                }
-
-                let e = writeExpression(c.value);
-                let type = e.type;
-                if( type.getTarget )
-                    type = type.getTarget();
-                if( type.isEnum )
-                    out += c.value.left.getTarget().ordinal;
-                else
+                    e = writeExpression( stmt.expression.left );
                     out += e.out;
+                    out += " " + stmt.expression.operation + " (new uc_Array<";
+                    out += writePath(e.type);
+                    out += ",";
+                    out += !e.type.getTarget().isNative;
+                    out += ">)->loadValues({";
+                    out += stmt.expression.right.map( e => writeExpression( e ).out ).join(",");
+                    out += "})";
+                }else{
+                    e = writeExpression(stmt.expression.right);
+                    if( local.type.name == "var" ){
+                        local.type = e.type;
+                    }
+                    out += writeType(local.type, false) + " ";
+                    out += writeExpression(stmt.expression.left).out;
+                    out += "=";
+                    out += e.out;
+                }
             }else{
-                out += `${indent}default`;
+                out += writeType(local.type, false) + " ";
+                out += local.name + " = 0";
             }
-            out += `:\n`;
-            push();
-            out += writeBlock(c.block);
-            pop();
-        });
 
-        out += `${indent}}\n`;
-
-        break;
-
-    case "statementExpression":
-        out += writeExpression(stmt.expression).out;
-        break;
-
-    case "expressionStatement":
-        out += indent + writeExpression(stmt.expression).out + ";\n";
-        break;
-
-    case "throwStatement":
-        {
+            if( !noSemicolon )
+                out += ";\n";
+            
+            break;
+        case "emptyStatement":
+            break;
+        case "breakStatement":
+            if( !stmt.label )
+                out += `${indent}break;\n`;
+            else{
+                let pscope = stmt.scope;
+                while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
+                    pscope = pscope.scope;
+                }
+                if( !pscope )
+                    throwError(stmt.location, `Label ${stmt.label} not found.`);
+                out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
+            }
+            break;
+            
+        case "continueStatement":
+            if( !stmt.label )
+                out += `${indent}continue;\n`;
+            else{
+                let pscope = stmt.scope;
+                while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
+                    pscope = pscope.scope;
+                }
+                if( !pscope )
+                    throwError(stmt.location, `Label ${stmt.label} not found.`);
+                out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
+            }
+            break;
+            
+        case "switchStatement":
             let e = writeExpression(stmt.expression);
-            out += indent + "throw __ref__<"
-                + writePath(e.type)
-                + ">"
-                + e.out + ";\n";
-        }
-        break;
-        
-    case "returnStatement":
-        if( stmt.expression )
-            out += indent + "return " + writeExpression(stmt.expression).out + ";\n";
-        else
-            out += indent + "return;\n";
+            if( !e.type.getTarget )
+                throw e.out;
 
-        break;
-        
-    case "ifStatement":
-        {
-            let e = writeExpression(stmt.condition);
-            if( e.type.getTarget() != BOOLEAN.type ){
-                throwError(stmt.location, "Expected a boolean, got a " + e.type.name);
+            let type = e.type.getTarget();
+            out += indent + "switch( ";
+            let switchScope = null;
+            if( type.isEnum ){
+                out += `(${e.out})->__ordinal__`;
+                switchScope = type;
+            }else if( type.isNative ){
+                out += e.out;
+            }else{
+                throwError(stmt.expression.location, `Invalid type in switch: ${Object.keys(type)}`);
             }
 
-            out += indent + "if( " + e.out + " )\n";
-            if( stmt.body.type != "block" ){
-                out += `${indent}{\n`;
+            out += " ){\n";
+
+            stmt.cases.forEach( c => {
+                if( c.value ){
+                    out += `${indent}case `;
+
+                    if( switchScope ){
+                        c.value.left.scope = switchScope;
+                    }
+
+                    let e = writeExpression(c.value);
+                    let type = e.type;
+                    if( type.getTarget )
+                        type = type.getTarget();
+                    if( type.isEnum )
+                        out += c.value.left.getTarget().ordinal;
+                    else
+                        out += e.out;
+                }else{
+                    out += `${indent}default`;
+                }
+                out += `:\n`;
                 push();
-            }
-            out += writeStatement( stmt.body, block );
-            if( stmt.body.type != "block" ){
+                out += writeBlock(c.block);
                 pop();
-                out += `${indent}}\n`;
-            }
+            });
 
-            if( stmt.else ){
-                out += `${indent}else\n`;
-                if( stmt.else.type != "block" ){
+            out += `${indent}}\n`;
+
+            break;
+
+        case "statementExpression":
+            out += writeExpression(stmt.expression).out;
+            break;
+
+        case "expressionStatement":
+            out += indent + writeExpression(stmt.expression).out + ";\n";
+            break;
+
+        case "throwStatement":
+            {
+                let e = writeExpression(stmt.expression);
+                out += indent + "throw __ref__<"
+                    + writePath(e.type)
+                    + ">"
+                    + e.out + ";\n";
+            }
+            break;
+            
+        case "returnStatement":
+            if( stmt.expression )
+                out += indent + "return " + writeExpression(stmt.expression).out + ";\n";
+            else
+                out += indent + "return;\n";
+
+            break;
+            
+        case "ifStatement":
+            {
+                let e = writeExpression(stmt.condition);
+                if( e.type.getTarget() != BOOLEAN.type ){
+                    throwError(stmt.location, "Expected a boolean, got a " + e.type.name);
+                }
+
+                out += indent + "if( " + e.out + " )\n";
+                if( stmt.body.type != "block" ){
                     out += `${indent}{\n`;
                     push();
                 }
-                out += writeStatement( stmt.else, block );
-                if( stmt.else.type != "block" ){
+                out += writeStatement( stmt.body, block );
+                if( stmt.body.type != "block" ){
                     pop();
                     out += `${indent}}\n`;
                 }
+
+                if( stmt.else ){
+                    out += `${indent}else\n`;
+                    if( stmt.else.type != "block" ){
+                        out += `${indent}{\n`;
+                        push();
+                    }
+                    out += writeStatement( stmt.else, block );
+                    if( stmt.else.type != "block" ){
+                        pop();
+                        out += `${indent}}\n`;
+                    }
+                }
+
+                break;
             }
 
-            break;
-        }
-
-    case "doStatement":
-        out += `${indent}do`;
-        if( stmt.body.type != "block" ){
-            out += `${indent}{\n`;
-            push();
-        }
-        out += writeStatement( stmt.body, block );
-        if( stmt.body.type != "block" ){
-            pop();
-            out += `${indent}}\n`;
-        }
-        out += `${indent}while( `;
-        out += writeExpression(stmt.condition).out;
-        out += " );\n";
-
-        break;
-
-    case "whileStatement":
-        out += indent + "while( ";
-        out += writeExpression(stmt.condition).out;
-        out += " )\n";
-        if( stmt.body.type != "block" ){
-            out += `${indent}{\n`;
-            push();
-        }
-        out += writeStatement( stmt.body, block );
-        if( stmt.body.type != "block" ){
-            pop();
-            out += `${indent}}\n`;
-        }
-
-        break;
-
-    case "tryStatement":
-        out += indent + "try";
-        out += writeStatement( stmt.tryBlock );
-
-        stmt.catches.forEach( cstmt=>{
-            out += "catch(";
-            out += writeType(cstmt.field.type, false);
-            out += " " + cstmt.field.name;
-            out += ")" + writeStatement(cstmt.block);
-        });
-        
-        break;
-
-    case "enhancedForStatement":
-        {
-            let e = writeExpression(stmt.iterable);
-
-            let itType = stmt.iterator.type;
-            if( itType.name == "var" ){
-                stmt.iterator.type = new TypeRef(
-                    e.type.name,
-                    false,
-                    itType.scope,
-                    e.type.getTarget()
-                );
-            }
-
-            out += indent + "for( ";
-            out += writeType( stmt.iterator.type, false );
-            out += " " + stmt.iterator.name;
-            out += " : ";
-            out += e.out;
-            out += "->iterator()";
-            out += ")\n";
-
-            let needsBraces = (stmt.body.type != "block") || !!stmt.label;
-
-            if( needsBraces ){
+        case "doStatement":
+            out += `${indent}do`;
+            if( stmt.body.type != "block" ){
                 out += `${indent}{\n`;
                 push();
             }
-
             out += writeStatement( stmt.body, block );
-
-            if( stmt.label )
-                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:;\n`;
-            if( needsBraces ){
+            if( stmt.body.type != "block" ){
                 pop();
                 out += `${indent}}\n`;
             }
-            if( stmt.label )
-                out += `${indent}_break_${stmt.labelId}_${stmt.label}:;\n`;
+            out += `${indent}while( `;
+            out += writeExpression(stmt.condition).out;
+            out += " );\n";
 
             break;
-        }
-        
-    case "forStatement":
-        {
-            out += indent + "for( ";
-            if( stmt.init ){
-                let backup = indent;
-                indent = "";
-                out += stmt.init.map( init => writeStatement(init, stmt.scope, true) ).join(", ");
-                indent = backup;
-            }
-            out += ";";
 
-            out += " " + (stmt.condition?writeExpression(stmt.condition).out:"");
-
-            out += "; ";
-            out += stmt.update.map(x=>writeExpression(x).out).join(",");
-            out += ")\n";
-
-            let needsBraces = (stmt.body.type != "block") || !!stmt.label;
-
-            if( needsBraces ){
+        case "whileStatement":
+            out += indent + "while( ";
+            out += writeExpression(stmt.condition).out;
+            out += " )\n";
+            if( stmt.body.type != "block" ){
                 out += `${indent}{\n`;
                 push();
             }
-            
             out += writeStatement( stmt.body, block );
-            if( stmt.label )
-                out += `${indent}_continue_${stmt.labelId}_${stmt.label}:;\n`;
-            if( needsBraces ){
+            if( stmt.body.type != "block" ){
                 pop();
                 out += `${indent}}\n`;
             }
-            if( stmt.label )
-                out += `${indent}_break_${stmt.labelId}_${stmt.label}:;\n`;
+
+            break;
+
+        case "tryStatement":
+            out += indent + "try";
+            out += writeStatement( stmt.tryBlock );
+
+            stmt.catches.forEach( cstmt=>{
+                out += "catch(";
+                out += writeType(cstmt.field.type, false);
+                out += " " + cstmt.field.name;
+                out += ")" + writeStatement(cstmt.block);
+            });
             
             break;
-        }
-        
-    case "block":
-        out += `${indent}{\n`;
-        push();
-        out += writeBlock( stmt.block );
-        pop();
-        out += `${indent}}\n`;
-        break;
 
-    default:
-        console.error("Unknown statement type: " + stmt.type );
-        break;
+        case "enhancedForStatement":
+            {
+                let e = writeExpression(stmt.iterable);
+
+                let itType = stmt.iterator.type;
+                if( itType.name == "var" ){
+                    stmt.iterator.type = new TypeRef(
+                        e.type.name,
+                        false,
+                        itType.scope,
+                        e.type.getTarget()
+                    );
+                }
+
+                out += indent + "for( ";
+                out += writeType( stmt.iterator.type, false );
+                out += " " + stmt.iterator.name;
+                out += " : ";
+                out += e.out;
+                out += "->iterator()";
+                out += ")\n";
+
+                let needsBraces = (stmt.body.type != "block") || !!stmt.label;
+
+                if( needsBraces ){
+                    out += `${indent}{\n`;
+                    push();
+                }
+
+                out += writeStatement( stmt.body, block );
+
+                if( stmt.label )
+                    out += `${indent}_continue_${stmt.labelId}_${stmt.label}:;\n`;
+                if( needsBraces ){
+                    pop();
+                    out += `${indent}}\n`;
+                }
+                if( stmt.label )
+                    out += `${indent}_break_${stmt.labelId}_${stmt.label}:;\n`;
+
+                break;
+            }
+            
+        case "forStatement":
+            {
+                out += indent + "for( ";
+                if( stmt.init ){
+                    let backup = indent;
+                    indent = "";
+                    out += stmt.init.map( init => writeStatement(init, stmt.scope, true) ).join(", ");
+                    indent = backup;
+                }
+                out += ";";
+
+                out += " " + (stmt.condition?writeExpression(stmt.condition).out:"");
+
+                out += "; ";
+                out += stmt.update.map(x=>writeExpression(x).out).join(",");
+                out += ")\n";
+
+                let needsBraces = (stmt.body.type != "block") || !!stmt.label;
+
+                if( needsBraces ){
+                    out += `${indent}{\n`;
+                    push();
+                }
+                
+                out += writeStatement( stmt.body, block );
+                if( stmt.label )
+                    out += `${indent}_continue_${stmt.labelId}_${stmt.label}:;\n`;
+                if( needsBraces ){
+                    pop();
+                    out += `${indent}}\n`;
+                }
+                if( stmt.label )
+                    out += `${indent}_break_${stmt.labelId}_${stmt.label}:;\n`;
+                
+                break;
+            }
+            
+        case "block":
+            out += `${indent}{\n`;
+            push();
+            out += writeBlock( stmt.block );
+            pop();
+            out += `${indent}}\n`;
+            break;
+
+        default:
+            console.error("Unknown statement type: " + stmt.type );
+            break;
+        }
+        return out;
     }
-    return out;
 }
 
 function writeRawData( data ){

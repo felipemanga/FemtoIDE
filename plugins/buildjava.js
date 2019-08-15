@@ -476,8 +476,19 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     onDone();
                 }
             }catch( ex ){
-                console.error(ex.stack);
                 onDone(ex);
+
+                if( ex.message ){
+                    let match = ex.message.match(/^([^,]+), line ([0-9]+), column ([0-9]+):\n/);
+                    if( match ){
+                        let buffer = APP.findFile(match[1], true);
+                        if( buffer ){
+                            APP.jumpTo(buffer, match[2]|0, (match[3]|0)-1);
+                        }
+                        
+                    }
+                    console.error(ex.stack);
+                }
             }
         }
 
