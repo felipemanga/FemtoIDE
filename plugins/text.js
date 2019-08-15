@@ -21,7 +21,7 @@ APP.addPlugin("Text", ["Project"], _=>{
             APP.async(_=>this.ace.resize(true));
             this.refreshBreakpoints();
             this.ace.focus();
-            if( !this.buffer.data ){
+            if( this.buffer.data != this.ace.session ){
                 this.onFileChanged(this.buffer);
             }
             if(highlightView != this)
