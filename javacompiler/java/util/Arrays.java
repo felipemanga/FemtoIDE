@@ -14,6 +14,9 @@ public class Arrays implements __stub__ {
     /// Assigns the specified long value to each element of the specified array of `long`s.
     public static void fill(long[] a, int fromIndex, int toIndex, long val){}
 
+    /// Assigns the specified boolean value to each element of the specified array of `boolean`s.
+    public static void fill(boolean[] a, int fromIndex, int toIndex, boolean val){}
+
     /// Assigns the specified int value to each element of the specified array of `uint`s.
     ///
     /// @note This function is non-standard

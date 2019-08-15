@@ -358,8 +358,9 @@ class Expression {
                                 .classOrInterfaceType[0]);
                     
                 }else if( ex.children.primitiveType ){
-                    this.left = new TypeRef(
-                        [Object.values(
+
+                    let outer = ex.children.primitiveType[0].children.Boolean ||
+                        Object.values(
                             //integralType
                             Object.values(
                                 // numericType
@@ -367,7 +368,14 @@ class Expression {
                                     ex.children.primitiveType[0].children
                                 )[0][0].children
                             )[0][0].children
-                        )[0][0].image],
+                        )[0];
+
+                    if( !outer ){
+                        throw ex.children.primitiveType[0];
+                    }
+
+                    this.left = new TypeRef(
+                        [outer[0].image],
                         true,
                         this.scope
                     );
