@@ -17,6 +17,14 @@ public class Mixer {
     /// Initialises the `Mixer`'s global state.
     ///  This method must be called before any of `Mixer`'s other methods can be used.
     ///
+    public static void init(){
+        init(8000);
+    }
+    
+    /// @brief
+    /// Initialises the `Mixer`'s global state.
+    ///  This method must be called before any of `Mixer`'s other methods can be used.
+    ///
     /// @param
     /// frequency The frequency at which the sound output is to be updated. Must be a positive value.
     public static void init( int frequency ){
@@ -38,6 +46,21 @@ public class Mixer {
     }
 
     /// @brief
+    /// Get the sound currently associated to a specified channel.
+    ///
+    /// @param
+    /// channel The channel to get the sound from. Must be between 0 and 3 inclusive.
+    public static Procedural getChannel(int channel){
+        switch(channel&3){
+        case 0: return channel0;
+        case 1: return channel1;
+        case 2: return channel2;
+        case 3: return channel3;
+        }
+        return null;
+    }
+    
+    /// @brief
     /// Assign the specified sound to be played on the specified channel.
     ///
     /// @param
@@ -52,7 +75,8 @@ public class Mixer {
         case 3: channel3 = proc; break;
         default: return;
         }
-        proc.reset();
+        if( proc )
+            proc.reset();
     }
 
     /// @brief
@@ -63,9 +87,9 @@ public class Mixer {
     public static void setVolume(int volume){
         switch(volume){
         case 0: multiplier = 0; shifter = 0; return;
-        case 1: multiplier = 1; shifter = 2; return;
-        case 2: multiplier = 1; shifter = 0; return;
-        case 3: multiplier = 2; shifter = 0; return;
+        case 1: multiplier = 1; shifter = 4; return;
+        case 2: multiplier = 1; shifter = 2; return;
+        case 3: multiplier = 1; shifter = 0; return;
         case 4: multiplier = 4; shifter = 0; return;
         }
     }
@@ -76,10 +100,10 @@ public class Mixer {
         if( !Timer.match(0) ) return;
 
         int out = 0;
-        if( channel0 ) out += channel0.update() - 128;
-        if( channel1 ) out += channel1.update() - 128;
-        if( channel2 ) out += channel2.update() - 128;
-        if( channel3 ) out += channel3.update() - 128;
+        if( channel0 ) out += ((int) channel0.update()) - 128;
+        if( channel1 ) out += ((int) channel1.update()) - 128;
+        if( channel2 ) out += ((int) channel2.update()) - 128;
+        if( channel3 ) out += ((int) channel3.update()) - 128;
 
         out = (out*multiplier>>shifter) + 128;
 

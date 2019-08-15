@@ -257,6 +257,8 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                         if( name.startsWith(DATA.projectPath) ){
                             name = name.substr(DATA.projectPath.length+1);
                         }
+
+                        console.log(ex.message, ex.stack);
                         
                         throw( name + ": " + (ex.message || ex) );
                     }
