@@ -1,4 +1,6 @@
 
+const Null = { name:"Null" };
+
 let unitId = 1;
 let depth = 0, note = "";
 let stack = [];
@@ -44,11 +46,14 @@ class Unit {
             fqcn = fqcn.split(".");
         else
             fqcn = [...fqcn];
-        
+
+        if( fqcn.length == 1 && fqcn[0] == "Null" )
+            return Null;
+/*        
         if( stack.length==50 ){
             throw new Error(`Could not find "${fqcn.join(".")}"\n${stack.join(', ')}`);
         }
-
+*/
         let srcfqcn = [...fqcn];
 
         if( scope ){

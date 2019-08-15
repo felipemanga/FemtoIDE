@@ -7,7 +7,10 @@ let indent, units, isDebugMode;
 
 let currentFile;
 
-let VOID, UINT, INT, FLOAT, NULL, BOOLEAN, STRING, CHAR;
+let VOID, UINT, INT, FLOAT,
+    NULL, BOOLEAN, STRING, SHORT,
+    CHAR, BYTE, POINTER, DOUBLE,
+    UBYTE, LONG;
 
 function push(){
     indent += "\t";    
@@ -524,6 +527,44 @@ function writePath( expr, clean ){
     return out;
 }
 
+function isImplicitCast( left, right ){
+    if( left && left.getTarget ) left = left.getTarget();
+    if( right && right.getTarget ) right = right.getTarget();
+
+    if( left && right && left != right && left.isClass && right.isClass && !left.isNative && !right.isNative ){
+        return right.isOfType(left);
+    }
+
+    return true;
+}
+
+function getReturnType( {methodName, method}, args ){
+    let candidates = [];
+    let acc = [];
+    let scope = method.scope;
+    while(scope){
+
+        candidates.push(
+            ...scope.methods.filter(
+                m=>{
+                    acc.push( m.name + m.parameters.length );
+                    return m.name == methodName &&
+                        m.parameters.length == args.length;
+                }
+            )
+        );
+        
+        scope = scope.extends && scope.extends.getTarget();
+    }
+
+    if( !candidates.length ){
+        throw "Could not find " + methodName + " with " + args.length + " in " + acc.join(" ");
+        return null;
+    }
+    
+    return candidates[0].result;
+}
+
 function access( exprList, prevResult ){
     if( !exprList )
         return null;
@@ -542,13 +583,16 @@ function access( exprList, prevResult ){
                 type = VOID;
                 // throw new Error(out + " is not a method");
             }else{
-                type = prevResult.method.result;
+                type = getReturnType(prevResult, argTypes);
             }
             prevResult = e;
         }else if( e.operation == "arrayAccessSuffix" ){
             e = prevResult = writeExpression(e, type.getTarget() );
             out += e.out;
-            type = e.type;
+            if( type.getTarget() == STRING.type )
+                type = CHAR;
+            else
+                type = e.type;
         }else{
             out += `->${e}`;
             if( type ){
@@ -580,9 +624,342 @@ function access( exprList, prevResult ){
     return {out, type};
 }
 
+function getOperatorType( left, op, right, expr ){
+    const srcLeft = left, srcRight = right;
+    
+    if( left && left.getTarget ) left = left.getTarget();
+    if( right && right.getTarget ) right = right.getTarget();
+
+    function ref(t){
+        if( srcLeft && t == srcLeft.type )
+            return srcLeft;
+        if( srcRight && t == srcRight.type )
+            return srcRight;
+        throw Object.keys(t);
+    }
+
+    const opType = {
+        "&&":1,
+        "||":1,
+        "?":2,
+        "=":2,
+        "==":3,
+        "!=":3,
+        ">":4,
+        ">=":4,
+        "<":4,
+        "<=":4,
+        "*":5,
+        "/":5,
+        "-":5,
+        "+":5,
+        "|":5,
+        "&":5,
+        "^":5,
+        ">>":5,
+        "<<":5,
+        "%":5
+    }[op];
+
+    if( left && right && left != right && left.isClass && right.isClass && !left.isNative && !right.isNative ){
+        let rightIsLeft = right.isOfType(left);
+        if( opType == 3 && (rightIsLeft || left.isOfType(right))){
+            return BOOLEAN;
+        }
+
+        if( op == "=" && rightIsLeft){
+            return srcLeft;
+        }
+    }
+
+    if( opType >= 3 ){
+        if( left == INT.type && right == CHAR.type ) right = left;
+        else if( right == INT.type && left == CHAR.type ) left = right;
+        else if( left == INT.type && right == BYTE.type ) right = left;
+        else if( right == INT.type && left == BYTE.type ) left = right;
+        else if( left == INT.type && right == UBYTE.type ) right = left;
+        else if( right == INT.type && left == UBYTE.type ) left = right;
+        else if( left == INT.type && right == SHORT.type ) right = left;
+        else if( right == INT.type && left == SHORT.type ) left = right;
+
+        else if( left == UINT.type && right == CHAR.type ) right = left;
+        else if( right == UINT.type && left == CHAR.type ) left = right;
+        else if( left == UINT.type && right == BYTE.type ) right = left;
+        else if( right == UINT.type && left == BYTE.type ) left = right;
+        else if( left == UINT.type && right == UBYTE.type ) right = left;
+        else if( right == UINT.type && left == UBYTE.type ) left = right;
+        else if( left == UINT.type && right == SHORT.type ) right = left;
+        else if( right == UINT.type && left == SHORT.type ) left = right;
+
+        else if( left == LONG.type && right == CHAR.type ) right = left;
+        else if( right == LONG.type && left == CHAR.type ) left = right;
+        else if( left == LONG.type && right == BYTE.type ) right = left;
+        else if( right == LONG.type && left == BYTE.type ) left = right;
+        else if( left == LONG.type && right == UBYTE.type ) right = left;
+        else if( right == LONG.type && left == UBYTE.type ) left = right;
+        else if( left == LONG.type && right == SHORT.type ) right = left;
+        else if( right == LONG.type && left == SHORT.type ) left = right;
+        else if( left == LONG.type && right == UINT.type ) right = left;
+        else if( right == LONG.type && left == UINT.type ) left = right;
+        else if( left == LONG.type && right == INT.type ) right = left;
+        else if( right == LONG.type && left == INT.type ) left = right;
+
+        else if( left == SHORT.type && right == CHAR.type ) right = left;
+        else if( right == SHORT.type && left == CHAR.type ) left = right;
+        else if( left == SHORT.type && right == BYTE.type ) right = left;
+        else if( right == SHORT.type && left == BYTE.type ) left = right;
+        else if( left == SHORT.type && right == UBYTE.type ) right = left;
+        else if( right == SHORT.type && left == UBYTE.type ) left = right;
+
+        else if( left == FLOAT.type && right == CHAR.type ) right = left;
+        else if( right == FLOAT.type && left == CHAR.type ) left = right;
+        else if( left == FLOAT.type && right == BYTE.type ) right = left;
+        else if( right == FLOAT.type && left == BYTE.type ) left = right;
+        else if( left == FLOAT.type && right == UBYTE.type ) right = left;
+        else if( right == FLOAT.type && left == UBYTE.type ) left = right;
+        else if( left == FLOAT.type && right == SHORT.type ) right = left;
+        else if( right == FLOAT.type && left == SHORT.type ) left = right;
+        else if( left == FLOAT.type && right == INT.type ) right = left;
+        else if( right == FLOAT.type && left == INT.type ) left = right;
+        else if( left == FLOAT.type && right == UINT.type ) right = left;
+        else if( right == FLOAT.type && left == UINT.type ) left = right;
+        else if( left == FLOAT.type && right == LONG.type ) right = left;
+        else if( right == FLOAT.type && left == LONG.type ) left = right;
+
+        else if( left == DOUBLE.type && right == CHAR.type ) right = left;
+        else if( right == DOUBLE.type && left == CHAR.type ) left = right;
+        else if( left == DOUBLE.type && right == BYTE.type ) right = left;
+        else if( right == DOUBLE.type && left == BYTE.type ) left = right;
+        else if( left == DOUBLE.type && right == UBYTE.type ) right = left;
+        else if( right == DOUBLE.type && left == UBYTE.type ) left = right;
+        else if( left == DOUBLE.type && right == SHORT.type ) right = left;
+        else if( right == DOUBLE.type && left == SHORT.type ) left = right;
+        else if( left == DOUBLE.type && right == INT.type ) right = left;
+        else if( right == DOUBLE.type && left == INT.type ) left = right;
+        else if( left == DOUBLE.type && right == UINT.type ) right = left;
+        else if( right == DOUBLE.type && left == UINT.type ) left = right;
+        else if( left == DOUBLE.type && right == LONG.type ) right = left;
+        else if( right == DOUBLE.type && left == LONG.type ) left = right;
+    }
+
+    if( left && left == right ){
+        if( left.isNative ){
+            if( opType == 1 || opType == 3 || opType == 4 )
+                return BOOLEAN;
+            return ref(left);
+        }
+        if( opType == 2 || opType == 3 ) return ref(left);
+    }
+
+    if( opType == 2 ){
+        if( left == NULL.type && (!right.isNative || right == POINTER.type) ) return ref(right);
+        if( right == NULL.type && (!left.isNative || left == POINTER.type) ) return ref(left);
+    }else if( opType == 3 ){
+        if( left == NULL.type && (!right.isNative || right == POINTER.type) ) return BOOLEAN;
+        if( right == NULL.type && (!left.isNative || left == POINTER.type) ) return BOOLEAN;
+    }
+
+    const inc = [
+        [POINTER.type, null, POINTER],
+        [null, POINTER.type, POINTER],
+        [INT.type, null, INT],
+        [null, INT.type, INT],
+        [UINT.type, null, UINT],
+        [null, UINT.type, UINT],
+        [SHORT.type, null, SHORT],
+        [null, SHORT.type, SHORT],
+        [BYTE.type, null, BYTE],
+        [null, BYTE.type, BYTE],
+        [UBYTE.type, null, UBYTE],
+        [null, UBYTE.type, UBYTE],
+        [FLOAT.type, null, FLOAT],
+        [null, FLOAT.type, FLOAT],
+        [DOUBLE.type, null, DOUBLE],
+        [null, DOUBLE.type, DOUBLE],
+    ];
+
+    const eqneq = [
+        [INT.type, UINT.type, BOOLEAN],
+        [UINT.type, INT.type, BOOLEAN],
+        [INT.type, BYTE.type, BOOLEAN],
+        [BYTE.type, INT.type, BOOLEAN],
+        [UBYTE.type, BYTE.type, BOOLEAN],
+        [BYTE.type, UBYTE.type, BOOLEAN],
+        [SHORT.type, BYTE.type, BOOLEAN],
+        [BYTE.type, SHORT.type, BOOLEAN],
+        [SHORT.type, INT.type, BOOLEAN],
+        [INT.type, SHORT.type, BOOLEAN],
+    ];
+
+    const shift = [
+        [LONG.type, INT.type, LONG],
+        [UINT.type, INT.type, UINT],
+        [SHORT.type, INT.type, SHORT],
+        [BYTE.type, INT.type, BYTE],
+        [UBYTE.type, INT.type, UBYTE],
+    ];
+
+    const ptrmath = [
+        [INT.type, POINTER.type, POINTER],
+        [POINTER.type, INT.type, POINTER],
+        [UINT.type, POINTER.type, POINTER],
+        [POINTER.type, UINT.type, POINTER],
+        [SHORT.type, POINTER.type, POINTER],
+        [POINTER.type, SHORT.type, POINTER],
+        [BYTE.type, POINTER.type, POINTER],
+        [POINTER.type, BYTE.type, POINTER],
+    ];
+
+    const floatmix = [
+        [FLOAT.type, INT.type, FLOAT],
+        [DOUBLE.type, INT.type, DOUBLE],
+        [FLOAT.type, UINT.type, FLOAT],
+        [DOUBLE.type, UINT.type, DOUBLE],
+        [FLOAT.type, BYTE.type, FLOAT],
+        [DOUBLE.type, BYTE.type, DOUBLE],
+        [FLOAT.type, SHORT.type, FLOAT],
+        [DOUBLE.type, SHORT.type, DOUBLE],
+        [FLOAT.type, LONG.type, FLOAT],
+        [DOUBLE.type, LONG.type, DOUBLE],
+    ];
+
+    const riskyint = [
+        [INT.type, LONG.type, LONG],
+        [LONG.type, INT.type, LONG],
+        [INT.type, UINT.type, INT],
+        [UINT.type, INT.type, UINT],
+        [INT.type, UBYTE.type, INT],
+        [UINT.type, UBYTE.type, UINT],
+        [INT.type, BYTE.type, INT],
+        [UINT.type, BYTE.type, UINT],
+        [UBYTE.type, INT.type, INT],
+        [UBYTE.type, UINT.type, UINT],
+        [BYTE.type, INT.type, INT],
+        [BYTE.type, UINT.type, UINT],
+    ];
+
+    let typeMatrix = {
+        "+":[
+            [STRING.type, STRING.type, STRING],
+            [INT.type, STRING.type, STRING],
+            [STRING.type, INT.type, STRING],
+            [BOOLEAN.type, STRING.type, STRING],
+            [STRING.type, BOOLEAN.type, STRING],
+            [FLOAT.type, STRING.type, STRING],
+            [STRING.type, FLOAT.type, STRING],
+            ...ptrmath,
+            [UINT.type, INT.type, UINT],
+            [INT.type, UINT.type, UINT],
+            [null, INT.type, INT],
+            [null, FLOAT.type, FLOAT],
+            [null, BYTE.type, BYTE],
+            [null, UBYTE.type, UBYTE],
+        ],
+
+        "-":[
+            [null, LONG.type, LONG],
+            [null, INT.type, INT],
+            [null, UINT.type, UINT],
+            [null, FLOAT.type, FLOAT],
+            [null, DOUBLE.type, DOUBLE],
+            [null, BYTE.type, BYTE],
+            [null, UBYTE.type, UBYTE],
+            [null, SHORT.type, SHORT],
+        ],
+
+        "~":[
+            [null, LONG.type, LONG],
+            [null, INT.type, INT],
+            [null, UINT.type, UINT],
+            [null, BYTE.type, BYTE],
+            [null, UBYTE.type, UBYTE],
+            [null, SHORT.type, SHORT],
+        ],
+
+        "=":[
+            ...riskyint,
+            ...floatmix
+        ],
+
+        "==":eqneq,
+        "!=":eqneq,
+
+        ">>=":shift,
+        "<<=":shift,
+        ">>":shift,
+        "<<":shift,
+        "|=":shift,
+        "&=":shift,
+        "|":shift,
+        "&":shift,
+
+        "++":inc,
+        "--":inc,
+
+        "+=":[
+            ...riskyint,
+            ...ptrmath,
+            ...floatmix
+        ],
+        "-=":[
+            ...riskyint,
+            ...ptrmath,
+            ...floatmix
+        ],
+        "*=":[
+            ...riskyint,
+            ...floatmix
+        ],
+        "/=":[
+            ...riskyint,
+            ...floatmix
+        ],
+
+        "!":[[null, BOOLEAN.type, BOOLEAN]],
+
+        "?":[]
+    }[op] || [];
+
+    for( let [mLeft, mRight, mResult] of typeMatrix ){
+        if( mLeft == left && mRight == right )
+            return mResult;
+    }
+
+    let sLeft = (left && left.name) || null;
+    let sRight = (right && right.name) || null;
+
+    if( Array.isArray(sLeft) ) sLeft = sLeft.join(".");
+    if( Array.isArray(sRight) ) sRight = sRight.join(".");
+
+    let location = expr && expr.location;
+    
+    while(!location){
+        expr = expr.scope;
+        if( !expr )
+            break;
+    }
+
+    let msg = location ? location.unit +
+        ", line " + location.startLine +
+        ", column " + location.startColumn +
+        ":\n" : "";
+
+    msg += `Can't use operator ${op} `;
+    
+    if( sLeft && sRight ){
+        msg += `on "${sLeft}" and "${sRight}"`;
+    }else if (sLeft){
+        msg += `after "${sLeft}" ` + (srcRight);
+    }else{
+        msg += `before "${sRight}"`;
+    }
+
+    throw new Error(msg);
+}
+
 function writeExpression( expr, typeHint ){
     let retdata = { op:expr.operation };
-    let type = "void";
+    let type = VOID;
     let out = "", e;
     switch( expr.operation ){
     case "inline":
@@ -635,8 +1012,10 @@ function writeExpression( expr, typeHint ){
         type = e.type;
         out += e.out;
         if( expr.right ){
+            e = writeExpression( expr.right );
+            type = getOperatorType(type, expr.operation, e.type, expr );
             out += " " + expr.operation + " ";
-            out += writeExpression( expr.right ).out;
+            out += e.out;
         }
         break;
 /*
@@ -829,14 +1208,16 @@ function writeExpression( expr, typeHint ){
         break;
 
     case "ternary": // to-do: check if left & right types match
+        let left = writeExpression( expr.left );
+        let right = writeExpression( expr.right );
+        getOperatorType(left.type, "?", right.type, expr);
         out += "(";
         out += writeExpression( expr.condition ).out;
         out += "?";
-        out += writeExpression( expr.left ).out; 
+        out += left.out; 
         out += ":";
-        e = writeExpression( expr.right );
-        out += e.out;
-        type = e.type;
+        out += right.out;
+        type = right.type;
         out += ")";
         break;
 
@@ -848,12 +1229,21 @@ function writeExpression( expr, typeHint ){
                 if( expr.operation != "instanceof"){
                     let left = writeExpression( expr.left );
                     let right = writeExpression( expr.right );
+                    type = getOperatorType(left.type, expr.operation, right.type, expr.location ? expr : {location:{unit:right.out}});
                     if( expr.operation == "+" ){
-                        out += '__add__('
-                            + left.out
-                            + ", "
-                            + right.out
-                            + ')';
+
+                        if( ((left.type.getTarget && left.type.getTarget()) || left.type) == STRING.type )
+                            out += "*(" + left.out + ")";
+                        else
+                            out += left.out;
+
+                        out += " + ";
+
+                        if( ((right.type.getTarget && right.type.getTarget()) || right.type) == STRING.type )
+                            out += "*(" + right.out + ")";
+                        else
+                            out += right.out;
+
                     }else if( expr.operation == ">>>" ){
                         out += "up_java::up_lang::uc_uint(" + left.out + ")";
                         out += ">>";
@@ -864,7 +1254,6 @@ function writeExpression( expr, typeHint ){
                         out += expr.operation;
                         out += right.out;
                     }
-                    type = left.type;
                 }else{
                     out += `->__instanceof__(`;
                     e = writeExpression( expr.right );
@@ -882,12 +1271,14 @@ function writeExpression( expr, typeHint ){
                 e = writeExpression( expr.left );
                 type = e.type;
                 out += e.out;
+                type = getOperatorType( e.type, expr.operation, null, expr );
             }
             out += expr.operation;
             if( expr.right ){
                 e = writeExpression( expr.right );
                 type = e.type;
                 out += e.out;
+                type = getOperatorType( null, expr.operation, e.type, expr );
             }
             out += ")";
             break;
@@ -920,6 +1311,7 @@ function writeExpression( expr, typeHint ){
                 if( type.isClass || type.isInterface ) out += "->";
                 else out += ".";
                 out += ex;
+                type = target.type;
             }else{
                 e = writeExpression( ex );
                 out += e.out;
@@ -1008,6 +1400,9 @@ function writeStatement( stmt, block, noSemicolon ){
         
     case "switchStatement":
         let e = writeExpression(stmt.expression);
+        if( !e.type.getTarget )
+            throw e.out;
+
         let type = e.type.getTarget();
         out += indent + "switch( ";
         let switchScope = null;
@@ -1488,14 +1883,20 @@ function addUnit( unit ){
 }
 
 function init( unit ){
-    VOID = new TypeRef(["void"], false, unit);
-    UINT = new TypeRef(["uint"], false, unit);
-    INT = new TypeRef(["int"], false, unit);
-    FLOAT = new TypeRef(["float"], false, unit);
-    NULL = new TypeRef(["Null"], false, unit);
-    BOOLEAN = new TypeRef(["boolean"], false, unit);
-    CHAR = new TypeRef(["char"], false, unit);
-    STRING = new TypeRef(["String"], false, unit);
+    (VOID = new TypeRef(["void"], false, unit)).getTarget();
+    (UINT = new TypeRef(["uint"], false, unit)).getTarget();
+    (INT = new TypeRef(["int"], false, unit)).getTarget();
+    (LONG = new TypeRef(["long"], false, unit)).getTarget();
+    (FLOAT = new TypeRef(["float"], false, unit)).getTarget();
+    (DOUBLE = new TypeRef(["double"], false, unit)).getTarget();
+    (NULL = new TypeRef(["Null"], false, unit)).getTarget();
+    (BOOLEAN = new TypeRef(["boolean"], false, unit)).getTarget();
+    (CHAR = new TypeRef(["char"], false, unit)).getTarget();
+    (SHORT = new TypeRef(["short"], false, unit)).getTarget();
+    (BYTE = new TypeRef(["byte"], false, unit)).getTarget();
+    (UBYTE = new TypeRef(["ubyte"], false, unit)).getTarget();
+    (STRING = new TypeRef(["String"], false, unit)).getTarget();
+    (POINTER = new TypeRef(["pointer"], false, unit)).getTarget();
 }
 
 function write( unit, main, plat, dbg ){

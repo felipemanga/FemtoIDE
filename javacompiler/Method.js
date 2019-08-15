@@ -59,6 +59,10 @@ class Constructor {
             .Identifier[0]
             .image;
 
+        if( this.name != scope.name ){
+            throw new Error("Invalid method declaration; return type required for \"" + this.name + "\" in \"" + this.scope.name + "\"");
+        }
+
         if( headNode[0].children.formalParameterList ){
             this.parameters = headNode[0]
                 .children

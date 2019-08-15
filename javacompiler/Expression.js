@@ -9,9 +9,11 @@ class Expression {
     constructor( expr, scope, opts ){
         this.scope = scope;
         this.unit = require("./Unit.js").getUnit(scope);
+        this.location = null;
         srcExpr = expr;
-        if( expr )
+        if( expr ){
             this.dispatch(expr, opts);
+        }
     }
 
     getString(){
@@ -23,6 +25,10 @@ class Expression {
     dispatch(expr, opts){
         this.name = expr.name;
         this.node = expr;
+        if( !this.location && expr.location ){
+            getLocation(this, expr);
+        }
+
         if( this[ expr.name ] )
             this[expr.name]( expr, opts );
         else{

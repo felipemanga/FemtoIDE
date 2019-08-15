@@ -170,13 +170,13 @@ void __print__( up_java::up_lang::uc_float f ){
 
 using sptr_t = uint16_t;
 
-constexpr up_java::up_lang::uc_Object *__inflate_ptr__( sptr_t s ){
+constexpr void *__inflate_ptr__( sptr_t s ){
     return s ? 
-        (up_java::up_lang::uc_Object *) (std::uintptr_t(s)+0x10000000) :
+        (void *) (std::uintptr_t(s)+0x10000000) :
         0;
 }
 
-constexpr sptr_t __deflate_ptr__( up_java::up_lang::uc_Object *obj ){
+constexpr sptr_t __deflate_ptr__( void *obj ){
     return obj ? std::uintptr_t(obj) - 0x10000000 : 0;
 }
 
@@ -193,11 +193,11 @@ constexpr sptr_t __shortFromObj__( up_java::up_lang::uc_Object *obj ){
 
 using sptr_t = uintptr_t;
 
-constexpr up_java::up_lang::uc_Object *__inflate_ptr__( sptr_t s ){
-    return (up_java::up_lang::uc_Object *) s;
+constexpr void *__inflate_ptr__( sptr_t s ){
+    return (void *) s;
 }
 
-constexpr sptr_t __deflate_ptr__( up_java::up_lang::uc_Object *obj ){
+constexpr sptr_t __deflate_ptr__( void *obj ){
     return (sptr_t) obj;
 }
 
@@ -442,7 +442,7 @@ public:
         return this;
     }
 
-    __ref__<T> arrayRead( int32_t offset ){ // to-do: bounds-check?
+    TP arrayRead( int32_t offset ){ // to-do: bounds-check?
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
         }
@@ -469,7 +469,7 @@ public:
         
         for( up_java::up_lang::uc_int i=0; i<length; ++i ){
             if( elements[i] ){
-                __inflate_ptr__(elements[i])->__mark__(m);
+                static_cast<TP>(__inflate_ptr__(elements[i]))->__mark__(m);
             }
         }
     }
@@ -799,46 +799,10 @@ up_java::up_lang::uc_String* __str__( const char *s ){
     return new up_java::up_lang::uc_String(s);
 }
 
-inline constexpr const void *__add__(const void *l, int32_t r ){
-    return ((const uint8_t*)l)+r;
-}
-
-inline constexpr int64_t __add__(int64_t l, int64_t r){
-    return l+r;
-}
-
-inline constexpr int32_t __add__(uint32_t l, int32_t r){
-    return l+r;
-}
-
-inline constexpr int32_t __add__(int32_t l, uint32_t r){
-    return l+r;
-}
-
-inline constexpr uint32_t __add__(uint32_t l, uint32_t r){
-    return l+r;
-}
-
-inline constexpr int32_t __add__(int32_t l, int32_t r){
-    return l+r;
-}
-
-inline constexpr int16_t __add__(int16_t l, int16_t r){
-    return l+r;
-}
-
-inline constexpr up_java::up_lang::uc_float __add__(up_java::up_lang::uc_float l, up_java::up_lang::uc_float r){
-    return l+r;
-}
-
-inline constexpr double __add__(double l, double r){
-    return l+r;
-}
-
-up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_String *r){
-    char *ch = new char[l->length() + r->length() + 1];
-    const char *lch = l->__c_str();
-    const char *rch = r->__c_str();
+up_java::up_lang::uc_String *operator +(up_java::up_lang::uc_String &l, up_java::up_lang::uc_String &r){
+    char *ch = new char[l.length() + r.length() + 1];
+    const char *lch = l.__c_str();
+    const char *rch = r.__c_str();
     up_java::up_lang::uc_String *ret = new up_java::up_lang::uc_String( ch );
     char *i = ch;
     if( lch ) while( *lch ) *i++ = *lch++;
@@ -847,14 +811,14 @@ up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up
     return ret;
 }
 
-up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_int r ){
-    up_java::up_lang::uc_String *sr = up_java::up_lang::uc_String::valueOf( r );
-    return __add__(l, sr);
+template <typename T>
+up_java::up_lang::uc_String *operator +( up_java::up_lang::uc_String &l, T r ){
+    return l + *up_java::up_lang::uc_String::valueOf( r );
 }
 
-up_java::up_lang::uc_String *__add__(up_java::up_lang::uc_String *l, up_java::up_lang::uc_float r ){
-    up_java::up_lang::uc_String *sr = up_java::up_lang::uc_String::valueOf( r );
-    return __add__(l, sr);
+template <typename T>
+up_java::up_lang::uc_String *operator +( T r, up_java::up_lang::uc_String &l ){
+    return *up_java::up_lang::uc_String::valueOf( r ) + l;
 }
 
 volatile std::uint32_t __timer;

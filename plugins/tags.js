@@ -95,7 +95,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
 
             let scope = unit[next-1];
             if( !scope )
-                scope = unit;
+                scope = unit[0];
             while( !scope.resolve )
                 scope = scope.scope;
             return scope;
