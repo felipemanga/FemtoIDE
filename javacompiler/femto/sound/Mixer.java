@@ -4,6 +4,7 @@ import static java.lang.System.memory.*;
 import femto.hardware.LPC11U68;
 import femto.hardware.Timer;
 
+/// Provides an interface to the hardware's sound playing capabilities.
 public class Mixer {
     private static Procedural channel0;
     private static Procedural channel1;
@@ -12,6 +13,12 @@ public class Mixer {
     private static int multiplier = 1;
     private static int shifter = 0;
 
+    /// @brief
+    /// Initialises the `Mixer`'s global state.
+    ///  This method must be called before any of `Mixer`'s other methods can be used.
+    ///
+    /// @param
+    /// frequency The frequency at which the sound output is to be updated. Must be a positive value.
     public static void init( int frequency ){
         if( frequency <= 0 )
             frequency = 8000;
@@ -29,7 +36,14 @@ public class Mixer {
         
         Timer.interval(0, frequency);
     }
-    
+
+    /// @brief
+    /// Assign the specified sound to be played on the specified channel.
+    ///
+    /// @param
+    /// channel The channel to play the sound on. Must be between 0 and 3 inclusive.
+    /// @param
+    /// proc The sound to be assigned to the channel.
     public static void setChannel(int channel, Procedural proc){
         switch(channel&3){
         case 0: channel0 = proc; break;
@@ -41,6 +55,11 @@ public class Mixer {
         proc.reset();
     }
 
+    /// @brief
+    /// Sets the master volume for all played sounds.
+    ///
+    /// @param
+    /// volume The volume level. Must be between 0 and 4 inclusive.
     public static void setVolume(int volume){
         switch(volume){
         case 0: multiplier = 0; shifter = 0; return;
@@ -51,6 +70,7 @@ public class Mixer {
         }
     }
 
+    /// The interrupt request handler. This method must not be called from user code.
     @IRQ(name="TIMER32_0")
     public static void onIRQ(){
         if( !Timer.match(0) ) return;
