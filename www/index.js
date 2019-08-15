@@ -499,7 +499,7 @@ class Chrome {
             this.menus[name] = menu = {
                 el:DOC.create("div", document.querySelector(".chrome"), {
                     className:"menu",
-                    text:name,
+                    html:name,
                     tabIndex:this.count++
                 })
             };

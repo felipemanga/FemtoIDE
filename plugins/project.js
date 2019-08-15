@@ -84,14 +84,14 @@ APP.addPlugin("Project", [], _=>{
                 return;
             pf.splice(index, 1);
         },
-/*
+
         queryMenus(){
-            APP.addMenu("File", {
-                "New Project":"newProject",
+            APP.addMenu(" &#x1f175;", {
+                "Close Project":_=>require('nw.gui').Window.get().reload(3),
                 "Exit":"exit"
             });
         },
-*/        
+
         pollViewForBuffer( buffer, vf ){
 
             if( buffer.name == "*New Project*" ){
