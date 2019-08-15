@@ -22,7 +22,7 @@ for the JavaScript code in this file
 */
 var NAVTREE =
 [
-  [ "Femto IDE Java API", "index.html", [
+  [ "FemtoIDE Java API", "index.html", [
     [ "Examples", "index.html", null ],
     [ "Pokitto intervalometer", "intervalometer.html", [
       [ "Main.java:", "intervalometer.html#autotoc_md0", null ]

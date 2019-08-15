@@ -1,0 +1,10 @@
+#+TITLE:FemtoIDE
+
+* Imagine A Fancy Web3.0 Page Here.
+
+* Everything else is real, though:
+- Get the IDE [[https://github.com/felipemanga/FemtoIDE/releases/latest][here]]!
+- Report any issues you find [[https://github.com/felipemanga/FemtoIDE/issues][here]]!
+- Whoa! We have [[https://felipemanga.github.io/FemtoIDE/docs][documentation]]!
+- No way! There's even a [[https://github.com/felipemanga/FemtoIDE/wiki][wiki]]?!
+- There has got to be a catch, right? NOPE! It's all [[https://raw.githubusercontent.com/felipemanga/FemtoIDE/master/LICENSE][opensource]]!
