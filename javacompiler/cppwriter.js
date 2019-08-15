@@ -12,6 +12,14 @@ let VOID, UINT, INT, FLOAT,
     CHAR, BYTE, POINTER, DOUBLE,
     UBYTE, LONG;
 
+function throwError(location, msg){
+    msg = (location ? location.unit +
+               ", line " + location.startLine +
+               ", column " + location.startColumn +
+               ":\n" : "") + msg;
+    throw new Error(msg);
+}
+
 function push(){
     indent += "\t";    
 }
@@ -538,7 +546,7 @@ function isImplicitCast( left, right ){
     return true;
 }
 
-function getReturnType( {methodName, method}, args ){
+function getReturnType( {methodName, method}, args, location ){
     let candidates = [];
     let acc = [];
     let scope = method.scope;
@@ -583,7 +591,7 @@ function access( exprList, prevResult ){
                 type = VOID;
                 // throw new Error(out + " is not a method");
             }else{
-                type = getReturnType(prevResult, argTypes);
+                type = getReturnType(prevResult, argTypes, e.location);
             }
             prevResult = e;
         }else if( e.operation == "arrayAccessSuffix" ){
@@ -604,7 +612,7 @@ function access( exprList, prevResult ){
                     test = x=>x.isMethod;
                 let field = type.resolve([e], trail, test);
                 if( !field ){
-                    throw new Error(currentFile+`: Could not find ${e} in ${type.constructor.name} ${type.name}`);
+                    throwError(e.location, `Could not find ${e} in ${type.constructor.name} ${type.name}`);
                 }
                 type = field.type;
 
@@ -743,12 +751,15 @@ function getOperatorType( left, op, right, expr ){
     }
 
     if( left && left == right ){
-        if( left.isNative ){
+
+        if( left.isNative || opType == 3 ){
             if( opType == 1 || opType == 3 || opType == 4 )
                 return BOOLEAN;
             return ref(left);
         }
-        if( opType == 2 || opType == 3 ) return ref(left);
+
+        if( opType == 2 || opType == 3 )
+            return ref(left);
     }
 
     if( opType == 2 ){
@@ -939,22 +950,17 @@ function getOperatorType( left, op, right, expr ){
             break;
     }
 
-    let msg = location ? location.unit +
-        ", line " + location.startLine +
-        ", column " + location.startColumn +
-        ":\n" : "";
-
-    msg += `Can't use operator ${op} `;
+    let msg = `Can't use operator ${op} `;
     
     if( sLeft && sRight ){
         msg += `on "${sLeft}" and "${sRight}"`;
     }else if (sLeft){
-        msg += `after "${sLeft}" ` + (srcRight);
+        msg += `after "${sLeft}"`;
     }else{
         msg += `before "${sRight}"`;
     }
 
-    throw new Error(msg);
+    throwError(location, msg);
 }
 
 function writeExpression( expr, typeHint ){
@@ -980,7 +986,7 @@ function writeExpression( expr, typeHint ){
                 
                 let match = line.match(/^@([a-z]+)\s+([^:\s]+)(?::(.+))?/);
                 if( !match || !operands[match[1]]){
-                    throw new Error(currentFile+": Invalid asm preprocessor directive: " + line);
+                    throwError(expr.location, "Invalid asm preprocessor directive: " + line);
                 }
 
                 operands[match[1]].push({
@@ -1131,7 +1137,7 @@ function writeExpression( expr, typeHint ){
         default:
             out += expr.left;
             type = expr.literalType;
-            throw new Error(currentFile+`: Unknown literal type ${type}`);
+            throwError(expr.location, `Unknown literal type ${type}`);
         }
         break;
 
@@ -1306,7 +1312,7 @@ function writeExpression( expr, typeHint ){
                 let trail = [];
                 let target = type.resolve( [ex], trail, x=>true );
                 if( !target ){
-                    throw new Error(currentFile+`: Could not find ${ex} in ${type.name}`);
+                    throwError(expr.location,`Could not find ${ex} in ${type.name}`);
                 }
                 if( type.isClass || type.isInterface ) out += "->";
                 else out += ".";
@@ -1379,7 +1385,7 @@ function writeStatement( stmt, block, noSemicolon ){
                 pscope = pscope.scope;
             }
             if( !pscope )
-                throw new Error(currentFile+`: Label ${stmt.label} not found.`);
+                throwError(stmt.location, `Label ${stmt.label} not found.`);
             out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
         }
         break;
@@ -1393,7 +1399,7 @@ function writeStatement( stmt, block, noSemicolon ){
                 pscope = pscope.scope;
             }
             if( !pscope )
-                throw new Error(`Label ${stmt.label} not found.`);
+                throwError(stmt.location, `Label ${stmt.label} not found.`);
             out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
         }
         break;
@@ -1412,7 +1418,7 @@ function writeStatement( stmt, block, noSemicolon ){
         }else if( type.isNative ){
             out += e.out;
         }else{
-            throw new Error(`Invalid type in switch: ${Object.keys(type)}`);
+            throwError(stmt.expression.location, `Invalid type in switch: ${Object.keys(type)}`);
         }
 
         out += " ){\n";
@@ -1473,31 +1479,38 @@ function writeStatement( stmt, block, noSemicolon ){
         break;
         
     case "ifStatement":
-        out += indent + "if( " + writeExpression(stmt.condition).out + " )\n";
-        if( stmt.body.type != "block" ){
-            out += `${indent}{\n`;
-            push();
-        }
-        out += writeStatement( stmt.body, block );
-        if( stmt.body.type != "block" ){
-            pop();
-            out += `${indent}}\n`;
-        }
+        {
+            let e = writeExpression(stmt.condition);
+            if( e.type.getTarget() != BOOLEAN.type ){
+                throwError(stmt.location, "Expected a boolean, got a " + e.type.name);
+            }
 
-        if( stmt.else ){
-            out += `${indent}else\n`;
-            if( stmt.else.type != "block" ){
+            out += indent + "if( " + e.out + " )\n";
+            if( stmt.body.type != "block" ){
                 out += `${indent}{\n`;
                 push();
             }
-            out += writeStatement( stmt.else, block );
-            if( stmt.else.type != "block" ){
+            out += writeStatement( stmt.body, block );
+            if( stmt.body.type != "block" ){
                 pop();
                 out += `${indent}}\n`;
             }
-        }
 
-        break;
+            if( stmt.else ){
+                out += `${indent}else\n`;
+                if( stmt.else.type != "block" ){
+                    out += `${indent}{\n`;
+                    push();
+                }
+                out += writeStatement( stmt.else, block );
+                if( stmt.else.type != "block" ){
+                    pop();
+                    out += `${indent}}\n`;
+                }
+            }
+
+            break;
+        }
 
     case "doStatement":
         out += `${indent}do`;
@@ -1547,11 +1560,22 @@ function writeStatement( stmt, block, noSemicolon ){
 
     case "enhancedForStatement":
         {
+            let e = writeExpression(stmt.iterable);
+
+            let itType = stmt.iterator.type;
+            if( itType.name == "var" ){
+                stmt.iterator.type = new TypeRef(
+                    e.type.name,
+                    false,
+                    itType.scope,
+                    e.type.getTarget()
+                );
+            }
+
             out += indent + "for( ";
             out += writeType( stmt.iterator.type, false );
             out += " " + stmt.iterator.name;
             out += " : ";
-            let e = writeExpression(stmt.iterable);
             out += e.out;
             out += "->iterator()";
             out += ")\n";
@@ -1803,7 +1827,7 @@ function writeClassImpl( unit ){
                         let name = ref.name.join(".");
                         let cname = writePath(annotation).replace(/::/g, ".");
                         if( !annotation )
-                            throw new Error(currentFile+`: Annotation ${name} not found.`);
+                            throwError(method.location, `Annotation ${name} not found.`);
                         if( annotationHandlers[cname] && annotationHandlers[cname].method )
                             annotationHandlers[cname].method(method, writePath(method), ref.pairs);
                     });

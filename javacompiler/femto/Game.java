@@ -83,7 +83,7 @@ public class Game extends StateMachine {
 
     Game( pointer font, State initialState ){
         
-        if( instance )
+        if( instance != null )
             throw new Exception();
         instance = this;
         

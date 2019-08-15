@@ -44,7 +44,7 @@ public class ScreenMode {
 
     /// Copies the framebuffer data to the LCD.
     public void flush(){
-        if( frameTimeUpdate-- ) return;
+        if( frameTimeUpdate-- > 0 ) return;
         frameTimeUpdate = 64;
         uint now = System.currentTimeMillis();
         frameTime = now - (uint) lastFrameTime;

@@ -476,6 +476,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     onDone();
                 }
             }catch( ex ){
+                console.error(ex.stack);
                 onDone(ex);
             }
         }

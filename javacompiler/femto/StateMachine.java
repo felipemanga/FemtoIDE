@@ -19,7 +19,7 @@ public class StateMachine {
     public void update(){
         if( nextState != state ){
             nextState.preinit();
-            if( state )
+            if( state != null )
                 state.shutdown();
             state = nextState;
             state.init();

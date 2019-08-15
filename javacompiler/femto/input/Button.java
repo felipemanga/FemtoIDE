@@ -37,14 +37,14 @@ public class Button {
 
     @IRQ(name="PIN_INT0")
     public static void _irq0_(){
-        if( Flash.listener )
+        if( Flash.listener != null )
             Flash.listener.change(Flash);
         STR(LPC11U68.IST, 1<<0);
     }
     
     @IRQ(name="PIN_INT1")
     public static void _irq1_(){
-        if( Reset.listener )
+        if( Reset.listener != null )
             Reset.listener.change(Reset);
         STR(LPC11U68.IST, 1<<1);
     }

@@ -75,7 +75,7 @@ public class Mixer {
         case 3: channel3 = proc; break;
         default: return;
         }
-        if( proc )
+        if( proc != null )
             proc.reset();
     }
 
@@ -97,13 +97,14 @@ public class Mixer {
     /// The interrupt request handler. This method must not be called from user code.
     @IRQ(name="TIMER32_0")
     public static void onIRQ(){
-        if( !Timer.match(0) ) return;
+        if( !Timer.match(0) )
+            return;
 
         int out = 0;
-        if( channel0 ) out += ((int) channel0.update()) - 128;
-        if( channel1 ) out += ((int) channel1.update()) - 128;
-        if( channel2 ) out += ((int) channel2.update()) - 128;
-        if( channel3 ) out += ((int) channel3.update()) - 128;
+        if( channel0 != null ) out += ((int) channel0.update()) - 128;
+        if( channel1 != null ) out += ((int) channel1.update()) - 128;
+        if( channel2 != null ) out += ((int) channel2.update()) - 128;
+        if( channel3 != null ) out += ((int) channel3.update()) - 128;
 
         out = (out*multiplier>>shifter) + 128;
 
