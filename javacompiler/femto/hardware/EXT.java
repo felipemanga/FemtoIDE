@@ -27,7 +27,7 @@ public class EXT {
         setFunction();
     }
     
-    public int special(int v){}
+    public int special(int v){ return 0; }
 
     public void setInput(){
         func = 0;

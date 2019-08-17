@@ -12,12 +12,12 @@ public class Direct extends ScreenMode implements __stub__ {
     }
 
     /// @copydoc ScreenMode::width()
-    public uint width(){
+    public int width(){
         return 220;
     }
 
     /// @copydoc ScreenMode::height()
-    public uint height(){
+    public int height(){
         return 176;
     }
 
@@ -64,7 +64,7 @@ public class Direct extends ScreenMode implements __stub__ {
         setY(y);
         beginStream();
         writeData(color);
-        while( --w ){
+        while( --w != 0 ){
             toggle();
         }
         
@@ -85,7 +85,7 @@ public class Direct extends ScreenMode implements __stub__ {
         if( x < 0 || x >= 220 || y >= 176 || h <= 0 )
             return;
 
-        while( h ){
+        while( h != 0 ){
             setX(x);
             setY(y++);
             beginStream();

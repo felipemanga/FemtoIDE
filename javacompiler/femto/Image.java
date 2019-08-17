@@ -53,8 +53,7 @@ public class Image implements __stub__ {
     boolean isTransparent(){ return false; }
 
     pointer getImageDataForScreen( HiRes16Color screen ){
-        while(true);
-        return 0;
+        return null;
     }
 
     protected static void __blit_4bpp( pointer src, int x, int y, pointer out, boolean flip, boolean mirror ){}

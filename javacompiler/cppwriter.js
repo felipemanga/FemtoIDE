@@ -417,14 +417,18 @@ function writeMethodBody( method, t ){
             );
         }
 
-        t.fields.forEach( f=>{
-            if( f.isStatic )
+        t.fields.forEach( field=>{
+            if( field.isStatic )
                 return;
             
-            let str = f.name + "(";
-            if( f.init && f.init.expression ){
-                str += writeExpression(f.init.expression.right).out;
-            }else if(f.isReference){
+            let str = field.name + "(";
+            if( field.init && field.init.expression ){
+                let e = writeExpression(field.init.expression.right);
+                str += e.out;
+                if( !isAssignableType( field.type, e.type ) ){
+                    throwError( field.init.expression.right.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
+                }
+            }else if(field.isReference){
                 str += "nullptr";
             }else{
                 str += "0";
@@ -638,6 +642,123 @@ function access( exprList, prevResult ){
     return {out, type};
 }
 
+function isCompatibleType( left, right, cast ){
+    const srcLeft = left, srcRight = right;    
+    if( left && left.getTarget ) left = left.getTarget();
+    if( right && right.getTarget ) right = right.getTarget();
+
+    if( left == right )
+        return left;
+
+    function ref(t){
+        if( srcLeft && t == srcLeft.type )
+            return srcLeft;
+        if( srcRight && t == srcRight.type )
+            return srcRight;
+        throw Object.keys(t);
+    }
+
+    if( left == INT.type && right == CHAR.type ) return left;
+    else if( right == INT.type && left == CHAR.type ) return right;
+    else if( left == INT.type && right == BYTE.type ) return left;
+    else if( right == INT.type && left == BYTE.type ) return right;
+    else if( left == INT.type && right == UBYTE.type ) return left;
+    else if( right == INT.type && left == UBYTE.type ) return right;
+    else if( left == INT.type && right == SHORT.type ) return left;
+    else if( right == INT.type && left == SHORT.type ) return right;
+
+    else if( left == UINT.type && right == CHAR.type ) return left;
+    else if( right == UINT.type && left == CHAR.type ) return right;
+    else if( left == UINT.type && right == BYTE.type ) return left;
+    else if( right == UINT.type && left == BYTE.type ) return right;
+    else if( left == UINT.type && right == UBYTE.type ) return left;
+    else if( right == UINT.type && left == UBYTE.type ) return right;
+    else if( left == UINT.type && right == SHORT.type ) return left;
+    else if( right == UINT.type && left == SHORT.type ) return right;
+
+    else if( left == LONG.type && right == CHAR.type ) return left;
+    else if( right == LONG.type && left == CHAR.type ) return right;
+    else if( left == LONG.type && right == BYTE.type ) return left;
+    else if( right == LONG.type && left == BYTE.type ) return right;
+    else if( left == LONG.type && right == UBYTE.type ) return left;
+    else if( right == LONG.type && left == UBYTE.type ) return right;
+    else if( left == LONG.type && right == SHORT.type ) return left;
+    else if( right == LONG.type && left == SHORT.type ) return right;
+    else if( left == LONG.type && right == UINT.type ) return left;
+    else if( right == LONG.type && left == UINT.type ) return right;
+    else if( left == LONG.type && right == INT.type ) return left;
+    else if( right == LONG.type && left == INT.type ) return right;
+
+    else if( left == SHORT.type && right == CHAR.type ) return left;
+    else if( right == SHORT.type && left == CHAR.type ) return right;
+    else if( left == SHORT.type && right == BYTE.type ) return left;
+    else if( right == SHORT.type && left == BYTE.type ) return right;
+    else if( left == SHORT.type && right == UBYTE.type ) return left;
+    else if( right == SHORT.type && left == UBYTE.type ) return right;
+
+    else if( left == FLOAT.type && right == CHAR.type ) return left;
+    else if( right == FLOAT.type && left == CHAR.type ) return right;
+    else if( left == FLOAT.type && right == BYTE.type ) return left;
+    else if( right == FLOAT.type && left == BYTE.type ) return right;
+    else if( left == FLOAT.type && right == UBYTE.type ) return left;
+    else if( right == FLOAT.type && left == UBYTE.type ) return right;
+    else if( left == FLOAT.type && right == SHORT.type ) return left;
+    else if( right == FLOAT.type && left == SHORT.type ) return right;
+    else if( left == FLOAT.type && right == INT.type ) return left;
+    else if( right == FLOAT.type && left == INT.type ) return right;
+    else if( left == FLOAT.type && right == UINT.type ) return left;
+    else if( right == FLOAT.type && left == UINT.type ) return right;
+    else if( left == FLOAT.type && right == LONG.type ) return left;
+    else if( right == FLOAT.type && left == LONG.type ) return right;
+
+    else if( left == DOUBLE.type && right == CHAR.type ) return left;
+    else if( right == DOUBLE.type && left == CHAR.type ) return right;
+    else if( left == DOUBLE.type && right == BYTE.type ) return left;
+    else if( right == DOUBLE.type && left == BYTE.type ) return right;
+    else if( left == DOUBLE.type && right == UBYTE.type ) return left;
+    else if( right == DOUBLE.type && left == UBYTE.type ) return right;
+    else if( left == DOUBLE.type && right == SHORT.type ) return left;
+    else if( right == DOUBLE.type && left == SHORT.type ) return right;
+    else if( left == DOUBLE.type && right == INT.type ) return left;
+    else if( right == DOUBLE.type && left == INT.type ) return right;
+    else if( left == DOUBLE.type && right == UINT.type ) return left;
+    else if( right == DOUBLE.type && left == UINT.type ) return right;
+    else if( left == DOUBLE.type && right == LONG.type ) return left;
+    else if( right == DOUBLE.type && left == LONG.type ) return right;
+
+    return false;
+}
+
+function isAssignableType( left, right ){
+    const srcLeft = left, srcRight = right;
+    
+    if( left && left.getTarget ) left = left.getTarget();
+    if( right && right.getTarget ) right = right.getTarget();
+
+    if( left == right ) return true;
+
+    if( right.isOfType(left) ) return true;
+    if( isCompatibleType(left, right) ) return true;
+    
+    const riskyint = [
+        [POINTER.type, NULL.type],
+        [INT.type, LONG.type],
+        [LONG.type, INT.type],
+        [INT.type, UINT.type],
+        [UINT.type, INT.type],
+        [INT.type, UBYTE.type],
+        [UINT.type, UBYTE.type],
+        [INT.type, BYTE.type],
+        [UINT.type, BYTE.type],
+        [UBYTE.type, INT.type],
+        [UBYTE.type, UINT.type],
+        [BYTE.type, INT.type],
+        [BYTE.type, UINT.type],
+    ];
+
+    return !!riskyint.find(([l, r])=>left==l && right==r);
+}
+
 function getOperatorType( left, op, right, expr ){
     const srcLeft = left, srcRight = right;
     
@@ -675,85 +796,20 @@ function getOperatorType( left, op, right, expr ){
         "%":5
     }[op];
 
-    if( left && right && left != right && left.isClass && right.isClass && !left.isNative && !right.isNative ){
-        let rightIsLeft = right.isOfType(left);
-        if( opType == 3 && (rightIsLeft || left.isOfType(right))){
-            return BOOLEAN;
-        }
+    if( op == "=" && isAssignableType(left, right) ){
+        return ref(left);
+    }
 
-        if( op == "=" && rightIsLeft){
-            return srcLeft;
+    if( left && right && left != right && left.isClass && right.isClass && !left.isNative && !right.isNative ){
+        if( opType == 3 && (right.isOfType(left) || left.isOfType(right))){
+            return BOOLEAN;
         }
     }
 
     if( opType >= 3 ){
-        if( left == INT.type && right == CHAR.type ) right = left;
-        else if( right == INT.type && left == CHAR.type ) left = right;
-        else if( left == INT.type && right == BYTE.type ) right = left;
-        else if( right == INT.type && left == BYTE.type ) left = right;
-        else if( left == INT.type && right == UBYTE.type ) right = left;
-        else if( right == INT.type && left == UBYTE.type ) left = right;
-        else if( left == INT.type && right == SHORT.type ) right = left;
-        else if( right == INT.type && left == SHORT.type ) left = right;
-
-        else if( left == UINT.type && right == CHAR.type ) right = left;
-        else if( right == UINT.type && left == CHAR.type ) left = right;
-        else if( left == UINT.type && right == BYTE.type ) right = left;
-        else if( right == UINT.type && left == BYTE.type ) left = right;
-        else if( left == UINT.type && right == UBYTE.type ) right = left;
-        else if( right == UINT.type && left == UBYTE.type ) left = right;
-        else if( left == UINT.type && right == SHORT.type ) right = left;
-        else if( right == UINT.type && left == SHORT.type ) left = right;
-
-        else if( left == LONG.type && right == CHAR.type ) right = left;
-        else if( right == LONG.type && left == CHAR.type ) left = right;
-        else if( left == LONG.type && right == BYTE.type ) right = left;
-        else if( right == LONG.type && left == BYTE.type ) left = right;
-        else if( left == LONG.type && right == UBYTE.type ) right = left;
-        else if( right == LONG.type && left == UBYTE.type ) left = right;
-        else if( left == LONG.type && right == SHORT.type ) right = left;
-        else if( right == LONG.type && left == SHORT.type ) left = right;
-        else if( left == LONG.type && right == UINT.type ) right = left;
-        else if( right == LONG.type && left == UINT.type ) left = right;
-        else if( left == LONG.type && right == INT.type ) right = left;
-        else if( right == LONG.type && left == INT.type ) left = right;
-
-        else if( left == SHORT.type && right == CHAR.type ) right = left;
-        else if( right == SHORT.type && left == CHAR.type ) left = right;
-        else if( left == SHORT.type && right == BYTE.type ) right = left;
-        else if( right == SHORT.type && left == BYTE.type ) left = right;
-        else if( left == SHORT.type && right == UBYTE.type ) right = left;
-        else if( right == SHORT.type && left == UBYTE.type ) left = right;
-
-        else if( left == FLOAT.type && right == CHAR.type ) right = left;
-        else if( right == FLOAT.type && left == CHAR.type ) left = right;
-        else if( left == FLOAT.type && right == BYTE.type ) right = left;
-        else if( right == FLOAT.type && left == BYTE.type ) left = right;
-        else if( left == FLOAT.type && right == UBYTE.type ) right = left;
-        else if( right == FLOAT.type && left == UBYTE.type ) left = right;
-        else if( left == FLOAT.type && right == SHORT.type ) right = left;
-        else if( right == FLOAT.type && left == SHORT.type ) left = right;
-        else if( left == FLOAT.type && right == INT.type ) right = left;
-        else if( right == FLOAT.type && left == INT.type ) left = right;
-        else if( left == FLOAT.type && right == UINT.type ) right = left;
-        else if( right == FLOAT.type && left == UINT.type ) left = right;
-        else if( left == FLOAT.type && right == LONG.type ) right = left;
-        else if( right == FLOAT.type && left == LONG.type ) left = right;
-
-        else if( left == DOUBLE.type && right == CHAR.type ) right = left;
-        else if( right == DOUBLE.type && left == CHAR.type ) left = right;
-        else if( left == DOUBLE.type && right == BYTE.type ) right = left;
-        else if( right == DOUBLE.type && left == BYTE.type ) left = right;
-        else if( left == DOUBLE.type && right == UBYTE.type ) right = left;
-        else if( right == DOUBLE.type && left == UBYTE.type ) left = right;
-        else if( left == DOUBLE.type && right == SHORT.type ) right = left;
-        else if( right == DOUBLE.type && left == SHORT.type ) left = right;
-        else if( left == DOUBLE.type && right == INT.type ) right = left;
-        else if( right == DOUBLE.type && left == INT.type ) left = right;
-        else if( left == DOUBLE.type && right == UINT.type ) right = left;
-        else if( right == DOUBLE.type && left == UINT.type ) left = right;
-        else if( left == DOUBLE.type && right == LONG.type ) right = left;
-        else if( right == DOUBLE.type && left == LONG.type ) left = right;
+        let dominant = isCompatibleType(left, right, false);
+        if( dominant )
+            left = right = dominant;
     }
 
     if( left && left == right ){
@@ -1169,7 +1225,7 @@ function writeExpression( expr, typeHint ){
             out += ")";
         }
         
-        type = expr.type.getTarget();
+        type = expr.type;
 
         out +=  writeExpressionRight(expr.right);
         break;
@@ -1222,14 +1278,15 @@ function writeExpression( expr, typeHint ){
     case "ternary": // to-do: check if left & right types match
         let left = writeExpression( expr.left );
         let right = writeExpression( expr.right );
-        getOperatorType(left.type, "?", right.type, expr);
+        let condition = writeExpression( expr.condition );
+        assertType( condition, BOOLEAN, expr );
+        type = getOperatorType(left.type, "?", right.type, expr);
         out += "(";
-        out += writeExpression( expr.condition ).out;
+        out += condition.out;
         out += "?";
         out += left.out; 
         out += ":";
         out += right.out;
-        type = right.type;
         out += ")";
         break;
 
@@ -1320,6 +1377,8 @@ function writeExpression( expr, typeHint ){
                 if( !target ){
                     throwError(expr.location,`Could not find ${ex} in ${type.name}`);
                 }
+                if( type.getTarget )
+                    type = type.getTarget();
                 if( type.isClass || type.isInterface ) out += "->";
                 else out += ".";
                 out += ex;
@@ -1381,6 +1440,11 @@ function writeStatement( stmt, block, noSemicolon ){
                     out += "=";
                     out += e.out;
                 }
+
+                if( !isAssignableType( local.type, e.type ) ){
+                    throwError( stmt.location, `Can't initialize ${local.name} with type ${e.type.name}.`);
+                }
+                
             }else{
                 out += writeType(local.type, false) + " ";
                 out += local.name + " = 0";
@@ -1487,19 +1551,40 @@ function writeStatement( stmt, block, noSemicolon ){
             break;
             
         case "returnStatement":
-            if( stmt.expression )
-                out += indent + "return " + writeExpression(stmt.expression).out + ";\n";
-            else
-                out += indent + "return;\n";
+            {
+                let e;
+                if( stmt.expression ){
+                    e = writeExpression(stmt.expression);
+                    out += indent + "return " + e.out + ";\n";
+                }else{
+                    out += indent + "return;\n";
+                    e = {type:VOID.type};
+                }
 
-            break;
-            
+                let method = stmt.scope;
+                while(method && !method.isMethod)
+                    method = method.scope;
+
+                if(!method){
+                    throwError(stmt.location, "Return outside method");
+                }
+
+                let right = e.type;
+                if(right.getTarget)
+                    right = right.getTarget();
+
+                let left = method.result.getTarget();
+                
+                if( !right.isOfType(left) && !isAssignableType(left, right) ){
+                    throwError(stmt.location, `"${left.name} ${method.name}(...)" should not return ${right.name}.`);
+                }
+
+                break;
+            }            
         case "ifStatement":
             {
                 let e = writeExpression(stmt.condition);
-                if( e.type.getTarget() != BOOLEAN.type ){
-                    throwError(stmt.location, "Expected a boolean, got a " + e.type.name);
-                }
+                assertType(e.type, BOOLEAN, stmt);
 
                 out += indent + "if( " + e.out + " )\n";
                 if( stmt.body.type != "block" ){
@@ -1529,37 +1614,49 @@ function writeStatement( stmt, block, noSemicolon ){
             }
 
         case "doStatement":
-            out += `${indent}do`;
-            if( stmt.body.type != "block" ){
-                out += `${indent}{\n`;
-                push();
-            }
-            out += writeStatement( stmt.body, block );
-            if( stmt.body.type != "block" ){
-                pop();
-                out += `${indent}}\n`;
-            }
-            out += `${indent}while( `;
-            out += writeExpression(stmt.condition).out;
-            out += " );\n";
+            {
+                let e = writeExpression(stmt.condition);
+                assertType(e.type, BOOLEAN, stmt);
 
-            break;
+                out += `${indent}do`;
+                if( stmt.body.type != "block" ){
+                    out += `${indent}{\n`;
+                    push();
+                }
+                out += writeStatement( stmt.body, block );
+                if( stmt.body.type != "block" ){
+                    pop();
+                    out += `${indent}}\n`;
+                }
+                out += `${indent}while( `;
+                out += e.out;
+                out += " );\n";
+
+                break;
+            }
 
         case "whileStatement":
-            out += indent + "while( ";
-            out += writeExpression(stmt.condition).out;
-            out += " )\n";
-            if( stmt.body.type != "block" ){
-                out += `${indent}{\n`;
-                push();
-            }
-            out += writeStatement( stmt.body, block );
-            if( stmt.body.type != "block" ){
-                pop();
-                out += `${indent}}\n`;
-            }
+            {
+                let e = writeExpression(stmt.condition);
+                assertType(e.type, BOOLEAN, stmt);
+                
+                out += indent + "while( ";
+                out += e.out;
+                out += " )\n";
+                
+                if( stmt.body.type != "block" ){
+                    out += `${indent}{\n`;
+                    push();
+                }
+                
+                out += writeStatement( stmt.body, block );
+                if( stmt.body.type != "block" ){
+                    pop();
+                    out += `${indent}}\n`;
+                }
 
-            break;
+                break;
+            }
 
         case "tryStatement":
             out += indent + "try";
@@ -1667,6 +1764,24 @@ function writeStatement( stmt, block, noSemicolon ){
             break;
         }
         return out;
+    }
+
+}
+
+function assertType( type, test, location ){
+    let out = '.';
+    if( type.out )
+        out = `in "${type.out}"`;
+        
+    if( type.type )
+        type = type.type;
+    if( type.getTarget )
+        type = type.getTarget();
+    if( test.getTarget)
+        test = test.getTarget();
+    if( type != test ){
+        throwError(location.location || location,
+                   `Expected a ${test.name}, got a ${type.name}${out}`);
     }
 }
 
@@ -1799,7 +1914,11 @@ function writeClassImpl( unit ){
                     out += "const ";
                 out += `${writeType(field.type, true)} ${writePath(t)}::`;
                 if( field.init && field.init.expression ){
-                    out += writeExpression(field.init.expression).out;
+                    let e = writeExpression(field.init.expression);
+                    if( !isAssignableType( field.type, e.type ) ){
+                        throwError( field.init.expression.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
+                    }
+                    out += e.out;
                 }else
                     out += field.name;
                 out += ';\n';

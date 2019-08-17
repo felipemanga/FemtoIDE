@@ -1,5 +1,15 @@
 
-const Null = { name:"Null" };
+const Null = new class NullT {
+    constructor(){
+        this.name = "Null";
+        this.isClass = true;
+        this.isNative = false;
+    }
+    
+    isOfType(other){
+        return !other.isNative;
+    }
+};
 
 let unitId = 1;
 let depth = 0, note = "";

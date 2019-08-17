@@ -63,10 +63,10 @@ public class ScreenMode {
     }
 
     /// Returns the width of the screen in pixels (varies per screen mode).
-    abstract public uint width();
+    abstract public int width();
 
     /// Returns the height of the screen in pixels (varies per screen mode).
-    abstract public uint height();
+    abstract public int height();
 
     /// Plots a pixel in the framebuffer. Does not take camera offset into consideration.
     public void setPixel( float x, float y, int color, boolean isStatic ){
@@ -239,8 +239,8 @@ public class ScreenMode {
     }
 
     public void drawLine(int x0, int y0, int x1, int y1, int color) {
-        int height = (int) this.height();
-        int width = (int) this.width();
+        int height = this.height();
+        int width = this.width();
         
         if ((uint)x0 >= (uint)width || (uint)y0 >= (uint)height || (uint)x1 >= (uint)width || (uint)y1 >= (uint)height ) {
 
@@ -475,7 +475,7 @@ public class ScreenMode {
         char index;
         for( int i=0; (index=str[i]) != 0; ++i ){
             index -= (char) LDRB( font+2 );
-            uint extra = h != 8 && h != 16;
+            uint extra = (h != 8 && h != 16) ? 1 : 0;
             uint hbytes = (h >> 3) + extra;
             pointer bitmap = font + 4 + index * (w * hbytes + 1);
             int numBytes = LDRB(bitmap);
@@ -560,7 +560,7 @@ while(*c)
         uint x = (int) textX;
         uint y = (int) textY;
         uint color = textColor;
-        uint extra = h != 8 && h != 16;
+        uint extra = (h != 8 && h != 16) ? 1 : 0;
         uint hbytes = h;
         hbytes >>= 3;
         hbytes += extra;

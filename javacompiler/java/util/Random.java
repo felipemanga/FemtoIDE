@@ -28,7 +28,7 @@ public class Random {
 
     // Returns the next pseudorandom `boolean` value from this random number generator's sequence.
     boolean nextBoolean(){
-        return next(1);
+        return next(1) != 0;
     }
 
     /// Returns the next pseudorandom, uniformly distributed float value between `0.0` and `1.0` from this random number generator's sequence.

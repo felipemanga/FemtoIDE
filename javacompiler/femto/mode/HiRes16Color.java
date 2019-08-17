@@ -31,12 +31,12 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
     }
 
     /// @copydoc ScreenMode::width()
-    public uint width(){
+    public int width(){
         return 220;
     }
 
     /// @copydoc ScreenMode::height()
-    public uint height(){
+    public int height(){
         return 176;
     }
 

@@ -87,8 +87,8 @@ public class Sprite implements __stub__ {
 	updateAnimation();
         float x = this.x;
         float y = this.y;
-        boolean mirror = flags&2;
-        boolean flip = flags&4;
+        boolean mirror = (flags&2) != 0;
+        boolean flip = (flags&4) != 0;
 
         if( (flags&1) == 0 ){
             x -= screen.cameraX;
@@ -114,7 +114,7 @@ __blit_4bpp(
     }       
 
     public pointer getFrameDataForScreen( uint number, HiRes16Color screen ){
-        return 0;
+        return null;
         new FrameRef(); // dummy type ref
     }
 
