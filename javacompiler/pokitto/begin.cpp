@@ -536,6 +536,112 @@ public:
 
 };
 
+class BoolRef {
+public:
+    std::uint32_t *bucket;
+    std::uint32_t bit;
+    
+    operator int(){
+        return (*bucket>>bit) & 1;
+    }
+
+    BoolRef& operator =(std::uint32_t v){
+        if( v != 0 ) *bucket |= 1 << bit;
+        else *bucket &= ~(1<<bit);
+        return *this;
+    }
+};
+
+template<>
+class uc_Array<bool, false> : public uc_Object {
+    typedef bool T;
+    typedef T *TP;
+    typedef uc_Array<T, false> Self;
+
+public:
+    union {
+        std::uint32_t *elements;
+        std::uint32_t small;
+    };
+
+    up_java::up_lang::uc_int length;
+
+    uc_Array() : elements(nullptr), length(0){}
+
+    uc_Array( up_java::up_lang::uc_int length ) : elements(nullptr) {
+        this->length = length;
+        if( length > 32 ){
+            elements = new std::uint32_t[length>>5];
+            for( up_java::up_lang::uc_int i=0; i<(length>>5); ++i )
+                elements[i] = 0;
+        }else{
+            small = 0;
+        }
+    }
+
+    virtual ~uc_Array(){
+        release();
+    }
+
+    void release(){
+        if( length > 32 ){
+            delete[] elements;
+            elements = nullptr;
+            length = 0;
+        }
+    }
+
+    uc_ArrayIterator<Self, T, false> iterator(){
+        return uc_ArrayIterator<Self, T, false>(*this);
+    }
+
+    Self *loadValues( const std::initializer_list<T> &init ){
+        if( length > 32 ) release();
+        this->length = init.size();
+
+        auto it = init.begin();
+        if( this->length > 32 ){
+            elements = new std::uint32_t[init.size()>>5];
+            for( uint32_t i=0; i<init.size(); ++i )
+                elements[i>>5] |= *it++ ? 1<<(i&0x1F) : 0;
+        }else{
+            for( uint32_t i=0; i<init.size(); ++i )
+                small |= *it++ ? 1<<(i&0x1F) : 0;
+        }
+
+        return this;
+    }
+
+    bool arrayRead( uint32_t offset ){ // to-do: bounds-check?
+        if( offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+
+        if( length > 32 )
+            return (elements[ offset>>5 ] & (1<<(offset&0x1F))) != 0;
+        else
+            return (small&(1<<offset)) != 0;
+    }
+
+    void arrayWrite( uint32_t offset, T value ){
+        BoolRef b;
+        if( offset >= length ){
+            __print__("Array access out of bounds\n");
+        }
+
+        if( length > 32 )
+            b.bucket = &elements[offset>>5];
+        else
+            b.bucket = &small;
+
+        b.bit = offset&0x1F;
+
+        b = value;
+        // return b;
+    }
+
+};
+
 template<typename T>
 using __array = __ref__<uc_Array<T, true>>;
 template<typename T>
