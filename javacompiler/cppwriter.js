@@ -1107,16 +1107,22 @@ function writeExpression( expr, typeHint ){
         break;
 
     case "arrayAccessSuffix":
+        e = writeExpression(expr.right);
+        if( !isAssignableType(INT, e.type) )
+            throwError(expr.location, `Can't use ${e.type.name} as array index.`);
+
         if( expr.isLValue ){
             out += "->arrayWrite(";
-            out += writeExpression(expr.right).out;
+            out += e.out;
             out += ", ";
             e = writeExpression(expr.isLValue);
             out += e.out;
             type = e.type;
+            if( !isAssignableType(type, typeHint) ){
+                throwError(expr.location, `Can't put ${type.name} in an array of ${typeHint.name}.`);
+            }
         }else{
             out += "->arrayRead(";
-            e = writeExpression(expr.right);
             out += e.out;
             if( !typeHint.isTypeRef )
                 type = new TypeRef(null, false, expr.right.scope, typeHint);
