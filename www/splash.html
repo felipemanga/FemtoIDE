@@ -71,6 +71,9 @@
          video.play();
         </script>
         <h1>FemtoIDE</h1>
-        <h2>Undead Compo Edition v0.0.18b</h2>
+        <h2 id="version">Undead Compo Edition </h2>
+        <script>
+          version.textContent += require("../package.json").name.replace(/^[^v]*/, "");
+        </script>
     </body>
 </html>

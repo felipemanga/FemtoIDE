@@ -1,6 +1,6 @@
 package java.lang;
 
-public class System extends Object {
+public class System {
 
     public static class memory {
 
@@ -86,6 +86,7 @@ out = *((uint8_t*)p);
 
     private static long bootTime;
 
+    /// Returns the amount of milliseconds since the epoch
     public static long currentTimeMillis(){
         __inline_cpp__("
 #ifdef POKITTO
