@@ -108,7 +108,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
             if( !scope ) 
                 return list;
 
-            let identifier = this.getIdentifierUnderCursor(buffer, offset);
+            let identifier = this.getIdentifierUnderCursor(buffer, offset, true);
 
             let incomplete = identifier.pop();
 
@@ -202,7 +202,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
 
         }
 
-        findDeclaration(buffer, offset){
+        resolveJava(buffer, offset){
             let scope = this._findScope(buffer, offset);
             if( !scope )
                 return [];
@@ -216,6 +216,11 @@ APP.addPlugin("VFS", ["Project"], _=>{
                 }catch(ex){}
                 scope = scope.scope;
             }
+            return entry;
+        }
+
+        findDeclaration(buffer, offset){
+            let entry = this.resolveJava(buffer, offset);
 
             if( !entry || !entry.location ){
                 APP.error("Declaration not found");

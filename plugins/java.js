@@ -30,6 +30,12 @@ APP.addPlugin("Java", ["Text"], TextView => {
             pos = this.ace.session.doc.positionToIndex(pos);
             return APP.completionAtPoint(this.buffer, pos);
         }
+
+        resolveJavaUnderCursor(){
+            let pos = this.ace.getCursorPosition();
+            let offset = this.ace.session.doc.positionToIndex(pos);
+            return APP.resolveJava(this.buffer, offset);
+        }
     }
 
     APP.add({

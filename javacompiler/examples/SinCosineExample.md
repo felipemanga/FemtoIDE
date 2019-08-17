@@ -1,6 +1,6 @@
 # Sine and cosine graphical representation {#sincosgraphical}
 
-![](/images/SineAndCosineGraphicalRepresentation.png)
+![](../images/SineAndCosineGraphicalRepresentation.png)
 
 ```java
 import femto.mode.HiRes16Color;
