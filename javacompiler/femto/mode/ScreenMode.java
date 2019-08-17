@@ -467,6 +467,24 @@ public class ScreenMode {
         return ((int) LDRB( font+1 )) + lineSpacing;
     }
 
+    public int textWidth( String str ){
+        if( font == null ) return 0;
+        int total = 0;
+        uint w = LDRB( font );
+        uint h = LDRB( font+1 );
+        char index;
+        for( int i=0; (index=str[i]) != 0; ++i ){
+            index -= (char) LDRB( font+2 );
+            uint extra = h != 8 && h != 16;
+            uint hbytes = (h >> 3) + extra;
+            pointer bitmap = font + 4 + index * (w * hbytes + 1);
+            int numBytes = LDRB(bitmap);
+            total += numBytes + charSpacing;
+        }
+
+        return total;
+    }
+
     public void println( String s ){
         print( s );
         textX = textLeftLimit;
