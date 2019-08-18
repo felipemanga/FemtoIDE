@@ -1,15 +1,7 @@
 {
 	"metadata": {},
 	"lastBuffer": "Main.java",
-	"files": {
-		"Dog.json": {},
-		"Hello Java.bin": {},
-		"Hello Java.elf": {},
-		"Main.java": {},
-		"Pattern.png": {},
-		"dog.png": {},
-		"project.json": {}
-	},
+	"files": {},
 	"javaFlags": {
 		"mainClass": "Main"
 	},
@@ -144,10 +136,8 @@
 		]
 	},
 	"meta": {
-		"": {
-			"sdcard": false
-		},
-		"/Dog.json": {
+		"": {},
+		"/Hello Java.elf": {
 			"sdcard": false
 		},
 		"/Main.java": {
@@ -156,22 +146,32 @@
 		"/Hello Java.bin": {
 			"sdcard": false
 		},
-		"/Hello Java.elf": {
-			"sdcard": false
-		},
-		"/Pattern.png": {
-			"sdcard": false
-		},
-		"/dog.png": {
-			"sdcard": false
-		},
+		"/images": {},
 		"/project.json": {
+			"sdcard": false,
+			"implements": ""
+		},
+		"/sprites": {},
+		"/sounds": {},
+		"/images/Pattern.png": {
+			"sdcard": false,
+			"implements": ""
+		},
+		"/sprites/Dog.json": {
+			"sdcard": false,
+			"implements": ""
+		},
+		"/sprites/dog.png": {
+			"sdcard": false,
+			"implements": ""
+		},
+		"/sounds/DogBark1.wav": {
 			"sdcard": false
 		},
-		"/firmware.bin": {
+		"/sounds/DogBark2.wav": {
 			"sdcard": false
 		},
-		"/dump.bin": {
+		"/sounds/DogBark3.wav": {
 			"sdcard": false
 		}
 	}
