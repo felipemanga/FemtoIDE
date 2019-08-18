@@ -35,6 +35,12 @@ class Constructor {
         if( bodyChildren.explicitConstructorInvocation ){
             const {Expression} = require("./Expression.js");
 
+            if( bodyChildren
+                .explicitConstructorInvocation[0]
+                .children
+                .unqualifiedExplicitConstructorInvocation[0]
+                .children
+                .argumentList ){
             this.superArgs = bodyChildren
                 .explicitConstructorInvocation[0]
                 .children
@@ -44,7 +50,7 @@ class Constructor {
                 .children
                 .expression
                 .map( node => new Expression(node, this) );
-            
+            }
         }
 
         modifier.forEach(mod=>{

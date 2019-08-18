@@ -1,3 +1,4 @@
+const {StdError} = require("./StdError.js");
 
 const Null = new class NullT {
     constructor(){
@@ -172,7 +173,7 @@ class Unit {
 
         
         if( !ret ){
-            throw new Error( "Could not find \"" + srcfqcn.join(".") + "\"");
+            throw new StdError( null, "Could not find \"" + srcfqcn.join(".") + "\"");
         }
         
         pop();

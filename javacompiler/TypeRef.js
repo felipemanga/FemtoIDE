@@ -101,15 +101,16 @@ class TypeRef {
         if( this.type == null ){
             const {getUnit} =  require("./Unit.js");
             let unit = getUnit(this.scope);
-            try{
-                this.type = unit.resolve(this.name, this.trail, x=>x.isType, this.scope );
+            // try{
+            this.type = unit.resolve(this.name, this.trail, x=>x.isType, this.scope );
+            /*
             }catch(ex){
                 if( this.location && this.location.startLine && ex.message ){
                     throw new Error(
                         this.location.unit +
                             ", line " + this.location.startLine +
                             ", column " + this.location.startColumn +
-                            ": " + (ex.message || ex)
+                            ": " + (ex.message || ex) + ex.stack
                     );
                 }else if( this.location ){
                     throw new Error(
@@ -119,6 +120,7 @@ class TypeRef {
                 }else
                     throw ex;
             }
+            */
         }
         return this.type;
     }

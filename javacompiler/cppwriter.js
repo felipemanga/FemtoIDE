@@ -1,5 +1,6 @@
 let fs = require("fs");
 const {TypeRef} = require("./TypeRef.js");
+const {StdError} = require("./StdError.js");
 
 let platform, platformDir, annotationHandlers;
 
@@ -11,13 +12,6 @@ let VOID, UINT, INT, FLOAT,
     NULL, BOOLEAN, STRING, SHORT,
     CHAR, BYTE, POINTER, DOUBLE,
     UBYTE, LONG;
-
-class StdError extends Error {
-    constructor( location, msg ){
-        super(msg);
-        this.location = location;
-    }
-}
 
 function throwError(location, msg){
     msg = (location ? location.unit +
@@ -745,6 +739,7 @@ function isAssignableType( left, right ){
 
     if( left == right ) return true;
 
+    if( !left.isNative && right == NULL.type ) return true;
     if( right.isOfType(left) ) return true;
     if( isCompatibleType(left, right) ) return true;
     
@@ -1130,7 +1125,7 @@ function writeExpression( expr, typeHint ){
             e = writeExpression(expr.isLValue);
             out += e.out;
             type = e.type;
-            if( !isAssignableType(type, typeHint) ){
+            if( !isAssignableType(typeHint, type) ){
                 throwError(expr.location, `Can't put ${type.name} in an array of ${typeHint.name}.`);
             }
         }else{
@@ -1425,8 +1420,12 @@ function writeStatement( stmt, block, noSemicolon ){
     try{
         return inner();
     }catch(ex){
-        if( !(ex instanceof StdError) || !ex.location ){
-            throwError( stmt.location, ex.message || ex );
+        let msg = ex.message || ex;
+        if( !(ex instanceof StdError) ){
+            msg += "\n" + ex.stack;
+        }
+        if( !ex.location ){
+            throwError( stmt.location, msg );
         }
         throw ex;
     }
