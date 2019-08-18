@@ -412,6 +412,8 @@ public:
     uc_Array() : elements(nullptr), length(0){}
 
     uc_Array( up_java::up_lang::uc_int length ) : elements(nullptr), length(length) {
+        if( length == 0 )
+            return;
         elements = new sptr_t[length];
         for( up_java::up_lang::uc_int i=0; i<length; ++i )
             elements[i] = 0;
@@ -445,6 +447,7 @@ public:
     TP arrayRead( int32_t offset ){ // to-do: bounds-check?
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
+            while(true);
         }
         return static_cast<TP>( __inflate_ptr__(elements[ offset ]) );
     }
@@ -452,6 +455,7 @@ public:
     TP arrayWrite( int32_t offset, const TP &value ){
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
+            while(true);
         }
         
         elements[ offset ] = __deflate_ptr__(value);
@@ -488,8 +492,10 @@ public:
     uc_Array() : elements(nullptr), length(0){}
 
     uc_Array( up_java::up_lang::uc_int length ) : elements(nullptr) {
-        elements = new T[length];
         this->length = length;
+        if( length == 0 )
+            return;
+        elements = new T[length];
         for( up_java::up_lang::uc_int i=0; i<length; ++i )
             elements[i] = 0;
     }
@@ -522,6 +528,7 @@ public:
     T &arrayRead( uint32_t offset ){ // to-do: bounds-check?
         if( !elements || offset >= length ){
             __print__("Array access out of bounds\n");
+            while(true);
         }
         return elements[ offset ];
     }
@@ -529,6 +536,7 @@ public:
     T &arrayWrite( uint32_t offset, T value ){
         if( !elements || offset >= length ){
             __print__("Array access out of bounds\n");
+            while(true);
         }
         elements[ offset ] = value;
         return elements[ offset ];
@@ -615,6 +623,7 @@ public:
     bool arrayRead( uint32_t offset ){ // to-do: bounds-check?
         if( offset >= length ){
             __print__("Array access out of bounds\n");
+            while(true);
         }
 
         if( length > 32 )
@@ -627,6 +636,7 @@ public:
         BoolRef b;
         if( offset >= length ){
             __print__("Array access out of bounds\n");
+            while(true);
         }
 
         if( length > 32 )
