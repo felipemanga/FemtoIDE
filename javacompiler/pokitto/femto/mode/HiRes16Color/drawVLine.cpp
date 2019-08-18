@@ -11,7 +11,9 @@ if( y < 0 ){
 if( y+h>=176 )
     h = 176 - y;
 
-if( (uint32_t)x>=220 || (uint32_t)y>=176 || h<=0 )
+std::uint32_t screenWidth = width();
+
+if( std::uint32_t(x)>=screenWidth || std::uint32_t(y)>=std::uint32_t(height()) || h<=0 )
     return;
         
 char mask;
@@ -23,12 +25,13 @@ if( x&1 ){
     mask = 0x0F;
 }
 
+int halfWidth = screenWidth>>1;
 int rem = h;
-auto *b = buffer->elements+y*110+(x>>1);
+auto *b = buffer->elements+y*halfWidth+(x>>1);
 
 while( rem ){
     *b = (*b&mask) | color;
-    b += 110;
+    b += halfWidth;
     rem--;
 }
 

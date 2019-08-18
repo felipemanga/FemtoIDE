@@ -13,7 +13,7 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
     /// Constructs a `HiRes16Color` object with the corresponding palette `pal` and font `font`
     public HiRes16Color( pointer pal, pointer font ){
         this.font = font;
-        buffer = new byte[0x4BA0];
+        buffer = new byte[(this.width()>>1)*this.height()];
         palette = new ushort[16];
         loadPalette( pal );
         clear(0);

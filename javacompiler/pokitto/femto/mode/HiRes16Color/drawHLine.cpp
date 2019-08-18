@@ -8,10 +8,12 @@ if( x < 0 ){
     x = 0;
 }
 
-if( x+w>=220 )
-    w = 220 - x;
+std::uint32_t screenWidth = width();
 
-if( uint32_t(x)>=220 || uint32_t(y)>=176 || w<1 )
+if( x+w>=screenWidth )
+    w = screenWidth - x;
+
+if( std::uint32_t(x)>=screenWidth || std::uint32_t(y)>=std::uint32_t(height()) || w<1 )
     return;
         
 color = (color<<4) | (color&0xF);
@@ -25,7 +27,7 @@ if( x&1 ){
 }
 
 int rem = (w>>1);
-auto *b = buffer->elements+y*110+(x>>1);
+auto *b = buffer->elements+y*(screenWidth>>1)+(x>>1);
 
 while( rem ){
     *b++ = color;

@@ -102,7 +102,7 @@ __blit_4bpp(
   f.frame, 
   x.getInteger() + (mirror?this->width()-(frameWidth+(frameWidth&1)+f.offsetX):f.offsetX), 
   y.getInteger() + f.offsetY, 
-  &screen->buffer->arrayRead(0), 
+  screen, 
   flip, 
   mirror 
 )");
@@ -144,5 +144,5 @@ __blit_4bpp(
 
     }
 
-    protected static void __blit_4bpp( pointer src, int x, int y, pointer out, boolean flip, boolean mirror ){}
+    protected static void __blit_4bpp( pointer src, int x, int y, HiRes16Color screen, boolean flip, boolean mirror ){}
 }

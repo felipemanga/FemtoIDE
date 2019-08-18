@@ -1,19 +1,7 @@
 
-#define drawPixelRaw( _x, _y, c )                     \
-    {                                                 \
-        std::uint32_t __x = (_x);                     \
-        std::uint32_t __y = (_y);                     \
-        std::uint8_t __col = (c);                     \
-        std::uint16_t __i = (__y)*(110) + ((__x)>>1); \
-        std::uint8_t __pixel = buffer[__i];           \
-        __col &= 0xF;                                 \
-        if (__x&1) __pixel = (__pixel&0xF0)|(__col);  \
-        else __pixel = (__pixel&0x0F) | (__col<<4);   \
-        buffer[__i] = __pixel;                        \
-    }
-
-const uint32_t displayWidth = 220,
-    displayHeight = 176;
+void *out = &screen->buffer->arrayRead(0);
+const uint32_t displayWidth = screen->width(),
+    displayHeight = screen->height();
 const uint8_t *data = (uint8_t *)src;
 uint8_t *buffer = (uint8_t *)out;
 uint32_t width = data[0];
@@ -173,4 +161,3 @@ if( osx & 1 ){
     }
 }
 
-#undef drawPixelRaw
