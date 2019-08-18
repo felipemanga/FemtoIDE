@@ -1,12 +1,11 @@
 package femto.mode;
-import femto.hardware.ST7775;
-import java.util.Arrays;
 
 public class LowRes16Color extends HiRes16Color implements __stub__ {
 
     /// Constructs a `LowRes16Color` object with the corresponding palette `pal` and font `font`
     public LowRes16Color( pointer pal, pointer font ){
-        super(pal, font);
+        super();
+        initialize( pal, font );
     }
 
     /// @copydoc ScreenMode::width()

@@ -10,8 +10,14 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
     /// The screen mode's palette.
     public ushort[] palette;
 
+    protected HiRes16Color(){}
+
     /// Constructs a `HiRes16Color` object with the corresponding palette `pal` and font `font`
     public HiRes16Color( pointer pal, pointer font ){
+        initialize( pal, font );
+    }
+
+    protected void initialize( pointer pal, pointer font ){
         this.font = font;
         buffer = new byte[(this.width()>>1)*this.height()];
         palette = new ushort[16];
