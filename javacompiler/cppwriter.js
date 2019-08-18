@@ -271,7 +271,15 @@ function writeClassInline( type ){
 
 function writeFieldDecl(field) {
     let out = "";
-    let type = field.type.getTarget();
+    let type = field.type;
+    if( type.name == "var" && field.init && field.init.expression ){
+        let e = writeExpression(field.init.expression);
+        type = field.type = e.type;
+    }
+    
+    if( type.getTarget )
+        type = type.getTarget();
+    
     if( field.isVolatile ) out += "volatile ";
     if( field.isStatic ) out += "static ";
     if( field.isFinal && type.isNative ) out += "const ";
@@ -1077,6 +1085,10 @@ function writeExpression( expr, typeHint ){
     case "%=":
     case "^=":
         e = writeExpression( expr.left );
+        if( e.isFinal ){
+            throwError(expr.location, `Can't alter final "${e.out}"`);
+        }
+
         type = e.type;
         out += e.out;
         if( expr.right ){
@@ -1138,6 +1150,7 @@ function writeExpression( expr, typeHint ){
         }
         type = expr.trail[ expr.trail.length-1 ];
         if( type.type ){ // field
+            retdata.isFinal = type.isFinal;
             type = type.type;
         }else if( type.isMethod ){
             retdata.methodName = type.name;
@@ -1155,6 +1168,8 @@ function writeExpression( expr, typeHint ){
 
     case "access":
         e = writeExpression(expr.left);
+        if( !expr.right )
+            retdata.isFinal = e.isFinal;
         out += e.out;
         type = e.type;
         e = access(expr.right, e);
@@ -1212,9 +1227,10 @@ function writeExpression( expr, typeHint ){
     case "parenthesis":
         e = writeExpression(expr.left);
         out += "(" + e.out + ")";
+        retdata.isFinal = e.isFinal;
         type = e.type;
         out += writeExpressionRight(expr.right);
-
+        
         break;
 
     case "cast":
@@ -1913,20 +1929,34 @@ function writeClassImpl( unit ){
                     writePath(field.type); // This fixes a bug.
                     return;
                 }
+
+                let e;
+                if( field.init && field.init.expression ){
+                    e = writeExpression(field.init.expression.right);
+                }
+                
+                if( field.type.name == "var" && e )
+                    field.type = e.type;
+
                 out += `${indent}`;
+
                 if( field.isVolatile )
                     out += "volatile ";
+
                 if( field.isFinal )
                     out += "const ";
+
                 out += `${writeType(field.type, true)} ${writePath(t)}::`;
+                out += field.name;
+
                 if( field.init && field.init.expression ){
-                    let e = writeExpression(field.init.expression);
                     if( !isAssignableType( field.type, e.type ) ){
                         throwError( field.init.expression.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
                     }
-                    out += e.out;
-                }else
-                    out += field.name;
+
+                    out += " = " + e.out;
+                }
+
                 out += ';\n';
             });
 
