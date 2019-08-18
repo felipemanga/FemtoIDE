@@ -43,17 +43,18 @@ class Main extends State {
             Game.changeState( new Main() );
 
         // Fill the screen using Pattern.png
-        for( int y=0; y<176; y += background.height() ){
-            for( int x=0; x<220; x += background.width() ){
+        for( int y=0; y<screen.height(); y += background.height() ){
+            for( int x=0; x<screen.width(); x += background.width() ){
                 background.draw(screen, x, y);
             }
         }
 
         // Print some text
         counter++;
-        screen.setTextPosition( 100, 84 );
+        String txt = ((counter>>5)&1) == 1 ? "ROOOUUUND" : "AND";
+        screen.setTextPosition( screen.width()/2 - (screen.textWidth(txt)/2), screen.height()/2 );
         screen.textColor++;
-        screen.print((counter>>5)&1 ? "ROUND" : "AND");
+        screen.print(txt);
         
         // Move and draw the dog
         float previousX = dog.x;
