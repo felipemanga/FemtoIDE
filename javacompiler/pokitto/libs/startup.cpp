@@ -41,6 +41,10 @@ void *__wrap__sbrk( int incr ){
 
         unsigned long app_link_location = bootinfo[2];
 
+    	*Reg(0x40014000 + 20) = 0; // TIMER32_0_BASE + MCR;
+    	*Reg(0x40018000 + 20) = 0; // TIMER32_1_BASE + MCR;
+        *Reg(0xE000E180) = ~0; // NVIC->ICER[0] = (1 << ((uint32_t)(IRQn) & 0x1F));
+        
         *Reg(0xA0004004) = 0; // LPC_PINT->IENR = 0;
         *Reg(0xA0004010) = 0; // LPC_PINT->IENF = 0;
         *Reg(0xE000E010) &= ~1; // SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk & ~(SysTick_CTRL_ENABLE_Msk); //disable systick
