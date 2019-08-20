@@ -6,6 +6,12 @@
 #define FIXED_POINTS_NO_RANDOM
 #include "FixedPoints/FixedPoints.h"
 
+#ifdef DEBUG
+#define CRASH() (*((std::uint32_t*)0) = 1)
+#else
+#define CRASH()
+#endif
+
 #ifndef POKITTO_BAS
 
 typedef struct {
@@ -447,7 +453,7 @@ public:
     TP arrayRead( int32_t offset ){ // to-do: bounds-check?
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
-            while(true);
+            CRASH();
         }
         return static_cast<TP>( __inflate_ptr__(elements[ offset ]) );
     }
@@ -455,7 +461,7 @@ public:
     TP arrayWrite( int32_t offset, const TP &value ){
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
-            while(true);
+            CRASH();
         }
         
         elements[ offset ] = __deflate_ptr__(value);
@@ -528,7 +534,7 @@ public:
     T &arrayRead( uint32_t offset ){ // to-do: bounds-check?
         if( !elements || offset >= length ){
             __print__("Array access out of bounds\n");
-            while(true);
+            CRASH();
         }
         return elements[ offset ];
     }
@@ -536,7 +542,7 @@ public:
     T &arrayWrite( uint32_t offset, T value ){
         if( !elements || offset >= length ){
             __print__("Array access out of bounds\n");
-            while(true);
+            CRASH();
         }
         elements[ offset ] = value;
         return elements[ offset ];
@@ -623,7 +629,7 @@ public:
     bool arrayRead( uint32_t offset ){ // to-do: bounds-check?
         if( offset >= length ){
             __print__("Array access out of bounds\n");
-            while(true);
+            CRASH();
         }
 
         if( length > 32 )
@@ -636,7 +642,7 @@ public:
         BoolRef b;
         if( offset >= length ){
             __print__("Array access out of bounds\n");
-            while(true);
+            CRASH();
         }
 
         if( length > 32 )
@@ -885,6 +891,21 @@ namespace up_java {
                 char *c = new char[15];
                 miniftoa( v, c );
                 return new uc_String(c);
+            }
+
+            static uc_String *valueOf( up_java::up_lang::uc_long l ){
+                return valueOf(uint32_t(l));
+            }
+
+            static uc_String *valueOf( up_java::up_lang::uc_byte b ){
+                char *c = new char[2];
+                c[0] = b;
+                c[1] = 0;
+                return new uc_String(c);
+            }
+
+            static uc_String *valueOf( up_java::up_lang::uc_char c ){
+                return valueOf( uc_byte(c) );
             }
             
             static uc_String* valueOf( int32_t v ){

@@ -202,6 +202,9 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 flags.push( ...typeFlags[DATA.buildMode] );
         }
 
+        if( buffer.type == "C" || buffer.type == "CPP" )
+            flags.push("-D" + DATA.buildMode);
+        
         flags.push(...libFlags);
 
         if( !objFile[ buffer.path ] )
