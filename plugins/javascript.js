@@ -55,12 +55,34 @@ APP.addPlugin("JS", ["Text"], TextView => {
         }
     }
 
+    function stat(name){
+        try{
+            return fs.statSync( DATA.projectPath + path.sep + name );
+        }catch(ex){
+            return null;
+        }
+    }
+
+    function invoke(cmd, ...args){
+        let data = '';
+        return new Promise((ok, notok)=>{
+            APP.spawn(cmd, {cwd:DATA.projectPath}, args)
+                .on('data-out', d => data += d)
+                .on('data-err', d => data += d)
+                .on('close', error=> error ? notok({data, error}) : ok(data))
+                .on('error', error=> notok({error}));
+        });
+    }
+
+    let hookArgs = [];
+
     function run(src){
         try {
             eval(src);
         } catch(ex){
             APP.error(ex);
         }
+        
     }
     
     class JSView extends TextView {
@@ -83,6 +105,12 @@ APP.addPlugin("JS", ["Text"], TextView => {
                 if( err )
                     return;
                 
+
+                let hook = src.match(/\/\/!APP-HOOK:\s*([^\n]+)/);
+                if( hook ){
+                    APP.add({[hook[1].trim()]:doAction});
+                }
+
                 let match = src.match(/^\/\/!MENU-ENTRY:\s*([^\n]+)/);
                 if( !match )
                     return;
@@ -94,7 +122,8 @@ APP.addPlugin("JS", ["Text"], TextView => {
                 
                 APP.addMenu("Scripts", {[match[1]]:doAction});
 
-                function doAction(){
+                function doAction(...args){
+                    hookArgs = args;
                     APP.readBuffer( buffer, undefined, (err, src)=>{
                         if(!err)
                             eval(src);
