@@ -1,5 +1,5 @@
 APP.addPlugin("Python", ["Text"], TextView => {
-    const extensions = ["py"];
+    const extensions = ["PY"];
     
     class PythonView extends TextView {
         constructor( frame, buffer ){
