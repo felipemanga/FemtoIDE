@@ -2,10 +2,16 @@ APP.addPlugin("Exec", [], _=>{
     const modes = ["APP"];
     const log = [];
     let logCursor = 0;
+    let cwd = DATA.appPath;
+    
 
     APP.customSetVariables({ execMode:"APP" });
 
     APP.add(new class Exec {
+        onOpenProject(){
+            cwd = DATA.projectPath;
+        }
+
         onCMDKey( event ){
             let key = event.key;
             let element = event.target;
@@ -61,8 +67,7 @@ APP.addPlugin("Exec", [], _=>{
             }
 
             if( cmd[0] == '#' ){
-                APP.shell(cmd.substr(1));
-                return "shell>" + cmd.substr(1);
+                return term(cmd.substr(1));
             }
 
             const m = cmd.match(/^\s*([^(\s]+)\s*\((.*)\)$/);
@@ -72,4 +77,51 @@ APP.addPlugin("Exec", [], _=>{
             return APP[ name ]( ...args );
         }
     });
+
+    const builtin = {
+        cd( args ){
+
+            if( !args.length )
+                args = [DATA.projectPath];
+
+            let str = args[0];
+
+            if( !path.isAbsolute(str) )
+                str = path.join(cwd, str);
+
+            let newcwd = path.resolve(str);
+            try{
+                let stat = fs.statSync( newcwd );
+                if( stat.isDirectory() ){
+                    cwd = newcwd;
+                    APP.log(newcwd);
+                }else{
+                    APP.error(`${newcwd} is not a directory`);
+                }
+            }catch(ex){
+                APP.error(`${newcwd}: no such file or directory`);
+            }
+        }
+    };
+
+    function shellexec(cmd, args){
+        APP.spawn( cmd, { cwd }, args )
+            .on("data-out", str=>{
+                APP.log(str);
+            })
+            .on("data-err", str=>{
+                APP.error(str);
+            });
+    }
+
+    function term(cmd){
+        let args = [];
+        cmd.replace(/"([^"]*)"|(?:[^ \n\\]|\\.)+/g, (match, str)=>{
+            args.push( APP.replaceDataInString( str || match) );
+            return "";
+        });
+
+        cmd = args.shift();
+        (builtin[cmd] || shellexec.bind(null, cmd))(args);
+    }
 });
