@@ -745,8 +745,11 @@ class Core {
 
     spawn( cmd, ...args ){
         const { spawn } = require('child_process');
-        
-        cmd = this.escapeCmdArgs([APP.replaceDataInString(cmd)])[0];
+
+        cmd = APP.replaceDataInString(cmd);
+
+        if( DATA.os == "windows" )
+            cmd = this.escapeCmdArgs([cmd])[0];
 
         let options = {};
 
