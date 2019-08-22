@@ -328,6 +328,7 @@ public:
     T *operator ->() const {
         if(!ptr){
             __print__("Null pointer exception\n");
+            CRASH();
         }
         return ptr;
     }
@@ -763,6 +764,18 @@ void uc_Object::__gc__(){
 
 namespace up_java {
     namespace up_lang {
+        class uc_String;
+    }
+}
+
+class __str__T {
+public:
+    operator up_java::up_lang::uc_String*();
+    up_java::up_lang::uc_String* operator->();
+};
+
+namespace up_java {
+    namespace up_lang {
         class uc_String : public uc_Object {
             const char *ptr;
         
@@ -927,20 +940,48 @@ namespace up_java {
     }    
 }
 
-up_java::up_lang::uc_String* __str__( const char *s ){
-    return new up_java::up_lang::uc_String(s);
+__str__T& __str__( const char *s ){
+    return *(__str__T*)s;
+}
+
+__str__T::operator up_java::up_lang::uc_String*(){
+    return new up_java::up_lang::uc_String((const char*)this);
+}
+
+up_java::up_lang::uc_String* __str__T::operator->(){
+    return new up_java::up_lang::uc_String((const char*)this);
+}
+
+
+char *concatenate(const char *l, const char *r ){
+    int len = 1;
+
+    const char *read = l;
+    while(*read++) len++;
+
+    read = r;
+    while(*read++) len++;
+
+    char *out = new char[len];
+    char *write = out;
+    write = out;
+    while(*l) *write++ = *l++;
+    while(*r) *write++ = *r++;
+
+    *write = 0;
+    return out;
 }
 
 up_java::up_lang::uc_String *operator +(up_java::up_lang::uc_String &l, up_java::up_lang::uc_String &r){
-    char *ch = new char[l.length() + r.length() + 1];
-    const char *lch = l.__c_str();
-    const char *rch = r.__c_str();
-    up_java::up_lang::uc_String *ret = new up_java::up_lang::uc_String( ch );
-    char *i = ch;
-    if( lch ) while( *lch ) *i++ = *lch++;
-    if( rch ) while( *rch ) *i++ = *rch++;
-    *i = 0;
-    return ret;
+    return new up_java::up_lang::uc_String( concatenate(l.__c_str(), r.__c_str()) );
+}
+
+up_java::up_lang::uc_String *operator +(const __str__T &l, up_java::up_lang::uc_String &r){
+    return new up_java::up_lang::uc_String( concatenate((char*)&l, r.__c_str()) );
+}
+
+up_java::up_lang::uc_String *operator +(up_java::up_lang::uc_String &l, const __str__T &r){
+    return new up_java::up_lang::uc_String( concatenate(l.__c_str(), (char*)&r) );
 }
 
 template <typename T>
@@ -952,6 +993,42 @@ template <typename T>
 up_java::up_lang::uc_String *operator +( T r, up_java::up_lang::uc_String &l ){
     return *up_java::up_lang::uc_String::valueOf( r ) + l;
 }
+
+template <typename T>
+up_java::up_lang::uc_String *operator +( const __str__T &l, T r ){
+    return new up_java::up_lang::uc_String( concatenate((char*)&l, *up_java::up_lang::uc_String::valueOf( r )) );
+}
+
+template <typename T>
+up_java::up_lang::uc_String *operator +( T r, const __str__T &l ){
+    return new up_java::up_lang::uc_String( concatenate(*up_java::up_lang::uc_String::valueOf( r ), (char*)&l) );
+}
+
+up_java::up_lang::uc_String *operator +( const __str__T &l, up_java::up_lang::uc_int r ){
+    char buff[13];
+    miniitoa(r, buff, 10);
+    return new up_java::up_lang::uc_String( concatenate((char*)&l, buff) );
+}
+
+up_java::up_lang::uc_String *operator +( up_java::up_lang::uc_int r, const __str__T &l ){
+    char buff[13];
+    miniitoa(r, buff, 10);
+    return new up_java::up_lang::uc_String( concatenate(buff, (char*)&l) );
+}
+
+up_java::up_lang::uc_String *operator +( const __str__T &l, up_java::up_lang::uc_float r ){
+    char buff[15];
+    miniftoa(r, buff);
+    return new up_java::up_lang::uc_String( concatenate((char*)&l, buff) );
+}
+
+template <typename T>
+up_java::up_lang::uc_String *operator +( up_java::up_lang::uc_float r, const __str__T &l ){
+    char buff[15];
+    miniftoa(r, buff);
+    return new up_java::up_lang::uc_String( concatenate(buff, (char*)&l) );
+}
+
 
 volatile std::uint32_t __timer;
 extern "C" {
