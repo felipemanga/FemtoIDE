@@ -658,11 +658,6 @@ public:
 
 };
 
-template<typename T>
-using __array = __ref__<uc_Array<T, true>>;
-template<typename T>
-using __array_nat = __ref__<uc_Array<T, false>>;
-
 extern unsigned int __allocated_memory__;
 uint32_t uc_Object::__gray_count__ = 0;
 sptr_t uc_Object::__first__ = 0;

@@ -102,12 +102,12 @@ function writeType( type, local ){
         type = type.getTarget();
     
     if( type.isArray ){
-        if( type.getTarget().isNative ){
-            finalType = `__array_nat<`;
-        }else{
-            finalType = `__array<`;
-        }
-        finalType += `${writePath(type)}>`;
+        let isObject = !type.getTarget().isNative;
+        finalType = `::uc_Array<${writePath(type)},${isObject}>`;
+        if( local )
+            finalType = `__ref__<${finalType}>`;
+        else
+            finalType += "*";
     }else if( type.isEnum ){
         finalType = writePath(type) + "*";
     }else if( (type.isReference || type.isClass || type.isInterface) && !type.isNative )
@@ -425,7 +425,7 @@ function writeMethodBody( method, t ){
             
             let str = field.name + "(";
             if( field.init && field.init.expression ){
-                let e = writeExpression(field.init.expression.right);
+                let e = writeExpression(field.init.expression.right, field.type);
                 str += e.out;
                 if( !isAssignableType( field.type, e.type ) ){
                     throwError( field.init.expression.right.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
@@ -1254,64 +1254,69 @@ function writeExpression( expr, typeHint ){
         break;
 
     case "new":
-        let close = "";
-        if( expr.left.isArray ){
-            if( expr.array ){
-                out += `new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>{`;
-                out += expr.array.map(a => writeExpression(a).out).join(", ");
-                out += '}';
+        {
+            let close = "";
+            let left = expr.left || typeHint;
+            if( left.isArray ){
+                if( expr.array ){
+                    out += `new uc_Array<${writePath(left)},${!left.type.isNative}>{`;
+                    out += expr.array.map(a => writeExpression(a).out).join(", ");
+                    out += '}';
+                }else{
+                    out += `(new uc_Array<${writePath(left)},${!left.type.isNative}>)`;
+                    out += "->loadValues({";
+                    out += expr.arrayInitializer.map( e => writeExpression( e ).out ).join(",");
+                    out += "})";
+                }
+                
+                type = left;
+            }else if( expr.left.getTarget().isInline ){
+                let ref = expr.left.getTarget();
+                out += "([=]()->";
+                out += writeType(ref.extends, false);
+                out += "{";
+                out += writeClassInline(ref);
+                out += "return new uc_" + ref.name;
+                close = ";})()";
+                type = ref.extends;
             }else{
-                out += `(new uc_Array<${writePath(expr.left)},${!expr.left.type.isNative}>)`;
-                out += "->loadValues({";
-                out += expr.arrayInitializer.map( e => writeExpression( e ).out ).join(",");
-                out += "})";
+                out += "(new " + writePath(expr.left);
+                close = ")";
+                type = expr.left;
             }
             
-            type = expr.left;
-        }else if( expr.left.getTarget().isInline ){
-            let ref = expr.left.getTarget();
-            out += "([=]()->";
-            out += writeType(ref.extends, false);
-            out += "{";
-            out += writeClassInline(ref);
-            out += "return new uc_" + ref.name;
-            close = ";})()";
-            type = ref.extends;
-        }else{
-            out += "(new " + writePath(expr.left);
-            close = ")";
-            type = expr.left;
-        }
-        
-        if( !expr.left.isArray ){
-            out += "(";
-            if( expr.args ){
-                out += expr
-                    .args
-                    .map( e => writeExpression(e).out )
-                    .join(", ");
+            if( !left.isArray ){
+                out += "(";
+                if( expr.args ){
+                    out += expr
+                        .args
+                        .map( e => writeExpression(e).out )
+                        .join(", ");
+                }
+                out += ")";
+                out += close;
             }
-            out += ")";
-            out += close;
-        }
 
-        out += writeExpressionRight(expr.right);
-        break;
+            out += writeExpressionRight(expr.right);
+            break;
+        }
 
     case "ternary": // to-do: check if left & right types match
-        let left = writeExpression( expr.left );
-        let right = writeExpression( expr.right );
-        let condition = writeExpression( expr.condition );
-        assertType( condition, BOOLEAN, expr );
-        type = getOperatorType(left.type, "?", right.type, expr);
-        out += "(";
-        out += condition.out;
-        out += "?";
-        out += left.out; 
-        out += ":";
-        out += right.out;
-        out += ")";
-        break;
+        {
+            let left = writeExpression( expr.left );
+            let right = writeExpression( expr.right );
+            let condition = writeExpression( expr.condition );
+            assertType( condition, BOOLEAN, expr );
+            type = getOperatorType(left.type, "?", right.type, expr);
+            out += "(";
+            out += condition.out;
+            out += "?";
+            out += left.out; 
+            out += ":";
+            out += right.out;
+            out += ")";
+            break;
+        }
 
     default:
         switch( expr.name ){
@@ -1376,8 +1381,7 @@ function writeExpression( expr, typeHint ){
             break;
 
         default:
-            console.error("Unknown operation: " + expr.operation, expr);
-            expr[0][0][0] = 1;
+            throwError(expr.location, "Unknown operation: " + expr.operation + Object.keys(expr));
         }
         break;
     }
@@ -1444,29 +1448,14 @@ function writeStatement( stmt, block, noSemicolon ){
             out += indent;
             
             if( stmt.expression ){
-                let e;
-                if( Array.isArray( stmt.expression.right ) ){
-                    out += writeType(local.type, false) + " ";
-
-                    e = writeExpression( stmt.expression.left );
-                    out += e.out;
-                    out += " " + stmt.expression.operation + " (new uc_Array<";
-                    out += writePath(e.type);
-                    out += ",";
-                    out += !e.type.getTarget().isNative;
-                    out += ">)->loadValues({";
-                    out += stmt.expression.right.map( e => writeExpression( e ).out ).join(",");
-                    out += "})";
-                }else{
-                    e = writeExpression(stmt.expression.right);
-                    if( local.type.name == "var" ){
-                        local.type = e.type;
-                    }
-                    out += writeType(local.type, false) + " ";
-                    out += writeExpression(stmt.expression.left).out;
-                    out += "=";
-                    out += e.out;
+                let e = writeExpression(stmt.expression.right, local.type);
+                if( local.type.name == "var" ){
+                    local.type = e.type;
                 }
+                out += writeType(local.type, false) + " ";
+                out += writeExpression(stmt.expression.left).out;
+                out += "=";
+                out += e.out;
 
                 if( !isAssignableType( local.type, e.type ) ){
                     throwError( stmt.location, `Can't initialize ${local.name} with type ${e.type.name}.`);
@@ -1937,11 +1926,11 @@ function writeClassImpl( unit ){
 
                 let e;
                 if( field.init && field.init.expression ){
-                    e = writeExpression(field.init.expression.right);
-                }
+                    e = writeExpression(field.init.expression.right, field.type);
                 
-                if( field.type.name == "var" && e )
-                    field.type = e.type;
+                    if( field.type.name == "var" && e )
+                        field.type = e.type;
+                }
 
                 out += `${indent}`;
 

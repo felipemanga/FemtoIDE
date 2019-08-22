@@ -61,7 +61,10 @@ class Expression {
             .children;
 
         if( init.arrayInitializer ){
-            this.right = init.arrayInitializer[0]
+            this.right = new Expression(null, this.scope);
+            this.right.operation = "new";
+            this.right.left = null;
+            this.right.arrayInitializer = init.arrayInitializer[0]
                 .children
                 .variableInitializerList[0]
                 .children
