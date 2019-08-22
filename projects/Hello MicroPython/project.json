@@ -1,0 +1,326 @@
+{
+	"lastBuffer": "main.py",
+	"PNGFlags": {
+		"ALL": [
+			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp"
+		]
+	},
+	"libs": {
+		"Pokitto": [
+			{
+				"recurse": "${appPath}/PokittoLib/Pokitto",
+				"ignore": "POKITTO_SIM|POKITTO_XTERNALS|Documentation|examples?|Physics|(?:.*_SIM.*)|main.cpp|UsbSerialPrint.cpp"
+			}
+		]
+	},
+	"SFlags": {
+		"Pokitto": [
+			"-I${projectPath}",
+			"-mcpu=cortex-m0plus",
+			"-mthumb"
+		]
+	},
+	"CPPFlags": {
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"RELEASE": [
+			"-O3"
+		],
+		"Pokitto": [
+			"-DPROJ_FPS=60",
+			"-I${projectPath}",
+			"-DPOKITTO",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks",
+			"-fomit-frame-pointer",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wno-psabi",
+			"-Wno-conversion-null",
+			"-Wno-narrowing",
+			"-Wno-write-strings",
+			"-DTARGET_LPC11U68",
+			"-D__MBED__=1",
+			"-DDEVICE_I2CSLAVE=1",
+			"-DTARGET_LIKE_MBED",
+			"-DTARGET_NXP",
+			"-D__MBED_CMSIS_RTOS_CM",
+			"-DDEVICE_RTC=1",
+			"-DTOOLCHAIN_object",
+			"-D__CMSIS_RTOS",
+			"-DTOOLCHAIN_GCC",
+			"-DTARGET_CORTEX_M",
+			"-DTARGET_M0P",
+			"-DTARGET_UVISOR_UNSUPPORTED",
+			"-DDEVICE_SERIAL=1",
+			"-DDEVICE_INTERRUPTIN=1",
+			"-DTARGET_LPCTarget",
+			"-DTARGET_CORTEX",
+			"-DDEVICE_I2C=1",
+			"-D__CORTEX_M0PLUS",
+			"-DTARGET_FF_ARDUINO",
+			"-DTARGET_RELEASE",
+			"-DMBED_BUILD_TIMESTAMP=1526394586.66",
+			"-DARM_MATH_CM0PLUS",
+			"-DTARGET_LPC11U6X",
+			"-DDEVICE_SLEEP=1",
+			"-DTOOLCHAIN_GCC_ARM",
+			"-DDEVICE_SPI=1",
+			"-DDEVICE_ANALOGIN=1",
+			"-DDEVICE_PWMOUT=1",
+			"-DTARGET_LIKE_CORTEX_M0"
+		],
+		"Desktop": [
+			"-I${projectPath}",
+			"-DDESKTOP",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks"
+		],
+		"ALL": [
+			"-std=c++14"
+		]
+	},
+	"CFlags": {
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"RELEASE": [
+			"-O3"
+		],
+		"Pokitto": [
+			"-I${projectPath}",
+			"-I${projectPath}/micropython",
+			"-DPOKITTO",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks",
+			"-fomit-frame-pointer",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wno-psabi",
+			"-Wwrite-strings",
+			"-DTARGET_LPC11U68",
+			"-D__MBED__=1",
+			"-DDEVICE_I2CSLAVE=1",
+			"-DTARGET_LIKE_MBED",
+			"-DTARGET_NXP",
+			"-D__MBED_CMSIS_RTOS_CM",
+			"-DDEVICE_RTC=1",
+			"-DTOOLCHAIN_object",
+			"-D__CMSIS_RTOS",
+			"-DTOOLCHAIN_GCC",
+			"-DTARGET_CORTEX_M",
+			"-DTARGET_M0P",
+			"-DTARGET_UVISOR_UNSUPPORTED",
+			"-DDEVICE_SERIAL=1",
+			"-DDEVICE_INTERRUPTIN=1",
+			"-DTARGET_LPCTarget",
+			"-DTARGET_CORTEX",
+			"-DDEVICE_I2C=1",
+			"-D__CORTEX_M0PLUS",
+			"-DTARGET_FF_ARDUINO",
+			"-DTARGET_RELEASE",
+			"-DMBED_BUILD_TIMESTAMP=1526394586.66",
+			"-DARM_MATH_CM0PLUS",
+			"-DTARGET_LPC11U6X",
+			"-DDEVICE_SLEEP=1",
+			"-DTOOLCHAIN_GCC_ARM",
+			"-DDEVICE_SPI=1",
+			"-DDEVICE_ANALOGIN=1",
+			"-DDEVICE_PWMOUT=1",
+			"-DTARGET_LIKE_CORTEX_M0"
+		],
+		"Desktop": [
+			"-I${projectPath}",
+			"-DDESKTOP",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks"
+		],
+		"ALL": []
+	},
+	"GDBFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.elf"
+		]
+	},
+	"emuFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"ELF2BINFlags": {
+		"Pokitto": [
+			"-O",
+			"binary",
+			"${projectPath}/${projectName}.elf",
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"LDFlags": {
+		"RELEASE": [
+			"-O3"
+		],
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"Pokitto": [
+			"-Wl,--gc-sections",
+			"-Wl,-n",
+			"--specs=nano.specs",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wl,--undefined=g_pfnVectors",
+			"-Wl,--undefined=boot",
+			"-T",
+			"${appPath}/PokittoLib/Pokitto/mbed-pokitto/targets/cmsis/TARGET_NXP/TARGET_LPC11U6X/TOOLCHAIN_GCC_ARM/TARGET_LPC11U68/LPC11U68.ld",
+			"--output",
+			"${projectPath}/${projectName}.elf",
+			"$objectFiles",
+			"-Wl,--start-group",
+			"-lstdc++",
+			"-lsupc++",
+			"-lm",
+			"-lc",
+			"-lgcc",
+			"-lnosys",
+			"-Wl,--end-group",
+			"-Wl,--allow-multiple-definition",
+			"${projectPath}/micropython/libmicropython.a"
+		]
+	},
+	"target": "Pokitto",
+	"pipelines": {
+		"Pokitto": [
+			"pre-build",
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin",
+			"make-img"
+		],
+		"Desktop": [
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin"
+		]
+	},
+	"meta": {
+		"": {},
+		"/Hello MicroPython.bin": {
+			"sdcard": false
+		},
+		"/Hello MicroPython.elf": {
+			"sdcard": false
+		},
+		"/My_settings.h": {
+			"sdcard": false
+		},
+		"/main.py": {
+			"sdcard": false
+		},
+		"/main.mpy": {
+			"sdcard": false
+		},
+		"/micropython": {},
+		"/project.json": {
+			"sdcard": false
+		},
+		"/micropython/UartSerialPrint.cpp": {
+			"sdcard": false
+		},
+		"/micropython/frozen_mpy.c": {
+			"sdcard": false
+		},
+		"/micropython/genhdr": {},
+		"/micropython/libmicropython.a": {
+			"sdcard": false
+		},
+		"/micropython/main.cpp": {
+			"sdcard": false
+		},
+		"/micropython/mpconfigport.h": {
+			"sdcard": false
+		},
+		"/micropython/pre-build.js": {
+			"sdcard": false
+		},
+		"/micropython/sprite.mpy": {
+			"sdcard": false
+		},
+		"/micropython/sprite.py": {
+			"sdcard": false
+		},
+		"/micropython/tools": {},
+		"/micropython/genhdr/qstrdefs.generated.h": {
+			"sdcard": false
+		},
+		"/micropython/genhdr/qstrdefs.preprocessed.h": {
+			"sdcard": false
+		},
+		"/micropython/tools/__pycache__": {},
+		"/micropython/tools/__target__": {},
+		"/micropython/tools/linux-mpy-cross": {
+			"sdcard": false
+		},
+		"/micropython/tools/makeqstrdata.py": {
+			"sdcard": false
+		},
+		"/micropython/tools/makeqstrdata.pyc": {
+			"sdcard": false
+		},
+		"/micropython/tools/mpy-tool.py": {
+			"sdcard": false
+		},
+		"/micropython/tools/windows-mpy-cross.exe": {
+			"sdcard": false
+		},
+		"/micropython/tools/__target__/mpy-tool.options": {
+			"sdcard": false
+		},
+		"/micropython/tools/__target__/org.transcrypt.__runtime__.js": {
+			"sdcard": false
+		},
+		"/micropython/tools/__target__/org.transcrypt.__runtime__.map": {
+			"sdcard": false
+		},
+		"/micropython/tools/__target__/org.transcrypt.__runtime__.py": {
+			"sdcard": false
+		}
+	}
+}
