@@ -757,6 +757,8 @@ function isAssignableType( left, right ){
         [UBYTE.type, UINT.type],
         [BYTE.type, INT.type],
         [BYTE.type, UINT.type],
+        [FLOAT.type, DOUBLE.type],
+        [DOUBLE.type, FLOAT.type],
     ];
 
     return !!riskyint.find(([l, r])=>left==l && right==r);
