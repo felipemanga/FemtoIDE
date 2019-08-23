@@ -74,9 +74,7 @@ APP.addPlugin("JS", ["Text"], TextView => {
         });
     }
 
-    let hookArgs = [];
-
-    function run(src){
+    function run(src, hookTrigger, hookArgs){
         try {
             eval(src);
         } catch(ex){
@@ -92,7 +90,7 @@ APP.addPlugin("JS", ["Text"], TextView => {
         }
 
         doAction(){
-            run(this.ace.session.getValue());
+            run(this.ace.session.getValue(), "manual", []);
         }
     }
 
@@ -106,27 +104,26 @@ APP.addPlugin("JS", ["Text"], TextView => {
                     return;
                 
 
-                let hook = src.match(/\/\/!APP-HOOK:\s*([^\n]+)/);
-                if( hook ){
-                    APP.add({[hook[1].trim()]:doAction});
-                }
+                src.replace(/\/\/!APP-HOOK:\s*([^\n]+)/g, (str, hook)=>{
+                    hook = hook.trim();
+                    APP.add({[hook]:doAction.bind(null, hook)});
+                });
 
-                let match = src.match(/^\/\/!MENU-ENTRY:\s*([^\n]+)/);
+                let match = src.match(/\/\/!MENU-ENTRY:\s*([^\n]+)/);
                 if( !match )
                     return;
 
                 let binding = src.match(/\/\/!MENU-SHORTCUT:\s*([^\n]+)/);
                 if( binding ){
-                    APP.bindKeys("global", {[binding[1].trim()]:doAction});
+                    APP.bindKeys("global", {[binding[1].trim()]:doAction.bind(null, "menu")});
                 }
                 
-                APP.addMenu("Scripts", {[match[1]]:doAction});
+                APP.addMenu("Scripts", {[match[1]]:doAction.bind(null, "menu")});
 
-                function doAction(...args){
-                    hookArgs = args;
+                function doAction(hookTrigger, ...hookArgs){
                     APP.readBuffer( buffer, undefined, (err, src)=>{
                         if(!err)
-                            eval(src);
+                            run(src, hookTrigger, hookArgs);
                     });
                 }
             });

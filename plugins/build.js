@@ -87,7 +87,11 @@ APP.addPlugin("Build", ["Project"], _=>{
                                 popQueue(error);
                             });
                     } else {
-                        APP[stage]( files, popQueue );
+                        let ret = APP[stage]( files, popQueue );
+                        if( ret instanceof Promise ){
+                            ret.then(_=>popQueue())
+                                .catch(ex=>popQueue(ex));
+                        }
                     }
                 }catch(ex){
                     popQueue(ex);
