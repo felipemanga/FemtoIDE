@@ -10,9 +10,8 @@ Object.assign(module.exports, {
     },
 
     reset(){
-        const {Unit} = require(`./Unit.js`);
-        unit = new Unit();
-        clazz = unit.resources();
+        const {Data} = require(`./Data.js`);
+        clazz = Data.unit(["Resources"]);
     },
 
     writeCPP( lookup ){

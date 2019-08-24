@@ -180,52 +180,6 @@ class Unit {
         return ret;
     }
 
-    resources(){
-        this.name = ["Resources"];
-        let clazzName = this.name.pop();
-        const Clazz = require("./Clazz.js");
-        const clazz = new Clazz( clazzName, this );
-        this.types.push( clazz );
-        return clazz;
-    }
-
-    text( data, name ){
-        this.name = [...name];
-        let clazzName = this.name.pop();
-        const Clazz = require("./Clazz.js");
-        const clazz = new Clazz( clazzName, this );
-        clazz.text( data, "txt" );
-        this.types.push( clazz );                
-    }
-
-    xml( data, name, type ){
-        const {toAST} = require("./AST.js");
-        this.name = [...name];
-
-        this.imports.push({
-            fqcn:"femto.XMLNode".split("."),
-            star:false,
-            isStatic:false
-        });
-
-        this.imports.push({
-            fqcn:"femto.StringPair".split("."),
-            star:false,
-            isStatic:false
-        });
-
-        let clazzName = this.name.pop();
-        const Clazz = require("./Clazz.js");
-        const clazz = new Clazz( clazzName, this );
-        clazz.xml( data, type );
-        this.types.push( clazz );                
-    }
-    
-    binary( data, name, extension ){
-        const clazz = this.clazz(name);
-        clazz.binary( data, extension );
-    }
-
     clazz( name ){
         this.name = [...name];
         let clazzName = this.name.pop();
@@ -233,26 +187,6 @@ class Unit {
         const clazz = new Clazz( clazzName, this );
         this.types.push( clazz );
         return clazz;
-    }
-
-    staticImage( sprite, name, interfaces ){
-        this.name = [...name];
-        console.log("Static Image: ", this.name);
-        let clazzName = this.name.pop();
-        const Clazz = require("./Clazz.js");
-        const clazz = new Clazz( clazzName, this );
-        clazz.staticImage( sprite, interfaces );
-        this.types.push( clazz );
-    }
-
-    image( sprite, name, interfaces ){
-        this.name = [...name];
-        console.log("Image: ", this.name);
-        let clazzName = this.name.pop();
-        const Clazz = require("./Clazz.js");
-        const clazz = new Clazz( clazzName, this );
-        clazz.image( sprite, interfaces );
-        this.types.push( clazz );
     }
 
     process( node ){

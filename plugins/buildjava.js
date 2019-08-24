@@ -101,6 +101,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         const palParser = require(`${DATA.appPath}/javacompiler/palParser.js`);
         const spriteParser = require(`${DATA.appPath}/javacompiler/spriteParser.js`);
         const {Unit, getUnit, nativeTypeList} = require(`${DATA.appPath}/javacompiler/Unit.js`);
+        const {Data} = require(`${DATA.appPath}/javacompiler/Data.js`);        
         const { reset, parsers, toAST, resolveVFS, vfs } = require(`${DATA.appPath}/javacompiler/AST.js`);
 
         reset();
@@ -201,18 +202,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             parsers.wav={
                 run( src, name, type ){
-                    let unit = new Unit();
-                    const clazz = unit.clazz(name);
-                    clazz.extends = clazz.getTypeRef("femto.sound.Procedural", true);
-
-                    clazz.addForwardingConstructors();
-
-                    clazz.addArtificial("ubyte", "update", [], {
-                        stream:src,
-                        index:"t",
-                        endOfData:128
-                    });
-                    return unit;
+                    return Data.unit(name, "sound", src);
                 },
 
                 load( file, cb ){
@@ -234,10 +224,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 run( src, name, type ){
                     if( src.data )
                         src = src.data;
-
-                    let unit = new Unit();
-                    unit.binary(src, name, type);
-                    return unit;
+                    return Data.unit(name, "binary", src, type);
                 }
             };
 
@@ -269,7 +256,6 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             parsers.pal={
                 run( src, name ){
                     let colors = palParser.parsePalette( src, name[name.length-1] );
-                    let unit = new Unit();
                     let arr16 = new Uint16Array( colors.colors16 );
                     let arr8 = new Uint8Array(arr16.buffer);
                     let arr = [
@@ -277,8 +263,8 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                         0,
                         ...arr8
                     ];
-                    unit.binary( arr, name, "palette");
-                    return unit;
+
+                    return Data.unit(name, "binary", arr, "palette");
                 }
             };
 
@@ -294,9 +280,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                             .filter(x=>x.length);
                     }
 
-                    let unit = new Unit();
-                    unit.staticImage(png, name, interfaces);
-                    return unit;
+                    return Data.unit(name, "staticImage", png, interfaces);
                 },
 
                 load( file, cb ){
@@ -344,9 +328,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     var parser = new DOMParser();
                     var xmlDoc = parser.parseFromString(src, "text/"+type);
 
-                    let unit = new Unit();                    
-                    unit.xml( xmlDoc, name, type );
-                    return unit;
+                    return Data.unit(name, "xml", xmlDoc, type);
                 }
             };
 
@@ -354,9 +336,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 run( txt, name ){
                     if( txt.data )
                         txt = txt.data;
-                    let unit = new Unit();
-                    unit.text( txt, name );
-                    return unit;
+                    return Data.unit(name, "text", txt, "string");
                 }
             };
 
@@ -374,9 +354,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     }
 
                     let sprite = spriteParser( json, name );
-                    let unit = new Unit();
-                    unit.image(sprite, name, interfaces);
-                    return unit;
+                    return Data.unit(name, "image", sprite, interfaces);
                 },
 
                 load( file, cb ){
