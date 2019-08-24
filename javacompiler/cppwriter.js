@@ -1799,7 +1799,7 @@ function assertType( type, test, location ){
         test = test.getTarget();
     if( type != test ){
         throwError(location.location || location,
-                   `Expected a ${test.name}, got a ${type.name}${out}`);
+                   `Expected a ${test.name}, got a ${type.name} ${out}`);
     }
 }
 

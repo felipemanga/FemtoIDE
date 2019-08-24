@@ -771,6 +771,7 @@ namespace up_java {
 class __str__T {
 public:
     operator up_java::up_lang::uc_String*();
+    operator __ref__<up_java::up_lang::uc_String>();
     up_java::up_lang::uc_String* operator->();
 };
 
@@ -942,6 +943,10 @@ namespace up_java {
 
 __str__T& __str__( const char *s ){
     return *(__str__T*)s;
+}
+
+__str__T::operator __ref__<up_java::up_lang::uc_String>(){
+    return new up_java::up_lang::uc_String((const char*)this);
 }
 
 __str__T::operator up_java::up_lang::uc_String*(){
