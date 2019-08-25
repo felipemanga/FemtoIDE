@@ -4,7 +4,7 @@ var searchData=
   ['filltriangle_30',['fillTriangle',['../classfemto_1_1mode_1_1ScreenMode.html#a42291e572b5da609b6916304b7dc43fb',1,'femto::mode::ScreenMode']]],
   ['flash_31',['Flash',['../classfemto_1_1input_1_1Button.html#aeed0f29abe8a8235be9dbf3c40309b03',1,'femto::input::Button']]],
   ['floor_32',['floor',['../classjava_1_1lang_1_1Math.html#a913be5bd38e8910aeb5dab6f25017b88',1,'java::lang::Math']]],
-  ['flush_33',['flush',['../classfemto_1_1mode_1_1HiRes16Color.html#ad7fd2e7c94a1418fca40ea9b35a39407',1,'femto.mode.HiRes16Color.flush()'],['../classfemto_1_1mode_1_1ScreenMode.html#aeb63727c3dc7def2546fda271d740cdf',1,'femto.mode.ScreenMode.flush()']]],
+  ['flush_33',['flush',['../classfemto_1_1mode_1_1HiRes16Color.html#ad7fd2e7c94a1418fca40ea9b35a39407',1,'femto.mode.HiRes16Color.flush()'],['../classfemto_1_1mode_1_1LowRes16Color.html#ab42a318ffd4bc5d764838f3f5783cde6',1,'femto.mode.LowRes16Color.flush()'],['../classfemto_1_1mode_1_1ScreenMode.html#aeb63727c3dc7def2546fda271d740cdf',1,'femto.mode.ScreenMode.flush()']]],
   ['font_34',['font',['../classfemto_1_1mode_1_1ScreenMode.html#abe478e07ed7f03fe634293bd65ed785a',1,'femto::mode::ScreenMode']]],
   ['fps_35',['fps',['../classfemto_1_1mode_1_1ScreenMode.html#a897597afa3804c8fcfa6bd6402053d62',1,'femto::mode::ScreenMode']]],
   ['frameref_36',['FrameRef',['../classfemto_1_1FrameRef.html',1,'femto']]],

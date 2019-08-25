@@ -15,6 +15,7 @@ var annotated_dup =
       [ "mode", null, [
         [ "Direct", "classfemto_1_1mode_1_1Direct.html", "classfemto_1_1mode_1_1Direct" ],
         [ "HiRes16Color", "classfemto_1_1mode_1_1HiRes16Color.html", "classfemto_1_1mode_1_1HiRes16Color" ],
+        [ "LowRes16Color", "classfemto_1_1mode_1_1LowRes16Color.html", "classfemto_1_1mode_1_1LowRes16Color" ],
         [ "ScreenMode", "classfemto_1_1mode_1_1ScreenMode.html", "classfemto_1_1mode_1_1ScreenMode" ]
       ] ],
       [ "sound", null, [
@@ -29,6 +30,7 @@ var annotated_dup =
       [ "State", "classfemto_1_1State.html", "classfemto_1_1State" ],
       [ "StateMachine", "classfemto_1_1StateMachine.html", "classfemto_1_1StateMachine" ],
       [ "StringPair", "classfemto_1_1StringPair.html", "classfemto_1_1StringPair" ],
+      [ "TileSet", "classfemto_1_1TileSet.html", "classfemto_1_1TileSet" ],
       [ "XMLNode", "classfemto_1_1XMLNode.html", null ]
     ] ],
     [ "java", null, [
