@@ -53,7 +53,7 @@ class Main extends State {
         counter++;
         screen.setTextPosition( 100, 84 );
         screen.textColor++;
-        screen.print((counter>>5)&1 ? "ROUND" : "AND");
+        screen.print(((counter>>5)&1) == 0 ? "ROUND" : "AND");
         
         // Move and draw the dog
         float previousX = dog.x;
