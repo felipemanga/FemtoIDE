@@ -1,7 +1,7 @@
 APP.addPlugin("Build", ["Project"], _=>{
     APP.customSetVariables({buildMode:"RELEASE"});
 
-    let build, busy;
+    let build, busy, buildFiles;
 
     class Build {
 
@@ -19,6 +19,12 @@ APP.addPlugin("Build", ["Project"], _=>{
             this.compile(true, _=>{
                 APP.run();
             });
+        }
+
+        onAfterWriteBuffer(buffer){
+            if( buildFiles && buildFiles.indexOf(buffer) == -1 && buffer.path.startsWith(DATA.projectPath)){
+                buildFiles.push(buffer);
+            }
         }
 
         compile( release=true, callback=null ){
@@ -46,7 +52,7 @@ APP.addPlugin("Build", ["Project"], _=>{
             try{
                 const target = DATA.project.target;
                 pipeline = DATA.project.pipelines[target];
-                files = [...DATA.projectFiles];
+                files = buildFiles = [...DATA.projectFiles];
                 current = -1;
                 setTimeout(_=>popQueue(),0);
             }catch( ex ){
@@ -74,8 +80,9 @@ APP.addPlugin("Build", ["Project"], _=>{
                     cb();
                     return;
                 }
+
                 stage = (pipeline[current]+"").trim();
-                console.log("Starting stage: " + stage);
+                APP.log("Starting stage: " + stage);
                 startTime = performance.now();
                 try{
                     if( stage[0] == "#" ){

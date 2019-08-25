@@ -270,11 +270,14 @@ class Frame {
         return buffer;
     }
 
-    findFile( filePath, doDisplay ){
-
-        let buffer = DATA.buffers.find(
+    findBuffer( filePath ){
+        return DATA.buffers.find(
             buffer => buffer.path == filePath
         );
+    }
+
+    findFile( filePath, doDisplay ){
+        let buffer = this.findBuffer(filePath);
         
         if( buffer ){
             if( doDisplay )
@@ -599,6 +602,21 @@ class Core {
         }catch(ex){
             return undefined;
         }
+    }
+
+    readBufferSync(buffer, en, force=false){
+        if( buffer.data && !force ){
+            let data = buffer.data;
+            if( typeof buffer.transform == "string" )
+                data = APP[buffer.transform]( data );                
+            return data;
+        }
+        
+        en = en || encoding[buffer.type];
+        if( en === undefined )
+            en = "utf-8";
+
+        return buffer.data = fs.readFileSync( buffer.path, en );
     }
 
     readBuffer( buffer, en, cb, force){

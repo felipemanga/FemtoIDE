@@ -1,66 +1,61 @@
+let lumBias = 1;
+let palette = null;
+let isTransparent = false;
+
+function encode(data, width, height){
+    let i=0;
+    let run = [];
+    let out = '';
+    for( let y=0; y<height; ++y ){
+        out += ",\n";
+        run.length = 0;
+
+        for( let x=0; x<width; ++x ){
+            let closest = 0;
+            let closestDist = Number.POSITIVE_INFINITY;
+            let R = data[i][0];
+            let G = data[i][1];
+            let B = data[i][2];
+            let L = (R*0.2126 + G*0.7152 + B*0.0722)*lumBias;
+            let A = data[i++][3];
+
+            if( A > 128 ){
+                for( let c=1; c<palette.length; ++c ){
+                    let ca = palette[c];
+                    let lum = (ca[0]*0.2126 + ca[1]*0.7152 + ca[2]*0.0722)*lumBias;
+		    let dist = (R-ca[0])*(R-ca[0])
+                        + (G-ca[1])*(G-ca[1])
+                        + (B-ca[2])*(B-ca[2])
+                        + (L-lum)*(L-lum);
+
+                    if( dist < closestDist ){
+                        closest = c;
+                        closestDist = dist;
+                    }
+                }
+            }else{
+                isTransparent = true;
+            }
+
+            run[x>>1] = (run[x>>1]||0) + (x&1?closest:closest<<4);
+        }
+
+        out += run.join(",");
+    }
+
+    return out;
+}
 
 function writeDraw( sprite ){
     let out = "";
-    let palettes = require("./palParser.js").getPalettes();
-    let lumBias = require("./palParser.js").getLuminanceBias();
-    let palette = palettes[ (sprite.palette||Object.keys(palettes)[0]) ]
-        .colors32.map( c => [
-            (c>>16)&0xFF,
-            (c>>8)&0xFF,
-            c&0xFF
-        ]);
-
-    if( !palette ){
-        throw new Error(`image ${sprite.name} has no palette`);
-    }
-
     out += sprite.frames.map( (src, frameNumber) => {
 
         let out = `static const uint8_t frame${frameNumber}[] = {\n`;
-        let data = src.data;
-        let lines = "";
-
         out += src.trimmedWidth + "," + src.trimmedHeight;
-
-        let i=0, len, bytes;
-        let run = [];
-
-        for( let y=0; y<src.trimmedHeight; ++y ){
-            out += ",\n";
-            run.length = 0;
-
-            for( let x=0; x<src.trimmedWidth; ++x ){
-                let closest = 0;
-                let closestDist = Number.POSITIVE_INFINITY;
-                let R = data[i][0];
-                let G = data[i][1];
-                let B = data[i][2];
-                let L = (R*0.2126 + G*0.7152 + B*0.0722)*lumBias;
-                let A = data[i++][3];
-
-                if( A > 128 ){
-                    for( let c=1; c<palette.length; ++c ){
-                        let ca = palette[c];
-                        let lum = (ca[0]*0.2126 + ca[1]*0.7152 + ca[2]*0.0722)*lumBias;
-		        let dist = (R-ca[0])*(R-ca[0])
-                            + (G-ca[1])*(G-ca[1])
-                            + (B-ca[2])*(B-ca[2])
-                            + (L-lum)*(L-lum);
-
-                        if( dist < closestDist ){
-                            closest = c;
-                            closestDist = dist;
-                        }
-                    }
-
-                }
-                run[x>>1] = (run[x>>1]||0) + (x&1?closest:closest<<4);
-            }
-
-            out += run.join(",");
-        }
+        out += encode(src.data, src.trimmedWidth, src.trimmedHeight);
         out += `};`;
         return out;
+
     }).join("\n\n");
 
     out += `
@@ -94,10 +89,57 @@ frameTime = up_java::up_lang::uc_System::currentTimeMillis();
     return out;
 }
 
+function writeTilemap( tilemap ){
+    let out = '', data = '';
+    let index = {};
+
+    let bytesPerTile = (tilemap.width>>1) * tilemap.height + 3;
+    out += `static const uint8_t * const tile[] = {\n`;
+    out += tilemap.tiles.map(
+        (tile, i) => {
+            if( tile.name in index )
+                return `tile${index[tile.name]}`;
+            index[tile.name] = i;
+            
+            data += `static const uint8_t tile${i}[] = {`;
+            isTransparent = false;
+            let str = encode(tile, tilemap.width, tilemap.height);
+            data += `
+${(isTransparent|0)<<7}, ${tilemap.width}, ${tilemap.height}${str}
+};
+`;
+            return `tile${i}`;
+        }).join(",\n");
+    out += `
+};
+
+const uint8_t *current = tile[tileId];
+flags = *current++;
+return current;
+`;
+    return data + out;
+}
+
 function writeSprite( sprite ){
-    if( !sprite.animation ){
-        return writeDraw( sprite.sprite );
+    lumBias = require("./palParser.js").getLuminanceBias();
+    let palettes = require("./palParser.js").getPalettes();
+    palette = palettes[ (sprite.palette||Object.keys(palettes)[0]) ]
+        .colors32.map( c => [
+            (c>>16)&0xFF,
+            (c>>8)&0xFF,
+            c&0xFF
+        ]);
+
+    if( !palette ){
+        throw new Error(`image ${sprite.name} has no palette`);
     }
+
+    if( sprite.tilemap )
+        return writeTilemap(sprite.tilemap);
+
+    if( !sprite.animation )
+        return writeDraw( sprite.sprite );
+
     return writeSetAnimation( sprite.sprite, sprite.animation );
 }
 

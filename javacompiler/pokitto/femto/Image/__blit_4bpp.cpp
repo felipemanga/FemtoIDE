@@ -125,9 +125,8 @@ if( osx & 1 ){
         }
     }else{
         for( ; y > 0; y--, img += istride, buffer += ostride ){
-            for( x = sx+1; x > 0; x--, buffer++ ){
-                uint8_t b = *img++;
-                *buffer = b;
+            for( x = sx+1; x > 0; x-- ){
+                *buffer++ = *img++;
             }
         }
     }

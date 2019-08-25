@@ -13,7 +13,7 @@ class Field {
 
         if( modifier ){
             modifier.forEach(mod=>{
-                let key = Object.keys(mod.children)[0];
+                let key = typeof mod == "string" ? mod : Object.keys(mod.children)[0];
                 if( key == "Public" ) this.isPublic = true;
                 else if( key == "Static" ) this.isStatic = true;
                 else if( key == "Final" ) this.isFinal = true;

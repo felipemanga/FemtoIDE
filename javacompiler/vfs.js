@@ -143,6 +143,7 @@ let src = {
         StringPair:read("/femto/StringPair.java", "utf-8"),
         Prompt:read("/femto/Prompt.java", "utf-8"),
         Image:read("/femto/Image.java", "utf-8"),
+        TileSet:read("/femto/TileSet.java", "utf-8"),
         FrameRef:read("/femto/FrameRef.java", "utf-8"),
         State:read("/femto/State.java", "utf-8"),
         StateMachine:read("/femto/StateMachine.java", "utf-8"),

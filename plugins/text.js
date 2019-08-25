@@ -318,6 +318,8 @@ APP.addPlugin("Text", ["Project"], _=>{
     APP.add({
 
         transformSessionToString( session ){
+            if( !session || !session.getValue )
+                return session;
             return session.getValue();
         },
         

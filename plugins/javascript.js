@@ -41,8 +41,31 @@ APP.addPlugin("JS", ["Text"], TextView => {
         });
     }
 
-    function write(file, str){
-        fs.writeFileSync( DATA.projectPath + path.sep + file, str, "utf-8" );
+    function fileExists(file){
+        return fs.existsSync( DATA.projectPath + path.sep + file );
+    }
+
+    function copyFile(src, dest){
+        if( !path.isAbsolute(src) )
+            src = path.join(DATA.projectPath, src);
+        if( !path.isAbsolute(dest) )
+            dest = path.join(DATA.projectPath, dest);
+
+        if( dest.startsWith(DATA.projectPath) ){
+            let buffer = APP.findFile(dest);
+            buffer.data = fs.readFileSync(src);
+            APP.writeBuffer(buffer);
+        }else{
+            fs.copyFileSync(src, dest);
+        }
+    }
+
+    function write(file, str, format = "utf-8"){
+        let filePath = DATA.projectPath + path.sep + file;
+        let buffer = APP.findFile(filePath);
+        buffer.data = str;
+        buffer.transform = null;
+        APP.writeBuffer(buffer);
     }
 
     const log = APP.log;
@@ -75,12 +98,7 @@ APP.addPlugin("JS", ["Text"], TextView => {
     }
 
     function run(src, hookTrigger, hookArgs){
-        try {
-            eval(src);
-        } catch(ex){
-            APP.error(ex);
-        }
-        
+        eval(src);
     }
     
     class JSView extends TextView {
@@ -121,10 +139,8 @@ APP.addPlugin("JS", ["Text"], TextView => {
                 APP.addMenu("Scripts", {[match[1]]:doAction.bind(null, "menu")});
 
                 function doAction(hookTrigger, ...hookArgs){
-                    APP.readBuffer( buffer, undefined, (err, src)=>{
-                        if(!err)
-                            run(src, hookTrigger, hookArgs);
-                    });
+                    let src = APP.readBufferSync( buffer );
+                    run(src, hookTrigger, hookArgs);
                 }
             });
         }

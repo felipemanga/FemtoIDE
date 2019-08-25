@@ -10,8 +10,10 @@ APP.addPlugin("Watch", [], _=>{
 
         onBeforeWriteBuffer( buffer ){
             let path = buffer.path;
-            addToIgnoreList(path);
-            addToIgnoreList(path.split(/[\\\/]/).slice(0, -1).join(sep));
+            if( fs.existsSync(buffer.path) ){
+                addToIgnoreList(path);
+                addToIgnoreList(path.split(/[\\\/]/).slice(0, -1).join(sep));
+            }
         },
 
         registerProjectFile( buffer ){

@@ -86,7 +86,6 @@ APP.addPlugin("VFS", ["Project"], _=>{
             let filePath = buffer.path;
             let unit = units[filePath];
             if( !unit ){
-                APP.error(filePath + " not in index");
                 return null;
             }
             let next = unit.findIndex( entry => entry.location.startOffset > offset );

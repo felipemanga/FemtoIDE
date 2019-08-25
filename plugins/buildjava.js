@@ -1,6 +1,7 @@
 Object.assign(encoding, {
     "PNG":null,
     "BIN":null,
+    "MAP":null,
     "MP3":null,
     "OGG":null,
     "WAV":null
@@ -81,6 +82,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                  || f.type=="JSON"
                  || f.type=="PAL"
                  || f.type=="BIN"
+                 || f.type=="MAP"
                  || f.type=="XML"
                  || f.type=="TXT"
                  || f.type=="MP3"
@@ -354,7 +356,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     }
 
                     let sprite = spriteParser( json, name );
-                    return Data.unit(name, "image", sprite, interfaces);
+                    return Data.unit(name, sprite.type, sprite, interfaces);
                 },
 
                 load( file, cb ){
@@ -372,15 +374,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
                     format = imagePath.split(".").pop().toLowerCase();
 
-                    let buffer = DATA.projectFiles
-                        .find( buffer => buffer.path == imagePath );
+                    let buffer = APP.findFile(imagePath);
+                    let data = APP.readBufferSync(buffer).toString("base64");
 
-                    if( !buffer ){
-                        cb("Could not open image: " + imagePath, null);
-                        return;
-                    }
-
-                    let data = buffer.data.toString("base64");
                     data = `data:image/${format};base64,${data}`;
 
                     let img = new Image();

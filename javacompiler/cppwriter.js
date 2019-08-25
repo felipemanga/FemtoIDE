@@ -13,14 +13,6 @@ let VOID, UINT, INT, FLOAT,
     CHAR, BYTE, POINTER, DOUBLE,
     UBYTE, LONG;
 
-function throwError(location, msg){
-    msg = (location ? location.unit +
-               ", line " + location.startLine +
-               ", column " + location.startColumn +
-               ":\n" : "") + msg;
-    throw new StdError(location, msg);
-}
-
 function push(){
     indent += "\t";    
 }
@@ -428,7 +420,7 @@ function writeMethodBody( method, t ){
                 let e = writeExpression(field.init.expression.right, field.type);
                 str += e.out;
                 if( !isAssignableType( field.type, e.type ) ){
-                    throwError( field.init.expression.right.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
+                    StdError.throwError( field.init.expression.right.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
                 }
             }else if(field.isReference){
                 str += "nullptr";
@@ -579,7 +571,7 @@ function getReturnType( {methodName, method}, args, location ){
     }
 
     if( !candidates.length ){
-        throwError(location, "Could not find matching " + methodName + " inside " + method.scope.name);
+        StdError.throwError(location, "Could not find matching " + methodName + " inside " + method.scope.name);
     }
     
     return candidates[0].result;
@@ -624,7 +616,7 @@ function access( exprList, prevResult ){
                     test = x=>x.isMethod;
                 let field = type.resolve([e], trail, test);
                 if( !field ){
-                    throwError(e.location, `Could not find ${e} in ${type.constructor.name} ${type.name}`);
+                    StdError.throwError(e.location, `Could not find ${e} in ${type.constructor.name} ${type.name}`);
                 }
                 type = field.type;
 
@@ -1033,7 +1025,7 @@ function getOperatorType( left, op, right, expr ){
         msg += `before "${sRight}"`;
     }
 
-    throwError(location, msg);
+    StdError.throwError(location, msg);
 }
 
 function writeExpression( expr, typeHint ){
@@ -1059,7 +1051,7 @@ function writeExpression( expr, typeHint ){
                 
                 let match = line.match(/^@([a-z]+)\s+([^:\s]+)(?::(.+))?/);
                 if( !match || !operands[match[1]]){
-                    throwError(expr.location, "Invalid asm preprocessor directive: " + line);
+                    StdError.throwError(expr.location, "Invalid asm preprocessor directive: " + line);
                 }
 
                 operands[match[1]].push({
@@ -1089,7 +1081,7 @@ function writeExpression( expr, typeHint ){
     case "^=":
         e = writeExpression( expr.left );
         if( e.isFinal ){
-            throwError(expr.location, `Can't alter final "${e.out}"`);
+            StdError.throwError(expr.location, `Can't alter final "${e.out}"`);
         }
 
         type = e.type;
@@ -1124,7 +1116,7 @@ function writeExpression( expr, typeHint ){
     case "arrayAccessSuffix":
         e = writeExpression(expr.right);
         if( !isAssignableType(INT, e.type) )
-            throwError(expr.location, `Can't use ${e.type.name} as array index.`);
+            StdError.throwError(expr.location, `Can't use ${e.type.name} as array index.`);
 
         if( expr.isLValue ){
             out += "->arrayWrite(";
@@ -1134,7 +1126,7 @@ function writeExpression( expr, typeHint ){
             out += e.out;
             type = e.type;
             if( !isAssignableType(typeHint, type) ){
-                throwError(expr.location, `Can't put ${type.name} in an array of ${typeHint.name}.`);
+                StdError.throwError(expr.location, `Can't put ${type.name} in an array of ${typeHint.name}.`);
             }
         }else{
             out += "->arrayRead(";
@@ -1223,7 +1215,7 @@ function writeExpression( expr, typeHint ){
         default:
             out += expr.left;
             type = expr.literalType;
-            throwError(expr.location, `Unknown literal type ${type}`);
+            StdError.throwError(expr.location, `Unknown literal type ${type}`);
         }
         break;
 
@@ -1383,7 +1375,7 @@ function writeExpression( expr, typeHint ){
             break;
 
         default:
-            throwError(expr.location, "Unknown operation: " + expr.operation + Object.keys(expr));
+            StdError.throwError(expr.location, "Unknown operation: " + expr.operation + Object.keys(expr));
         }
         break;
     }
@@ -1404,7 +1396,7 @@ function writeExpression( expr, typeHint ){
                 let trail = [];
                 let target = type.resolve( [ex], trail, x=>true );
                 if( !target ){
-                    throwError(expr.location,`Could not find ${ex} in ${type.name}`);
+                    StdError.throwError(expr.location,`Could not find ${ex} in ${type.name}`);
                 }
                 if( type.getTarget )
                     type = type.getTarget();
@@ -1437,7 +1429,7 @@ function writeStatement( stmt, block, noSemicolon ){
             msg += "\n" + ex.stack;
         }
         if( !ex.location ){
-            throwError( stmt.location, msg );
+            StdError.throwError( stmt.location, msg );
         }
         throw ex;
     }
@@ -1460,7 +1452,7 @@ function writeStatement( stmt, block, noSemicolon ){
                 out += e.out;
 
                 if( !isAssignableType( local.type, e.type ) ){
-                    throwError( stmt.location, `Can't initialize ${local.name} with type ${e.type.name}.`);
+                    StdError.throwError( stmt.location, `Can't initialize ${local.name} with type ${e.type.name}.`);
                 }
                 
             }else{
@@ -1483,7 +1475,7 @@ function writeStatement( stmt, block, noSemicolon ){
                     pscope = pscope.scope;
                 }
                 if( !pscope )
-                    throwError(stmt.location, `Label ${stmt.label} not found.`);
+                    StdError.throwError(stmt.location, `Label ${stmt.label} not found.`);
                 out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
             }
             break;
@@ -1497,7 +1489,7 @@ function writeStatement( stmt, block, noSemicolon ){
                     pscope = pscope.scope;
                 }
                 if( !pscope )
-                    throwError(stmt.location, `Label ${stmt.label} not found.`);
+                    StdError.throwError(stmt.location, `Label ${stmt.label} not found.`);
                 out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
             }
             break;
@@ -1516,7 +1508,7 @@ function writeStatement( stmt, block, noSemicolon ){
             }else if( type.isNative ){
                 out += e.out;
             }else{
-                throwError(stmt.expression.location, `Invalid type in switch: ${Object.keys(type)}`);
+                StdError.throwError(stmt.expression.location, `Invalid type in switch: ${Object.keys(type)}`);
             }
 
             out += " ){\n";
@@ -1584,7 +1576,7 @@ function writeStatement( stmt, block, noSemicolon ){
                     method = method.scope;
 
                 if(!method){
-                    throwError(stmt.location, "Return outside method");
+                    StdError.throwError(stmt.location, "Return outside method");
                 }
 
                 let right = e.type;
@@ -1594,7 +1586,7 @@ function writeStatement( stmt, block, noSemicolon ){
                 let left = method.result.getTarget();
                 
                 if( !right.isOfType(left) && !isAssignableType(left, right) ){
-                    throwError(stmt.location, `"${left.name} ${method.name}(...)" should not return ${right.name}.`);
+                    StdError.throwError(stmt.location, `"${left.name} ${method.name}(...)" should not return ${right.name}.`);
                 }
 
                 break;
@@ -1798,7 +1790,7 @@ function assertType( type, test, location ){
     if( test.getTarget)
         test = test.getTarget();
     if( type != test ){
-        throwError(location.location || location,
+        StdError.throwError(location.location || location,
                    `Expected a ${test.name}, got a ${type.name} ${out}`);
     }
 }
@@ -1847,7 +1839,7 @@ function writeBlock( block ){
     if( block.image )
         out += require("./cppImage.js")( block );        
 
-    if( block.sprite )
+    if( block.sprite || block.tilemap )
         out += require("./cppSprite.js")( block );
 
     if( block.rawData )
@@ -1870,11 +1862,6 @@ function writeBlock( block ){
                 call:writePath(call)
             })) );
     }
-//    if( block.colors32 )
-    //        out += writeColors( block.colors32 );
-
-    //if( out == "" )
-    //    out = Object.keys(block).map(k=>`${k}: ${block[k]}`).join("\n");
 
     return out;
 }
@@ -1947,7 +1934,7 @@ function writeClassImpl( unit ){
 
                 if( field.init && field.init.expression ){
                     if( !isAssignableType( field.type, e.type ) ){
-                        throwError( field.init.expression.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
+                        StdError.throwError( field.init.expression.location, `Can't initialize ${field.name} with type ${e.type.name}.`);
                     }
 
                     out += " = " + e.out;
@@ -1995,7 +1982,7 @@ function writeClassImpl( unit ){
                         let name = ref.name.join(".");
                         let cname = writePath(annotation).replace(/::/g, ".");
                         if( !annotation )
-                            throwError(method.location, `Annotation ${name} not found.`);
+                            StdError.throwError(method.location, `Annotation ${name} not found.`);
                         if( annotationHandlers[cname] && annotationHandlers[cname].method )
                             annotationHandlers[cname].method(method, writePath(method), ref.pairs);
                     });
