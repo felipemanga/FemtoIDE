@@ -17,6 +17,10 @@ int32_t isx = 0, isy = 0, iex = width, iey = height;
 if( x < 0 ){
     osx = 0;
     isx = -x;
+    if( isx&1 ){
+        osx = 1;
+        isx++;
+    }
 }
 
 if( x + width >= displayWidth ){
@@ -88,21 +92,28 @@ if( osx & 1 ){
             *buffer = (*buffer&0xF0) + (next&0x0F);
         }
         
-    }else{
+    }else if(!sx){
+        iex = !(iex&1);
         for( ; y > 0; y--, img += istride, buffer += ostride ){
             uint8_t next = *img++;
             *buffer = (*buffer&0xF0) + (next>>4);
             buffer++;
-            if( sx )
-            {
-                for( x = sx; x > 0; x--, buffer++ ){
-                    uint8_t hi = next<<4;
-                    next = *img++;
-                    uint8_t lo = next>>4;
-                    *buffer = hi+lo;
-                }
+            if( iex )
+                *buffer = (*buffer&0x0F) + (next<<4);
+        }
+    }else{
+        iex = !(iex&1);
+        for( ; y > 0; y--, img += istride, buffer += ostride ){
+            uint8_t next = *img++;
+            *buffer = (*buffer&0xF0) + (next>>4);
+            buffer++;
+            for( x = sx; x > 0; x-- ){
+                uint8_t hi = next<<4;
+                next = *img++;
+                uint8_t lo = next>>4;
+                *buffer++ = hi+lo;
             }
-            if( !(iex&1) )
+            if( iex )
                 *buffer = (*buffer&0x0F) + (next<<4);
         }
     }
@@ -114,8 +125,6 @@ if( osx & 1 ){
 
     if( mirror ){
         img -= isx>>1;
-
-
         for( ; y > 0; y--, img += istride, buffer += ostride ){
             for( x = sx+1; x > 0; x--, buffer-- ){
                 uint8_t b = *img++;

@@ -82,7 +82,7 @@ APP.addPlugin("Build", ["Project"], _=>{
                 }
 
                 stage = (pipeline[current]+"").trim();
-                APP.log("Starting stage: " + stage);
+                // APP.log("Starting stage: " + stage);
                 startTime = performance.now();
                 try{
                     if( stage[0] == "#" ){
