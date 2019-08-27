@@ -847,8 +847,10 @@ class Core {
     new Frame();
     new Chrome();
 
+    let isDerpy = process.platform == "darwin";
+    
     importData({
-        appPath:process.argv[0].split( path.sep ).slice(0, -1).join( path.sep ),
+        appPath:process.argv[0].split( path.sep ).slice(0, isDerpy ? -6 : -1).join( path.sep ) + (isDerpy ? "/Resources/app.nw" : ""),
         buffers:[]
     });
 
