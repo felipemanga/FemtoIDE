@@ -138,6 +138,7 @@ let src = {
             ZXSpec:read("/femto/font/ZXSpec.font", undefined, {type:"font", parser:"bin" })
         },
         
+        Cookie:read("/femto/Cookie.java", "utf-8"),
         Sprite:read("/femto/Sprite.java", "utf-8"),
         XMLNode:read("/femto/XMLNode.java", "utf-8"),
         StringPair:read("/femto/StringPair.java", "utf-8"),
@@ -155,6 +156,7 @@ let src = {
         },
         
         hardware:{
+            EEPROM:read("/femto/hardware/EEPROM.java", "utf-8"),
             IRQ:read("/femto/hardware/IRQ.java", "utf-8"),
             Timer:read("/femto/hardware/Timer.java", "utf-8"),
             LPC11U68:read("/femto/hardware/LPC11U68.java", "utf-8"),
