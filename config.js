@@ -57,10 +57,11 @@ let platform = process
     .platform
     .toLowerCase()
     .startsWith("win") ? "windows" : process.platform.toLowerCase();
-
 APP.customSetVariables({
     "aceTheme":"ace/theme/monokai",
-    "projectsPath":DATA.appPath + path.sep + "projects",
+    "projectsPath":platform == "darwin" ?
+        path.join(process.env.HOME, "projects") :
+        DATA.appPath + path.sep + "projects",
     "JLINK":"JLinkGDBServer",
 
     "os": platform,

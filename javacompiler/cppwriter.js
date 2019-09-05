@@ -979,20 +979,24 @@ function getOperatorType( left, op, right, expr ){
         "--":inc,
 
         "+=":[
+            [INT.type, FLOAT.type, INT],
             ...riskyint,
             ...ptrmath,
             ...floatmix
         ],
         "-=":[
+            [INT.type, FLOAT.type, INT],
             ...riskyint,
             ...ptrmath,
             ...floatmix
         ],
         "*=":[
+            [INT.type, FLOAT.type, INT],
             ...riskyint,
             ...floatmix
         ],
         "/=":[
+            [INT.type, FLOAT.type, INT],
             ...riskyint,
             ...floatmix
         ],

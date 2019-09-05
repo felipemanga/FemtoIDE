@@ -159,19 +159,33 @@ ${img.width}, ${img.height}`;
             file = APP.findFile(fileName, false);
         
         APP.readBuffer(file, null, (error, data)=>{
-            let src = removeComments( data ).replace(/^[^{]*/, "");
-            let color = [], palette = [color];
-            src.replace(/0x[0-9a-f]{2,2}/gi, (m)=>{
-                color.push(parseInt(m));
-                if( color.length == 3 ){
-                    color = [];
-                    palette.push(color);
-                }
-            });
-            palette.pop();
-
-            callback(palette);
+            if( data.startsWith("JASC-PAL") ){
+                callback(parsePal(data));
+            }else{
+                callback(parseCPP(data));
+            }
         });
+    }
+
+    function parsePal(data){
+        return data.trim()
+            .split("\n")
+            .splice(3)
+            .map(line=>line.trim().split(/\s+/).map(c=>c|0));
+    }
+
+    function parseCPP(data){
+        let src = removeComments( data ).replace(/^[^{]*/, "");
+        let color = [], palette = [color];
+        src.replace(/0x[0-9a-f]{2,2}/gi, (m)=>{
+            color.push(parseInt(m));
+            if( color.length == 3 ){
+                color = [];
+                palette.push(color);
+            }
+        });
+        palette.pop();
+        return palette;
     }
 
     function parseSettings(settingsFile){

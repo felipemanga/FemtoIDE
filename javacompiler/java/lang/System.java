@@ -95,7 +95,7 @@ out = *((uint8_t*)p);
 		bootTime *= 1000;
 	}
 
-	unsigned int *SysTick = (unsigned int *) 0xE000E010UL;
+	volatile unsigned int *SysTick = (unsigned int *) 0xE000E010UL;
 	uint32_t systick_ms = ((((SysTick[1]-SysTick[2])>>9)*699)>>16);
 	return bootTime + __timer + systick_ms;
 #else

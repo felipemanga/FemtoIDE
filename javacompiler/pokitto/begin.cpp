@@ -452,19 +452,22 @@ public:
     }
 
     TP arrayRead( int32_t offset ){ // to-do: bounds-check?
+        #ifdef DEBUG
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
             CRASH();
         }
+        #endif
         return static_cast<TP>( __inflate_ptr__(elements[ offset ]) );
     }
 
     TP arrayWrite( int32_t offset, const TP &value ){
+        #ifdef DEBUG
         if( !elements || offset < 0 || offset >= length ){
             __print__("Array access out of bounds\n");
             CRASH();
         }
-        
+        #endif
         elements[ offset ] = __deflate_ptr__(value);
         return value;
     }
@@ -533,18 +536,22 @@ public:
     }
 
     T &arrayRead( uint32_t offset ){ // to-do: bounds-check?
+        #ifdef DEBUG
         if( !elements || offset >= length ){
             __print__("Array access out of bounds\n");
             CRASH();
         }
+        #endif
         return elements[ offset ];
     }
 
     T &arrayWrite( uint32_t offset, T value ){
+        #ifdef DEBUG
         if( !elements || offset >= length ){
             __print__("Array access out of bounds\n");
             CRASH();
         }
+        #endif
         elements[ offset ] = value;
         return elements[ offset ];
     }
@@ -628,10 +635,12 @@ public:
     }
 
     bool arrayRead( uint32_t offset ){ // to-do: bounds-check?
+        #ifdef DEBUG
         if( offset >= length ){
             __print__("Array access out of bounds\n");
             CRASH();
         }
+        #endif
 
         if( length > 32 )
             return (elements[ offset>>5 ] & (1<<(offset&0x1F))) != 0;
@@ -641,10 +650,13 @@ public:
 
     void arrayWrite( uint32_t offset, T value ){
         BoolRef b;
+        
+        #ifdef DEBUG
         if( offset >= length ){
             __print__("Array access out of bounds\n");
             CRASH();
         }
+        #endif
 
         if( length > 32 )
             b.bucket = &elements[offset>>5];
@@ -748,9 +760,14 @@ void uc_Object::__gc__(){
     for( sptr_t ptr = __first__, next; ptr>>2; ptr = next ){
         uc_Object *obj = __objFromShort__(ptr);
         next = obj->__next__;
+        
+        #ifdef DEBUG
         if( (next&3) == 2 ){
             __print__("Found Gray Exception\n");
+            CRASH();
         }
+        #endif
+        
         if( (next&3) != 3 ){
             *prev = next & ~3;
             delete obj;
@@ -821,7 +838,10 @@ namespace up_java {
             }
 
             char arrayWrite( uint32_t i, char c ){
+#ifdef DEBUG
                 __print__("String modified exception\n");
+                CRASH();
+#endif                
                 return c;
             }
         
@@ -978,24 +998,29 @@ char *concatenate(const char *l, const char *r ){
 }
 
 up_java::up_lang::uc_String *operator +(up_java::up_lang::uc_String &l, up_java::up_lang::uc_String &r){
+    __ref__<up_java::up_lang::uc_String> rl(&l), rr(&r);
     return new up_java::up_lang::uc_String( concatenate(l.__c_str(), r.__c_str()) );
 }
 
 up_java::up_lang::uc_String *operator +(const __str__T &l, up_java::up_lang::uc_String &r){
+    __ref__<up_java::up_lang::uc_String> rr(&r);
     return new up_java::up_lang::uc_String( concatenate((char*)&l, r.__c_str()) );
 }
 
 up_java::up_lang::uc_String *operator +(up_java::up_lang::uc_String &l, const __str__T &r){
+    __ref__<up_java::up_lang::uc_String> rl(&l);
     return new up_java::up_lang::uc_String( concatenate(l.__c_str(), (char*)&r) );
 }
 
 template <typename T>
 up_java::up_lang::uc_String *operator +( up_java::up_lang::uc_String &l, T r ){
+    __ref__<up_java::up_lang::uc_String> rl(&l);
     return l + *up_java::up_lang::uc_String::valueOf( r );
 }
 
 template <typename T>
 up_java::up_lang::uc_String *operator +( T r, up_java::up_lang::uc_String &l ){
+    __ref__<up_java::up_lang::uc_String> rl(&l);
     return *up_java::up_lang::uc_String::valueOf( r ) + l;
 }
 

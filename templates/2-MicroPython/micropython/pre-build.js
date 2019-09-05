@@ -25,7 +25,7 @@ function freeze(mpylist){
 }
     
 function makeMPY(){
-    const sources = findAllSources("./");
+    const sources = findAllSources("");
     return Promise.all(sources.map(source=>{
         const mpy = source.replace(/\.py$/i, ".mpy");
         return invoke(
@@ -42,11 +42,11 @@ function makeMPY(){
 function findAllSources(dirName){
     const ret = [];
     (dir(dirName)||[]).forEach(file=>{
-        const full = path.join(dirName, file);
+        const full = dirName + file;
         if( /\.py$/i.test(file) ){
             ret.push(full);
         }else{
-            ret.push(...findAllSources(full));
+            ret.push(...findAllSources(full + "/"));
         }
     });
     return ret;
