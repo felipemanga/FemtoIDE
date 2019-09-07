@@ -50,7 +50,7 @@ public class Direct extends ScreenMode implements __stub__ {
     
     public void drawHLine(int x, int y, int w, int color){
         if( x < 0 ){
-            w -= x;
+            w += x;
             x = 0;
         }
         
@@ -75,7 +75,7 @@ public class Direct extends ScreenMode implements __stub__ {
 
     public void drawVLine(int x, int y, int h, int color){
         if( y < 0 ){
-            h -= y;
+            h += y;
             y = 0;
         }
         
