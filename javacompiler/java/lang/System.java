@@ -96,7 +96,11 @@ out = *((uint8_t*)p);
 	}
 
 	volatile unsigned int *SysTick = (unsigned int *) 0xE000E010UL;
+#if defined(_OSCT)
+	uint32_t systick_ms = ((((SysTick[1]-SysTick[2])>>16)*61080)>>16);
+#else
 	uint32_t systick_ms = ((((SysTick[1]-SysTick[2])>>9)*699)>>16);
+#endif
 	return bootTime + __timer + systick_ms;
 #else
 	using namespace std::chrono;

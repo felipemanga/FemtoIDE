@@ -243,7 +243,11 @@ AFTER_VECTORS void ResetISR(void) {
     __libc_init_array();
 
     unsigned int *SysTick = (unsigned int *)  0xE000E010UL;
+    #ifdef _OSCT
+    SysTick[1] = 7200000-1;
+    #else
     SysTick[1] = 4800000-1;
+    #endif
     SysTick[2] = 0;
     SysTick[0] = 4 | 2 | 1; //CLKSOURCE=CPU clock | TICKINT | ENABLE
 

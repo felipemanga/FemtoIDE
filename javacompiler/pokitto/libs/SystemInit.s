@@ -225,8 +225,13 @@ PV_INIT_GPIO:
 	// 522
 	OR LPC_PDRUNCFG, 1<<7
 
+        .ifdef OSCT
+	// 523
+	SET LPC_SYSPLLCTRL, 0x25
+        .else
 	// 523
 	SET LPC_SYSPLLCTRL, 0x23
+        .endif
 
 	// 522
 	AND LPC_PDRUNCFG, ~(1<<7)

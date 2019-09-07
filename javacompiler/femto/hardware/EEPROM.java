@@ -21,8 +21,11 @@ public class EEPROM {
     	command[1] = (uint32_t) address;
     	command[2] = (uint32_t) &value;
     	command[3] = 1;
+#ifdef _OSCT
+    	command[4] = 0x11940;
+#else
     	command[4] = 0xBB80;
-
+#endif
     	/* Invoke IAP call...*/
 	    // __disable_irq();
         __asm volatile (\"cpsid i\" : : : \"memory\");
@@ -48,7 +51,11 @@ public class EEPROM {
     	command[1] = (uint32_t) address;
     	command[2] = (uint32_t) &value;
     	command[3] = 1;
+#ifdef _OSCT
+    	command[4] = 0x11940;
+#else
     	command[4] = 0xBB80;
+#endif
     
     	/* Invoke IAP call...*/
         // __disable_irq();

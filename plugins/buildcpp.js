@@ -229,11 +229,11 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             .on("close", error=>{
                 if( error ){
                     APP.findFile( buffer.path, true );
-                    cb( buffer
-                        .error
-                        .split("\n")
-                        .filter(x=>x.indexOf("rror:") != -1 )
-                        .join("\n")
+                    cb( (buffer
+                         .error
+                         .split("\n")
+                         .filter(x=>x.indexOf("rror:") != -1 )
+                         .join("\n") || buffer.error)
                         .substr(0, 512)
                       );
                 }else{

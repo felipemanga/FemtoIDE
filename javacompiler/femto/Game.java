@@ -109,13 +109,8 @@ public class Game extends StateMachine {
 
     private static long lastUpdateTime;
     public static void limitFPS( int limit ){
-        long now = System.currentTimeMillis();
-        if( now - lastUpdateTime > 500 ){
-            lastUpdateTime = now;
-            return;
-        }
-        long later = lastUpdateTime + (1000 / limit);
-        while( (lastUpdateTime = System.currentTimeMillis()) < later );
+        long later = lastUpdateTime + 1000;
+        while( (lastUpdateTime = System.currentTimeMillis() * limit) < later );
     }
 
     public static void changeState( State s ){
