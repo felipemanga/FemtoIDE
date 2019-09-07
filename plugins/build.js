@@ -42,6 +42,7 @@ APP.addPlugin("Build", ["Project"], _=>{
                 busy = false;
                 if( callback && typeof callback == "function" )
                     callback(...args);
+                APP.onCompileComplete();
             }
             
             APP.clearLog();
