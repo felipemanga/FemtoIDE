@@ -65,8 +65,11 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
             return -1;
         uint i = y*((uint)110) + (x>>(uint)1);
         int pixel = buffer[i];
-        if ( ((int)x & 1) != 0 ) return pixel & 0x0F;
-        else return pixel & 0xF0;
+        if( (x & 1) != 0 ){
+            return pixel & 0x0F;
+        }else{
+            return pixel & 0xF0;
+        }
     }
 
     public void drawHLine(int x, int y, int w, int color){}
