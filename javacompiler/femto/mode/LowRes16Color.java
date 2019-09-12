@@ -29,6 +29,15 @@ public class LowRes16Color extends HiRes16Color implements __stub__ {
         buffer[i] = pixel;
     }    
 
+    public void getPixel(uint x, uint y){
+        if( y >= (uint) 88 || x >= (uint) 110 )
+            return;
+        uint i = y*((uint)55) + (x>>(uint)1);
+        int pixel = buffer[i];
+        if ( ((int)x & 1) != 0 ) return pixel & 0x0F;
+        else return pixel & 0xF0;
+    }    
+
     /// @copydoc ScreenMode::flush()
     public void flush(){}
 
