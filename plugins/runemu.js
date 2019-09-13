@@ -1,5 +1,5 @@
 APP.addPlugin("RunEMU", [], _=> {
-    let running = false;
+    let running = false, restart = false;
 
     APP.add({
 
@@ -27,7 +27,8 @@ APP.addPlugin("RunEMU", [], _=> {
         run( flags ){
 
             if( running ){
-                APP.error("Emulator already running");
+                restart = true;
+                APP.stopEmulator();
                 return;
             }
 
@@ -67,6 +68,10 @@ APP.addPlugin("RunEMU", [], _=> {
                 APP.onEmulatorStopped();
                 APP.setStatus("Emulation ended");
                 running = false;
+                if(restart){
+                    restart = false;
+                    APP.run();
+                }
             });
 
             running = emu;
