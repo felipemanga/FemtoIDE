@@ -253,7 +253,7 @@ APP.addPlugin("Tree", [], _=>{
                 if( this.children.find( child => child.buffer == buffer ) )
                     return;
                 let next = this.children.find( child => child.buffer.name > buffer.name );
-                if( [...this.DOM.dir.children].indexOf(next) == -1 )
+                if( next && next.DOM && [...this.DOM.dir.children].indexOf(next.DOM.__ROOT__) == -1 )
                     next = null;
                 
                 let child = new TreeNode(buffer, this.depth+1);
