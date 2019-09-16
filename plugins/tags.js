@@ -139,10 +139,16 @@ APP.addPlugin("VFS", ["Project"], _=>{
             return list;
 
             function search(entry){
+                
                 if( entry.isField )
                     entry = entry.type;
-                if( entry.isTypeRef )
-                    entry = entry.getTarget();
+                if( entry.isTypeRef ){
+                    try{
+                        entry = entry.getTarget();
+                    }catch(ex){
+                        return [];
+                    }
+                }
 
                 let partial = [];
                 if( entry.types && entry.types.length )
