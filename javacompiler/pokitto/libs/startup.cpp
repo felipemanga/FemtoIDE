@@ -290,7 +290,10 @@ extern "C" void *__wrap_malloc(size_t size){
 }
 
 void *operator new(size_t size)  {
-    return __wrap_malloc(size);
+    auto c = (int*) __wrap_malloc(size);
+    auto i = c;
+    while(size-=4) *i++ = 0;
+    return c;
 }
 void *operator new[](size_t size){
     return __wrap_malloc(size);
