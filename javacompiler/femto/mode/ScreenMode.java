@@ -384,6 +384,13 @@ public class ScreenMode {
                               byte col ){
         int a, b, y, last, tmp;
 
+        a = width();
+        b = height();
+        if( x0 < 0 && x1 < 0 && x2 < 0 ) return;
+        if( x0 >= a && x1 > a && x2 > a ) return;
+        if( y0 < 0 && y1 < 0 && y2 < 0 ) return;
+        if( y0 >= b && y1 > b && y2 > b ) return;
+
         // Sort coordinates by Y order (y2 >= y1 >= y0)
         if (y0 > y1) {
             tmp = y0; y0 = y1; y1 = tmp;
