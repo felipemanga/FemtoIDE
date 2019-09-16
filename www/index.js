@@ -443,7 +443,7 @@ class Keys {
             try{
                 cb();
             }catch(ex){
-                console.error( ex.message );
+                APP.error( ex );
             }
         }else{
             if( evt.which != evt.key.toUpperCase().charCodeAt(0) ){
