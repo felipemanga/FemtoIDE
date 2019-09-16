@@ -1234,8 +1234,11 @@ function writeExpression( expr, typeHint ){
         out += "(" + e.out + ")";
         retdata.isFinal = e.isFinal;
         type = e.type;
-        out += writeExpressionRight(expr.right);
-        
+        if( expr.right ){
+            e = access(expr.right, e);
+            out += e.out;
+            type = e.type;
+        }
         break;
 
     case "cast":
