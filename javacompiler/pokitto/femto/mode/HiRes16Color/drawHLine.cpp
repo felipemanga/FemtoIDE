@@ -10,7 +10,7 @@ if( x < 0 ){
 
 std::uint32_t screenWidth = width();
 
-if( x+w>=screenWidth )
+if( (x + w) >= (int32_t) screenWidth )
     w = screenWidth - x;
 
 if( std::uint32_t(x)>=screenWidth || std::uint32_t(y)>=std::uint32_t(height()) || w<1 )
