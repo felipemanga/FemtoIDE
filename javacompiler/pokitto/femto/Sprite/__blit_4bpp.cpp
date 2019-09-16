@@ -8,7 +8,7 @@ uint32_t width = data[0];
 uint32_t height = data[1];
 const uint8_t *img = data+2;
 width += width & 1;
-if( x <= -int32_t(width) || x >= int32_t(displayWidth) || y <= -int32_t(height) || y >= int32_t(displayHeight) )
+if( x <= 1-int32_t(width) || x >= int32_t(displayWidth) || y <= -int32_t(height) || y >= int32_t(displayHeight) )
     return;
 
 int32_t osx = x, osy = y;
