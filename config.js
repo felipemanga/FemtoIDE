@@ -68,6 +68,8 @@ APP.customSetVariables({
 
     "executableExt":platform=="windows" ? ".exe" : "",
 
+    "ADDR2LINE-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-addr2line"].join(path.sep),
+
     "GDB-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-gdb"].join(path.sep),
 
     "C-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-gcc"].join(path.sep),
