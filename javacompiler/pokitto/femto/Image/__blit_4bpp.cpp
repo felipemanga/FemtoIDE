@@ -132,12 +132,43 @@ if( osx & 1 ){
                 *buffer = b;
             }
         }
-    }else{
+    }else if(y > 0){
+        /* * /
         for( ; y > 0; y--, img += istride, buffer += ostride ){
             for( x = sx+1; x > 0; x-- ){
                 *buffer++ = *img++;
             }
         }
+        /*/
+        uint8_t b=0;
+        asm volatile(
+            ".syntax unified                    \n"
+            "nextYLoop%=:                       \n"
+            "mov %[x], %[sx]                    \n"
+            "   ldrb %[b], [%[img], %[x]]       \n"
+            "   nextXLoop%=:                    \n"
+            "   strb %[b], [%[buffer], %[x]]    \n"
+            "   subs %[x], 1                    \n"
+            "   ldrb %[b], [%[img], %[x]]       \n"
+            "   bpl nextXLoop%=                 \n"
+            "add %[buffer], %[ostride]          \n"
+            "add %[img], %[istride]             \n"
+            "subs %[y], 1                       \n"
+            "bne nextYLoop%=                    \n"
+            :
+            [y]"+l"(y),
+            [x]"+l"(x),
+            [img]"+l"(img),
+            [buffer]"+l"(buffer),
+            [b]"+l"(b)
+            :
+            [istride]"h"(istride+sx+1),
+            [ostride]"h"(ostride+sx+1),
+            [sx]"h"(sx)
+            :
+            "cc"
+            );
+        /* */
     }
 }
 
