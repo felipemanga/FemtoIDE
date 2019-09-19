@@ -21,8 +21,8 @@ public class Prompt {
     int show(){
         Direct direct = new Direct(font);
         int selection = 0;
-        int bg = direct.rgb(0x10, 0x00, 0x10);
-        int highlight = direct.rgb(0xE0, 0xA0, 0xD0);
+        // int bg = direct.rgb(0x10, 0x00, 0x10);
+        // int highlight = direct.rgb(0xE0, 0xA0, 0xD0);
         direct.textColor = this.fg;
         
         int r = Math.random(0, 255);
