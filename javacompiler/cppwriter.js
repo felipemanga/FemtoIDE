@@ -795,7 +795,7 @@ function getOperatorType( left, op, right, expr ){
         "%":5
     }[op];
 
-    if( op == "=" && isAssignableType(left, right) ){
+    if( opType == 2 && isAssignableType(left, right) ){
         return ref(left);
     }
 
@@ -873,6 +873,12 @@ function getOperatorType( left, op, right, expr ){
         [SHORT.type, INT.type, SHORT],
         [BYTE.type, INT.type, BYTE],
         [UBYTE.type, INT.type, UBYTE],
+        [BYTE.type, SHORT.type, BYTE],
+        [UBYTE.type, SHORT.type, UBYTE],
+        [INT.type, SHORT.type, INT],
+        [INT.type, BYTE.type, INT],
+        [UINT.type, SHORT.type, UINT],
+        [UINT.type, BYTE.type, UINT],
     ];
 
     const ptrmath = [
@@ -912,6 +918,8 @@ function getOperatorType( left, op, right, expr ){
         [UBYTE.type, UINT.type, UINT],
         [BYTE.type, INT.type, INT],
         [BYTE.type, UINT.type, UINT],
+        [INT.type, SHORT.type, INT],
+        [UINT.type, SHORT.type, UINT]
     ];
 
     let typeMatrix = {
@@ -1203,8 +1211,15 @@ function writeExpression( expr, typeHint ){
             break;
             
         case "integerLiteral":
-            out += expr.left + "L";
-            type = INT;
+            out += expr.left;
+            out += "L";
+            {
+                let value = expr.left|0;
+                if( value >= -0x8000 && value <= 0x7FFF )
+                    type = SHORT;
+                else
+                    type = INT;
+            }
             break;
             
         case "booleanLiteral":
@@ -1334,26 +1349,41 @@ function writeExpression( expr, typeHint ){
                     let left = writeExpression( expr.left );
                     let right = writeExpression( expr.right );
                     type = getOperatorType(left.type, expr.operation, right.type, expr.location ? expr : {location:{unit:right.out}});
-                    if( expr.operation == "+" ){
 
-                        if( ((left.type.getTarget && left.type.getTarget()) || left.type) == STRING.type )
+                    let leftType = ((left.type.getTarget && left.type.getTarget()) || left.type);
+                    let rightType = ((right.type.getTarget && right.type.getTarget()) || right.type);
+                    
+                    switch( expr.operation ){
+                    case "+":
+                        if( leftType == STRING.type )
                             out += "*(" + left.out + ")";
                         else
                             out += left.out;
 
                         out += " + ";
 
-                        if( ((right.type.getTarget && right.type.getTarget()) || right.type) == STRING.type )
+                        if( rightType == STRING.type )
                             out += "*(" + right.out + ")";
                         else
                             out += right.out;
+                        break;
 
-                    }else if( expr.operation == ">>>" ){
+                    case ">>>":
                         out += "up_java::up_lang::uc_uint(" + left.out + ")";
                         out += ">>";
                         out += right.out;
                         type = UINT;
-                    }else{
+                        break;
+
+                    case "/":
+                        if( (leftType == SHORT.type || leftType == BYTE.type) && rightType == FLOAT.type){
+                            // out += `FixedPoints::SFixed<23,8>::fromInternal((int32_t(${left.out})<<16)/(${right.out}).getInternal())`;
+                            out += `FixedPoints::SFixed<23,8>::fromInternal(__divsi3(int32_t(${left.out})<<16, (${right.out}).getInternal()))`;
+                            type = FLOAT;
+                            break;
+                        }
+
+                    default:
                         out += left.out;
                         out += expr.operation;
                         out += right.out;
