@@ -908,6 +908,7 @@ function getOperatorType( left, op, right, expr ){
     const riskyint = [
         [INT.type, LONG.type, LONG],
         [LONG.type, INT.type, LONG],
+        [LONG.type, SHORT.type, LONG],
         [INT.type, UINT.type, INT],
         [UINT.type, INT.type, UINT],
         [INT.type, UBYTE.type, INT],
@@ -1377,8 +1378,8 @@ function writeExpression( expr, typeHint ){
 
                     case "/":
                         if( (leftType == SHORT.type || leftType == BYTE.type) && rightType == FLOAT.type){
-                            // out += `FixedPoints::SFixed<23,8>::fromInternal((int32_t(${left.out})<<16)/(${right.out}).getInternal())`;
-                            out += `FixedPoints::SFixed<23,8>::fromInternal(__divsi3(int32_t(${left.out})<<16, (${right.out}).getInternal()))`;
+                            out += `FixedPoints::SFixed<23,8>::fromInternal((int32_t(${left.out})<<16)/(${right.out}).getInternal())`;
+                            // out += `FixedPoints::SFixed<23,8>::fromInternal(__divsi3(int32_t(${left.out})<<16, (${right.out}).getInternal()))`;
                             type = FLOAT;
                             break;
                         }
