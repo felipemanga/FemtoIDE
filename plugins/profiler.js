@@ -49,8 +49,8 @@ APP.addPlugin("Profiler", [], _=>{
                 .sort((a, b)=>{
                     return b.hits - a.hits;
                 });
-            if( samples.length > 100 )
-                samples.length = 100;
+            if( samples.length > 1000 )
+                samples.length = 1000;
 
             sum = 0;
             for( let i=0; i<samples.length; ++i )
@@ -82,7 +82,7 @@ APP.addPlugin("Profiler", [], _=>{
             flags = flags.filter(f=>/\.elf$/i.test(f));
             
             let acc = "";
-            APP.spawn(execPath, "-e", ...flags, ...samples.map(m=>(m.addr*2).toString(16)))
+            APP.spawn(execPath, "-f", "-C", "-e", ...flags, ...samples.map(m=>(m.addr*2).toString(16)))
                 .on("data-out", str=>{
                     acc += str;
                 })
@@ -93,17 +93,21 @@ APP.addPlugin("Profiler", [], _=>{
                     (acc+"")
                         .trim()
                         .split("\n").forEach((l, i)=>{
+                            if(i&1) return;
+                            i >>= 1;
                             if( !samples[i] )
                                 return;
-                            
+                            /*
                             if( l.startsWith(DATA.projectPath) )
                                 l = l.substr(DATA.projectPath.length+1);
                             else if(l.indexOf("/") == -1 && l.indexOf("\\") == -1 )
                                 return;
                             else
                                 l = l.split(/[\\\/]/).pop();
-                            
-                            samples[i].label = l.trim();
+                            */
+
+                            l = APP.demangle(l.trim());
+                            samples[i].label = l;
                         });
                     renderSamples.call(this, samples);
                 });
@@ -112,9 +116,14 @@ APP.addPlugin("Profiler", [], _=>{
                 let sampleIndex = {};
                 for( let i=0; i<samples.length; ++i ){
                     let name = samples[i].label;
-                    if(!name)
-                        name = samples[i].label = "0x" + (samples[i].addr*2).toString(16);
-                    
+                    if(!name){
+                        name = "0x" + (samples[i].addr*2).toString(16);
+                    }else{
+                        name = name.replace(/\s*\(discriminator [0-9]+\)$/, "");
+                    }
+
+                    samples[i].label = name;
+
                     if( name in sampleIndex ){
                         sampleIndex[name].hits += samples[i].hits;
                     }else{
