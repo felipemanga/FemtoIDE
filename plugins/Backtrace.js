@@ -4,9 +4,7 @@ APP.addPlugin("Backtrace", [], _=>{
     class BacktraceNode {
 
         constructor( frame, parent ){
-            let name = frame.name
-                .replace(/(?<=^|:)up_[^:]+::/g, '')
-                .replace(/(?<=^|:)u[cp]_([A-Za-z_0-9]+)/g, '$1');
+            let name = APP.demangle(frame.name);
             
 	    this.DOM = DOC.create(
                 "li",

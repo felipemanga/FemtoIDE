@@ -13,6 +13,11 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     const mapexpr = /\n(?:\/\*<MAP\*([^|]*)\|([0-9]+)\|([0-9]+)\*MAP>\*\/)?/g;
     
     APP.add({
+        demangle(name){
+            return name.replace(/(?<=^|:)up_[^:]+::/g, '')
+                .replace(/(?<=^|:)u[cp]_([A-Za-z_0-9]+)/g, '$1');
+        },
+
         pollBufferMeta( buffer, meta ){
             if( !DATA.project.javaFlags )
                 return;
