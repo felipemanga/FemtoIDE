@@ -48,8 +48,7 @@ const ROM_DIV_API_T *divApiBase; /*!< Divider API function table base address */
 
 #define __UDIV__( num, den ) ((*(LPC_ROM_API_T * *) 0x1FFF1FF8UL)->divApiBase->uidiv( (num), (den) ))
 #define __IDIV__( num, den ) ((*(LPC_ROM_API_T * *) 0x1FFF1FF8UL)->divApiBase->sidiv( (num), (den) ))
-
-void __print__( const char *str );
+/* // actually runs slower on hardware
 
 extern "C" unsigned __aeabi_uidiv(unsigned numerator, unsigned denominator){
     return __UDIV__(numerator, denominator);
@@ -58,6 +57,7 @@ extern "C" unsigned __aeabi_uidiv(unsigned numerator, unsigned denominator){
 extern "C" signed __aeabi_idiv(signed numerator, signed denominator){
     return __IDIV__(numerator, denominator);
 }
+*/
 
 void miniitoa(unsigned long n, char *buf, uint8_t base=10 ){
     unsigned long i = 0;
