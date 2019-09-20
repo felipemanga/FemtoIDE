@@ -1064,7 +1064,7 @@ function writeExpression( expr, typeHint ){
                     return;
                 
                 if( line[0] != '@' ){
-                    out += `${indent}"${line.replace(/@([a-zA-Z_0-9]+)/, '%[$1]')}	\\n"\n`;
+                    out += `${indent}"${line.replace(/@([a-zA-Z_0-9]+)/g, '%[$1]')}	\\n"\n`;
                     return;
                 }
                 
