@@ -33,20 +33,57 @@ if( x&1 ){
 
 int rem = (w>>1);
 
-while( rem && (uintptr_t(b)&3)){
-    *b++ = color;
-    rem--;
-}
+if( rem < 4 ){
 
-while( rem >= 4 ){
-    *((uint32_t*)b) = color;
-    b += 4;
-    rem -= 4;
-}
+    while( rem ){
+        *b++ = color;
+        rem--;
+    }
 
-while( rem ){
-    *b++ = color;
-    rem--;
+}else{
+
+    if( uintptr_t(b)&3 ){
+        *b++ = color; rem--;
+        if( uintptr_t(b)&3 ){
+            *b++ = color; rem--;
+            if( uintptr_t(b)&3 ){ *b++ = color; rem--; }
+        }
+    }
+
+/* * /
+  while( rem >= 4 ){
+  *((uint32_t*)b) = color;
+  b += 4;
+  rem -= 4;
+  }
+
+/*/
+    asm volatile(
+        ".syntax unified                    \n"
+        "b drawHLineCheck%=                 \n"
+        "drawHLineLoop%=:                   \n"
+        "stmia %[b]!, {%[color]}            \n"
+        "drawHLineCheck%=:                  \n"
+        "subs %[rem], 4                     \n"
+        "bpl drawHLineLoop%=                \n"
+        "adds %[rem], 4                     \n"
+        :
+        [b]"+l"(b),
+        [rem]"+l"(rem)
+        :
+        [color]"l"(color)
+        :
+        "cc"
+        );
+/* */
+
+    if( rem ){
+        *b++ = color; rem--;
+        if( rem ){
+            *b++ = color; rem--;
+            if( rem ){ *b++ = color; rem--; }
+        }
+    }
 }
 
 if( w&1 )
