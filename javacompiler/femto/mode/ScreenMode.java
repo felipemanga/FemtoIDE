@@ -415,13 +415,10 @@ public class ScreenMode {
             return;
         }
 
-        int
-            dx01 = x1 - x0,
-            dy01 = y1 - y0,
+        int dx01 = x1 - x0,
             dx02 = x2 - x0,
-            dy02 = y2 - y0,
+            dy02 = (1<<16) / (y2 - y0),
             dx12 = x2 - x1,
-            dy12 = y2 - y1,
             sa = 0,
             sb = 0;
 
@@ -434,39 +431,47 @@ public class ScreenMode {
         if (y1 == y2) last = y1; // Include y1 scanline
         else last = y1 - 1; // Skip it
 
-        for (y = y0; y <= last; y++) {
-            a = x0 + sa / dy01;
-            b = x0 + sb / dy02;
-            sa += dx01;
-            sb += dx02;
-            /* longhand:
-               a = x0 + (x1 - x0) * (y - y0) / (y1 - y0);
-               b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
-            */
-            if (a > b){
-                tmp = a;
-                a = b;
-                b = tmp;
+        if( y0 != y1 ){
+            int dy01 = (1<<16) / (y1 - y0);
+
+            for (y = y0; y <= last; y++) {
+                a = x0 + ((sa * dy01) >> 16);
+                b = x0 + ((sb * dy02) >> 16);
+                sa += dx01;
+                sb += dx02;
+                /* longhand:
+                   a = x0 + (x1 - x0) * (y - y0) / (y1 - y0);
+                   b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
+                */
+                if (a > b){
+                    tmp = a;
+                    a = b;
+                    b = tmp;
+                }
+                drawHLine(a, y, b - a + 1, col);
             }
-            drawHLine(a, y, b - a + 1, col);
         }
 
         // For lower part of triangle, find scanline crossings for segments
         // 0-2 and 1-2.  This loop is skipped if y1=y2.
-        sa = dx12 * (y - y1);
-        sb = dx02 * (y - y0);
-        for (; y <= y2; y++) {
-            a = x1 + sa / dy12;
-            b = x0 + sb / dy02;
-            sa += dx12;
-            sb += dx02;
+        if( y1 != y2 ){
+            int dy12 = (1<<16) / (y2 - y1);
 
-            if (a > b){
-                tmp = a;
-                a = b;
-                b = tmp;
+            sa = dx12 * (y - y1);
+            sb = dx02 * (y - y0);
+            for (; y <= y2; y++) {
+                a = x1 + ((sa * dy12) >> 16);
+                b = x0 + ((sb * dy02) >> 16);
+                sa += dx12;
+                sb += dx02;
+
+                if (a > b){
+                    tmp = a;
+                    a = b;
+                    b = tmp;
+                }
+                drawHLine(a, y, b - a + 1, col);
             }
-            drawHLine(a, y, b - a + 1, col);
         }
     }
 
