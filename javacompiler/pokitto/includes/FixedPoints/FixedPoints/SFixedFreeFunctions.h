@@ -175,7 +175,16 @@ constexpr SFixed<Integer, Fraction> operator *(const SFixed<Integer, Fraction> &
 	
 	using InternalType = typename SFixed<Integer, Fraction>::InternalType;
 	using PrecisionType = typename SFixed<Integer * 2, Fraction * 2>::InternalType;
-	return SFixed<Integer, Fraction>::fromInternal(static_cast<InternalType>((static_cast<PrecisionType>(left.getInternal()) * static_cast<PrecisionType>(right.getInternal())) >> Fraction));
+        using SpeedType = typename SFixed< (Integer>>1), (Fraction>>1) >::InternalType;
+        return (
+            (static_cast<SpeedType>(left.getInternal()) == left.getInternal())
+            &&
+            (static_cast<SpeedType>(right.getInternal()) == right.getInternal())
+            ) ?
+            SFixed<Integer, Fraction>::fromInternal(left.getInternal() * right.getInternal() >> Fraction)
+                :
+                SFixed<Integer, Fraction>::fromInternal(static_cast<InternalType>((static_cast<PrecisionType>(left.getInternal()) * static_cast<PrecisionType>(right.getInternal())) >> Fraction))
+            ;
 }
 
 template< unsigned Integer, unsigned Fraction >
