@@ -9,15 +9,6 @@ APP.addPlugin("Profiler", [], _=>{
                 className:"ProfilerContainer"
             }, frame);
 
-            DOC.create(
-                "button",
-                container,
-                {
-                    onclick:_=>{APP.requestProfilingSample()},
-                    text:"Update"
-                }
-            );
-
             this.list = DOC.create(
                 "ul",
                 {className:"LineList"},
@@ -27,6 +18,14 @@ APP.addPlugin("Profiler", [], _=>{
             this.root = null;
             this.stale = true;
             APP.async(_=>this.onGetProfilingSample(buffer.data));
+            this._update();
+        }
+
+        _update(){
+            if( !socket )
+                return;
+            setTimeout(this._update.bind(this), 1000);
+            APP.requestProfilingSample();
         }
 
         onGetProfilingSample(data){
@@ -45,7 +44,6 @@ APP.addPlugin("Profiler", [], _=>{
             let out = '';
             let avg = sum / sumc;
             samples = samples
-                .filter((s, i)=>s.hits > avg)
                 .sort((a, b)=>{
                     return b.hits - a.hits;
                 });
@@ -97,16 +95,7 @@ APP.addPlugin("Profiler", [], _=>{
                             i >>= 1;
                             if( !samples[i] )
                                 return;
-                            /*
-                            if( l.startsWith(DATA.projectPath) )
-                                l = l.substr(DATA.projectPath.length+1);
-                            else if(l.indexOf("/") == -1 && l.indexOf("\\") == -1 )
-                                return;
-                            else
-                                l = l.split(/[\\\/]/).pop();
-                            */
-
-                            l = APP.demangle(l.trim());
+                            l = APP.demangle(l.trim()).replace(/\(.*/, "");
                             samples[i].label = l;
                         });
                     renderSamples.call(this, samples);
@@ -134,12 +123,13 @@ APP.addPlugin("Profiler", [], _=>{
                 Object.values(sampleIndex)
                     .sort((a, b)=>b.hits - a.hits)
                     .forEach((s, i)=>{
-                        let r = 0.5 + (s.hits / sum);
+                        let percent = s.hits / sum;
+                        let r = 0.5 + percent;
                         r = (r*r)*255|0;
                         if( r>255 ) r = 255;
                         
                         let g = 255 - r;
-                        out += `<li style="background-color: rgb(${r},${g*0.5},0)">${s.label || ("0x" + (s.addr*2).toString(16))} - ${s.hits}</li>`;
+                        out += `<li style="background-color: rgb(${r},${g*0.5},0)">${(percent*1000|0)/10}% ${s.label || ("0x" + (s.addr*2).toString(16))}</li>`;
                     });
                 this.list.innerHTML = out;
                 this.container.parentElement.style.display = "block";

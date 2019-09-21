@@ -1,5 +1,9 @@
+.frame.ProfilerView {
+    max-height: 100%;
+}
+
 .ProfilerContainer li, .ProfilerContainer ul, .ProfilerView, .ProfilerContainer {
-    max-width: 300px;
+    max-width: 350px;
     margin: 0;
     padding: 0;
     overflow: auto;

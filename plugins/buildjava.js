@@ -15,7 +15,8 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     APP.add({
         demangle(name){
             return name.replace(/(?<=^|:)up_[^:]+::/g, '')
-                .replace(/(?<=^|:)u[cp]_([A-Za-z_0-9]+)/g, '$1');
+                .replace(/(?<=^|:)u[cp]_([A-Za-z_0-9]+)/g, '$1')
+                .replace(/::/g, '.');
         },
 
         pollBufferMeta( buffer, meta ){
