@@ -37,7 +37,12 @@
         },
 
         error( ...args ){
-            args.join(" ")
+            args.map(arg=>{
+                if( DATA.verbose && arg && arg.message && arg.stack ){
+                    return arg.stack;
+                }
+                return arg;
+            }).join(" ")
                 .split("\n")
                 .forEach( line => this.logErrorLine(line) );            
         },
