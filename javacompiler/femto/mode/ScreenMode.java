@@ -431,6 +431,8 @@ public class ScreenMode {
         if (y1 == y2) last = y1; // Include y1 scanline
         else last = y1 - 1; // Skip it
 
+        y = y0;
+
         if( y0 != y1 ){
             int dy01 = (1<<16) / (y1 - y0);
 
@@ -448,7 +450,7 @@ public class ScreenMode {
                     a = b;
                     b = tmp;
                 }
-                drawHLine(a, y, b - a + 1, col);
+                drawHLine(a, y, b - a, col);
             }
         }
 
@@ -470,7 +472,7 @@ public class ScreenMode {
                     a = b;
                     b = tmp;
                 }
-                drawHLine(a, y, b - a + 1, col);
+                drawHLine(a, y, b - a, col);
             }
         }
     }
