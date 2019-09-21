@@ -2,6 +2,7 @@ var annotated_dup =
 [
     [ "femto", null, [
       [ "hardware", null, [
+        [ "EEPROM", "classfemto_1_1hardware_1_1EEPROM.html", null ],
         [ "EXT", "classfemto_1_1hardware_1_1EXT.html", "classfemto_1_1hardware_1_1EXT" ],
         [ "IRQ", "interfacefemto_1_1hardware_1_1IRQ.html", "interfacefemto_1_1hardware_1_1IRQ" ],
         [ "LPC11U68", "classfemto_1_1hardware_1_1LPC11U68.html", null ],
@@ -22,6 +23,7 @@ var annotated_dup =
         [ "Mixer", "classfemto_1_1sound_1_1Mixer.html", null ],
         [ "Procedural", "classfemto_1_1sound_1_1Procedural.html", "classfemto_1_1sound_1_1Procedural" ]
       ] ],
+      [ "Cookie", "classfemto_1_1Cookie.html", "classfemto_1_1Cookie" ],
       [ "FrameRef", "classfemto_1_1FrameRef.html", null ],
       [ "Game", "classfemto_1_1Game.html", null ],
       [ "Image", "classfemto_1_1Image.html", null ],

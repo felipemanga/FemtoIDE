@@ -6,6 +6,7 @@ var classfemto_1_1mode_1_1HiRes16Color =
     [ "drawHLine", "classfemto_1_1mode_1_1HiRes16Color.html#a9b2c362b88752fdf969cbb017b98c007", null ],
     [ "drawVLine", "classfemto_1_1mode_1_1HiRes16Color.html#a635e72c230e0e17e47e489e6ef5fad56", null ],
     [ "flush", "classfemto_1_1mode_1_1HiRes16Color.html#ad7fd2e7c94a1418fca40ea9b35a39407", null ],
+    [ "getPixel", "classfemto_1_1mode_1_1HiRes16Color.html#acec68640f9fdc97e24f50bc876d66a94", null ],
     [ "height", "classfemto_1_1mode_1_1HiRes16Color.html#ad83d6a5d96e2db284fc6a1904af7f77a", null ],
     [ "initialize", "classfemto_1_1mode_1_1HiRes16Color.html#a13f4fff079b5be8d17f1d7c11b68810b", null ],
     [ "loadPalette", "classfemto_1_1mode_1_1HiRes16Color.html#a257bfd70db7db092ac3e0b81602948c7", null ],
