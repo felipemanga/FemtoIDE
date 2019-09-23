@@ -103,8 +103,13 @@ public class Game extends StateMachine {
                     }
                 }
             });
-        
-        setState( initialState );
+
+        if( Button.C.isPressed() ){
+            menuState.previous = initialState;
+            state = nextState = menuState;
+        }else{
+            setState( initialState );
+        }
     }
 
     private static long lastUpdateTime;
