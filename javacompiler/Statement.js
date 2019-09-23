@@ -269,12 +269,16 @@ class Statement {
             this.scope
         );
 
-        this.update = bfs.forUpdate[0].children
-            .statementExpressionList[0].children
-            .statementExpression.map( se => new Expression(
-                se.children.expression[0],
-                this.scope
-            ) );
+        if( bfs.forUpdate ){
+            this.update = bfs.forUpdate[0].children
+                .statementExpressionList[0].children
+                .statementExpression.map( se => new Expression(
+                    se.children.expression[0],
+                    this.scope
+                ) );
+        }else{
+            this.update = [];
+        }
 
         this.body = new Statement( bfs.statement[0], this.scope );
     }
