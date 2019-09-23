@@ -192,7 +192,10 @@ constexpr SFixed<Integer, Fraction> operator /(const SFixed<Integer, Fraction> &
 {
 	using InternalType = typename SFixed<Integer, Fraction>::InternalType;
 	using PrecisionType = typename SFixed<Integer * 2, Fraction * 2>::InternalType;
-	return SFixed<Integer, Fraction>::fromInternal(static_cast<InternalType>((static_cast<PrecisionType>(left.getInternal()) << Fraction) / right.getInternal()));
+        return ( left.getInternal() << Fraction >> Fraction == left.getInternal() ) ?
+            SFixed<Integer, Fraction>::fromInternal((left.getInternal()<<Fraction) / right.getInternal())
+            :
+            SFixed<Integer, Fraction>::fromInternal(static_cast<InternalType>((static_cast<PrecisionType>(left.getInternal()) << Fraction) / right.getInternal()));
 }
 
 //
