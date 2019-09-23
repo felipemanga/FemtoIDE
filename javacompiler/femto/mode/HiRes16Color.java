@@ -68,7 +68,7 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         if( (x & 1) != 0 ){
             return pixel & 0x0F;
         }else{
-            return pixel & 0xF0;
+            return pixel >> 4;
         }
     }
 
