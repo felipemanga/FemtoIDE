@@ -17,6 +17,10 @@ public class Sprite implements __stub__ {
     public int getCurrentFrame(){
         return currentFrame;
     }
+	
+    public void setCurrentFrame(ubyte frame){
+        currentFrame = frame;
+    }
 
     public int getStartFrame(){
         return startFrame;
