@@ -133,7 +133,7 @@ function writeMethodSignature( method, writeStatic, writeClass ){
     out += `${method.name} (`;
 
     method.parameters.forEach( param => {
-        out += `${sep}${writeType(param.type, false)} ${param.name}`;
+        out += `${sep}${writeType(param.type, false)} ${sanitize(param.name)}`;
         sep = ", ";
     });
             
@@ -231,8 +231,8 @@ function writeClassInline( type ){
         out += `${indent}uc_${type.name}(`;
         let sep = '', nameList = '';
         method.parameters.forEach( param => {
-            nameList += `${sep} ${param.name}`;
-            out += `${sep}${writeType(param.type, false)} ${param.name}`;
+            nameList += `${sep} ${sanitize(param.name)}`;
+            out += `${sep}${writeType(param.type, false)} ${sanitize(param.name)}`;
             sep = ", ";
         });
         out += `) : ${writePath(type.extends)}( ${nameList} ){}\n`;
@@ -272,7 +272,7 @@ function writeFieldDecl(field) {
     out += writeType(field.type, field.isStatic);
     out += " ";
     if( field.isFinal && !type.isNative ) out += "const ";
-    out += field.name;
+    out += sanitize(field.name);
     out += `;\n`;
     return out;
 }
@@ -451,6 +451,22 @@ function writeMethodBody( method, t ){
     return out;
 }
 
+function sanitize(str){
+    return ([
+        "and",
+        "or",
+        "xor",
+        "bitor",
+        "compl",
+        "bitand",
+        "and_eq",
+        "or_eq",
+        "xor_eq",
+        "not",
+        "not_eq"
+    ].indexOf(str) != -1 ? "__kw_" : "") + str;
+}
+
 let refid = 0;
 
 function writePath( expr, clean ){
@@ -504,7 +520,7 @@ function writePath( expr, clean ){
             break;
 
         case "Ref":
-            out += next + n.name;
+            out += next + sanitize(n.name);
             next += "->";
             break;
             
@@ -516,22 +532,22 @@ function writePath( expr, clean ){
 
         case "Field":
             if( !i && n.scope && n.scope.isClass ){
-                out += next + "this->" + n.name;
+                out += next + "this->" + sanitize(n.name);
                 next = "->";
                 break;
             }
-            out += next + n.name;
+            out += next + sanitize(n.name);
             next = "->";
             break;
 
         case "EnumConstant":
             out = "&" + out;
-            out += next + n.name;
+            out += next + sanitize(n.name);
             next = "->";
             break;
             
         default:
-            out += next + n.name;
+            out += next + sanitize(n.name);
             next = "->";
             break;
         }
@@ -606,7 +622,7 @@ function access( exprList, prevResult ){
             else
                 type = e.type;
         }else{
-            out += `->${e}`;
+            out += `->${sanitize(e)}`;
             if( type ){
                 if( type.isTypeRef )
                     type = type.getTarget();
