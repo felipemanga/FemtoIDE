@@ -909,13 +909,14 @@ namespace up_java {
                 }
                 
                 char *w = new char[end + 1];
+                char *c = w;
                 while( end && *r ){
                     *w++ = *r++;
                     end--;
                 }
                 *w = 0;
                 
-                return new uc_String(w);
+                return new uc_String(c);
             }
 
             uc_String *substring(int start){
