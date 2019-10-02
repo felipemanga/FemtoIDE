@@ -1134,7 +1134,7 @@ function writeExpression( expr, typeHint ){
 
     case "arrayAccessSuffix":
         e = writeExpression(expr.right);
-        if( !isAssignableType(INT, e.type) )
+        if( !isAssignableType(INT, e.type) || e.type.getTarget() == FLOAT.type)
             StdError.throwError(expr.location, `Can't use ${e.type.name} as array index.`);
 
         if( expr.isLValue ){
