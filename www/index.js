@@ -127,6 +127,20 @@ class Frame {
 
     }
 
+    openExternally( buffer ){
+        let cmd;
+        if( DATA.os == "windows" ){
+            if( buffer.type == "directory" ) cmd = "explorer";
+            else cmd = "start";
+        }else if( DATA.os == "linux" ){
+            cmd = "xdg-open";
+        }else if( DATA.os == "darwin" ){
+            cmd = "open";
+        }
+        
+        APP.spawn(cmd, buffer.path);
+    }
+
     renameBuffer( buffer, newName ){
         if( !buffer || !newName || typeof newName != "string" )
             return; // prompt for buffer to rename?
@@ -139,6 +153,7 @@ class Frame {
             else{
                 buffer.path = newName;
                 buffer.name = newName.split(/[\\/]/).pop();
+                buffer.type = newName.split(".").pop().toUpperCase();
                 APP.onRenameBuffer( buffer );
             }
         });

@@ -353,7 +353,12 @@ APP.addPlugin("Tree", [], _=>{
             actions.push(
                 {
                     type:"button",
-                    label:"rename",
+                    label:"Open Externally",
+                    cb:APP.openExternally.bind(null, buffer)
+                },
+                {
+                    type:"button",
+                    label:"Rename",
                     cb:APP.renameBuffer.bind(null, buffer)
                 }
             );
