@@ -171,24 +171,33 @@ class Clazz extends Type {
 
     initInterface( node ){
         this.isInterface = true;
-        node.children
-            .normalInterfaceDeclaration[0].children
-            .interfaceBody[0].children
-            .interfaceMemberDeclaration
-            .forEach( n => {
+        if(
+            node.children
+                .normalInterfaceDeclaration[0].children
+                .interfaceBody[0].children
+                .interfaceMemberDeclaration
+        ){
 
-                let decl = Object.values(
-                    n.children
-                )[0][0];
+            node.children
+                .normalInterfaceDeclaration[0].children
+                .interfaceBody[0].children
+                .interfaceMemberDeclaration
+                .forEach( n => {
 
-                if( !this[decl.name] ){
-                    console.error( decl );
-                    ast(decl);
-                }
-                
-                this[ decl.name ]( decl );
+                    let decl = Object.values(
+                        n.children
+                    )[0][0];
 
-            });      
+                    if( !this[decl.name] ){
+                        console.error( decl );
+                        ast(decl);
+                    }
+                    
+                    this[ decl.name ]( decl );
+
+                });
+
+        }
     }
 
     initAnonClass( node ){
