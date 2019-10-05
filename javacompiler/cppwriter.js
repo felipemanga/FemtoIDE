@@ -225,6 +225,10 @@ function writeClassInline( type ){
     out += "public:\n";
 
     let base = type.extends.getTarget();
+    if( !base.isClass || base.isInterface ){
+        StdError.throwError( type.location, `${type.name} can't extend ${base.name}.`);
+    }
+
     base.methods.forEach( method => {
         if( !method.isConstructor )
             return;
@@ -306,6 +310,11 @@ function writeClassDecl( unit, type, dependencies ){
             if( !t.extends || t.extends.name[0] != "__raw__" ){
                 out += ': public ';
                 let base = t.extends ? writePath(t.extends) : "up_java::up_lang::uc_Object";
+                let baseClass = t.extends && t.extends.getTarget();
+                if( baseClass && (!baseClass.isClass || baseClass.isInterface) ){
+                    StdError.throwError( t.location, `${t.name} can't extend ${baseClass.name}.`);
+                }
+                
                 out += base;
             }
 
