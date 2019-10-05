@@ -128,11 +128,14 @@ __blit_4bpp(
         float C = Math.cos(angle);
         float S = Math.sin(angle);
 
+        float m = isMirrored() ? -1 : 1;
+        float f = isFlipped() ? -1 : 1;
+
         fillQuad(screen, 
-            -Z*C+Z*S,-Z*C-Z*S, 0,0,
-            Z*C+Z*S,-Z*C+Z*S, 1,0,
-            Z*C-Z*S,Z*C+Z*S, 1,1,
-            -Z*C-Z*S,Z*C-Z*S, 0,1
+                 (-Z*C+Z*S)*m,  (-Z*C-Z*S)*f,       0,0,
+                 (Z*C+Z*S)*m,   (-Z*C+Z*S)*f,       1,0,
+                 (Z*C-Z*S)*m,   (Z*C+Z*S)*f,        1,1,
+                 (-Z*C-Z*S)*m,  (Z*C-Z*S)*f,        0,1
         );
     }
     
