@@ -715,6 +715,8 @@ function isCompatibleType( left, right, cast ){
     else if( left == SHORT.type && right == UBYTE.type ) return left;
     else if( right == SHORT.type && left == UBYTE.type ) return right;
 
+    else if( left == FLOAT.type && right == DOUBLE.type ) return right;
+    else if( right == FLOAT.type && left == DOUBLE.type ) return left;
     else if( left == FLOAT.type && right == CHAR.type ) return left;
     else if( right == FLOAT.type && left == CHAR.type ) return right;
     else if( left == FLOAT.type && right == BYTE.type ) return left;
@@ -944,6 +946,7 @@ function getOperatorType( left, op, right, expr ){
         [UBYTE.type, UINT.type, UINT],
         [BYTE.type, INT.type, INT],
         [BYTE.type, UINT.type, UINT],
+        [BYTE.type, SHORT.type, SHORT],
         [INT.type, SHORT.type, INT],
         [UINT.type, SHORT.type, UINT]
     ];

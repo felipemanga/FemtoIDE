@@ -570,6 +570,7 @@ while(*c)
         uint screenHeight = height();
         uint w = LDRB( font );
         uint h = LDRB( font+1 );
+        if(LDRB(font+3) != 0 && index>=97) index-=(char) 32;
         index -= (char) LDRB( font+2 );
         uint x = (int) textX;
         uint y = (int) textY;
@@ -584,6 +585,10 @@ while(*c)
 
         for( int i=0; i<numBytes; ++i ){
             column = LDRB(bitmap++);
+
+            if(hbytes == 2)
+                column |= ((int)LDRB(bitmap++)) << 8;
+
             if(x < screenWidth){
                 for( uint j=0; j<=h; ++j ){
                     if( (column&1) != 0 && y<screenHeight )
@@ -591,6 +596,7 @@ while(*c)
                     column >>= 1;
                 }
             }
+
             x++;
         }
 
