@@ -41,6 +41,8 @@ public class LowRes16Color extends HiRes16Color implements __stub__ {
         }
     }    
 
+    public void drawHLine(int x, int y, int w, int color){}
+
     /// @copydoc ScreenMode::flush()
     public void flush(){}
 
