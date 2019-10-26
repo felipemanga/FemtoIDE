@@ -121,6 +121,27 @@ __blit_4bpp(
         this.draw( screen );
     }
 
+    public void rotoscale(HiRes16Color screen, float angle, float size){
+    	updateAnimation();
+
+        float Z = size;
+        float C = Math.cos(angle);
+        float S = Math.sin(angle);
+
+        float m = isMirrored() ? -1 : 1;
+        float f = isFlipped() ? -1 : 1;
+
+        float HW = width()*size/2;
+        float HH = height()*size/2;
+
+        fillQuad(screen, 
+                 (-HW*C+HH*S)*m,  (-HH*C-HW*S)*f,       0,0,
+                 ( HW*C+HH*S)*m,  (-HH*C+HW*S)*f,       1,0,
+                 ( HW*C-HH*S)*m,  ( HH*C+HW*S)*f,       1,1,
+                 (-HW*C-HH*S)*m,  ( HH*C-HW*S)*f,       0,1
+        );
+    }
+
     public void rotozoom(HiRes16Color screen, float angle, float size){
     	updateAnimation();
 
