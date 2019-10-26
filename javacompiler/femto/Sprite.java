@@ -106,10 +106,11 @@ public class Sprite implements __stub__ {
         __inline_cpp__("
 const auto &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, screen);
 int frameWidth = ((char*)f.frame)[0];
+int frameHeight= ((char*)f.frame)[1];
 __blit_4bpp( 
   f.frame, 
   x.getInteger() + (mirror?this->width()-(frameWidth+(frameWidth&1)+f.offsetX):f.offsetX), 
-  y.getInteger() + f.offsetY, 
+  y.getInteger() + (flip?this->height()-(frameHeight+f.offsetY):f.offsetY), 
   screen, 
   flip, 
   mirror 
