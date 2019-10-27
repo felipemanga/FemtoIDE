@@ -49,6 +49,7 @@ let src = {
             HiRes16Color:read("/femto/mode/HiRes16Color.java", "utf-8"),
             LowRes16Color:read("/femto/mode/LowRes16Color.java", "utf-8"),
             Direct:read("/femto/mode/Direct.java", "utf-8"),
+            Direct4BPP:read("/femto/mode/Direct4BPP.java", "utf-8"),
         },
         
         input:{
@@ -62,6 +63,7 @@ let src = {
             AndrewKensler16:read("/femto/palette/AndrewKensler16.pal", "utf-8", {parser:"pal"}),
             Arne16:read("/femto/palette/Arne16.pal", "utf-8", {parser:"pal"}),
             Arq16:read("/femto/palette/Arq16.pal", "utf-8", {parser:"pal"}),
+            Aurora:read("/femto/palette/Aurora.pal", "utf-8", {parser:"pal"}),
             Bubblegum16:read("/femto/palette/Bubblegum16.pal", "utf-8", {parser:"pal"}),
             Castpixel16:read("/femto/palette/Castpixel16.pal", "utf-8", {parser:"pal"}),
             CdBac:read("/femto/palette/CdBac.pal", "utf-8", {parser:"pal"}),

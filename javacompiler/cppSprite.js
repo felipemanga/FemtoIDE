@@ -20,7 +20,7 @@ function encode(data, width, height){
             let A = data[i++][3];
 
             if( A > 128 ){
-                for( let c=1; c<palette.length; ++c ){
+                for( let c=1; c<16; ++c ){
                     let ca = palette[c];
                     let lum = (ca[0]*0.2126 + ca[1]*0.7152 + ca[2]*0.0722)*lumBias;
 		    let dist = (R-ca[0])*(R-ca[0])
