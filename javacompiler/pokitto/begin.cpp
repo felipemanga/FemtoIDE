@@ -799,6 +799,7 @@ class __str__T {
 public:
     operator up_java::up_lang::uc_String*();
     operator __ref__<up_java::up_lang::uc_String>();
+    explicit operator up_java::up_lang::uc_pointer();
     up_java::up_lang::uc_String* operator->();
 };
 
@@ -982,6 +983,10 @@ __str__T::operator __ref__<up_java::up_lang::uc_String>(){
 
 __str__T::operator up_java::up_lang::uc_String*(){
     return new up_java::up_lang::uc_String((const char*)this);
+}
+
+__str__T::operator up_java::up_lang::uc_pointer(){
+    return up_java::up_lang::uc_pointer(this);
 }
 
 up_java::up_lang::uc_String* __str__T::operator->(){

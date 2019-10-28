@@ -509,12 +509,12 @@ public class ScreenMode {
         textY += textHeight();        
     }
     
-    public void print( String s ){
+    public void print(pointer s){
         int h = textHeight();
         int i = 0;
         char c;
         while(true){
-            c = s[i++];
+            c = (char) LDRB(s + i++);
 
             if( c == 0 )
                 return;
@@ -527,6 +527,12 @@ public class ScreenMode {
 
             putchar(c);
         }
+    }
+
+    public void print( String s ){
+        pointer data;
+        __inline_cpp__("data = s->getPointer()");
+        print(data);
     }
 
     public void print( uint v ){

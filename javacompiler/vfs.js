@@ -48,6 +48,7 @@ let src = {
             ScreenMode:read("/femto/mode/ScreenMode.java", "utf-8"),
             HiRes16Color:read("/femto/mode/HiRes16Color.java", "utf-8"),
             LowRes16Color:read("/femto/mode/LowRes16Color.java", "utf-8"),
+            LowRes256Color:read("/femto/mode/LowRes256Color.java", "utf-8"),
             Direct:read("/femto/mode/Direct.java", "utf-8"),
             Direct4BPP:read("/femto/mode/Direct4BPP.java", "utf-8"),
         },

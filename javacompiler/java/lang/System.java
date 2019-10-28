@@ -120,6 +120,11 @@ out = *((uint8_t*)p);
             __inline_cpp__("__print__(s->__c_str())");
         }
 
+        /// Prints a raw string to the standard output stream.
+        public static void printraw( pointer s ){
+            __inline_cpp__("__print__((char*)s)");
+        }
+
         /// Prints an `int` to the standard output stream.
         public static void print( int s ){
             __inline_cpp__("__print__((int) s)");

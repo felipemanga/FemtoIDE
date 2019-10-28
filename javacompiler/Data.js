@@ -92,9 +92,30 @@ module.exports.Data = {
                     method
                 )
             ],
-            {image}
+            {image, bits:4}
         );
 
+        method = new Method(null, this);
+        this.methods.push( method );
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["pointer"], false, this),
+            "getImageDataForScreen",
+            [
+                new Field(
+                    null,
+                    // TODO: replace with 256-color interface
+                    ["femto", "mode", "LowRes256Color"],
+                    "screen",
+                    false,
+                    null,
+                    method
+                )
+            ],
+            {image, bits:8}
+        );
+        
         if( image.isTransparent ){
             method = new Method(null, this);
             this.methods.push(method);
@@ -235,7 +256,36 @@ module.exports.Data = {
                     method
                 )
             ],
-            {sprite}
+            {sprite, bits:4}
+        );
+
+        method = new Method(null, this);
+        this.methods.push( method );
+        method.isPublic = true;
+        method.isStatic = false;
+        method.artificial(
+            new TypeRef(["pointer"], false, this),
+            "getFrameDataForScreen",
+            [
+                new Field(
+                    null,
+                    ["uint"],
+                    "frameNumber",
+                    false,
+                    null,
+                    method
+                ),
+                new Field(
+                    null,
+                    // TODO: replace with 256-color interface
+                    ["femto", "mode", "LowRes256Color"],
+                    "screen",
+                    false,
+                    null,
+                    method
+                )
+            ],
+            {sprite, bits:8}
         );
 
         method = new Method(null, this);

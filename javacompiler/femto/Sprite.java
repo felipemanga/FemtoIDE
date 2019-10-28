@@ -1,6 +1,10 @@
 package femto;
 
 import mode.HiRes16Color;
+import mode.LowRes256Color;
+import mode.Direct;
+import mode.Direct4BPP;
+// import mode.Direct8BPP;
 
 public class Sprite implements __stub__ {
     public ubyte currentFrame, startFrame, endFrame, flags;
@@ -75,6 +79,7 @@ public class Sprite implements __stub__ {
         else flags &= ~2;
     }
 
+    /// If set to true, the sprite will appear upside-down
     public void setFlipped( boolean s ){
         if( s ) flags |= 4;
         else flags &= ~4;
@@ -84,12 +89,74 @@ public class Sprite implements __stub__ {
         flags = (flags&0xF) | ((c&0xF)<<4);
     }
 
+    public int getRecolor( ){
+        return flags >> 4;
+    }
+
     /// Sets the position of the `Sprite`.
     public void setPosition( float x, float y ){
         this.x = x;
         this.y = y;
     }
 
+    public void draw( Direct4BPP screen ){
+	updateAnimation();
+        float x = this.x;
+        float y = this.y;
+        boolean mirror = (flags&2) != 0;
+        boolean flip = (flags&4) != 0;
+
+        if( (flags&1) == 0 ){
+            x -= screen.cameraX;
+            y -= screen.cameraY;
+        }
+
+        __inline_cpp__("
+const auto pal = screen->palette->elements + (getRecolor()<<4);
+const auto &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_HiRes16Color*)nullptr);
+int frameWidth = ((char*)f.frame)[0];
+int frameHeight= ((char*)f.frame)[1];
+__directblit_4bpp( 
+  f.frame, 
+  x.getInteger() + (mirror?this->width()-(frameWidth+(frameWidth&1)+f.offsetX):f.offsetX), 
+  y.getInteger() + (flip?this->height()-(frameHeight+f.offsetY):f.offsetY), 
+  screen, 
+  flip, 
+  mirror,
+  pal
+)");
+        
+    }
+
+/*
+    public void draw( Direct16BPP screen ){
+	updateAnimation();
+        float x = this.x;
+        float y = this.y;
+        boolean mirror = (flags&2) != 0;
+        boolean flip = (flags&4) != 0;
+
+        if( (flags&1) == 0 ){
+            x -= screen.cameraX;
+            y -= screen.cameraY;
+        }
+
+        __inline_cpp__("
+const auto &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, screen);
+int frameWidth = ((char*)f.frame)[0];
+int frameHeight= ((char*)f.frame)[1];
+__directblit_16bpp( 
+  f.frame, 
+  x.getInteger() + (mirror?this->width()-(frameWidth+(frameWidth&1)+f.offsetX):f.offsetX), 
+  y.getInteger() + (flip?this->height()-(frameHeight+f.offsetY):f.offsetY), 
+  screen, 
+  flip, 
+  mirror 
+)");
+        
+    }
+*/
+    
     /// Updates the animation and draws onto the screen.
     public void draw( HiRes16Color screen ){
 	updateAnimation();
@@ -393,6 +460,9 @@ __blit_4bpp(
         new FrameRef(); // dummy type ref
     }
 
+    public pointer getFrameDataForScreen( uint number, LowRes256Color screen ){
+        return null;
+    }
 
     public void updateAnimation(){
         if( startFrame != endFrame ){
@@ -420,4 +490,7 @@ __blit_4bpp(
     }
 
     protected static void __blit_4bpp( pointer src, int x, int y, HiRes16Color screen, boolean flip, boolean mirror ){}
+    protected static void __blit_8bpp( pointer src, int x, int y, LowRes256Color screen, boolean flip, boolean mirror ){}
+    protected static void __directblit_4bpp( pointer src, int x, int y, Direct4BPP screen, boolean flip, boolean mirror, pointer pal ){}
+    // protected static void __directblit_8bpp( pointer src, int x, int y, Direct8BPP screen, boolean flip, boolean mirror, pointer pal ){}
 }
