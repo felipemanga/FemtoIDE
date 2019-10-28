@@ -43,6 +43,11 @@ let src = {
     },
     
     femto:{
+
+        math:{
+            Vector4:read("/femto/math/Vector4.java", "utf-8"),
+            Matrix4:read("/femto/math/Matrix4.java", "utf-8"),
+        },
         
         mode:{
             ScreenMode:read("/femto/mode/ScreenMode.java", "utf-8"),
@@ -100,6 +105,7 @@ let src = {
             MacintoshIi:read("/femto/palette/MacintoshIi.pal", "utf-8", {parser:"pal"}),
             Master16:read("/femto/palette/Master16.pal", "utf-8", {parser:"pal"}),
             MicrosoftWindows:read("/femto/palette/MicrosoftWindows.pal", "utf-8", {parser:"pal"}),
+            Miloslav:read("/femto/palette/Miloslav.pal", "utf-8", {parser:"pal"}),
             Na16:read("/femto/palette/Na16.pal", "utf-8", {parser:"pal"}),
             Naji16:read("/femto/palette/Naji16.pal", "utf-8", {parser:"pal"}),
             Night16:read("/femto/palette/Night16.pal", "utf-8", {parser:"pal"}),
