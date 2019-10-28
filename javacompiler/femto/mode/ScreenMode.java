@@ -503,12 +503,36 @@ public class ScreenMode {
         return m;
     }
 
+    public void println( pointer s ){
+        print( s );
+        textX = textLeftLimit;
+        textY += textHeight();
+    }
+
     public void println( String s ){
         print( s );
         textX = textLeftLimit;
         textY += textHeight();        
     }
-    
+
+    public void println( float v ){
+        print(v);
+        textX = textLeftLimit;
+        textY += textHeight();
+    }
+
+    public void println( int v ){
+        print(v);
+        textX = textLeftLimit;
+        textY += textHeight();
+    }
+
+    public void println( uint v ){
+        print(v);
+        textX = textLeftLimit;
+        textY += textHeight();
+    }
+
     public void print(pointer s){
         int h = textHeight();
         int i = 0;
