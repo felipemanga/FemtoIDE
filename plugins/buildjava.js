@@ -267,8 +267,8 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     let arr16 = new Uint16Array( colors.colors16 );
                     let arr8 = new Uint8Array(arr16.buffer);
                     let arr = [
-                        colors.colors16.length,
-                        0,
+                        colors.colors16.length&0xFF,
+                        (colors.colors16.length>>8)&0xFF,
                         ...arr8
                     ];
 
