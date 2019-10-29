@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['exception_114',['Exception',['../classjava_1_1lang_1_1Exception.html',1,'java::lang']]],
-  ['ext_115',['EXT',['../classfemto_1_1hardware_1_1EXT.html',1,'femto::hardware']]]
+  ['date_123',['Date',['../classjava_1_1util_1_1Date.html',1,'java::util']]],
+  ['direct_124',['Direct',['../classfemto_1_1mode_1_1Direct.html',1,'femto::mode']]],
+  ['direct4bpp_125',['Direct4BPP',['../classfemto_1_1mode_1_1Direct4BPP.html',1,'femto::mode']]]
 ];

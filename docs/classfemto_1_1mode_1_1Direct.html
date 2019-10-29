@@ -35,7 +35,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">FemtoIDE Java API
-   &#160;<span id="projectnumber">v0.0.18b</span>
+   &#160;<span id="projectnumber">v0.1.2</span>
    </div>
   </td>
    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
@@ -111,6 +111,7 @@ Inheritance diagram for femto.mode.Direct:</div>
   <img src="classfemto_1_1mode_1_1Direct.png" usemap="#femto.mode.Direct_map" alt=""/>
   <map id="femto.mode.Direct_map" name="femto.mode.Direct_map">
 <area href="classfemto_1_1mode_1_1ScreenMode.html" alt="femto.mode.ScreenMode" shape="rect" coords="0,0,153,24"/>
+<area href="classfemto_1_1mode_1_1Direct4BPP.html" alt="femto.mode.Direct4BPP" shape="rect" coords="81,112,234,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -120,12 +121,12 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1mode_1_1Direct.html#a0b4514f19b5c897f5ff83b89f3c77d88">Direct</a> (pointer <a class="el" href="classfemto_1_1mode_1_1ScreenMode.html#abe478e07ed7f03fe634293bd65ed785a">font</a>)</td></tr>
 <tr class="memdesc:a0b4514f19b5c897f5ff83b89f3c77d88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a <code><a class="el" href="classfemto_1_1mode_1_1Direct.html">Direct</a></code> object with the corresponding <code>font</code> <br /></td></tr>
 <tr class="separator:a0b4514f19b5c897f5ff83b89f3c77d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19c8856486061b23b0ae34a3a2bf8759"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1mode_1_1Direct.html#a19c8856486061b23b0ae34a3a2bf8759">width</a> ()</td></tr>
-<tr class="memdesc:a19c8856486061b23b0ae34a3a2bf8759"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the width of the screen in pixels (varies per screen mode).  <a href="classfemto_1_1mode_1_1Direct.html#a19c8856486061b23b0ae34a3a2bf8759">More...</a><br /></td></tr>
-<tr class="separator:a19c8856486061b23b0ae34a3a2bf8759"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41131e2b149d07dc4e35b27f23e98a8c"><td class="memItemLeft" align="right" valign="top">uint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1mode_1_1Direct.html#a41131e2b149d07dc4e35b27f23e98a8c">height</a> ()</td></tr>
-<tr class="memdesc:a41131e2b149d07dc4e35b27f23e98a8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the height of the screen in pixels (varies per screen mode).  <a href="classfemto_1_1mode_1_1Direct.html#a41131e2b149d07dc4e35b27f23e98a8c">More...</a><br /></td></tr>
-<tr class="separator:a41131e2b149d07dc4e35b27f23e98a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa213066a6509855600e42a770a639ed0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1mode_1_1Direct.html#aa213066a6509855600e42a770a639ed0">width</a> ()</td></tr>
+<tr class="memdesc:aa213066a6509855600e42a770a639ed0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the width of the screen in pixels (varies per screen mode).  <a href="classfemto_1_1mode_1_1Direct.html#aa213066a6509855600e42a770a639ed0">More...</a><br /></td></tr>
+<tr class="separator:aa213066a6509855600e42a770a639ed0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad091cefb1f84d90ec6dd86359b7bfe0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1mode_1_1Direct.html#aad091cefb1f84d90ec6dd86359b7bfe0">height</a> ()</td></tr>
+<tr class="memdesc:aad091cefb1f84d90ec6dd86359b7bfe0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the height of the screen in pixels (varies per screen mode).  <a href="classfemto_1_1mode_1_1Direct.html#aad091cefb1f84d90ec6dd86359b7bfe0">More...</a><br /></td></tr>
+<tr class="separator:aad091cefb1f84d90ec6dd86359b7bfe0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c8cd573d9bca588634e6032c6acc6a6"><td class="memItemLeft" align="right" valign="top"><a id="a6c8cd573d9bca588634e6032c6acc6a6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1mode_1_1Direct.html#a6c8cd573d9bca588634e6032c6acc6a6">clear</a> (int color)</td></tr>
 <tr class="memdesc:a6c8cd573d9bca588634e6032c6acc6a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills the entire screen with the specified color. <br /></td></tr>
@@ -190,9 +191,27 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a1635e23e91f143db86871787181ac27d inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="a1635e23e91f143db86871787181ac27d"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>textHeight</b> ()</td></tr>
 <tr class="separator:a1635e23e91f143db86871787181ac27d inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9adc0c29695ca0111dcf7a3156ebcc30 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="a9adc0c29695ca0111dcf7a3156ebcc30"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>textWidth</b> (String str)</td></tr>
+<tr class="separator:a9adc0c29695ca0111dcf7a3156ebcc30 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc807b969ba93af84efcfc99647d1a87 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="adc807b969ba93af84efcfc99647d1a87"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>println</b> (pointer s)</td></tr>
+<tr class="separator:adc807b969ba93af84efcfc99647d1a87 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeaf974d41d4260a5ca6ea1279f0c9fe1 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="aeaf974d41d4260a5ca6ea1279f0c9fe1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>println</b> (String s)</td></tr>
 <tr class="separator:aeaf974d41d4260a5ca6ea1279f0c9fe1 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfb6a6a944e11b918f4e1e25197e53be inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="adfb6a6a944e11b918f4e1e25197e53be"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>println</b> (float v)</td></tr>
+<tr class="separator:adfb6a6a944e11b918f4e1e25197e53be inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a609b6e1363aac605631c476b4c613b49 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="a609b6e1363aac605631c476b4c613b49"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>println</b> (int v)</td></tr>
+<tr class="separator:a609b6e1363aac605631c476b4c613b49 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a7af10ae4892b1539dbac3ca1c5f387 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="a6a7af10ae4892b1539dbac3ca1c5f387"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>println</b> (uint v)</td></tr>
+<tr class="separator:a6a7af10ae4892b1539dbac3ca1c5f387 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17059d990604bb56780aa913548eacf1 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="a17059d990604bb56780aa913548eacf1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>print</b> (pointer s)</td></tr>
+<tr class="separator:a17059d990604bb56780aa913548eacf1 inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4bb145b46b3be8f13de0a2bd2ec0ef5e inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memItemLeft" align="right" valign="top"><a id="a4bb145b46b3be8f13de0a2bd2ec0ef5e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>print</b> (String s)</td></tr>
 <tr class="separator:a4bb145b46b3be8f13de0a2bd2ec0ef5e inherit pub_methods_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -244,14 +263,14 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><b>frameTime</b> =
 <tr class="separator:ac53eb0e606f0068d9d4dd494126479fb inherit pub_static_attribs_classfemto_1_1mode_1_1ScreenMode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a41131e2b149d07dc4e35b27f23e98a8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41131e2b149d07dc4e35b27f23e98a8c">&#9670;&nbsp;</a></span>height()</h2>
+<a id="aad091cefb1f84d90ec6dd86359b7bfe0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad091cefb1f84d90ec6dd86359b7bfe0">&#9670;&nbsp;</a></span>height()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint femto.mode.Direct.height </td>
+          <td class="memname">int femto.mode.Direct.height </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -261,18 +280,18 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><b>frameTime</b> =
 
 <p>Returns the height of the screen in pixels (varies per screen mode). </p>
 
-<p>Reimplemented from <a class="el" href="classfemto_1_1mode_1_1ScreenMode.html#a8dbbc415b72cbae01b5915e583835b69">femto.mode.ScreenMode</a>.</p>
+<p>Reimplemented from <a class="el" href="classfemto_1_1mode_1_1ScreenMode.html#aa7dc443b8a23786745e52bdeae4a3c6e">femto.mode.ScreenMode</a>.</p>
 
 </div>
 </div>
-<a id="a19c8856486061b23b0ae34a3a2bf8759"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a19c8856486061b23b0ae34a3a2bf8759">&#9670;&nbsp;</a></span>width()</h2>
+<a id="aa213066a6509855600e42a770a639ed0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa213066a6509855600e42a770a639ed0">&#9670;&nbsp;</a></span>width()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint femto.mode.Direct.width </td>
+          <td class="memname">int femto.mode.Direct.width </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -282,7 +301,7 @@ static int&#160;</td><td class="memItemRight" valign="bottom"><b>frameTime</b> =
 
 <p>Returns the width of the screen in pixels (varies per screen mode). </p>
 
-<p>Reimplemented from <a class="el" href="classfemto_1_1mode_1_1ScreenMode.html#ad5bb91660355e41fb792d40be3d34914">femto.mode.ScreenMode</a>.</p>
+<p>Reimplemented from <a class="el" href="classfemto_1_1mode_1_1ScreenMode.html#ab03dcbfb2b3e7d50343833d25aa53072">femto.mode.ScreenMode</a>.</p>
 
 </div>
 </div>

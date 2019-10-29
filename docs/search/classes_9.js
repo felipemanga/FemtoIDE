@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['math_123',['Math',['../classjava_1_1lang_1_1Math.html',1,'java::lang']]],
-  ['mixer_124',['Mixer',['../classfemto_1_1sound_1_1Mixer.html',1,'femto::sound']]]
+  ['lowres16color_135',['LowRes16Color',['../classfemto_1_1mode_1_1LowRes16Color.html',1,'femto::mode']]],
+  ['lowres256color_136',['LowRes256Color',['../classfemto_1_1mode_1_1LowRes256Color.html',1,'femto::mode']]],
+  ['lpc11u68_137',['LPC11U68',['../classfemto_1_1hardware_1_1LPC11U68.html',1,'femto::hardware']]]
 ];

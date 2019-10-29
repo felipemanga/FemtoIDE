@@ -2,6 +2,7 @@ var annotated_dup =
 [
     [ "femto", null, [
       [ "hardware", null, [
+        [ "EEPROM", "classfemto_1_1hardware_1_1EEPROM.html", null ],
         [ "EXT", "classfemto_1_1hardware_1_1EXT.html", "classfemto_1_1hardware_1_1EXT" ],
         [ "IRQ", "interfacefemto_1_1hardware_1_1IRQ.html", "interfacefemto_1_1hardware_1_1IRQ" ],
         [ "LPC11U68", "classfemto_1_1hardware_1_1LPC11U68.html", null ],
@@ -14,13 +15,17 @@ var annotated_dup =
       ] ],
       [ "mode", null, [
         [ "Direct", "classfemto_1_1mode_1_1Direct.html", "classfemto_1_1mode_1_1Direct" ],
+        [ "Direct4BPP", "classfemto_1_1mode_1_1Direct4BPP.html", "classfemto_1_1mode_1_1Direct4BPP" ],
         [ "HiRes16Color", "classfemto_1_1mode_1_1HiRes16Color.html", "classfemto_1_1mode_1_1HiRes16Color" ],
+        [ "LowRes16Color", "classfemto_1_1mode_1_1LowRes16Color.html", "classfemto_1_1mode_1_1LowRes16Color" ],
+        [ "LowRes256Color", "classfemto_1_1mode_1_1LowRes256Color.html", "classfemto_1_1mode_1_1LowRes256Color" ],
         [ "ScreenMode", "classfemto_1_1mode_1_1ScreenMode.html", "classfemto_1_1mode_1_1ScreenMode" ]
       ] ],
       [ "sound", null, [
         [ "Mixer", "classfemto_1_1sound_1_1Mixer.html", null ],
         [ "Procedural", "classfemto_1_1sound_1_1Procedural.html", "classfemto_1_1sound_1_1Procedural" ]
       ] ],
+      [ "Cookie", "classfemto_1_1Cookie.html", "classfemto_1_1Cookie" ],
       [ "FrameRef", "classfemto_1_1FrameRef.html", null ],
       [ "Game", "classfemto_1_1Game.html", null ],
       [ "Image", "classfemto_1_1Image.html", null ],
@@ -29,6 +34,7 @@ var annotated_dup =
       [ "State", "classfemto_1_1State.html", "classfemto_1_1State" ],
       [ "StateMachine", "classfemto_1_1StateMachine.html", "classfemto_1_1StateMachine" ],
       [ "StringPair", "classfemto_1_1StringPair.html", "classfemto_1_1StringPair" ],
+      [ "TileSet", "classfemto_1_1TileSet.html", "classfemto_1_1TileSet" ],
       [ "XMLNode", "classfemto_1_1XMLNode.html", null ]
     ] ],
     [ "java", null, [
@@ -46,5 +52,9 @@ var annotated_dup =
         [ "Date", "classjava_1_1util_1_1Date.html", "classjava_1_1util_1_1Date" ],
         [ "Random", "classjava_1_1util_1_1Random.html", "classjava_1_1util_1_1Random" ]
       ] ]
+    ] ],
+    [ "math", null, [
+      [ "Matrix4", "classmath_1_1Matrix4.html", null ],
+      [ "Vector4", "classmath_1_1Vector4.html", "classmath_1_1Vector4" ]
     ] ]
 ];
