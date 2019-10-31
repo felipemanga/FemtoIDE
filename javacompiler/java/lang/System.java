@@ -121,7 +121,7 @@ out = *((uint8_t*)p);
         }
 
         /// Prints a raw string to the standard output stream.
-        public static void printraw( pointer s ){
+        public static void print( pointer s ){
             __inline_cpp__("__print__((char*)s)");
         }
 

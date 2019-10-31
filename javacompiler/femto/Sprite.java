@@ -9,7 +9,8 @@ import mode.Direct4BPP;
 public class Sprite implements __stub__ {
     public ubyte currentFrame, startFrame, endFrame, flags;
     public uint frameTime;
-    public float x, y;
+    public float x;
+    public float y;
 
     Sprite(){
         x = y = 0;

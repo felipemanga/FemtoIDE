@@ -482,13 +482,19 @@ public class ScreenMode {
     }
 
     public int textWidth( String str ){
+        pointer data;
+        __inline_cpp__("data = str->getPointer()");
+        return textWidth(data);
+    }
+
+    public int textWidth( pointer str ){
         if( font == null ) return 0;
         int total = 0;
         int m = 0;
         uint w = LDRB( font );
         uint h = LDRB( font+1 );
         char index;
-        for( int i=0; (index=str[i]) != 0; ++i ){
+        for( int i=0; (index=(char)LDRB(str+i)) != 0; ++i ){
             if(index=='\n') total = 0;
             if(LDRB(font+3) != 0 && index>=97) index-=(char) 32;
             index -= (char) LDRB( font+2 );
