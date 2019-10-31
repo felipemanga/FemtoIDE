@@ -1,22 +1,31 @@
 var classfemto_1_1Sprite =
 [
+    [ "draw", "classfemto_1_1Sprite.html#ad58af656ade7cfac08d48102f0b07a5f", null ],
     [ "draw", "classfemto_1_1Sprite.html#a3f744dedb837c28e08154b22595442b1", null ],
     [ "draw", "classfemto_1_1Sprite.html#ac196c3401583830488934a819f511137", null ],
+    [ "fillQuad", "classfemto_1_1Sprite.html#ae0585a53c7f7dc649dba829d71d76287", null ],
     [ "getCurrentFrame", "classfemto_1_1Sprite.html#ac00555af34e3cffe57dddb822a2bc8be", null ],
     [ "getEndFrame", "classfemto_1_1Sprite.html#a83d6c012271f0e0c40d6e6d6ae4e4cd3", null ],
     [ "getFrameDataForScreen", "classfemto_1_1Sprite.html#a0d5f51f31d1892466b08b99507905e31", null ],
+    [ "getFrameDataForScreen", "classfemto_1_1Sprite.html#a52d6530780e46ff7bf8a74653d1fdfd4", null ],
+    [ "getRecolor", "classfemto_1_1Sprite.html#a38f216db9035d113005866c2be235eed", null ],
     [ "getStartFrame", "classfemto_1_1Sprite.html#aa2729a3064a4a6cf2d2442fa5d5cdb5e", null ],
     [ "height", "classfemto_1_1Sprite.html#a98aa2d062cf1c70e7d17d5d09f5c9db6", null ],
     [ "isFlipped", "classfemto_1_1Sprite.html#a89d7657340aec0fc64287457c47bf98c", null ],
     [ "isMirrored", "classfemto_1_1Sprite.html#a893bfadd2bf5abdd28caacbe99fc1daa", null ],
     [ "isStatic", "classfemto_1_1Sprite.html#a7cfba7f3f8f4979cfa023e905c0b81b2", null ],
+    [ "rotoscale", "classfemto_1_1Sprite.html#aa7853d315d37092764d1e3903561663f", null ],
+    [ "rotozoom", "classfemto_1_1Sprite.html#ac755038d948131952f1241385fe1f8cd", null ],
+    [ "setCurrentFrame", "classfemto_1_1Sprite.html#aa66bfe35ae2ed094544ca67dfd6eae3f", null ],
     [ "setFlipped", "classfemto_1_1Sprite.html#aa8d562d9b8d52745be2fa8bbd1c2e4ed", null ],
     [ "setMirrored", "classfemto_1_1Sprite.html#acaef1e65d3ba4133fd75612f8d8c18f9", null ],
     [ "setPosition", "classfemto_1_1Sprite.html#af42bcc8ab1966047aaa1d4a15635597b", null ],
+    [ "setRecolor", "classfemto_1_1Sprite.html#a33559f5f23a1c0d7779ecc4e73caecf2", null ],
     [ "setStatic", "classfemto_1_1Sprite.html#a5e2f3f3500459b4c59893fd3b94a33a1", null ],
     [ "updateAnimation", "classfemto_1_1Sprite.html#a2f293a0bc1335ec7f2a06c1ce152fe4d", null ],
     [ "width", "classfemto_1_1Sprite.html#ae65a17ac19a81fab37ef3113980986cb", null ],
     [ "currentFrame", "classfemto_1_1Sprite.html#ae5c271d36d28fe2eb96e0febe30a880d", null ],
     [ "frameTime", "classfemto_1_1Sprite.html#a5aa4d7e560517f15d4f27f9ba3a11e9d", null ],
-    [ "x", "classfemto_1_1Sprite.html#a07e3db3dad9f0a979966bdd0fd3ff8ea", null ]
+    [ "x", "classfemto_1_1Sprite.html#a07e3db3dad9f0a979966bdd0fd3ff8ea", null ],
+    [ "y", "classfemto_1_1Sprite.html#aa28ed13a3d2f808465c04f0e4565d743", null ]
 ];

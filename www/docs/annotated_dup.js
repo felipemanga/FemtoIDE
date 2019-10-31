@@ -15,8 +15,10 @@ var annotated_dup =
       ] ],
       [ "mode", null, [
         [ "Direct", "classfemto_1_1mode_1_1Direct.html", "classfemto_1_1mode_1_1Direct" ],
+        [ "Direct4BPP", "classfemto_1_1mode_1_1Direct4BPP.html", "classfemto_1_1mode_1_1Direct4BPP" ],
         [ "HiRes16Color", "classfemto_1_1mode_1_1HiRes16Color.html", "classfemto_1_1mode_1_1HiRes16Color" ],
         [ "LowRes16Color", "classfemto_1_1mode_1_1LowRes16Color.html", "classfemto_1_1mode_1_1LowRes16Color" ],
+        [ "LowRes256Color", "classfemto_1_1mode_1_1LowRes256Color.html", "classfemto_1_1mode_1_1LowRes256Color" ],
         [ "ScreenMode", "classfemto_1_1mode_1_1ScreenMode.html", "classfemto_1_1mode_1_1ScreenMode" ]
       ] ],
       [ "sound", null, [
@@ -50,5 +52,9 @@ var annotated_dup =
         [ "Date", "classjava_1_1util_1_1Date.html", "classjava_1_1util_1_1Date" ],
         [ "Random", "classjava_1_1util_1_1Random.html", "classjava_1_1util_1_1Random" ]
       ] ]
+    ] ],
+    [ "math", null, [
+      [ "Matrix4", "classmath_1_1Matrix4.html", null ],
+      [ "Vector4", "classmath_1_1Vector4.html", "classmath_1_1Vector4" ]
     ] ]
 ];
