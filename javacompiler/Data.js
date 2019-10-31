@@ -94,7 +94,7 @@ module.exports.Data = {
             ],
             {image, bits:4}
         );
-
+/*
         method = new Method(null, this);
         this.methods.push( method );
         method.isPublic = true;
@@ -115,7 +115,7 @@ module.exports.Data = {
             ],
             {image, bits:8}
         );
-        
+*/        
         if( image.isTransparent ){
             method = new Method(null, this);
             this.methods.push(method);
@@ -258,7 +258,7 @@ module.exports.Data = {
             ],
             {sprite, bits:4}
         );
-
+/*
         method = new Method(null, this);
         this.methods.push( method );
         method.isPublic = true;
@@ -287,7 +287,7 @@ module.exports.Data = {
             ],
             {sprite, bits:8}
         );
-
+*/
         method = new Method(null, this);
         this.methods.push(method);
         method.isPublic = true;
