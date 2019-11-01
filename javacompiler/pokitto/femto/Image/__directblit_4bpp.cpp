@@ -68,9 +68,10 @@ if( mirror ){
 auto pixel = [pal](int color){
                  color = static_cast<const short*>(pal)[color];
                  volatile int *LCD = (volatile int*) (0xA0002188);
-                 LCD[124>>2] = 1<<12;
                  LCD[ 0 ] = color<<3;
                  LCD[252>>2] = 1<<12;                 
+                 asm volatile("nop");
+                 LCD[124>>2] = 1<<12;
              };
 
 if( osx & 1 ){
