@@ -126,7 +126,9 @@ __directblit_4bpp(
   mirror,
   pal
 )");
-        
+        return;
+        getFrameDataForScreen(0, (HiRes16Color)null);
+        __directblit_4bpp(null, 0, 0, screen, false, false, null);
     }
 
 /*
@@ -183,6 +185,11 @@ __blit_4bpp(
   flip, 
   mirror 
 )");
+        return;
+        getFrameDataForScreen(0, (HiRes16Color)null);
+        __blit_4bpp(null, 0, 0, screen, false, false);
+        width();
+        height();
     }
 		       
     public void draw( HiRes16Color screen, float x, float y ){

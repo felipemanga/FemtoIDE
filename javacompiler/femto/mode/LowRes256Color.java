@@ -30,7 +30,7 @@ public class LowRes256Color extends ScreenMode implements __stub__ {
     public void loadPalette( pointer pal ){
         if( pal == null )
             return;
-        int len = Math.min(256, System.memory.LDRH(pal));
+        int len = Math.min(256, (int) System.memory.LDRH(pal));
         for( int i=0; i<len; ++i ){
             palette[i] = System.memory.LDRH(pal+2+(i<<1));
         }

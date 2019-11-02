@@ -1,12 +1,26 @@
 const {ast} = require("./AST.js");
 const getLocation = require("./getLocation.js");
 
+let nextId = 0;
+
+function propagateUseToDependencies(method){
+    if(method.useCount)
+        return;
+    method.useCount = 1;
+    let dependencies = Object.values(method.dependencies);
+    for(let dependency of dependencies){
+        if(dependency.useCount) continue;
+        propagateUseToDependencies( dependency );
+    }
+}
+
 class Constructor {
     constructor( node, scope ){
         const {Field} = require("./Field.js");
         const {TypeRef} = require("./TypeRef.js");
         const {Block} = require("./Block.js");
 
+        this.uniqueId = ++nextId;
         this.isConstructor = true;
         this.scope = scope;
         this.superArgs = [];
@@ -15,6 +29,8 @@ class Constructor {
         this.unit = require("./Unit.js").getUnit(scope);
         this.location = null;
         this.node = node;
+        this.useCount = 0;
+        this.dependencies = {};
 
         if( typeof node == "string" ){
             this.name = node;
@@ -106,6 +122,10 @@ class Constructor {
 
     }
 
+    propagateUseToDependencies(){
+        propagateUseToDependencies(this);
+    }
+
     resolve( fqcn, trail, test ){
         fqcn = [...fqcn];
         let name = fqcn.shift();
@@ -130,6 +150,7 @@ class Constructor {
 
 class Method {
     constructor( node, scope ){
+        this.uniqueId = ++nextId;
         this.scope = scope;
         this.isPublic = false;
         this.isStatic = false;
@@ -140,7 +161,10 @@ class Method {
         this.unit = require("./Unit.js").getUnit(scope);
         this.location = null;
         this.node = node;
-
+        this.useCount = 0;
+        this.overridden = undefined;
+        this.dependencies = {};
+        
         if( !node )
             return;
 
@@ -241,6 +265,57 @@ class Method {
         if( bodyNode )
             this.body = new Block(bodyNode, this);
 
+    }
+
+    propagateUseToDependencies(){
+        propagateUseToDependencies(this);
+    }
+
+    propagateUseToBase(){
+        if(!this.useCount)
+            return;
+        let over = this.getOverridden();
+        while(over && !over.useCount){
+            propagateUseToDependencies(over);
+            over = over.getOverridden();
+        }
+    }
+
+    propagateUseToDerived(){
+        let over = this.getOverridden();
+        while(over && !this.useCount){
+            if(over.useCount)
+                propagateUseToDependencies(this);
+            over = over.getOverridden();
+        }
+    }
+
+    getOverridden(){
+        if( this.overridden != undefined )
+            return this.overridden;
+        this.overridden = null;
+        
+        let scope = this.scope;
+        while(scope && scope.extends){
+            let base = scope.extends.getTarget();
+            if( !base ) return null;
+
+            this.overridden = base.methods.find(method=>{
+                if( method.name != this.name || method.parameters.length != this.parameters.length )
+                    return false;
+                return !method.parameters.find(
+                    (other, i)=>other.type.getTarget() != this.parameters[i].type.getTarget()
+                );
+            });
+
+            if( !this.overridden ){
+                scope = base;
+            }else{
+                break;
+            }
+        }
+
+        return this.overridden;
     }
 
     artificial( retType, name, args, body ){

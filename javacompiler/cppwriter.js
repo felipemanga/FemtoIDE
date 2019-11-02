@@ -5,13 +5,13 @@ const {StdError} = require("./StdError.js");
 let platform, platformDir, annotationHandlers;
 
 let indent, units, isDebugMode;
-
+let allMethods, currentMethod;
 let currentFile;
 
 let VOID, UINT, INT, FLOAT,
     NULL, BOOLEAN, STRING, SHORT,
     CHAR, BYTE, POINTER, DOUBLE,
-    UBYTE, LONG;
+    UBYTE, LONG, USHORT;
 
 function push(){
     indent += "\t";    
@@ -250,10 +250,13 @@ function writeClassInline( type ){
     });
 
     type.methods.forEach( method => {
+        currentMethod.dependencies[method.uniqueId] = method;
+        out += `/*BEGIN method ${method.uniqueId}*/\n`;
         out += writeMethodSignature( method, true );
         out += writeMethodBody(method, type);
+        out += `\n/*END method ${method.uniqueId}*/`;
         out += "\n";
-    });    
+    });
     
     out += `};`;
     return out;
@@ -342,7 +345,6 @@ function writeClassDecl( unit, type, dependencies ){
                 interface.methods.forEach( method => {
                     if( method.isStatic )
                         return;
-                    
                     let trail = [];
                     let impl = t.resolve( [method.name], trail, x=>x.isMethod );
                     if( impl && impl.scope != t ){
@@ -367,8 +369,9 @@ function writeClassDecl( unit, type, dependencies ){
         }
 
         t.methods.forEach( method => {
+            out += `/*BEGIN method ${method.uniqueId}*/\n`;
             out += writeMethodSignature( method, true );
-            out += ";\n";
+            out += `;\n/*END method ${method.uniqueId}*/\n`;
         });
 
         if( t.isInterface ){
@@ -403,8 +406,9 @@ function writeClassDecl( unit, type, dependencies ){
 }
 
 function writeMethodBody( method, t ){
+    let prevMethod = currentMethod;
+    currentMethod = method;
     var out = "";
-    
     if( method.isConstructor){
         let inits = [];
 
@@ -455,8 +459,9 @@ function writeMethodBody( method, t ){
     out += writeBlock( method.body );
     
     pop();
-    out += `${indent}}\n\n`;
+    out += `${indent}}`;
 
+    currentMethod = prevMethod;
     return out;
 }
 
@@ -578,14 +583,14 @@ function isImplicitCast( left, right ){
 
 function getReturnType( {methodName, method}, args, location ){
     let candidates = [];
-    let acc = [];
+    // let acc = [];
     let scope = method.scope;
     while(scope){
 
         candidates.push(
             ...scope.methods.filter(
                 m=>{
-                    acc.push( m.name + m.parameters.length );
+                    // acc.push( m.name + m.parameters.length );
                     return m.name == methodName &&
                         m.parameters.length == args.length;
                 }
@@ -595,11 +600,28 @@ function getReturnType( {methodName, method}, args, location ){
         scope = scope.extends && scope.extends.getTarget();
     }
 
+    let rejects = [];
+
+    candidates = candidates.filter( m=>{
+        return !m.parameters.find((param, i)=>{
+            if(isAssignableType(param.type, args[i])) return false;
+            rejects.push(`${args[i].name} into ${param.type.name} ${param.name}`);
+            return true;
+        });
+    });
+        
     if( !candidates.length ){
-        StdError.throwError(location, "Could not find matching " + methodName + " inside " + method.scope.name);
+        let msg = "Could not find matching " + methodName + " inside " + method.scope.name + ".";
+        if( rejects.length ){
+            msg += "  Candidates rejected. Can not convert: ";
+            msg += rejects.join(", ");
+        }
+        StdError.throwError(location, msg);
     }
-    
-    return candidates[0].result;
+
+    let chosen = candidates[0];
+    currentMethod.dependencies[chosen.uniqueId] = chosen;
+    return chosen.result;
 }
 
 function access( exprList, prevResult ){
@@ -685,6 +707,8 @@ function isCompatibleType( left, right, cast ){
     else if( right == INT.type && left == UBYTE.type ) return right;
     else if( left == INT.type && right == SHORT.type ) return left;
     else if( right == INT.type && left == SHORT.type ) return right;
+    else if( left == INT.type && right == USHORT.type ) return left;
+    else if( right == INT.type && left == USHORT.type ) return right;
 
     else if( left == UINT.type && right == CHAR.type ) return left;
     else if( right == UINT.type && left == CHAR.type ) return right;
@@ -694,6 +718,8 @@ function isCompatibleType( left, right, cast ){
     else if( right == UINT.type && left == UBYTE.type ) return right;
     else if( left == UINT.type && right == SHORT.type ) return left;
     else if( right == UINT.type && left == SHORT.type ) return right;
+    else if( left == UINT.type && right == USHORT.type ) return left;
+    else if( right == UINT.type && left == USHORT.type ) return right;
 
     else if( left == LONG.type && right == CHAR.type ) return left;
     else if( right == LONG.type && left == CHAR.type ) return right;
@@ -703,6 +729,8 @@ function isCompatibleType( left, right, cast ){
     else if( right == LONG.type && left == UBYTE.type ) return right;
     else if( left == LONG.type && right == SHORT.type ) return left;
     else if( right == LONG.type && left == SHORT.type ) return right;
+    else if( left == LONG.type && right == USHORT.type ) return left;
+    else if( right == LONG.type && left == USHORT.type ) return right;
     else if( left == LONG.type && right == UINT.type ) return left;
     else if( right == LONG.type && left == UINT.type ) return right;
     else if( left == LONG.type && right == INT.type ) return left;
@@ -715,6 +743,13 @@ function isCompatibleType( left, right, cast ){
     else if( left == SHORT.type && right == UBYTE.type ) return left;
     else if( right == SHORT.type && left == UBYTE.type ) return right;
 
+    else if( left == USHORT.type && right == CHAR.type ) return left;
+    else if( right == USHORT.type && left == CHAR.type ) return right;
+    else if( left == USHORT.type && right == BYTE.type ) return left;
+    else if( right == USHORT.type && left == BYTE.type ) return right;
+    else if( left == USHORT.type && right == UBYTE.type ) return left;
+    else if( right == USHORT.type && left == UBYTE.type ) return right;
+
     else if( left == FLOAT.type && right == DOUBLE.type ) return right;
     else if( right == FLOAT.type && left == DOUBLE.type ) return left;
     else if( left == FLOAT.type && right == CHAR.type ) return left;
@@ -725,6 +760,8 @@ function isCompatibleType( left, right, cast ){
     else if( right == FLOAT.type && left == UBYTE.type ) return right;
     else if( left == FLOAT.type && right == SHORT.type ) return left;
     else if( right == FLOAT.type && left == SHORT.type ) return right;
+    else if( left == FLOAT.type && right == USHORT.type ) return left;
+    else if( right == FLOAT.type && left == USHORT.type ) return right;
     else if( left == FLOAT.type && right == INT.type ) return left;
     else if( right == FLOAT.type && left == INT.type ) return right;
     else if( left == FLOAT.type && right == UINT.type ) return left;
@@ -740,6 +777,8 @@ function isCompatibleType( left, right, cast ){
     else if( right == DOUBLE.type && left == UBYTE.type ) return right;
     else if( left == DOUBLE.type && right == SHORT.type ) return left;
     else if( right == DOUBLE.type && left == SHORT.type ) return right;
+    else if( left == DOUBLE.type && right == USHORT.type ) return left;
+    else if( right == DOUBLE.type && left == USHORT.type ) return right;
     else if( left == DOUBLE.type && right == INT.type ) return left;
     else if( right == DOUBLE.type && left == INT.type ) return right;
     else if( left == DOUBLE.type && right == UINT.type ) return left;
@@ -766,8 +805,12 @@ function isAssignableType( left, right ){
         [POINTER.type, NULL.type],
         [INT.type, LONG.type],
         [LONG.type, INT.type],
+        [USHORT.type, LONG.type],
+        [LONG.type, USHORT.type],
         [INT.type, SHORT.type],
         [SHORT.type, INT.type],
+        [INT.type, USHORT.type],
+        [USHORT.type, INT.type],
         [INT.type, UINT.type],
         [UINT.type, INT.type],
         [INT.type, UBYTE.type],
@@ -778,6 +821,10 @@ function isAssignableType( left, right ){
         [UBYTE.type, UINT.type],
         [BYTE.type, INT.type],
         [BYTE.type, UINT.type],
+        [BYTE.type, CHAR.type],
+        [CHAR.type, BYTE.type],
+        [UBYTE.type, CHAR.type],
+        [CHAR.type, UBYTE.type],
         [FLOAT.type, DOUBLE.type],
         [DOUBLE.type, FLOAT.type],
     ];
@@ -867,6 +914,8 @@ function getOperatorType( left, op, right, expr ){
         [null, UINT.type, UINT],
         [SHORT.type, null, SHORT],
         [null, SHORT.type, SHORT],
+        [USHORT.type, null, USHORT],
+        [null, USHORT.type, USHORT],
         [BYTE.type, null, BYTE],
         [null, BYTE.type, BYTE],
         [CHAR.type, null, CHAR],
@@ -948,7 +997,9 @@ function getOperatorType( left, op, right, expr ){
         [BYTE.type, UINT.type, UINT],
         [BYTE.type, SHORT.type, SHORT],
         [INT.type, SHORT.type, INT],
-        [UINT.type, SHORT.type, UINT]
+        [UINT.type, SHORT.type, UINT],
+        [INT.type, USHORT.type, INT],
+        [UINT.type, USHORT.type, UINT]
     ];
 
     let typeMatrix = {
@@ -2018,9 +2069,11 @@ function writeClassImpl( unit ){
             out += `${indent}// ${t.name} methods\n`;
 
             t.methods.forEach( method => {
+                allMethods.push(method);
                 if( method.isAbstract )
                     return;
 
+                out += `/*BEGIN method ${method.uniqueId}*/\n`;
                 if( isStub && !method.body && !method.isConstructor ){
                     let stubPath = "";
                     try{
@@ -2041,6 +2094,8 @@ function writeClassImpl( unit ){
                         out += writeMethodSignature( method, false, t.name );
                         out += `{}\n`;
                     }
+
+                    out += `/*END method ${method.uniqueId}*/\n`;
                     return;
                 }
 
@@ -2061,7 +2116,7 @@ function writeClassImpl( unit ){
                 }
                 
                 out += writeMethodBody(method, t);
-
+                out += `\n/*END method ${method.uniqueId}*/\n`;
             });
         }
 
@@ -2144,6 +2199,7 @@ function init( unit ){
     (BOOLEAN = new TypeRef(["boolean"], false, unit)).getTarget();
     (CHAR = new TypeRef(["char"], false, unit)).getTarget();
     (SHORT = new TypeRef(["short"], false, unit)).getTarget();
+    (USHORT = new TypeRef(["ushort"], false, unit)).getTarget();
     (BYTE = new TypeRef(["byte"], false, unit)).getTarget();
     (UBYTE = new TypeRef(["ubyte"], false, unit)).getTarget();
     (STRING = new TypeRef(["String"], false, unit)).getTarget();
@@ -2151,6 +2207,10 @@ function init( unit ){
 }
 
 function write( unit, main, plat, dbg ){
+    let globalDependencies = {dependencies:{}};
+    allMethods = [];
+    currentMethod = globalDependencies;
+    
     let endData = {};
     init(unit);
     isDebugMode = dbg;
@@ -2221,6 +2281,41 @@ function write( unit, main, plat, dbg ){
         if( annotationHandlers[k].end )
             annotationHandlers[k].end( endData );
     }
+
+    Object.values(globalDependencies.dependencies)
+        .forEach(method=>{
+            method.propagateUseToDependencies();
+        });
+
+    allMethods.forEach(method=>{
+        if(method.isStatic || method.isConstructor){
+            method.propagateUseToDependencies();
+        }
+    });
+
+    allMethods.forEach(method=>{
+        if(!method.isConstructor)
+            method.propagateUseToDerived();
+    });
+
+    allMethods.forEach(method=>{
+        if(!method.isConstructor)
+            method.propagateUseToBase();
+    });
+
+    allMethods.forEach(method=>{
+        let cleanable = !method.isStatic && !method.isConstructor && method.useCount == 0;
+
+        if( cleanable && method.getOverridden ){
+            let baseMethod = method.getOverridden();
+            if( baseMethod && baseMethod.useCount ){
+                cleanable = false;
+            }
+        }
+
+        let exp = new RegExp(`/\\*BEGIN method ${method.uniqueId}\\*/`, "g");
+        out = out.replace(exp, `/*[${Object.values(method.dependencies).map(m=>m.name).join(" ")}] ${method.name} usecount: ${method.useCount} *${cleanable?" ":""}/`);
+    });
 
     let end = fs.readFileSync( platformDir+"/end.cpp", "utf-8" );
     for( let key in endData ){

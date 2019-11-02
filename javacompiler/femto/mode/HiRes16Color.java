@@ -24,13 +24,15 @@ public class HiRes16Color extends ScreenMode implements __stub__ {
         loadPalette( pal );
         clear(0);
         textRightLimit = width();
+        return;
+        beforeFlush(); // prevent function from being discarded
     }
 
     /// Loads the specified palette.
     public void loadPalette( pointer pal ){
         if( pal == null )
             return;
-        int len = Math.min(16, System.memory.LDRH(pal));
+        int len = Math.min(16, (int) System.memory.LDRH(pal));
         for( int i=0; i<len; ++i ){
             palette[i] = System.memory.LDRH(pal+2+(i<<1));
         }
