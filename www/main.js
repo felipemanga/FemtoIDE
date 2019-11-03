@@ -22,8 +22,8 @@ nw.App.on('open', (...args)=>{
 });
 
 nw.Window.open("www/splash.html", {
-    width:768,
-    height:432,
+    width:756,
+    height:336,
     position:"center",
     frame:false
 }, splash =>{
