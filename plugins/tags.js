@@ -1,32 +1,4 @@
 APP.addPlugin("VFS", ["Project"], _=>{
-/*
-    const db = openDatabase("tags", 0.1, "tags", 10 * 1024 * 1024 );
-
-    function sql(cb){
-        if( typeof cb == "string" )
-            cb = [cb];
-        if( Array.isArray(cb) ){
-            let arr = cb;
-            cb = t=>t(arr);
-        }
-
-        db.transaction(t=>{
-            cb(sql=>{
-                if( !Array.isArray(sql) )
-                    sql = [sql];
-                sql.forEach(sql=>{
-                    t.executeSql(sql);
-                });
-            });
-        });
-    }
-
-    function reset(){
-        sql`DROP TABLE IF EXISTS decls`;
-        sql`DROP TABLE IF EXISTS refs`;
-        sql`DROP TABLE IF EXISTS tags`;
-    }
-*/
     let units, wasWarned = false;
 
     function reset(){

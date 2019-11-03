@@ -63,15 +63,17 @@ module.exports.Data = {
         });
     },
 
-    staticImage( image, name, interfaces ){
+    staticImage( image, name, meta = {} ){
         this.extends = new TypeRef(["femto", "Image"], false, this.scope);
-
-        if( interfaces ){
-            this.implements.push( ... interfaces.map( name => new TypeRef(
-                name.split("."),
-                false,
-                this.scope
-            )));
+        
+        if( meta.interfaces ){
+            this.implements.push( ... meta
+                                  .interfaces
+                                  .map( name => new TypeRef(
+                                      name.split("."),
+                                      false,
+                                      this.scope
+                                  )));
         }
 
         let method = new Method(null, this);

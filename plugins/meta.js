@@ -45,6 +45,7 @@ APP.addPlugin("Meta", ["Project"], _=>{
             function getAction( key ){
                 let def = buffer.pluginData.Meta[ key ];
                 return {
+                    category: def.category,
                     label: def.label,
                     type: def.type,
                     value: meta[key],

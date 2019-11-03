@@ -11,6 +11,25 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     let jcmap = {};
     let cjmap = [];
     const mapexpr = /\n(?:\/\*<MAP\*([^|]*)\|([0-9]+)\|([0-9]+)\*MAP>\*\/)?/g;
+
+    function findMethod(clazz, predicate){
+        try{
+            const { toAST } = require(`${DATA.appPath}/javacompiler/AST.js`);
+            const fqcn = clazz.split(".");
+            const unit = toAST(fqcn);
+            const clazz = unit.resolve(fqcn, []);
+            return clazz.methods.find(method=>{
+                let argTypes = method.parameters.map(param=>{
+                    let type = param.type.getTarget();
+                    return [...type.unit.name, type.name].join(".");
+                });
+                return predicate(method, argTypes);
+            });
+        }catch(ex){
+            console.log(ex.stack);
+        }
+        return null;
+    }
     
     APP.add({
         demangle(name){
@@ -18,24 +37,63 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 .replace(/(?<=^|:)u[cp]_([A-Za-z_0-9]+)/g, '$1')
                 .replace(/::/g, '.');
         },
+/*
+        updateProjectIndexFromVFS(){
+            let draw = findMethod("femto.Image", (method, types)=>{
+                return method.name == "draw" &&
+                    method.useCount &&
+                    types[0] == "femto.mode.Direct4BPP";
+            });
+
+            if( draw ){
+                APP.log(clazz.name);
+            }
+        },
+*/
+        onProjectReady(){
+            if( DATA.project.javaFlags )
+                setTimeout(_=>APP.analyzeJava(),100);
+        },
 
         pollBufferMeta( buffer, meta ){
             if( !DATA.project.javaFlags )
                 return;
             
-            if( buffer.type == "XML" )
+            if( buffer.type == "XML" ){
                 meta.putInResources = {
                     type:"bool",
                     label:"Put in Resources",
                     default: false
                 };
-            if( buffer.type == "JSON" || buffer.type == "PNG" )
+            }
+
+            if( buffer.type == "JSON" || buffer.type == "PNG" ){
                 meta.implements = {
+                    category:"Sprite / Image",
                     type:"input",
-                    label:"implements",
+                    label:"Implements",
                     cb:path=>path.replace(/[^a-zA-Z.0-9_]/g, ""),
                     default: ""
                 };
+
+                meta.palette16 = {
+                    category:"Palette",
+                    type:"file",
+                    label:"PAL file",
+                    cb:file=>(
+                        /.*\.pal$/.test(file)?file:"[default]"
+                    ),
+                    default:"[default]"
+                };
+
+                meta.palOffset = {
+                    category:"Direct4BPP",
+                    type:"input",
+                    label:"Palette Offset",
+                    default: 0,
+                    cb:v=>Math.max(0, Math.min(16, (v|0)))
+                };
+            }
         },
 
         displayGeneratedCPP(){
@@ -80,7 +138,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             return cjmap[line];
         },
 
-        ["compile-java"]( files, cb ){
+        ["compile-java"]( files, cb, analyze ){
             APP.readFilteredBuffers(
                 files,
                 (f=>f.type=="JAVA"
@@ -95,11 +153,26 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                  || f.type=="WAV"
                  || f.type=="OGG"
                 ),
-                compileJava.bind(null, cb, files) );
+                compileJava.bind(null, cb, files, analyze) );
+        },
+
+        analyzeJava(){
+            APP.log("Analyzing, please wait.");
+            this["compile-java"](
+                [...DATA.projectFiles],
+                (error)=>{
+                    if( error ){
+                        APP.log(`Analysis failed`);
+                    }else{
+                        APP.log(`Analysis complete.`);
+                        APP.onIntrospectJava();
+                    }
+                },
+                true);
         }
     });
 
-    function compileJava( onDone, buffers, files ){
+    function compileJava( onDone, buffers, analyze, files ){
         global.rootPath = DATA.appPath + "/javacompiler/";
         
         const proc = require("process");
@@ -111,9 +184,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         const {Unit, getUnit, nativeTypeList} = require(`${DATA.appPath}/javacompiler/Unit.js`);
         const {Data} = require(`${DATA.appPath}/javacompiler/Data.js`);        
         const { reset, parsers, toAST, resolveVFS, vfs } = require(`${DATA.appPath}/javacompiler/AST.js`);
-
+        const {StdError} = require(`${DATA.appPath}/javacompiler/StdError.js`);
         reset();
-        
+        StdError.enableErrors(!analyze);
         palParser.reset();
         palParser.setLuminanceBias( DATA.project.luminanceBias );
         
@@ -214,6 +287,11 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 },
 
                 load( file, cb ){
+                    if(analyze){
+                        cb(null, new Uint8Array(10));
+                        return;
+                    }
+
                     APP.readAudio((new Uint8Array(file.src)).buffer)
                         .then(data=>{
                             let uint8 = new Uint8Array(data);
@@ -248,6 +326,10 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     try{
                         cst = javaParser( res.src );
                     }catch(ex){
+
+                        if(analyze)
+                            return;
+                        
                         let name = res.name || (res.unit && res.unit.name + "") || "???";
                         if( name.startsWith(DATA.projectPath) ){
                             name = name.substr(DATA.projectPath.length+1);
@@ -288,10 +370,22 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                             .filter(x=>x.length);
                     }
 
-                    return Data.unit(name, "staticImage", png, interfaces);
+                    let unit = Data.unit(name, "staticImage", png, Object.assign({interfaces}, meta));
+                    return unit;
                 },
 
                 load( file, cb ){
+                    if( analyze ){
+                        let id = new ImageData(1,1);
+                        cb(null, {
+                            isTransparent: false,
+                            width:1,
+                            height:1,
+                            data:id.data
+                        });
+                        return;
+                    }
+
                     let data = file.src.toString("base64");
                     data = `data:image/png;base64,${data}`;
 
@@ -435,21 +529,24 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
                 if( unit ){
                     let output = require(`${DATA.appPath}/javacompiler/cppwriter.js`).write(unit, fqcn, DATA.project.target, DATA.buildMode == "DEBUG");
-                    
-                    let buffer = DATA.debugBuffer;
-                    if( !DATA.debugBuffer ){
-                        buffer = new Buffer();
-                        APP.customSetVariables({debugBuffer:buffer});
+
+                    if( !analyze ){
+                        
+                        let buffer = DATA.debugBuffer;
+                        if( !DATA.debugBuffer ){
+                            buffer = new Buffer();
+                            APP.customSetVariables({debugBuffer:buffer});
+                        }
+
+                        output = makeSourceMap(output);
+
+                        buffer.modified = true;
+                        buffer.data = output;
+                        buffer.name = "generated.cpp";
+                        buffer.type = "CPP";
+                        buffer.transform = null;
+                        buffers.push(buffer);
                     }
-
-                    output = makeSourceMap(output);
-
-                    buffer.modified = true;
-                    buffer.data = output;
-                    buffer.name = "generated.cpp";
-                    buffer.type = "CPP";
-                    buffer.transform = null;
-                    buffers.push(buffer);
 
                     APP.updateProjectIndexFromVFS( vfs );
                     
@@ -457,6 +554,9 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                 }
             }catch( ex ){
                 onDone(ex);
+
+                if( analyze )
+                    return;
 
                 if( ex.message ){
                     let match = ex.message.match(/^([^,]+), line ([0-9]+), column ([0-9]+):\n/);

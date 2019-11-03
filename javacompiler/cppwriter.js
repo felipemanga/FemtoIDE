@@ -227,20 +227,21 @@ function writeClassInline( type ){
     let base = type.extends.getTarget();
     if( !base.isClass || base.isInterface ){
         StdError.throwError( type.location, `${type.name} can't extend ${base.name}.`);
-    }
+    } else {
 
-    base.methods.forEach( method => {
-        if( !method.isConstructor )
-            return;
-        out += `${indent}uc_${type.name}(`;
-        let sep = '', nameList = '';
-        method.parameters.forEach( param => {
-            nameList += `${sep} ${sanitize(param.name)}`;
-            out += `${sep}${writeType(param.type, false)} ${sanitize(param.name)}`;
-            sep = ", ";
+        base.methods.forEach( method => {
+            if( !method.isConstructor )
+                return;
+            out += `${indent}uc_${type.name}(`;
+            let sep = '', nameList = '';
+            method.parameters.forEach( param => {
+                nameList += `${sep} ${sanitize(param.name)}`;
+                out += `${sep}${writeType(param.type, false)} ${sanitize(param.name)}`;
+                sep = ", ";
+            });
+            out += `) : ${writePath(type.extends)}( ${nameList} ){}\n`;
         });
-        out += `) : ${writePath(type.extends)}( ${nameList} ){}\n`;
-    });
+    }
     
     type.fields.forEach( field => {
         out += `${indent}${writeFieldDecl(field)}`;
@@ -616,7 +617,9 @@ function getReturnType( {methodName, method}, args, location ){
             msg += "  Candidates rejected. Can not convert: ";
             msg += rejects.join(", ");
         }
+        
         StdError.throwError(location, msg);
+        return INT;
     }
 
     let chosen = candidates[0];
@@ -664,8 +667,10 @@ function access( exprList, prevResult ){
                 let field = type.resolve([e], trail, test);
                 if( !field ){
                     StdError.throwError(e.location, `Could not find ${e} in ${type.constructor.name} ${type.name}`);
+                    type = INT;
+                }else{
+                    type = field.type;
                 }
-                type = field.type;
 
                 if( field.isMethod ){
                     prevResult = {
@@ -1124,6 +1129,7 @@ function getOperatorType( left, op, right, expr ){
     }
 
     StdError.throwError(location, msg);
+    return left;
 }
 
 function writeExpression( expr, typeHint ){
@@ -1150,12 +1156,12 @@ function writeExpression( expr, typeHint ){
                 let match = line.match(/^@([a-z]+)\s+([^:\s]+)(?::(.+))?/);
                 if( !match || !operands[match[1]]){
                     StdError.throwError(expr.location, "Invalid asm preprocessor directive: " + line);
+                }else{
+                    operands[match[1]].push({
+                        name:match[2],
+                        constraint:match[3] || "+h"
+                    });
                 }
-
-                operands[match[1]].push({
-                    name:match[2],
-                    constraint:match[3] || "+h"
-                });
             });
 
             out += indent + ":\n";
@@ -1520,13 +1526,15 @@ function writeExpression( expr, typeHint ){
                 let target = type.resolve( [ex], trail, x=>true );
                 if( !target ){
                     StdError.throwError(expr.location,`Could not find ${ex} in ${type.name}`);
+                    type = INT;
+                }else{
+                    if( type.getTarget )
+                        type = type.getTarget();
+                    if( type.isClass || type.isInterface ) out += "->";
+                    else out += ".";
+                    out += ex;
+                    type = target.type;
                 }
-                if( type.getTarget )
-                    type = type.getTarget();
-                if( type.isClass || type.isInterface ) out += "->";
-                else out += ".";
-                out += ex;
-                type = target.type;
             }else{
                 e = writeExpression( ex );
                 out += e.out;
@@ -1553,8 +1561,9 @@ function writeStatement( stmt, block, noSemicolon ){
         }
         if( !ex.location ){
             StdError.throwError( stmt.location, msg );
+        }else{
+            StdError.rethrow(ex);
         }
-        throw ex;
     }
     
     function inner(){
@@ -1597,9 +1606,12 @@ function writeStatement( stmt, block, noSemicolon ){
                 while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
                     pscope = pscope.scope;
                 }
-                if( !pscope )
+
+                if( !pscope ){
                     StdError.throwError(stmt.location, `Label ${stmt.label} not found.`);
-                out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
+                }else{
+                    out += `${indent}goto _break_${pscope.stmt.labelId}_${stmt.label};\n`;
+                }
             }
             break;
             
@@ -1611,9 +1623,12 @@ function writeStatement( stmt, block, noSemicolon ){
                 while(pscope && (!pscope.stmt || pscope.stmt.label !== stmt.label) ){
                     pscope = pscope.scope;
                 }
-                if( !pscope )
+
+                if( !pscope ){
                     StdError.throwError(stmt.location, `Label ${stmt.label} not found.`);
-                out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
+                }else{
+                    out += `${indent}goto _continue_${pscope.stmt.labelId}_${stmt.label};\n`;
+                }
             }
             break;
             
@@ -1700,6 +1715,7 @@ function writeStatement( stmt, block, noSemicolon ){
 
                 if(!method){
                     StdError.throwError(stmt.location, "Return outside method");
+                    break;
                 }
 
                 let right = e.type;

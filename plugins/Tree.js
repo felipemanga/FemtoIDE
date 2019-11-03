@@ -1,13 +1,34 @@
 APP.addPlugin("Tree", [], _=>{
+
     function makeAction( meta ){
+        let parent = this.DOM.actions;
+        
+        if( meta.category ){
+            if( this.actions[meta.category] ){
+                parent = this.actions[meta.category];
+            }else{
+                parent = DOC.create("li",
+                                    {className:"action category folded"},
+                                    [
+                                        [{
+                                            text:meta.category,
+                                            onclick:_=>parent.classList.toggle("folded")
+                                        }]
+                                    ],
+                                    parent
+                          );
+            }
+        }
+        
         let type = "_makeAction_" + meta.type;
         if( !this[type] )
             type = "_makeAction_";
+
         return [
             "li",
-            { className:"action " + type },
+            { className:"action " + meta.type },
             this[type]( meta ),
-            this.DOM.actions
+            parent
         ];
     }
 
@@ -166,7 +187,7 @@ APP.addPlugin("Tree", [], _=>{
                 return;
 
             if( this.actions[meta.label] )
-                this.DOM.actions.removeChild(this.actions[meta.label]);
+                this.actions[meta.label].remove();
 
             this.actions[meta.label] = DOC.create(...makeAction.call(this, meta));
         }
@@ -188,6 +209,30 @@ APP.addPlugin("Tree", [], _=>{
                 text:(meta.label || "") + (meta.label&&meta.text?": ":"") + (meta.text || ""),
                 onclick:meta.cb,
             }]];
+        }
+
+        _makeAction_file( meta ){
+            return (
+                [["label",
+                  {text:meta.label},
+                  [
+                      ["div", [
+                          [{text:meta.value}],
+                          ["input", {
+                              type:"file",
+                              onchange:evt=>{
+                                  meta.value = meta.cb(evt.target.value);
+                                  meta.value = meta.value.replace(DATA.projectPath, "${projectPath}")
+                                      .replace(DATA.projectsPath, "${projectsPath}")
+                                      .replace(DATA.appPath, "${appPath}");
+
+                                  evt.target.parentElement.children[0].textContent = meta.value.replace(/([^a-z0-9])/gi, "$1\u200B");
+                              }
+                          }]
+                      ]]
+                  ]]
+                ]
+            );
         }
 
         _makeAction_input( meta ){

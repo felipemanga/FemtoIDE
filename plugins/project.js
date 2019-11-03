@@ -146,6 +146,7 @@ APP.addPlugin("Project", [], _=>{
             loadProjectFiles(_=>{
 
                 APP.findFile( `${projectPath}${path.sep}${DATA.project.lastBuffer}`, true );
+                APP.onProjectReady();
                 
             });
 
