@@ -41,7 +41,7 @@ public class Image implements __stub__ {
         pointer data = getImageDataForScreen( (HiRes16Color)null );
         pointer pal;
         __inline_cpp__("pal = screen->palette->elements");
-        pal += (recolor<<4) & 0xF0;
+        pal += ((recolor<<4) & 0xF0) << 1;
 
         if( isTransparent() ){
             __directblit_4bpp(
