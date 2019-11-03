@@ -95,9 +95,10 @@ if( osx & 1 ){
             {
                 for( x = sx; x > 0; x-- ){
                     pixel(next&0x0F);
-                    next = *img++;
+                    next = img[x-1];
                     pixel(next>>4);
                 }
+                img += sx;
             }
 
             pixel(next&0x0F);
@@ -145,11 +146,12 @@ if( osx & 1 ){
             up_femto::up_hardware::uc_ST7775::setX(outX);
             up_femto::up_hardware::uc_ST7775::setY(outY);
             up_femto::up_hardware::uc_ST7775::beginStream();
-            for( x = sx+1; x > 0; x-- ){
-                uint8_t b = *img++;
+            for( x = sx; x >= 0; x-- ){
+                uint8_t b = img[x];
                 pixel(b&0x0F);
                 pixel(b>>4);
             }
+            img += sx+1;
         }
 
     }else if(y > 0){
