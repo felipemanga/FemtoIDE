@@ -2,7 +2,7 @@ function writeDraw8BPP( block, src ){
     let out = `static const uint8_t data[] = {\n`;    
     let palettes = require("./palParser.js").getPalettes();
     let lumBias = require("./palParser.js").getLuminanceBias();
-    let palette = palettes[ (block.palette||Object.keys(palettes)[0]) ]
+    let palette = (block.palette || palettes[ (Object.keys(palettes)[0]) ])
         .colors32.map( c => [
             (c>>16)&0xFF,
             (c>>8)&0xFF,
@@ -67,16 +67,20 @@ function writeDraw( block, src ){
     let out = `static const uint8_t data[] = {\n`;    
     let palettes = require("./palParser.js").getPalettes();
     let lumBias = require("./palParser.js").getLuminanceBias();
-    let palette = palettes[ (block.palette||Object.keys(palettes)[0]) ]
-        .colors32.map( c => [
-            (c>>16)&0xFF,
-            (c>>8)&0xFF,
-            c&0xFF
-        ]);
+    let palette = (block.palette || palettes[ (Object.keys(palettes)[0]) ]);
+    let offset = block.palOffset|0;
+
+//    require("./Log.js").log(...Object.keys(block));
 
     if( !palette ){
         throw new Error (`image ${block.name} has no palette`);
     }
+
+    palette = palette.colors32.map( c => [
+            (c>>16)&0xFF,
+            (c>>8)&0xFF,
+            c&0xFF
+        ]);
 
     let data = src.data;
     let lines = "";
@@ -101,7 +105,7 @@ function writeDraw( block, src ){
 
             if( A > 128 ){
                 for( let c=0; c<maxcolors; ++c ){
-                    let ca = palette[c];
+                    let ca = palette[(c+offset)%palette.length];
                     let lum = (ca[0]*0.2126 + ca[1]*0.7152 + ca[2]*0.0722)*lumBias;
 		    let dist = (R-ca[0])*(R-ca[0])
                         + (G-ca[1])*(G-ca[1])

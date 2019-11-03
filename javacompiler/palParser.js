@@ -22,7 +22,8 @@ module.exports.parsePalette = function(str, name){
     }
 
     let out = { colors32, colors16, id:nextPaletteId++ };
-    palettes[name] = out;
+    if(name)
+        palettes[name] = out;
 
     return out;
 };

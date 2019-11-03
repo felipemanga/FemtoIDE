@@ -76,7 +76,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     default: ""
                 };
 
-                meta.palette16 = {
+                meta.palette = {
                     category:"Palette",
                     type:"file",
                     label:"PAL file",
@@ -91,7 +91,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
                     type:"input",
                     label:"Palette Offset",
                     default: 0,
-                    cb:v=>Math.max(0, Math.min(16, (v|0)))
+                    cb:v=>v|0
                 };
             }
         },
@@ -173,24 +173,26 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
     });
 
     function compileJava( onDone, buffers, analyze, files ){
-        global.rootPath = DATA.appPath + "/javacompiler/";
-        
+        const javaPath = DATA.appPath + "/javacompiler/";
+        global.rootPath = javaPath;
         const proc = require("process");
         const path = require("path");
         const fs = require("fs");
+        require(`${javaPath}Log.js`).setLogger(APP.log);
         const javaParser = require("java-parser").parse;
-        const palParser = require(`${DATA.appPath}/javacompiler/palParser.js`);
-        const spriteParser = require(`${DATA.appPath}/javacompiler/spriteParser.js`);
-        const {Unit, getUnit, nativeTypeList} = require(`${DATA.appPath}/javacompiler/Unit.js`);
-        const {Data} = require(`${DATA.appPath}/javacompiler/Data.js`);        
-        const { reset, parsers, toAST, resolveVFS, vfs } = require(`${DATA.appPath}/javacompiler/AST.js`);
-        const {StdError} = require(`${DATA.appPath}/javacompiler/StdError.js`);
+        const palParser = require(`${javaPath}palParser.js`);
+        const spriteParser = require(`${javaPath}spriteParser.js`);
+        const {Unit, getUnit, nativeTypeList} = require(`${javaPath}Unit.js`);
+        const {Data} = require(`${javaPath}Data.js`);        
+        const { reset, parsers, toAST, resolveVFS, vfs } = require(`${javaPath}AST.js`);
+        const {StdError} = require(`${javaPath}StdError.js`);
+        
         reset();
         StdError.enableErrors(!analyze);
         palParser.reset();
         palParser.setLuminanceBias( DATA.project.luminanceBias );
         
-        require(`${DATA.appPath}/javacompiler/Resources.js`).reset();
+        require(`${javaPath}Resources.js`).reset();
         
         registerParsers();
 
@@ -345,7 +347,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             parsers.pal={
                 run( src, name ){
-                    let colors = palParser.parsePalette( src, name[name.length-1] );
+                    let colors = palParser.parsePalette( src, name.join(".") );
                     let arr16 = new Uint16Array( colors.colors16 );
                     let arr8 = new Uint8Array(arr16.buffer);
                     let arr = [
@@ -360,18 +362,32 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
 
             parsers.png={
                 run( png, name, type, res ){
-                    let interfaces = [];
-                    let meta = getMeta( res.name );
-                    if( meta && meta.implements ){
-                        interfaces = meta
-                            .implements
-                            .split(",")
-                            .map(x=>x.trim())
-                            .filter(x=>x.length);
+                    let meta = Object.assign({}, getMeta( res.name ));
+
+                    if( meta ){
+                        if( meta.implements ){
+                            meta.interfaces = meta
+                                .implements
+                                .split(",")
+                                .map(x=>x.trim())
+                                .filter(x=>x.length);
+                        }
+                        if( meta.palette && meta.palette != "[default]"){
+                            try{
+                                let buffer = APP.findFile(meta.palette);
+                                let src = APP.readBufferSync(buffer);
+                                meta.palette = palParser.parsePalette(src);
+                            }catch(ex){
+                                APP.error("Could not load palette: " + meta.palette);
+                                meta.palette = null;
+                            }
+                        }else{
+                            meta.palette = null;
+                        }
+                        meta.palOffset <<= 4;
                     }
 
-                    let unit = Data.unit(name, "staticImage", png, Object.assign({interfaces}, meta));
-                    return unit;
+                    return Data.unit(name, "staticImage", png, meta);
                 },
 
                 load( file, cb ){

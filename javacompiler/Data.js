@@ -63,7 +63,7 @@ module.exports.Data = {
         });
     },
 
-    staticImage( image, name, meta = {} ){
+    staticImage( image, meta ){
         this.extends = new TypeRef(["femto", "Image"], false, this.scope);
         
         if( meta.interfaces ){
@@ -94,7 +94,7 @@ module.exports.Data = {
                     method
                 )
             ],
-            {image, bits:4}
+            Object.assign({}, meta, {image, bits:4})
         );
 
         method = new Method(null, this);
@@ -115,7 +115,7 @@ module.exports.Data = {
                     method
                 )
             ],
-            {image, bits:8}
+            Object.assign({}, meta, {image, bits:8})
         );
 
         if( image.isTransparent ){
