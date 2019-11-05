@@ -19,6 +19,8 @@ const APP = new Proxy(new Pool(), {
     })()
 });
 
+window.APP = APP;
+
 require("process").on("uncaughtException", function(e) {
     APP.error(e);
 });

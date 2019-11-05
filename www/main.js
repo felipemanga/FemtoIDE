@@ -1,10 +1,21 @@
+let instances = [];
+
 function boot(){
     try{
         let width = (localStorage.getItem("width")|0) || 800;
         let height = (localStorage.getItem("height")|0) || 600;
-        
+
         nw.Window.open('www/index.html', {width, height}, win=>{
+            let inst = {win, project:null};
+            instances.push(inst);
+
+            win.window.onOpenProject = project => {
+                inst.project = project.split(require("path").sep).pop();
+                win.window.APP.log("Opened project " + inst.project);
+            };
+
             win.on("close", _=>{
+                instances.splice(instances.indexOf(inst), 1);
                 width = win.width;
                 height = win.height;
                 localStorage.setItem("width", width);
@@ -17,8 +28,21 @@ function boot(){
     }
 }
 
-nw.App.on('open', (...args)=>{
-    boot();
+nw.App.on('open', (args)=>{
+    args = args.split(/\s+/);
+    args.splice(0, 1);
+    args = args.filter(x=>!x.startsWith("--"));
+    if( args.length ){
+        let project = args.shift();
+        let inst = instances.find(inst=>inst.project == project);
+        if(inst){
+            args.forEach(arg=>{
+                inst.win.window.APP[arg]();
+            });
+        };
+    }else{
+        boot();
+    }
 });
 
 nw.Window.open("www/splash.html", {
