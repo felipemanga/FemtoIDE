@@ -276,13 +276,15 @@ int __aeabi_atexit(void *object, void (*destructor)(void *), void *dso_handle) {
 
 #ifndef POKITTO_PIO_BUILD
 #include <stdlib.h>
-
+volatile bool __lockMalloc__ = false;
 extern "C" void *__real_malloc(size_t size);
 extern "C" void *__wrap_malloc(size_t size){
+    __lockMalloc__ = true;
     while(true){
         void *ret = __real_malloc(size);
         if( (unsigned int) ret >= 0x10000000 ){
             __allocated_memory__ += malloc_usable_size(ret);
+            __lockMalloc__ = false;
             return ret;
         }
         __on_failed_alloc();

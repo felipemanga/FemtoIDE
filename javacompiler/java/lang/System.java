@@ -4,6 +4,14 @@ public class System {
 
     public static class memory {
 
+        public static boolean isLocked(){
+            boolean ret;
+            __inline_cpp__("
+            ret = __lockMalloc__;
+            ");
+            return ret;
+        }
+
 	public static uint LDR( pointer p ){
             uint ret;
             __inline_cpp__("ret = *((volatile uint32_t*)p)");

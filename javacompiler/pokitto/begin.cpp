@@ -1075,10 +1075,12 @@ up_java::up_lang::uc_String *operator +( up_java::up_lang::uc_float r, const __s
     return new up_java::up_lang::uc_String( concatenate(buff, (char*)&l) );
 }
 
-
+extern volatile bool __lockMalloc__;
 volatile std::uint32_t __timer;
 extern "C" {
+    __attribute__ ((weak)) void SysTick_IRQHandler(void);
     void SysTick_Handler(void) {
         __timer += 100;
+        SysTick_IRQHandler();
     }
 }
