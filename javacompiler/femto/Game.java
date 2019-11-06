@@ -21,11 +21,11 @@ class MenuState extends State {
         Prompt prompt = new Prompt(
             null,
             font,
-            Direct.rgb(0x10, 0x00, 0x10),
-            0,
-            Direct.rgb(0xE0, 0xA0, 0xD0)
+            Direct.rgb(0x68, 0x8B, 0xCC),
+            Direct.rgb(0xFF, 0xE1, 0xA7),
+            Direct.rgb(0xCC, 0x99, 0x7A)
         );
-        prompt.party = true;
+        // prompt.party = true;
         
         prompt.options = new String[]{
             "Continue",
