@@ -30,6 +30,7 @@ var classfemto_1_1mode_1_1ScreenMode =
     [ "setTextColor", "classfemto_1_1mode_1_1ScreenMode.html#aae459a4a3b83dd660f0c307e407af0ba", null ],
     [ "setTextPosition", "classfemto_1_1mode_1_1ScreenMode.html#aacc0babf8cf671a4fb6318d59fd83d88", null ],
     [ "textHeight", "classfemto_1_1mode_1_1ScreenMode.html#a1635e23e91f143db86871787181ac27d", null ],
+    [ "textWidth", "classfemto_1_1mode_1_1ScreenMode.html#a934eac977efe520ac1765f560742e91e", null ],
     [ "textWidth", "classfemto_1_1mode_1_1ScreenMode.html#a9adc0c29695ca0111dcf7a3156ebcc30", null ],
     [ "width", "classfemto_1_1mode_1_1ScreenMode.html#ab03dcbfb2b3e7d50343833d25aa53072", null ],
     [ "cameraX", "classfemto_1_1mode_1_1ScreenMode.html#a87b8ca44ea3e022196d9bfbf3bea3db5", null ],

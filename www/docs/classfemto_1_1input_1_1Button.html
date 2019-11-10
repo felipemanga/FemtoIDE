@@ -140,6 +140,9 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>_irq1_</b> ()<
 <tr class="memitem:a98300e19f3ae6d7a0502225ecc432b07"><td class="memItemLeft" align="right" valign="top"><a id="a98300e19f3ae6d7a0502225ecc432b07"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>enableInterrupts</b> ()</td></tr>
 <tr class="separator:a98300e19f3ae6d7a0502225ecc432b07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a55e2f8991bf02a9bd7543a9f347dec"><td class="memItemLeft" align="right" valign="top"><a id="a4a55e2f8991bf02a9bd7543a9f347dec"></a>
+static <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&#160;</td><td class="memItemRight" valign="bottom"><b>waitForPress</b> ()</td></tr>
+<tr class="separator:a4a55e2f8991bf02a9bd7543a9f347dec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -159,9 +162,8 @@ static final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&
 static final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1input_1_1Button.html#aeed0f29abe8a8235be9dbf3c40309b03">Flash</a> = new <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>(0, 1)</td></tr>
 <tr class="memdesc:aeed0f29abe8a8235be9dbf3c40309b03"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <code><a class="el" href="classfemto_1_1input_1_1Button.html" title="This class represents a pressable button.">Button</a></code> object representing the Pokitto's flash button. <br /></td></tr>
 <tr class="separator:aeed0f29abe8a8235be9dbf3c40309b03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3eaff06da81bb03344c41ad135996462"><td class="memItemLeft" align="right" valign="top"><a id="a3eaff06da81bb03344c41ad135996462"></a>
-static final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1input_1_1Button.html#a3eaff06da81bb03344c41ad135996462">Reset</a> = new <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>(0, 0)</td></tr>
-<tr class="memdesc:a3eaff06da81bb03344c41ad135996462"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <code><a class="el" href="classfemto_1_1input_1_1Button.html" title="This class represents a pressable button.">Button</a></code> object representing the Pokitto's reset button. <br /></td></tr>
+<tr class="memitem:a3eaff06da81bb03344c41ad135996462"><td class="memItemLeft" align="right" valign="top">static final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1input_1_1Button.html#a3eaff06da81bb03344c41ad135996462">Reset</a></td></tr>
+<tr class="memdesc:a3eaff06da81bb03344c41ad135996462"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <code><a class="el" href="classfemto_1_1input_1_1Button.html" title="This class represents a pressable button.">Button</a></code> object representing the Pokitto's reset button.  <a href="classfemto_1_1input_1_1Button.html#a3eaff06da81bb03344c41ad135996462">More...</a><br /></td></tr>
 <tr class="separator:a3eaff06da81bb03344c41ad135996462"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e1ecd39f82979f68e205422072c3664"><td class="memItemLeft" align="right" valign="top"><a id="a5e1ecd39f82979f68e205422072c3664"></a>
 static final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfemto_1_1input_1_1Button.html#a5e1ecd39f82979f68e205422072c3664">Up</a> = new <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>(1, 13)</td></tr>
@@ -202,11 +204,42 @@ static final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a>&
 
 </div>
 </div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a3eaff06da81bb03344c41ad135996462"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3eaff06da81bb03344c41ad135996462">&#9670;&nbsp;</a></span>Reset</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">final <a class="el" href="classfemto_1_1input_1_1Button.html">Button</a> femto.input.Button.Reset</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= <span class="keyword">new</span> Button(0, 0){</div>
+<div class="line">            <span class="keyword">public</span> <span class="keywordtype">boolean</span> <a class="code" href="classfemto_1_1input_1_1Button.html#a2f0ca21f1d68effa398753f3e50f112a">isPressed</a>(){</div>
+<div class="line">                <span class="keywordflow">return</span> !super.isPressed();</div>
+<div class="line">            }</div>
+<div class="line">        }</div>
+</div><!-- fragment -->
+<p>The <code><a class="el" href="classfemto_1_1input_1_1Button.html" title="This class represents a pressable button.">Button</a></code> object representing the Pokitto's reset button. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>femto/input/Button.java</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
+<div class="ttc" id="aclassfemto_1_1input_1_1Button_html_a2f0ca21f1d68effa398753f3e50f112a"><div class="ttname"><a href="classfemto_1_1input_1_1Button.html#a2f0ca21f1d68effa398753f3e50f112a">femto.input.Button.isPressed</a></div><div class="ttdeci">boolean isPressed()</div><div class="ttdoc">Returns true if the button is pressed.</div><div class="ttdef"><b>Definition:</b> Button.java:102</div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
