@@ -216,6 +216,8 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         constructor( frame, buffer ){
             this.buffer = buffer;
+            this.hash = buffer.hash;
+
             let id = "text_" + (textViewInstance++);
             this.DOM = DOC.create( frame, "div", {
                 id,
@@ -298,12 +300,21 @@ APP.addPlugin("Text", ["Project"], _=>{
 
         }
 
+        onBeforeWriteBuffer( buffer ){
+            if( buffer == this.buffer ){
+                this.hash = buffer.hash;
+            }
+        }
+
         onFileChanged( buffer ){
             if( buffer != this.buffer )
                 return;
             APP.readBuffer( buffer, "utf-8", (err, data) => {
-                buffer.data = this.ace.session;
-                this._setValue( data || "" );
+                buffer.data = this.ace.session;                
+                if( this.hash != buffer.hash ){
+                    this.hash = buffer.hash;
+                    this._setValue( data || "" );
+                }
             }, true);            
         }
 

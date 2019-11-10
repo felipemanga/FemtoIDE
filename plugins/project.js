@@ -143,67 +143,72 @@ APP.addPlugin("Project", [], _=>{
 
             APP.onOpenProject();
 
-            loadProjectFiles(_=>{
+            APP.loadProjectFiles(projectPath, _=>{
 
                 APP.findFile( `${projectPath}${path.sep}${DATA.project.lastBuffer}`, true );
                 APP.onProjectReady();
                 if(window.onOpenProject)
                     window.onOpenProject(DATA.projectPath);
             });
+            
+        },
 
-            function loadProjectFiles( cb ){
-                let pending = 1;
+        loadProjectFiles( projectPath, cb ){
+            let pending = 1;
 
-                let buffer = APP.findFile( projectPath, false );
-                buffer.type = "directory";
+            let buffer = APP.findFile( projectPath, false );
+            buffer.type = "directory";
+
+            if( DATA.projectFiles.indexOf(buffer) == -1 ){
                 APP.registerProjectFile(buffer);
                 DATA.projectFiles.push(buffer);
+            }
 
-                readdir( projectPath );
-                popQueue();
+            readdir( projectPath );
+            popQueue();
 
-                function readdir( p ){
-                    pending++;
+            function readdir( p ){
+                pending++;
 
-                    fs.readdir( p, (err, files) => {
+                fs.readdir( p, (err, files) => {
 
-                        pending += files.length;
+                    pending += files.length;
 
-                        files.forEach( f => {
-                            let full = p + path.sep + f;
+                    files.forEach( f => {
+                        let full = p + path.sep + f;
 
-                            if( /^\.|~$/.test(f) ){
-                                popQueue();
-                                return;
+                        if( /^\.|~$/.test(f) ){
+                            popQueue();
+                            return;
+                        }
+
+                        fs.stat( full, (err, stat)=>{
+
+                            let buffer = APP.findFile( full, false );
+
+                            if( stat.isDirectory() ){
+                                buffer.type = "directory";
+                                readdir( full );
                             }
 
-                            fs.stat( full, (err, stat)=>{
-
-                                let buffer = APP.findFile( full, false );
-
-                                if( stat.isDirectory() ){
-                                    buffer.type = "directory";
-                                    readdir( full );
-                                }
-
+                            if( DATA.projectFiles.indexOf(buffer)==-1 ){
                                 APP.registerProjectFile(buffer);
                                 DATA.projectFiles.push(buffer);
-                                
-                                popQueue();
-                            });
+                            }
+                            
+                            popQueue();
                         });
-                        
-                        popQueue();
                     });
-                }
-
-                function popQueue(){
-                    pending--;
-                    if( pending ) return;
-                    cb();
-                }
+                    
+                    popQueue();
+                });
             }
-            
+
+            function popQueue(){
+                pending--;
+                if( !pending && cb ) 
+                    cb();
+            }
         },
 
         createNewProject( settings ){

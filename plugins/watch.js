@@ -48,10 +48,16 @@ APP.addPlugin("Watch", [], _=>{
     }
 
     function onFileChanged( path, event, file ){
-        if( (path in ignore) || !(path in watches) )
-            return;
+        if( (path in ignore) || !(path in watches) ){
+            APP.log(`Changed ignored: ${path} "${event}" ${file}`);
+            // return;
+        }else{
+            APP.log(`File Changed: ${path} "${event}" ${file}`);
+        }
 
         let buffer = APP.findFile(path, false);
+
+        /*
         if( buffer.type != "directory" )
             addToIgnoreList(path);
         else if( file ){
@@ -59,10 +65,13 @@ APP.addPlugin("Watch", [], _=>{
                 return;
             addToIgnoreList(path + sep + file);
         }
-
+        */
+        
         fs.stat(path, (err, stat)=>{
+            /*
             if( !buffer )
                 return;
+            */
             if( err ){
                 APP.killBuffer(buffer);
                 APP.onDeleteBuffer(buffer);
@@ -75,11 +84,15 @@ APP.addPlugin("Watch", [], _=>{
                         let buffer = APP.findFile( filePath, false );
                         if( !err ){
                             if( DATA.projectFiles.indexOf(buffer) == -1 ){
-                                if( !buffer.type && stat.isDirectory() )
+                                if( stat.isDirectory() ){
                                     buffer.type = "directory";
-                                // APP.log("File Added: ", filePath);
-                                DATA.projectFiles.push(buffer);
-                                APP.registerProjectFile(buffer);
+                                    APP.loadProjectFiles(filePath);
+                                }else{
+                                    // APP.log("File Added: ", filePath);
+                                    DATA.projectFiles.push(buffer);
+                                    APP.registerProjectFile(buffer);
+                                }
+
                             }else{
                                 buffer.modified = false;
                                 buffer.data = null;

@@ -25,6 +25,21 @@ require("process").on("uncaughtException", function(e) {
     APP.error(e);
 });
 
+function hash(str) {
+    let hash = 0, chr;
+    if( typeof str == "string" ){
+        for (let i = 0; i < str.length; i++) {
+            let chr = str.charCodeAt(i);
+            hash = (((hash << 5) - hash) + chr) | 0;
+        }
+    }else if(str && str.length) {
+        for (let i = 0; i < str.length; i++) {
+            hash = (((hash << 5) - hash) + str[i]) | 0;
+        }
+    }
+    return hash;
+};
+
 class Pending {
     constructor( cb, err ){
         let count = 1;
@@ -59,6 +74,7 @@ class Buffer {
         this.killable = killable;
         this.id = nextBufferId++;
         this.pluginData = {};
+        this.hash = 0;
     }
 
     kill(){
@@ -586,7 +602,8 @@ class Core {
         let data = buffer.data;
         if( typeof buffer.transform == "string" )
             data = APP[buffer.transform]( data );
-
+        
+        buffer.hash = hash(data);
         APP.onBeforeWriteBuffer(buffer, data);
         fs.writeFileSync( buffer.path, data, buffer.encoding );
         APP.onAfterWriteBuffer(buffer, data);
@@ -633,7 +650,9 @@ class Core {
         if( en === undefined )
             en = "utf-8";
 
-        return buffer.data = fs.readFileSync( buffer.path, en );
+        buffer.data = fs.readFileSync( buffer.path, en );
+        buffer.hash = hash(buffer.data);
+        return buffer.data;
     }
 
     readBuffer( buffer, en, cb, force){
@@ -661,6 +680,7 @@ class Core {
                 buffer.data = data;
                 buffer.modified = false;
                 buffer.encoding = en;
+                buffer.hash = hash(data);
                 cb( err, buffer.data );
             } );
         }
