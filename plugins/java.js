@@ -18,6 +18,10 @@ APP.addPlugin("Java", ["Text"], TextView => {
             }];
         }
 
+        doAction(){
+            APP.compileAndRun();
+        }
+
         beautify(){
             if( typeof js_beautify == "undefined" )
                 return;
