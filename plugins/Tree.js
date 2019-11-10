@@ -427,7 +427,7 @@ APP.addPlugin("Tree", [], _=>{
                         cb:_=>{
                             let name = prompt("Name:");
                             if( !name ) return;
-                            let fb = APP.findFile(buffer.path + "/" + name, true);
+                            let fb = APP.findFile(buffer.path + path.sep + name, true);
                             if( !fb ) return;
                             if( DATA.projectFiles.indexOf(fb) > -1 )
                                 return;
@@ -444,8 +444,8 @@ APP.addPlugin("Tree", [], _=>{
                             let name = prompt("Name:");
                             if( !name ) return;
 
-                            fs.mkdirSync(buffer.path + "/" + name);
-                            let fb = APP.findFile(buffer.path + "/" + name, false);
+                            fs.mkdirSync(buffer.path + path.sep + name);
+                            let fb = APP.findFile(buffer.path + path.sep + name, false);
                             if( !fb ) return;
                             fb.type = "directory";
                             if( DATA.projectFiles.indexOf(fb) > -1 )
