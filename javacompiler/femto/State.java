@@ -12,4 +12,7 @@ public class State {
 
     /// `shutdown` is called when leaving a state. This can be used to free up memory by setting variables to null, leaving more memory available for the next state.
     public void shutdown(){}
+
+    /// `resume` is called when returning from the Reset-button Menu. It can be used to trigger a full redraw in Direct mode games.
+    public void resume(){}
 }

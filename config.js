@@ -44,10 +44,11 @@ APP.add({
     onCreateACE( ace ){
         ace.setOption( "printMargin" , false);
         ace.commands.bindKeys({
+            "f1":null,
             "ctrl-l":null,
-            "alt-y":null,
+            "alt-y" :null,
             "ctrl-y":null,
-            "alt-w":null,
+            "alt-w" :null,
             "ctrl-.":null,
             "ctrl-,":null
         });
@@ -59,6 +60,7 @@ let platform = process
     .toLowerCase()
     .startsWith("win") ? "windows" : process.platform.toLowerCase();
 APP.customSetVariables({
+    "verbose":false,
     "aceTheme":"ace/theme/monokai",
     "projectsPath":platform == "darwin" ?
         path.join(process.env.HOME, "projects") :

@@ -49,10 +49,10 @@ APP.addPlugin("Watch", [], _=>{
 
     function onFileChanged( path, event, file ){
         if( (path in ignore) || !(path in watches) ){
-            APP.log(`Changed ignored: ${path} "${event}" ${file}`);
+            // APP.log(`Changed ignored: ${path} "${event}" ${file}`);
             // return;
         }else{
-            APP.log(`File Changed: ${path} "${event}" ${file}`);
+            // APP.log(`File Changed: ${path} "${event}" ${file}`);
         }
 
         let buffer = APP.findFile(path, false);

@@ -324,6 +324,9 @@ __blit_4bpp(
             return;
         }
 
+        int screenWidth = (int) screen.width();
+        int screenHeight = (int) screen.height();
+
         pointer frame = getFrameDataForScreen(currentFrame, screen);
         pointer bitmap = (pointer) System.memory.LDR(frame);
         int texWidth = System.memory.LDRB(bitmap++);
@@ -370,7 +373,6 @@ __blit_4bpp(
         int x, y, a, b, u, v, col;
 
         y = y0;
-        if( y<0 ) y = 0;
         if( y>=screen.height() )
             return;
         
@@ -387,6 +389,10 @@ __blit_4bpp(
             b = x0 + ((sb * dy02) >> 16);
             sa += dx01;
             sb += dx02;
+
+            if( y<0 || y>=screenWidth )
+                continue;
+
             // longhand:
             //   a = x0 + (x1 - x0) * (y - y0) / (y1 - y0);
             //   b = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
@@ -430,6 +436,9 @@ __blit_4bpp(
             b = x0 + ((sb * dy02) >> 16);
             sa += dx12;
             sb += dx02;
+
+            if( y<0 || y>=screenWidth )
+                continue;
 
             int lu = (y - y0) * du02 * dy02 + u0;
             int lv = (y - y0) * dv02 * dy02 + v0;

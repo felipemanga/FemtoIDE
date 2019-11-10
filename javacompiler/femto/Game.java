@@ -54,6 +54,7 @@ class MenuState extends State {
         }
         
         Game.instance.state = Game.instance.nextState = previous;
+        previous.resume();
         previous = null;
     }
     
