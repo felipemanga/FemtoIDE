@@ -29,9 +29,17 @@ function boot(){
 }
 
 nw.App.on('open', (args)=>{
+    let ignore = true;
     args = args.split(/("(?:[^\\"]*\\"|[^"])*")|\s+/);
-    args.splice(0, 1);
-    args = args.filter(x=>x && x.trim().length && !x.startsWith("--"));
+    args = args.filter(x=>{
+        if( ignore || !x ){
+            ignore = false;
+            return false;
+        }
+        x = x.trim();
+        ignore = x.startsWith("--") && x.endsWith("=");
+        return x.length && !x.startsWith("--");
+    });
     if( args.length ){
         let project = args.shift();
         let inst = instances.find(inst=>inst.project == project);
