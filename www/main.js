@@ -29,9 +29,9 @@ function boot(){
 }
 
 nw.App.on('open', (args)=>{
-    args = args.split(/\s+/);
+    args = args.split(/("(?:[^\\"]*\\"|[^"])*")|\s+/);
     args.splice(0, 1);
-    args = args.filter(x=>!x.startsWith("--"));
+    args = args.filter(x=>x && x.trim().length && !x.startsWith("--"));
     if( args.length ){
         let project = args.shift();
         let inst = instances.find(inst=>inst.project == project);
