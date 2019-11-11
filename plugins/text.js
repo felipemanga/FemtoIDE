@@ -89,6 +89,18 @@ APP.addPlugin("Text", ["Project"], _=>{
                 this.jumpToLine( this.buffer, line );
         }
 
+        jumpToOffset(buffer, offset){
+            if( buffer != this.buffer )
+                return;
+            let line = this.ace
+                .session
+                .getValue()
+                .substr(0, offset)
+                .replace(/[^\n]+/g, "")
+                .length;
+            this.jumpTo(buffer, line+1, 1);
+        }
+
         jumpTo(buffer, line, column){
             if( buffer != this.buffer )
                 return;

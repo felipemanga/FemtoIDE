@@ -1,0 +1,10 @@
+.frame.NMView {
+    max-height: 100%;
+}
+
+.NMContainer li, .NMContainer ul, .NMView, .NMContainer {
+    max-width: 350px;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
