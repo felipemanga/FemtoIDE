@@ -47,27 +47,32 @@ APP.addPlugin("Watch", [], _=>{
         // APP.log("Reset watch");
     }
 
-    function onFileChanged( path, event, file ){
-        if( (path in ignore) || !(path in watches) ){
-            // APP.log(`Changed ignored: ${path} "${event}" ${file}`);
-            // return;
-        }else{
-            // APP.log(`File Changed: ${path} "${event}" ${file}`);
+    function onFileChanged( filePath, event, file ){
+        if( DATA.verbose > 2 ){
+            if( (filePath in ignore) || !(filePath in watches) ){
+                APP.log(`Changed ignored: ${filePath} "${event}" ${file}`);
+                // return;
+            }else{
+                APP.log(`File Changed: ${filePath} "${event}" ${file}`);
+            }
         }
 
-        let buffer = APP.findFile(path, false);
+        if( filePath.split(path.sep).pop()[0] == '.' || file[0] == '.' )
+            return;
+
+        let buffer = APP.findFile(filePath, false);
 
         /*
         if( buffer.type != "directory" )
-            addToIgnoreList(path);
+            addToIgnoreList(filePath);
         else if( file ){
-            if( (path + sep + file) in ignore )
+            if( (filePath + sep + file) in ignore )
                 return;
-            addToIgnoreList(path + sep + file);
+            addToIgnoreList(filePath + sep + file);
         }
         */
         
-        fs.stat(path, (err, stat)=>{
+        fs.stat(filePath, (err, stat)=>{
             /*
             if( !buffer )
                 return;
