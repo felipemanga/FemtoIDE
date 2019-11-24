@@ -1,16 +1,17 @@
 {
-  "name": "FemtoIDE-{VERSION}",
-  "main": "www/main.js",
-  "window": {
-    "toolbar": false,
-    "frame": true,
-    "width": 1024,
-    "height": 768
-  },
-  "dependencies": {
-    "fatfs": "^0.10.7",
-    "isomorphic-git": "^0.55.6",
-    "java-parser": "^0.2.0",
-    "struct-fu": "^1.2.1"
-  }
+    "name": "FemtoIDE",
+    "main": "www/main.js",
+    "version": "{VERSION}",
+    "window": {
+        "toolbar": false,
+        "frame": true,
+        "width": 1024,
+        "height": 768
+    },
+    "dependencies": {
+        "fatfs": "^0.10.7",
+        "isomorphic-git": "^0.55.6",
+        "java-parser": "^0.2.0",
+        "struct-fu": "^1.2.1"
+    }
 }
