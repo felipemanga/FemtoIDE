@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['left_234',['Left',['../classfemto_1_1input_1_1Button.html#abc0b4ccd29f9c81152e654fb0454554b',1,'femto::input::Button']]]
+  ['left_236',['Left',['../classfemto_1_1input_1_1Button.html#abc0b4ccd29f9c81152e654fb0454554b',1,'femto::input::Button']]]
 ];
