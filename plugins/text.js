@@ -255,7 +255,8 @@ APP.addPlugin("Text", ["Project"], _=>{
                 hnd = setTimeout( save, 1000 );
                 function save(){
                     hnd = 0;
-                    APP.writeBuffer( buffer );
+                    if( buffer.modified )
+                        APP.writeBuffer( buffer );
                 }
             });
             

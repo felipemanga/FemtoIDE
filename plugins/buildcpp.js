@@ -7,18 +7,18 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     let libFlags = [];
     let libSrc = {};
 
-    APP.add({
+    APP.add(new class BuildCPP {
 
         getCPPBuildFolder(){
             return buildFolder;
-        },
+        }
 
         clean(){
             libFlags = [];
             libSrc = {};
             libs = {};            
             objFile = {};
-        },
+        }
 
         onOpenProject(){
             objBuffer = new Buffer();
@@ -31,14 +31,17 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 buildFolder = folder;
                 APP.customSetVariables({buildFolder});
             });
-        },
+        }
 
         _addObj(objPath, pending){
             objBuffer.data.push(objPath);
             pending.done();
-        },
+        }
 
         _buildProjectFiles( files, pending ){
+            files.filter(f=>f.modified == true)
+                .forEach( buffer => APP.writeBuffer(buffer));
+
             files.filter(f=>f.type=="C"
                          || f.type=="CPP"
                          || f.type=="S"
@@ -50,7 +53,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                         else this._addObj(id, pending);
                     });
                 });
-        },
+        }
 
         _addLib(path, pending){
             let srcext = ["CPP", "C", "CC", "S"];
@@ -149,7 +152,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 });
             }
 
-        },
+        }
         
         ["compile-cpp"]( files, cb ){
             objBuffer.data = [];
