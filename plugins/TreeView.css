@@ -28,18 +28,22 @@
 }
 
 .frame.TreeView input {
-    background-color: #101010;
-    color: inherit;
-    border: 0 none;
-    margin: 4px 4px;
-    border-bottom: 1px solid #303030;
+    background-color: #000;
+    margin: 5px 5px;
+    padding: 0 5px;
+    border: 1px solid #000;
+    color: #DDD;
+    border-radius: 3px;
 }
 
 .frame.TreeView input:focus {
-    background-color: #101010;
-    border-radius: 3px;
-    border: 0 none;
-    outline: 0 none;
+    outline: 0;
+    border-color: #888;
+}
+
+.frame.TreeView input::placeholder {
+    padding-left: 5px;
+    font-style: italic;
 }
 
 .FileList .action label {
@@ -86,6 +90,7 @@
     width: 0.75em;
     background: #404040;
     cursor: pointer;
+    margin-top: 3px;
 }
 
 .FileList .item.expand>#itemContainer>#actions {
@@ -113,10 +118,11 @@
 
 .FileList #line, #name, .dirMark {
     display: inline-block;
+    vertical-align: top;
 }
 
 .FileList .current>#itemContainer {
-    background-color: #505050;
+    background-color: #303030;
 }
 
 .notfiltering .closed>#dir {
@@ -124,12 +130,12 @@
 }
 
 .open>#itemContainer>#line>.dirMark:after {
-    content: "-";
+    content: "\2bc6";
     margin: 0 0 0 -10px;
 }
 
 .closed>#itemContainer>#line>.dirMark:after {
-    content: "+";
+    content: "\2bc8";
     margin: 0 0 0 -10px;
 }
 
@@ -143,14 +149,15 @@
 }
 
 .FileList .item #name {
-    color: bisque;
     display: inline-block;
+    overflow: hidden;
 }
 
-.FileList .item.directory>#itemContainer #name {color: inherit;}
-.FileList .item.BIN>#itemContainer #name {color: #303040;}
-.FileList .item.ELF>#itemContainer #name {color: #303040;}
-.FileList .item.JAVA>#itemContainer #name {color: #8090F0;}
-.FileList .item.PNG>#itemContainer #name {color: #80F090;}
-.FileList .item.JSON>#itemContainer #name {color: #90E0A0;}
+.FileList .item #icon {
+    display: inline-block;
+    margin-right: 5px;
+}
 
+.FileList .item #line:hover {
+    color: #DDD;
+}

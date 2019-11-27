@@ -505,12 +505,12 @@ class Keys {
 class Chrome {
     constructor(){
         APP.add(this);
-        this.el = document.querySelector(".chrome");
+        this.el = document.querySelector(".menuContainer");
         this.resetMenus();
     }
 
     setStatus(msg){
-        this.el.dataset.status = msg;
+        document.querySelector(".status").innerHTML = msg;
     }
 
     resetMenus(){
@@ -532,13 +532,24 @@ class Chrome {
     _renderChromeItem( name, optionMessage ){
         let menu = this.menus[ name ];
         if( !menu )
-            this.menus[name] = menu = {
-                el:DOC.create("div", document.querySelector(".chrome"), {
+		{
+            this.menus[name] = menu = DOC.create("div", document.querySelector(".chrome"), {
                     className:"menu",
-                    html:name,
+                    onblur:()=>{menu.show=true;},
+                    onfocus:()=>{menu.show=false;},
                     tabIndex:this.count++
-                })
-            };
+                });
+				
+			DOC.create("div", menu, {
+                    className:"menubtn",
+                    html:name==" femto"?"<img alt=' &#x1f175;' src='images/femto-icon2.png' width='20' height='20'>":name,
+                    onclick:()=>{if(menu.show ){ menu.blur();}else menu.show=true;},
+                });
+ 
+
+            menu.el=DOC.create("div", menu, {className:"dropdown"});
+
+		}
 
         for( let key in optionMessage ){
 	    let el = menu[ key ];
@@ -552,7 +563,7 @@ class Chrome {
                 menu[ key ] = el = DOC.create("div", menu.el, {
                     text:key,
                     onclick:((cb)=>{
-                        menu.el.blur();
+                        menu.blur();
                         cb();
                     }).bind(this, cb)
                 }, [

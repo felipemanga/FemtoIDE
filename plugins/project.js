@@ -86,7 +86,7 @@ APP.addPlugin("Project", [], _=>{
         },
 
         queryMenus(){
-            APP.addMenu(" &#x1f175;", {
+            APP.addMenu(" femto", {
                 "Close Project":_=>require('nw.gui').Window.get().reload(3),
                 "Exit":"exit"
             });
@@ -102,7 +102,7 @@ APP.addPlugin("Project", [], _=>{
         },
 
         onDisplayBuffer( buffer ){
-            document.title = buffer.name
+            document.querySelector(".title").innerHTML = buffer.name
                 + " - "
                 + DATA.projectName
                 + " - "

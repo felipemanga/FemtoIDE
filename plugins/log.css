@@ -1,8 +1,8 @@
 #logPane {
     display: flex;
     flex-direction: column;
-    padding: 5px;
-    max-height: 25%;
+    padding: 5px 0;
+    max-height: 20%;
 }
 
 #logContainer {
@@ -10,11 +10,28 @@
     overflow: auto;
 }
 
+#cmdContainer{
+    padding: 0 2px;
+}
+
 #cmd {
-    background: none;
-    border: none;
     width: 100%;
-    color: inherit;
+    padding: 0 4px;
+    background-color: #000;
+    border: none;
+    color: #DDD;
+    border-radius: 3px;
+    border: 1px solid #000;
+}
+
+#cmd:focus {
+    outline: 0;
+    border-color: #888;
+}
+
+#cmdContainer input::placeholder {
+    padding-left: 5px;
+    font-style: italic;
 }
 
 #logContainer .error {

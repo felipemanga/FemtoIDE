@@ -4,9 +4,10 @@
     "version": "{VERSION}",
     "window": {
         "toolbar": false,
-        "frame": true,
+        "frame": false,
         "width": 1024,
-        "height": 768
+        "height": 768,
+		"icon": "www/images/femto-icon2.png"
     },
     "dependencies": {
         "fatfs": "^0.10.7",

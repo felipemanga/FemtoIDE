@@ -28,7 +28,27 @@ html, body {
     flex-direction: column;
     font-family: 'Source Code Pro', sans-serif;
     background-color: #222;
-    color: #ABC;
+    color: #AAA;
+}
+
+::-webkit-scrollbar-track
+{
+	box-shadow: inset 2px 2px 2px rgba(255,255,255,.25), inset -2px -2px 2px rgba(0,0,0,.25);
+	border-radius: 3px;
+	background-color: rgba(219, 217, 217, 0.1);
+}
+
+::-webkit-scrollbar
+{
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 3px;
+	box-shadow: inset 2px 2px 2px rgba(255,255,255,.25), inset -2px -2px 2px rgba(0,0,0,.25);
+    background: -webkit-gradient(linear,left top,left bottom,from(#dfdfdf),to(#b8b8b8));
 }
 
 .ace_editor {
@@ -41,7 +61,7 @@ html, body {
 
 .blocking {
     position: fixed !important;
-    top: 0;
+    top: 25;
     bottom: 0;
     left: 0;
     right: 0;
@@ -85,4 +105,14 @@ div {
 }
 .ace_editor.ace_autocomplete {
     width: 700px;
+}
+
+.status {
+    bottom: 0;
+    left: 0;
+    height: 20px;
+    padding-left: 5px;
+    background-color: #333;
+    color: #EEE;
+    font-size: 12px;
 }

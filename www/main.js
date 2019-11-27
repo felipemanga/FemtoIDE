@@ -5,13 +5,14 @@ function boot(){
         let width = (localStorage.getItem("width")|0) || 800;
         let height = (localStorage.getItem("height")|0) || 600;
 
-        nw.Window.open('www/index.html', {width, height}, win=>{
+        nw.Window.open('www/index.html', {width, height, frame:false}, win=>{
             let inst = {win, project:null};
             instances.push(inst);
 
             win.window.onOpenProject = project => {
                 inst.project = project.split(require("path").sep).pop();
-                win.window.APP.log("Opened project " + inst.project);
+                //win.window.APP.log("Opened project " + inst.project);
+                win.window.APP.setStatus("Opened project " + inst.project+".");
             };
 
             win.on("close", _=>{

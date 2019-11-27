@@ -30,7 +30,9 @@ APP.addPlugin("Tree", [], _=>{
             this[type]( meta ),
             parent
         ];
-    }
+    };
+
+    
 
     class TreeNode {
 
@@ -42,8 +44,11 @@ APP.addPlugin("Tree", [], _=>{
             this.actions = {};
             this.y = 0;
             this.depth = depth;
+            this.isOpen=(depth == 1 ? true : false);
             
             buffer.pluginData.TreeNode = this;
+
+            this.iconsData=require('../www/images/material-icons.json');
 
 	    this.DOM = DOC.index( DOC.create(
                 parent,
@@ -62,14 +67,18 @@ APP.addPlugin("Tree", [], _=>{
                                     this.DOM.__ROOT__.classList.add("expand");
                             }
                         }],
-                        ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line" }, [
+                        ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line",
+                            onclick:_=>{
+                                this.DOM.__ROOT__.classList.toggle("closed");
+                                this.DOM.__ROOT__.classList.toggle("open");
+                                this.isOpen=!this.isOpen;
+                                this.DOM.__ROOT__.getElementsByTagName('img')[0].src=this.getIcon(buffer.type, buffer.name, this.isOpen);
+                            }
+                        }, [
                             (buffer.type == "directory" ? ["div", {
-                                className:"dirMark",
-                                onclick:_=>{
-                                    this.DOM.__ROOT__.classList.toggle("closed");
-                                    this.DOM.__ROOT__.classList.toggle("open");
-                                }
+                                className:"dirMark"
                             }] : null),
+                            ["img", {id:"icon", width:16, height:16, src:this.getIcon(buffer.type, buffer.name, this.isOpen), alt:""}],
                             ["div", {id:"name", text:buffer.name}]
                         ]],
                         [
@@ -115,6 +124,36 @@ APP.addPlugin("Tree", [], _=>{
             
             APP.async(_=>this._render());
 
+        }
+
+        getIcon( type , name, isOpen){
+            if(type=="directory")
+            {
+                if(isOpen)
+                {
+                    if(this.iconsData.folderNamesExpanded[name.toLowerCase()])
+                        return this.iconsData.iconDefinitions[this.iconsData.folderNamesExpanded[name.toLowerCase()]].iconPath;
+                    else
+                        return this.iconsData.iconDefinitions[this.iconsData.folderExpanded].iconPath;
+                }
+                    
+                else
+                {
+                    if(this.iconsData.folderNames[name.toLowerCase()])
+                        return this.iconsData.iconDefinitions[this.iconsData.folderNames[name.toLowerCase()]].iconPath;
+                    else
+                        return this.iconsData.iconDefinitions[this.iconsData.folder].iconPath;
+                } 
+            }
+            else
+            {
+                if(this.iconsData.fileNames[name.toLowerCase()])
+                    return this.iconsData.iconDefinitions[this.iconsData.fileNames[name.toLowerCase()]].iconPath;
+                else if(this.iconsData.fileExtensions[type.toLowerCase()])
+                    return this.iconsData.iconDefinitions[this.iconsData.fileExtensions[type.toLowerCase()]].iconPath;
+                else
+                    return this.iconsData.iconDefinitions[this.iconsData.file].iconPath;
+            }
         }
 
         onDisplayBuffer( buffer ){
@@ -328,6 +367,7 @@ APP.addPlugin("Tree", [], _=>{
 
             this.filter = DOC.create("input", {
                 className:"search",
+                placeholder:"Filter files",
                 onkeyup: e=>{
 
                     if( e.key != "Enter" ){
