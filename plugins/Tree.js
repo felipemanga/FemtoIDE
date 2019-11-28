@@ -67,7 +67,7 @@ APP.addPlugin("Tree", [], _=>{
                                     this.DOM.__ROOT__.classList.add("expand");
                             }
                         }],
-                        ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line",
+                        ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line", title:buffer.path,
                             onclick:_=>{
                                 this.DOM.__ROOT__.classList.toggle("closed");
                                 this.DOM.__ROOT__.classList.toggle("open");

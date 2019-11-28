@@ -1,3 +1,8 @@
+@media only screen and (max-width: 600px) {
+    .TreeView .FileListContainer {display: none;}
+    .frame.TreeView input {display: none;} 
+}
+
 .frame.TreeView {
     flex-grow: 0;
     display: flex;
@@ -15,7 +20,8 @@
 .TreeView .FileListContainer>ul {
     position: absolute;
     /* margin: 5px; */
-    background: #101010;
+    background: #1a1a1a;
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
     width: 100%;
     min-height: 100%;
@@ -28,17 +34,17 @@
 }
 
 .frame.TreeView input {
-    background-color: #000;
+    background-color: #2b2b2b;
     margin: 5px 5px;
     padding: 0 5px;
-    border: 1px solid #000;
-    color: #DDD;
-    border-radius: 3px;
+    border: 1px solid #373737;
+    color: #909494;
+    border-radius: 1px;
 }
 
 .frame.TreeView input:focus {
     outline: 0;
-    border-color: #888;
+    border-color: #555555;
 }
 
 .frame.TreeView input::placeholder {

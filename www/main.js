@@ -5,14 +5,13 @@ function boot(){
         let width = (localStorage.getItem("width")|0) || 800;
         let height = (localStorage.getItem("height")|0) || 600;
 
-        nw.Window.open('www/index.html', {width, height, frame:false}, win=>{
+        nw.Window.open('www/index.html', {min_width:400, min_height:300, width, height, frame:false}, win=>{
             let inst = {win, project:null};
             instances.push(inst);
 
             win.window.onOpenProject = project => {
                 inst.project = project.split(require("path").sep).pop();
-                //win.window.APP.log("Opened project " + inst.project);
-                win.window.APP.setStatus("Opened project " + inst.project+".");
+                win.window.APP.setStatus(`Opened project ${inst.project}.`);
             };
 
             win.on("close", _=>{
@@ -21,6 +20,7 @@ function boot(){
                 height = win.height;
                 localStorage.setItem("width", width);
                 localStorage.setItem("height", height);
+
                 win.close(true);
             });
         });

@@ -124,6 +124,8 @@ APP.addPlugin("Project", [], _=>{
             if( !projectPath )
                 return;
 
+            localStorage.setItem("lastProject", projectPath);
+
             strproject = fs.readFileSync(
                 projectPath + path.sep + "project.json", "utf-8"
             );

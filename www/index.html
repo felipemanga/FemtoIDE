@@ -23,8 +23,9 @@
     </div>
     <div id="contents"></div>
     <div id="logPane">
+      <div id="closeLogBtn" title="Close log." onclick="APP.clearLog()">&#8999;</div>
       <div id="logContainer"></div>
-      <div id="cmdContainer"><input id="cmd" onkeydown="(event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')) || APP.onCMDKey(event)"></div>
+      <div id="cmdContainer"><input id="cmd"  title="Execute a command." onkeydown="(event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')) || APP.onCMDKey(event)"></div>
     </div>
 
     <div class="status"></div>
