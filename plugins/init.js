@@ -1,5 +1,5 @@
 let buffer = new Buffer();
-buffer.name = "*init*";
+buffer.name = "Welcome";
 
 APP.add({
 /*
@@ -17,7 +17,7 @@ APP.add({
     
     pollViewForBuffer( buffer, vf ){
 
-        if( buffer.name == "*init*" ){
+        if( buffer.name == "Welcome" ){
             vf.view = ProjectsListView;
             vf.priority = 999;
         }
@@ -74,6 +74,19 @@ class ProjectsListView {
                 
             });
         };
+
+        DOC.create(
+            frame,
+            "header",
+            [
+              [ "img",
+                {src:"images/femto-icon2.svg"}
+              ],
+              [ "div",{
+                  html:"<h1>Welcome to femtoIDE</h1>", className:"textContainer"
+            }]
+            ]
+        );
 
         DOC.create(
             frame,
@@ -134,7 +147,8 @@ class ProjectsListView {
             {text:"Last Project", className:"lastProjectContainer"},
             [
               [ "div",
-                {text:`[${localStorage.getItem("lastProject").split(path.sep).pop()}]`,
+                {text: localStorage.getItem("lastProject").split(path.sep).pop(),
+                title: localStorage.getItem("lastProject"),
                 className:"lastProjectLink",
                 onclick:()=>{APP.openProject(localStorage.getItem("lastProject"))}}
               ]  

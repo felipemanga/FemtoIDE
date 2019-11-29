@@ -17,14 +17,36 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+    font-family: 'Varela Round';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: local('Varela Round Regular'), local('VarelaRound-Regular'), url(w8gdH283Tvk__Lua32TysjIfqcuPP9g.woff2) format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  /* latin */
+  @font-face {
+    font-family: 'Varela Round';
+    font-style: normal;s
+    font-weight: 400;
+    font-display: swap;
+    src: local('Varela Round Regular'), local('VarelaRound-Regular'), url(w8gdH283Tvk__Lua32TysjIfp8uP.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+* {
+    box-sizing: border-box;
+  }
+
 html, body {
     position: absolute;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 15px;
+    font-family: 'Varela Round', monospace;
+    font-size: 14px;
     background-color: #222;
     color: #c5c5c5;
     user-select: none;
@@ -50,7 +72,7 @@ html, body {
 }
 
 .ace_editor {
-    font: 0.8em 'Source Code Pro' !important;
+    font: 0.9em 'Source Code Pro' !important;
 }
 
 .hidden {
@@ -106,17 +128,38 @@ div {
 }
 
 .status {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     bottom: 0;
     left: 0;
     height: 20px;
     padding-left: 5px;
     background-color: #1a1a1a;
     box-shadow: 0px -1px 1px 1px rgba(0, 0, 0, 0.4);
-    color: #606060;
+    color: #6d6d6d;
     font-size: 12px;
 }
 
-input::selection {
+input, select{
+    background-color: #2b2b2b;
+    padding: 0 5px;
+    border: 1px solid #373737;
+    color: #909494;
+    border-radius: 1px;
+}
+
+input:focus, select:focus{
+    outline: 0;
+    border-color: #555555;
+}
+
+input::placeholder {
+    padding-left: 5px;
+    font-style: italic;
+}
+
+input::selection{
     background-color: rgb(106, 245, 245);
     color: #eeffff;
 }

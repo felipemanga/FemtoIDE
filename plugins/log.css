@@ -12,6 +12,7 @@
     font-size: 0.9rem;
     user-select: text;
     padding: 0px 5px;
+    font: 0.85em 'Source Code Pro' !important;
 }
 
 #cmdContainer{
@@ -20,17 +21,7 @@
 
 #cmd {
     width: 100%;
-    padding: 0 4px;
-    background-color: #1a1a1a;
-    border: none;
     color: #eeffff;
-    border-radius: 1px;
-    border: 1px solid #373737;
-}
-
-#cmd:focus {
-    outline: 0;
-    border-color: #555555;
 }
 
 #cmdContainer input::placeholder {

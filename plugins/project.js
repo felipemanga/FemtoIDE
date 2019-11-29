@@ -94,7 +94,7 @@ APP.addPlugin("Project", [], _=>{
 
         pollViewForBuffer( buffer, vf ){
 
-            if( buffer.name == "*New Project*" ){
+            if( buffer.name == "New Project" ){
                 vf.view = NewProjectView;
                 vf.priority = 999;
             }
@@ -102,15 +102,11 @@ APP.addPlugin("Project", [], _=>{
         },
 
         onDisplayBuffer( buffer ){
-            document.querySelector(".title").innerHTML = buffer.name
-                + " - "
-                + DATA.projectName
-                + " - "
-                + require("../package.json").name;
+            document.querySelector(".title").innerHTML =`${buffer.name} ${DATA.projectName?("- "+DATA.projectName+" "):""}- ${require("../package.json").name}`;
         },
 
         newProject(){
-            let name = "*New Project*";
+            let name = "New Project";
             let buffer = DATA.buffers.find( b=>b.name == name);
             if( !buffer ){
                 buffer = new Buffer( true );
@@ -265,16 +261,21 @@ APP.addPlugin("Project", [], _=>{
 
     const layout = [
         "div", { id:"NewProjectView" }, [
-            
-            ["label", {text:"Path"}, [
+
+            ["div",  {className:"spacer"}],
+
+            ["div", {className:"row"}, [
+                ["label", {text:"Project location"}],
                 ["input", {id:"path"}]
             ]],
             
-            ["label", {text:"Name"}, [
+            ["div", {className:"row"}, [
+                ["label", {text:"Project name"}],
                 ["input", {id:"name", value:"NewProject"}]
                 ]],
 
-            ["label", {text:"Type"}, [
+            ["div", {className:"row"}, [
+                ["label", {text:"Project name"}],
                 ["select", {className:"INPUT", id:"template"},
                  templates.map( text => ["option", {value:text, text}] )
                 ]
@@ -282,7 +283,12 @@ APP.addPlugin("Project", [], _=>{
             
             ["div", {id:"templateVars"}],
             
-            ["button", {id:"confirm", text:"OK"}],
+            ["div",  {className:"spacer"}],
+
+            ["div", {id:"buttonsContainer"}, [
+                ["button", {id:"confirm", text:"OK"}],
+                ["button", {id:"cancel", text:"Cancel"}],
+            ]],
             
             ["div", {id:"errmsg"}]
         ]];
@@ -296,6 +302,19 @@ APP.addPlugin("Project", [], _=>{
         constructor( frame, buffer ){
             let THIS = this;
             this.css = "blocking";
+
+            DOC.create(
+                frame,
+                "header",
+                [
+                  [ "img",
+                    {src:"images/femto-icon2.svg"}
+                  ],
+                  [ "div",{
+                      html:"<h1>New Project</h1>", className:"textContainer"
+                }]
+                ]
+            );
 
             let DOM = this.DOM = DOC.index( DOC.create( frame, ...layout ), null, {
 
@@ -321,6 +340,13 @@ APP.addPlugin("Project", [], _=>{
                         
                     }
                     
+                },
+
+                cancel:{
+                    
+                    click(){
+                        nw.Window.get().reload();
+                    }
                 },
 
                 template:{

@@ -34,22 +34,7 @@
 }
 
 .frame.TreeView input {
-    background-color: #2b2b2b;
     margin: 5px 5px;
-    padding: 0 5px;
-    border: 1px solid #373737;
-    color: #909494;
-    border-radius: 1px;
-}
-
-.frame.TreeView input:focus {
-    outline: 0;
-    border-color: #555555;
-}
-
-.frame.TreeView input::placeholder {
-    padding-left: 5px;
-    font-style: italic;
 }
 
 .FileList .action label {

@@ -1,5 +1,6 @@
 .frame.NMView {
     max-height: 100%;
+    font: 0.9em 'Source Code Pro' !important;
 }
 
 .NMContainer li, .NMContainer ul, .NMView, .NMContainer {
