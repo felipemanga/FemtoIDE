@@ -127,6 +127,8 @@ APP.addPlugin("Tree", [], _=>{
         }
 
         getIcon( type , name, isOpen){
+            if(!iconsData)
+                return "";
             if(type=="directory")
             {
                 if(isOpen)

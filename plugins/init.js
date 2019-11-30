@@ -120,40 +120,49 @@ class ProjectsListView {
             {className:"initProjectList"},
             [
                 ...projectsList.map( (project) => {
-                    
-                    const prinfo=require(DATA.projectsPath + path.sep + project+ path.sep+"project.json");
                     let icon="images/icons/cpp.svg";
-                    if(prinfo.pipelines.Pokitto.find(element => element == "compile-java"))
-                        icon="images/icons/java.svg";
-                    if(prinfo.LDFlags.Pokitto.find(element => element.search("libmicropython.a")>0))
-                        icon="images/icons/python.svg";
+                    let folderTime=Date.now();
+                    try {
+                        folderTime = fs.statSync(DATA.projectsPath + path.sep + project).mtime;
+                        const prinfo=require(DATA.projectsPath + path.sep + project+ path.sep+"project.json");
+                    
+                        if(prinfo.pipelines.Pokitto.find(element => element == "compile-java"))
+                            icon="images/icons/java.svg";
+                        if(prinfo.LDFlags.Pokitto.find(element => element.search("libmicropython.a")>0))
+                            icon="images/icons/python.svg";
 
-                    const stats = fs.statSync(DATA.projectsPath + path.sep + project);
-                          
+                    } catch (error) {
+                        
+                    }
+
                     return [
                         "li",
                         {
-                            html: `<img src="${icon}"><div class="name">${project}</div> <span>${stats.mtime.toLocaleString()}</span>`,
+                            html: `<img src="${icon}"><div class="name">${project}</div> <span>${folderTime.toLocaleString()}</span>`,
                             onclick: _=>APP.openProject(DATA.projectsPath + path.sep + project)
                         },]
+                    
                 })
                 
             ]
         );
-
-        DOC.create(
-            frame,
-            "div",
-            {text:"Last Project", className:"lastProjectContainer"},
-            [
-              [ "div",
-                {text: localStorage.getItem("lastProject").split(path.sep).pop(),
-                title: localStorage.getItem("lastProject"),
-                className:"lastProjectLink",
-                onclick:()=>{APP.openProject(localStorage.getItem("lastProject"))}}
-              ]  
-            ]
-        );
+        
+        if(localStorage.getItem("lastProject"))
+        {
+            DOC.create(
+                frame,
+                "div",
+                {text:"Last Project", className:"lastProjectContainer"},
+                [
+                [ "div",
+                    {text: localStorage.getItem("lastProject").split(path.sep).pop(),
+                    title: localStorage.getItem("lastProject"),
+                    className:"lastProjectLink",
+                    onclick:()=>{APP.openProject(localStorage.getItem("lastProject"))}}
+                ]  
+                ]
+            );
+        }
     }
 
 }
