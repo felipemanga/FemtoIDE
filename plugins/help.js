@@ -1,7 +1,7 @@
 APP.addPlugin("Help", [], _=>{
     APP.add(new class Help {
         queryMenus(){
-            APP.addMenu(" &#x1f175;", {
+            APP.addMenu(" femto", {
                 "Help":"help"
             });
         }

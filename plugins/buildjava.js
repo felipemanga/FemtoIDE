@@ -157,14 +157,14 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         },
 
         analyzeJava(){
-            APP.log("Analyzing, please wait.");
+            APP.setStatus("Analyzing, please wait.");
             this["compile-java"](
                 [...DATA.projectFiles],
                 (error)=>{
                     if( error ){
-                        APP.log(`Analysis failed`);
+                        APP.setStatus(`Analysis failed.`);
                     }else{
-                        APP.log(`Analysis complete.`);
+                        APP.setStatus(`Analysis complete.`);
                         APP.onIntrospectJava();
                     }
                 },

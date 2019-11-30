@@ -3,6 +3,7 @@
     APP.customSetVariables({maxLogLength:300});
 
     function getNode(className){
+        document.querySelector('#closeLogBtn').style.display="block";
         let node, triggerResize = false;
         if( container.children.length >= DATA.maxLogLength ){
             node = container.children[0];
@@ -26,6 +27,7 @@
 
         clearLog(){
             container.innerHTML = '';
+            document.querySelector('#closeLogBtn').style.display="none";
             APP.onResize();
         },
 

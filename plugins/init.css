@@ -1,68 +1,194 @@
 .InitView {
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 }
 
-.InitView h1 {
-    font-style: italic;
-    text-align: center;
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin: 10px 30px;
+    flex-basis: 80px;
 }
 
-#NewProjectView:before {
-    content: "New Project";
-    display: block;
-    text-align: center;
-    margin: 10px;
-    font-size: 2.5em;
+header img {
+    width: 80px;
+    height: 80px;
+}
+
+header .textContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 80px;
+}
+
+header .textContainer h1 {
+    font-size: 3em;
     font-weight: bold;
-    font-style: italic;
-    height: 35%;
+    padding: 10px 10px;
 }
 
-#NewProjectView #confirm {
+
+#NewProjectView {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+#NewProjectView #buttonsContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+#NewProjectView button {
+    background-color: rgb(179, 179, 179);
+    cursor: pointer;
+    padding: 5px 50px ;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px;
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.4);
     border: none;
-    background: rgba(255, 255, 255, 0.5);
-    margin: 15px;
-    font: 1.5em 'Source Code Pro';
-    padding: 5px 15px;
-    float: right;
+}
+#NewProjectView button:hover {
+    background-color: rgb(54, 213, 224);
 }
 
-#NewProjectView label {
-    display: block;
-    padding: 5px 0;
-    text-align: center;
+#NewProjectView .row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 5px 10px;
     background: rgba(0, 0, 0, 0.3);
 }
 
-#NewProjectView label>* {
-    margin-left: 10px;
-    border: none;
-    border-bottom: 1px solid #888;
-    background: none;
-    color: #AAA;
-    width: 75%;
-    padding: 1px 5px;
-    font: 1em 'Source Code Pro';
+#NewProjectView .spacer {
+    height: 20px;
+    padding: 5px 30px;
+    background: rgba(0, 0, 0, 0.3);
 }
+
+#NewProjectView .row label{
+    width: 180px;
+    padding: 5px 5px 5px 0px;
+    display: inline-block;
+}
+
+#NewProjectView .row > input , #NewProjectView .row > select{
+    width: 75%;
+}
+
 
 .InitView .initProjectList {
     overflow: auto;
     list-style: none;
     background: #111;
-    margin: 30px;
-    padding: 10px 20px;
+    margin: 0px 30px;
+    padding: 0px 10px;
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.4), -1px -1px 1px 1px rgba(0, 0, 0, 0.4);
+    flex-basis: 70%;
 }
 
 .InitView .initProjectListNewProject {background: #333;}
 
+.InitView .searchContainer {
+    display: flex;
+    flex-flow: row;
+    margin: 5px;
+    min-height: 30px;
+    background: #111;
+    margin: 0px 30px;
+    box-shadow: 1px 0px 1px 1px rgba(0, 0, 0, 0.4), -1px 0px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.InitView .searchContainer .search {
+    margin: 5px 5px;
+    flex: 1;
+}
+
+
+
 .InitView li {
-    margin: 10px 0px;
-    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 2px 0px;
+    padding: 5px 10px;
     background: #222;
     cursor: pointer;
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
 }
 
 .InitView li:hover {
     background: #444;
+}
+
+.InitView li  img{
+    display: inline-block;
+    margin: 0px 5px;
+    width: 20px;
+    height: 20px;
+}
+
+.InitView li div{
+    flex-grow: 8;
+    cursor: pointer;
+}
+
+.InitView li span{
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.lastProjectContainer {
+    padding-left: 30px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.lastProjectContainer  .lastProjectLink {
+    color: rgb(54, 213, 224);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: normal;
+    margin-top: 5px;
+}
+
+.lastProjectContainer  .lastProjectLink:hover {
+    color: white;
+}
+
+.projectBtnContainer{
+    margin: 20px 30px 0px 30px;
+    display: inline;
+}
+
+.projectBtnContainer div {
+
+    background-color: #111;
+    padding: 5px 20px ;
+    font-size: 18px;
+    font-weight: bold;
+    float: left;
+    margin: 0px;
+    box-shadow: 1px 0px 1px 1px rgba(0, 0, 0, 0.4), -1px -1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.projectBtnContainer  .newProjectBtn {
+    background-color: rgb(179, 179, 179);
+    color: #000;
+    cursor: pointer;
+    float: right;
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.4);
+
+}
+
+.projectBtnContainer  .newProjectBtn:hover {
+    background-color: rgb(54, 213, 224);
 }

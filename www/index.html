@@ -1,25 +1,33 @@
 <html>
   <head>
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="style.css" rel="stylesheet"/>
   </head>
 
   <body class="unrendered row container"
-	ondragenter="cancelEvent(event)"
-	ondragover="cancelEvent(event)"
-	ondrop="APP.onDropFile(cancelEvent(event))"
-	onmousemove="APP.onMouseMove(event)"
-	onmouseup="APP.onMouseUp(event)"
-	onkeydown="APP.onKeyDown(event)"
-	onkeyup="APP.onKeyUp(event)"
+    ondragenter="cancelEvent(event)"
+    ondragover="cancelEvent(event)"
+    ondrop="APP.onDropFile(cancelEvent(event))"
+    onmousemove="APP.onMouseMove(event)"
+    onmouseup="APP.onMouseUp(event)"
+    onkeydown="APP.onKeyDown(event)"
+    onkeyup="APP.onKeyUp(event)"
   >
     
-    <div class="chrome"></div>
+    <div class="chrome">
+      <div class="menuContainer"></div>
+      <div class="title">Welcome - FemtoIDE</div>
+      <div id="windowControle">
+        <div id="closebtn" onclick="nw.Window.get().close()">&#8999;</div>
+      </div>
+    </div>
     <div id="contents"></div>
     <div id="logPane">
+      <div id="closeLogBtn" title="Close log." onclick="APP.clearLog()">&#8999;</div>
       <div id="logContainer"></div>
-      <div id="cmdContainer"><input id="cmd" onkeydown="(event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')) || APP.onCMDKey(event)"></div>
+      <div id="cmdContainer"><input id="cmd"  title="Execute a command." onkeydown="(event.key=='Enter' && (APP.log(APP.exec(this.value)), this.value='')) || APP.onCMDKey(event)"></div>
     </div>
+
+    <div class="status"></div>
     
     <script src="uwa.js"></script>
     <script src="pool.js"></script>

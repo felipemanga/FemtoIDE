@@ -1,22 +1,51 @@
 #logPane {
+    position: relative;
     display: flex;
     flex-direction: column;
-    padding: 5px;
-    max-height: 25%;
+    max-height: 20%;
+    box-shadow: 0px -1px 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 #logContainer {
-    background-color: rgba(0,0,0,0.5);
+    background-color: #1a1a1a;
     overflow: auto;
+    font-size: 0.9rem;
+    user-select: text;
+    padding: 0px 5px;
+    font: 0.85em 'Source Code Pro' !important;
+}
+
+#cmdContainer{
+    padding: 3px 2px 0px 2px;
 }
 
 #cmd {
-    background: none;
-    border: none;
     width: 100%;
-    color: inherit;
+    color: #eeffff;
+}
+
+#cmdContainer input::placeholder {
+    padding-left: 5px;
+    font-style: italic;
 }
 
 #logContainer .error {
     color: #FF0000;
+}
+
+#closeLogBtn {
+    position: absolute;
+    padding: 0px 4px;
+    font-size: 14px;
+    font-weight: 400;
+    display: none;
+    right: 15;
+    top: 0;
+    background-color: #1a1a1a;
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+#closeLogBtn:hover {
+    background-color: #A00;
+    color: #FFF;
 }
