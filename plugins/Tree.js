@@ -48,7 +48,12 @@ APP.addPlugin("Tree", [], _=>{
             
             buffer.pluginData.TreeNode = this;
 
-            this.iconsData=require('../www/images/material-icons.json');
+            try {
+                this.iconsData=require('../www/images/material-icons.json');
+            } catch (error) {
+                this.iconsData=null;
+            }
+            
 
 	    this.DOM = DOC.index( DOC.create(
                 parent,
@@ -127,7 +132,7 @@ APP.addPlugin("Tree", [], _=>{
         }
 
         getIcon( type , name, isOpen){
-            if(!iconsData)
+            if(this.iconsData==null)
                 return "";
             if(type=="directory")
             {
