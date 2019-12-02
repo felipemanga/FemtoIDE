@@ -61,6 +61,8 @@ APP.addPlugin("LSP", [], _=> {
         }
 
         _notification( method, params, force ){
+            if( !server )
+                return;
             if( !ready && !force ){
                 setTimeout(_=>this._notification(method, params), 10);
                 return;
@@ -78,6 +80,9 @@ APP.addPlugin("LSP", [], _=> {
         }
 
         lsp( method, params, force ){
+            if( !server )
+                return new Promise(_=>{});
+
             const obj = {
                 "jsonrpc": "2.0",
                 "id": (nextId++) + "",
@@ -113,7 +118,7 @@ APP.addPlugin("LSP", [], _=> {
             if( server )
                 return;
 
-            server = APP.spawn(path.join(DATA.appPath, process.platform, "clangd", "clangd"));
+            server = APP.spawn(path.join(DATA.appPath, process.platform, "clangd", "clangd" + DATA.executableExt));
 
             let buffer = "";
 
@@ -166,6 +171,10 @@ APP.addPlugin("LSP", [], _=> {
 
             server.on("close", error=>{
                 APP.log("LSP closed with error=" + error);
+            });
+
+            server.on("error", error=>{
+                server = null;
             });
 
             this.lsp("initialize", {
