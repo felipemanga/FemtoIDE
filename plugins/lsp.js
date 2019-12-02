@@ -118,7 +118,7 @@ APP.addPlugin("LSP", [], _=> {
             if( server )
                 return;
 
-            server = APP.spawn(path.join(DATA.appPath, process.platform, "clangd", "clangd" + DATA.executableExt));
+            server = APP.spawn(path.join(DATA.appPath, DATA.os, "clangd", "clangd" + DATA.executableExt));
 
             let buffer = "";
 
