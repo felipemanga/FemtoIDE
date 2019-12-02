@@ -79,12 +79,13 @@ class ProjectsListView {
             frame,
             "header",
             [
-              [ "img",
-                {src:"images/femto-icon2.svg"}
-              ],
-              [ "div",{
-                  html:"<h1>Welcome to femtoIDE</h1>", className:"textContainer"
-            }]
+                [ "img",
+                  {src:"images/femto-icon2.svg"}
+                ],
+                [ "div",{
+                    html:"<h1>Welcome to FemtoIDE</h1>",
+                    className:"textContainer"
+                }]
             ]
         );
 
@@ -92,14 +93,14 @@ class ProjectsListView {
             frame,
             "div", {className:"projectBtnContainer"},
             [
-              [ "div",
-                {text:"Projects"}
-              ],
-              [ "div",{
-                  text:"New Project",
-                  className:"newProjectBtn",
-                  onclick: _=>APP.newProject()
-            }]
+                [ "div",
+                  {text:"Projects"}
+                ],
+                [ "div",{
+                    text:"New Project",
+                    className:"newProjectBtn",
+                    onclick: _=>APP.newProject()
+                }]
             ]
         );
 
@@ -140,15 +141,14 @@ class ProjectsListView {
                         {
                             html: `<img src="${icon}"><div class="name">${project}</div> <span>${folderTime.toLocaleString()}</span>`,
                             onclick: _=>APP.openProject(DATA.projectsPath + path.sep + project)
-                        },]
+                        }];
                     
                 })
                 
             ]
         );
         
-        if(localStorage.getItem("lastProject"))
-        {
+        if( localStorage.getItem("lastProject") ){
             DOC.create(
                 frame,
                 "div",

@@ -75,6 +75,7 @@ class Buffer {
         this.id = nextBufferId++;
         this.pluginData = {};
         this.hash = 0;
+        this.version = 1;
     }
 
     kill(){
@@ -613,7 +614,8 @@ class Core {
         let data = buffer.data;
         if( typeof buffer.transform == "string" )
             data = APP[buffer.transform]( data );
-        
+
+        buffer.version++;
         buffer.hash = hash(data);
         APP.onBeforeWriteBuffer(buffer, data);
         fs.writeFileSync( buffer.path, data, buffer.encoding );
@@ -663,6 +665,7 @@ class Core {
 
         buffer.data = fs.readFileSync( buffer.path, en );
         buffer.hash = hash(buffer.data);
+        buffer.version++;
         return buffer.data;
     }
 

@@ -6,6 +6,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     let objBuffer = null;
     let libFlags = [];
     let libSrc = {};
+    let cdb = [];
 
     APP.add(new class BuildCPP {
 
@@ -155,12 +156,19 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         }
         
         ["compile-cpp"]( files, cb ){
+            cdb = [];
             objBuffer.data = [];
 
             let pendingLibs = new Pending(_=>{
 
                 let pending = new Pending(_=>{
                     files.push(objBuffer);
+                    fs.writeFile(
+                        path.join(DATA.projectPath, "compile_commands.json"),
+                        JSON.stringify(cdb),
+                        "utf-8",
+                        _=>{}
+                    );
                     cb();
                 }, err => {
                     cb(err);
@@ -221,6 +229,12 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         flags.push( output );
 
         buffer.error = "";
+
+        cdb.push({
+            directory: DATA.projectPath,
+            command: `"${compilerPath.replace(/([\\"])/g, "\\$1")}" ${flags.map(f=>'"'+f.replace(/([\\"])/g, "\\$1")+'"').join(" ")}`,
+            file: buffer.path
+        });
 
         APP.spawn( compilerPath, ...flags )
             .on("data-err", err =>{

@@ -175,7 +175,7 @@ APP.addPlugin("Project", [], _=>{
                     files.forEach( f => {
                         let full = p + path.sep + f;
 
-                        if( /^\.|~$/.test(f) ){
+                        if( /^\.|~$|^compile_commands\.json$/.test(f) ){
                             popQueue();
                             return;
                         }

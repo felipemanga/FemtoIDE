@@ -57,7 +57,7 @@ APP.addPlugin("Watch", [], _=>{
             }
         }
 
-        if( filePath.split(path.sep).pop()[0] == '.' || file[0] == '.' )
+        if( filePath.split(path.sep).pop()[0] == '.' || file[0] == '.' || file == "compile_commands.json" )
             return;
 
         let buffer = APP.findFile(filePath, false);

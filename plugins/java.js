@@ -13,7 +13,8 @@ APP.addPlugin("Java", ["Text"], TextView => {
 
             this.ace.completers = [{
                 getCompletions(editor, session, pos, prefix, callback) {
-                    callback(null, APP.complete() || []);
+                    // callback(null, APP.complete() || []);
+                    APP.complete(callback.bind(null, null));
                 }
             }];
         }
@@ -29,10 +30,10 @@ APP.addPlugin("Java", ["Text"], TextView => {
             this.ace.session.setValue(ret);
         }
 
-        complete(){
+        complete(callback){
             let pos = this.ace.getCursorPosition();
             pos = this.ace.session.doc.positionToIndex(pos);
-            return APP.completionAtPoint(this.buffer, pos);
+            APP.completionAtPoint(this.buffer, pos, callback);
         }
 
         resolveJavaUnderCursor(){

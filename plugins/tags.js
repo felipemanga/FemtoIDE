@@ -45,7 +45,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
         }
 
         _findScope(buffer, offset){
-            if( !buffer )
+            if( !buffer || buffer.type != "JAVA" )
                 return undefined;
 
             if( !units ){
@@ -72,12 +72,12 @@ APP.addPlugin("VFS", ["Project"], _=>{
             return scope;
         }
 
-        completionAtPoint(buffer, offset){
+        completionAtPoint(buffer, offset, callback){
 
             let list = [];
             let scope = this._findScope(buffer, offset);
             if( !scope ) 
-                return list;
+                return undefined;
 
             let identifier = this.getIdentifierUnderCursor(buffer, offset, true);
 
@@ -95,7 +95,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
             }
 
             if( !entry )
-                return list;
+                return callback(list);
 
             if( identifier.length ){
                 list.push( ...search(entry) );
@@ -108,7 +108,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
 
             list = list.sort((a, b)=>a.score - b.score);
 
-            return list;
+            return callback(list);
 
             function search(entry){
                 
@@ -182,7 +182,7 @@ APP.addPlugin("VFS", ["Project"], _=>{
         resolveJava(buffer, offset){
             let scope = this._findScope(buffer, offset);
             if( !scope )
-                return [];
+                return undefined;
 
             let identifier = this.getIdentifierUnderCursor(buffer, offset);
 
@@ -199,12 +199,10 @@ APP.addPlugin("VFS", ["Project"], _=>{
         findDeclaration(buffer, offset){
             let entry = this.resolveJava(buffer, offset);
 
-            if( !entry || !entry.location ){
-                APP.error("Declaration not found");
-                return null;
-            }
+            if( !entry || !entry.location )
+                return undefined;
 
-            return entry && entry.location;
+            return entry.location;
         }
 
         getIdentifierUnderCursor(buffer, offset, autocomplete=false){

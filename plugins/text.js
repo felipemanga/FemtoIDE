@@ -89,16 +89,27 @@ APP.addPlugin("Text", ["Project"], _=>{
                 this.jumpToLine( this.buffer, line );
         }
 
+        locationFromPosition(buffer, pos){
+            if( buffer != this.buffer )
+                return undefined;
+
+            let lines = this.ace
+                .session
+                .getValue()
+                .substr(0, pos)
+                .split(/\n/);
+
+            return {
+                line: lines.length - 1,
+                character: lines[lines.length-1].length + 1
+            };
+        }
+
         jumpToOffset(buffer, offset){
             if( buffer != this.buffer )
                 return;
-            let line = this.ace
-                .session
-                .getValue()
-                .substr(0, offset)
-                .replace(/[^\n]+/g, "")
-                .length;
-            this.jumpTo(buffer, line+1, 1);
+            let {line} = this.locationFromPosition(buffer, offset);
+            this.jumpTo(buffer, line + 1, 1);
         }
 
         jumpTo(buffer, line, column){

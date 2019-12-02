@@ -5,10 +5,29 @@ APP.addPlugin("CPP", ["Text"], TextView => {
         constructor( frame, buffer ){
             super(frame, buffer);
             this.ace.session.setMode("ace/mode/c_cpp");
+            ace.require("ace/ext/language_tools");
+            this.ace.setOptions({
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true
+            });
+
+            this.ace.completers = [{
+                getCompletions(editor, session, pos, prefix, callback) {
+                    // callback(null, APP.complete(callback) || []);
+                    APP.complete(callback.bind(null, null));
+                }
+            }];
         }
 
         doAction(){
             APP.compileAndRun();
+        }
+
+
+        complete(callback){
+            let pos = this.ace.getCursorPosition();
+            pos = this.ace.session.doc.positionToIndex(pos);
+            APP.completionAtPoint(this.buffer, pos, callback);
         }
 
         toggleHCPP(){

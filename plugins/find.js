@@ -31,7 +31,12 @@ APP.addPlugin("Find", [], _=>{
                 className:"FindContainer"
             }, [
                 ["input", {
-                    onchange:ex=>this.regexSearch(ex.target.value)
+                    onchange:ex=>{
+                        if( ex.target.value )
+                            this.regexSearch(ex.target.value);
+                        else
+                            this.hideFindResults();
+                    }
                 }]
             ]);
 
@@ -53,7 +58,7 @@ APP.addPlugin("Find", [], _=>{
         showFindResults(){
             this.container.parentElement.style.display = "block";
             APP.onResize();
-            this.DOM.INPUT[0].focus();
+            APP.async(_=>this.DOM.INPUT[0].focus());
         }
 
         hideFindResults(){
@@ -68,17 +73,28 @@ APP.addPlugin("Find", [], _=>{
         }
 
         regexSearch(exp, flags){
+            let results = 0;
             APP.clearSearch();
 
             this.showFindResults();
 
-            if( typeof exp == "string" )
+            try{
+                if( typeof exp == "string" )
+                    exp = new RegExp(exp, flags || "gmi");
+            }catch(ex){
+                exp = (""+exp).replace(/(\{\}\(\)\[\]\\\?\+\.)/g, "\\$1");
                 exp = new RegExp(exp, flags || "gmi");
+            }
 
             let queue = [...DATA.projectFiles];
             popQueue.call(this);
 
             function popQueue(){
+                if( results > 500 ){
+                    APP.log("Too many results. Stopping.");
+                    return;
+                }
+
                 if(!queue.length){
                     APP.log("Search complete");
                     return;
@@ -98,7 +114,8 @@ APP.addPlugin("Find", [], _=>{
                 data = data + "";
 
                 let match;
-                while( (match = exp.exec(data)) ){
+                while( (results < 500) && (match = exp.exec(data)) ){
+                    results++;
                     new FindNode({
                         buffer,
                         index: match.index,
