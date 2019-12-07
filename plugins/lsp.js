@@ -60,8 +60,14 @@ APP.addPlugin("LSP", [], _=> {
                 });
         }
 
+        _serverStarted(){
+            if( server ) return true;
+            this._startServer();
+            return server != null;
+        }
+
         _notification( method, params, force ){
-            if( !server )
+            if( !this._serverStarted() )
                 return;
             if( !ready && !force ){
                 setTimeout(_=>this._notification(method, params), 10);
@@ -75,12 +81,20 @@ APP.addPlugin("LSP", [], _=> {
             };
 
             let msg = JSON.stringify(obj);
-            msg = `Content-Length: ${msg.length}\r\nContent-Type: application/vscode-jsonrpc; charset=utf-8\r\n\r\n${msg}`;
+            msg = `Content-Length: ${nw.Buffer.byteLength(msg, "utf-8")}\r\nContent-Type: application/vscode-jsonrpc; charset=utf-8\r\n\r\n${msg}`;
             server.stdin.write(msg);
         }
 
-        lsp( method, params, force ){
+        lspShutdown(){
             if( !server )
+                return;
+            this.lsp("shutdown", undefined, false)
+                .then(_=>this.lsp("exit", undefined, false))
+                .then(_=>server = null);
+        }
+
+        lsp( method, params, force ){
+            if( !this._serverStarted() )
                 return new Promise(_=>{});
 
             const obj = {
@@ -115,10 +129,15 @@ APP.addPlugin("LSP", [], _=> {
         }
 
         _startServer(){
-            if( server )
+            if( server || !DATA.buildFolder )
                 return;
 
-            server = APP.spawn(path.join(DATA.appPath, DATA.os, "clangd", "clangd" + DATA.executableExt));
+            server = APP.spawn(
+                path.join(DATA.appPath, DATA.os, "clangd", "clangd" + DATA.executableExt),
+                {cwd:DATA.buildFolder},
+                "-compile-commands-dir=" + DATA.buildFolder,
+                "-pch-storage=memory"
+            );
 
             let buffer = "";
 
@@ -166,10 +185,12 @@ APP.addPlugin("LSP", [], _=> {
             });
 
             server.on("data-err", data=>{
-                console.warn("" + data);
+                if( DATA.verbose )
+                    console.warn("" + data);
             });
 
             server.on("close", error=>{
+                server = null;
                 APP.log("LSP closed with error=" + error);
             });
 
@@ -179,8 +200,15 @@ APP.addPlugin("LSP", [], _=> {
 
             this.lsp("initialize", {
                 processId: process.pid,
-                rootUri: this.pathToURI(DATA.projectPath),
+                rootUri: null,
                 capabilities: {
+                    textDocument:{
+                        completion:{
+                            completionItem:{
+                                snippetSupport:true
+                            }
+                        }
+                    }
                 },
                 trace: "verbose"
             }, true)
@@ -206,7 +234,7 @@ APP.addPlugin("LSP", [], _=> {
             }).then(result=>{
                 let out = result.items.map(entry=>({
                     caption:entry.label,
-                    value:entry.insertText,
+                    snippet:entry.insertText,
                     meta:entry.detail,
                     score:entry.sortText
                 }));
@@ -255,6 +283,7 @@ APP.addPlugin("LSP", [], _=> {
         }
         
         onOpenProject(){
+            this.lspShutdown();
             this._startServer();
         }
     });

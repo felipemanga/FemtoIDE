@@ -7,6 +7,7 @@ APP.addPlugin("CPP", ["Text"], TextView => {
             this.ace.session.setMode("ace/mode/c_cpp");
             ace.require("ace/ext/language_tools");
             this.ace.setOptions({
+                enableSnippets: true,
                 enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true
             });
