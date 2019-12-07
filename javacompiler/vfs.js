@@ -159,6 +159,8 @@ let src = {
         StateMachine:read("/femto/StateMachine.java", "utf-8"),
         Game:read("/femto/Game.java", "utf-8"),
 
+        CPP:read("/femto/CPP.java", "utf-8"),
+
         sound:{
             Mixer:read("/femto/sound/Mixer.java", "utf-8"),
             Procedural:read("/femto/sound/Procedural.java", "utf-8"),
