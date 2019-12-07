@@ -105,7 +105,6 @@ ${img.width}, ${img.height}`;
                 let G = data[i++]|0;
                 let B = data[i++]|0;
                 let C = (R<<16) + (G<<8) + B;
-                let M = (R*1.25+G*1.5+B)|0;
                 let A = data[i++]|0;
 
                 if(C === PC){
@@ -117,11 +116,10 @@ ${img.width}, ${img.height}`;
                         const PR = ca[0]|0;
                         const PG = ca[1]|0;
                         const PB = ca[2]|0;
-                        const PM = (PR*1.25 + PG*1.5 + PB)|0;
 		        const dist = (R-PR)*(R-PR)
                             + (G-PG)*(G-PG)
                             + (B-PB)*(B-PB)
-                            + (M-PM)*(M-PM);
+                        ;
 
                         if( dist < closestDist ){
                             closest = c;
@@ -175,9 +173,11 @@ ${img.width}, ${img.height}`;
     }
 
     function parseCPP(data){
-        let src = removeComments( data ).replace(/^[^{]*/, "");
+        let src = removeComments( data )
+            .replace(/^[^{]*/, "")
+            .replace(/\}[\s\S]*$/, "");
         let color = [], palette = [color];
-        src.replace(/0x[0-9a-f]{2,2}/gi, (m)=>{
+        src.replace(/(0x[0-9a-f]{1,2}|[0-9]+)/gi, (m)=>{
             color.push(parseInt(m));
             if( color.length == 3 ){
                 color = [];
