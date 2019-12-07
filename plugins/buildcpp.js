@@ -233,7 +233,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
                 let pending = new Pending(_=>{
                     files.push(objBuffer);
-                    this.writeCDB(cdb);
+                    // this.writeCDB(cdb);
                     cb();
                 }, err => {
                     cb(err);
