@@ -164,6 +164,7 @@ let src = {
         sound:{
             Mixer:read("/femto/sound/Mixer.java", "utf-8"),
             Procedural:read("/femto/sound/Procedural.java", "utf-8"),
+            Stream:read("/femto/sound/Stream.java", "utf-8"),
         },
         
         hardware:{

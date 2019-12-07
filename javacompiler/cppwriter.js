@@ -2227,7 +2227,6 @@ function write( unit, main, plat, dbg ){
     allMethods = [];
     currentMethod = globalDependencies;
     
-    let endData = {};
     init(unit);
     isDebugMode = dbg;
 
@@ -2235,6 +2234,10 @@ function write( unit, main, plat, dbg ){
 
     platform = (plat||"desktop").toLowerCase();
     platformDir = __dirname + "/" + platform;
+
+    let endData = {
+        BEGIN: fs.readFileSync( platformDir+"/begin.cpp", "utf-8" )
+    };    
 
     annotationHandlers = fs.readdirSync(platformDir + "/annotations")
         .filter( name => /\.js$/i.test(name) )
@@ -2246,7 +2249,7 @@ function write( unit, main, plat, dbg ){
 
     addUnit(unit);
 
-    let out = fs.readFileSync( platformDir+"/begin.cpp", "utf-8" );
+    let out = "";
 
     let pending;
     do{
@@ -2337,10 +2340,12 @@ function write( unit, main, plat, dbg ){
     for( let key in endData ){
         end = end.split("$"+key+"$").join(endData[key]);
     }
-    end = end.replace(/\$[A-Z]+\$/g, "");
-    out += end;
 
-    return out;
+    end = end.replace(/\$[A-Z]+\$/g, m=>m == "$GENERATED$" ? m : "");
+
+    end = end.split("$GENERATED$").join(out);
+
+    return end;
 
 }
 

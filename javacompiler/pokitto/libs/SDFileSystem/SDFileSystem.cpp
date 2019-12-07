@@ -608,7 +608,10 @@ bool SDFileSystem::readData(char* buffer, int length)
     //Check if a valid start block token was received
     if (token != 0xFE)
         return false;
-
+/*
+    for (int i = 0; i < length; i++)
+        buffer[i] = m_Spiwrite(0xFF);
+*/
     //Check if large frames are enabled or not
     //if (m_LargeFrames) {
 /* 
@@ -624,7 +627,7 @@ bool SDFileSystem::readData(char* buffer, int length)
             buffer[i + 1] = dataWord;
         }
     */
-   
+
    // Fmanga code
     while( !(pSPI[12] & (1<<1)) ); // wait until writeable
     volatile void *SPI = pSPI;
@@ -660,7 +663,6 @@ bool SDFileSystem::readData(char* buffer, int length)
         : // clobbers
         "cc"
         );
-          
 
         //Read the CRC16 checksum for the data block
         crc = (m_Spiwrite(0xFF) << 8);

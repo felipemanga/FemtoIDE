@@ -7,6 +7,9 @@
 	},
 	"libs": {
 		"Pokitto": [
+			{
+				"recurse": "${appPath}/javacompiler/pokitto/libs/SDFileSystem"
+			},
 			"${appPath}/javacompiler/pokitto/libs/startup.cpp",
 			"${appPath}/javacompiler/pokitto/libs/SystemInit.s"
 		]

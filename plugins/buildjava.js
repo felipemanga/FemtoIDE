@@ -1,4 +1,5 @@
 Object.assign(encoding, {
+    "RAW":null,
     "PNG":null,
     "BIN":null,
     "MAP":null,

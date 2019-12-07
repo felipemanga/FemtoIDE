@@ -1,3 +1,8 @@
+$BEGIN$
+
+$HEAD$
+
+$GENERATED$
 
 $GLOBAL$
 
