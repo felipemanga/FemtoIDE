@@ -23,9 +23,11 @@ var annotated_dup =
       ] ],
       [ "sound", null, [
         [ "Mixer", "classfemto_1_1sound_1_1Mixer.html", null ],
-        [ "Procedural", "classfemto_1_1sound_1_1Procedural.html", "classfemto_1_1sound_1_1Procedural" ]
+        [ "Procedural", "classfemto_1_1sound_1_1Procedural.html", "classfemto_1_1sound_1_1Procedural" ],
+        [ "Stream", "classfemto_1_1sound_1_1Stream.html", null ]
       ] ],
       [ "Cookie", "classfemto_1_1Cookie.html", "classfemto_1_1Cookie" ],
+      [ "CPP", "interfacefemto_1_1CPP.html", "interfacefemto_1_1CPP" ],
       [ "FrameRef", "classfemto_1_1FrameRef.html", null ],
       [ "Game", "classfemto_1_1Game.html", null ],
       [ "Image", "classfemto_1_1Image.html", null ],
