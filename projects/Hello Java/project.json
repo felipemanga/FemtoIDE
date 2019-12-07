@@ -176,6 +176,9 @@
 		},
 		"/sounds/DogBark3.wav": {
 			"sdcard": false
+		},
+		"/sounds/hope.raw": {
+			"sdcard": true
 		}
 	}
 }

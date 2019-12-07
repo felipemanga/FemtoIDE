@@ -7,6 +7,7 @@ import femto.palette.Psygnosia;
 import femto.font.TIC80;
 import femto.sound.Mixer;
 import femto.sound.Procedural;
+import femto.sound.Stream;
 
 import images.Pattern;
 import sprites.Dog;
@@ -51,6 +52,10 @@ class Main extends State {
         dog.run(); // "run" is one of the animations in the spritesheet
         
         timeToBark = System.currentTimeMillis() + Math.random(500, 2000);
+
+        // put sound effects and music on different channels
+        Stream.procedural.channel = 1;
+        Stream.play("hope.raw");
     }
     
     // Might help in certain situations
@@ -60,7 +65,10 @@ class Main extends State {
     
     // update is called by femto.Game every frame
     void update(){
-        
+
+        // Keep the stream updated
+        Stream.update();
+
         // Change to a new state when A is pressed
         if( Button.A.justPressed() )
             Game.changeState( new Main() );
