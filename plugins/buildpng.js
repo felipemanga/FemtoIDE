@@ -41,7 +41,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                             ctx.drawImage(img, 0, 0);
                             let imgData = ctx.getImageData( 0, 0, img.width, img.height );
                             let name = buffer.name.replace(/\..*/, '');
-                            let str = convert( imgData, settings.palette, name );
+                            let str = convert( imgData, settings, name );
                             let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, '.h'), false);
                             target.data = str;
                             target.modified = true;
@@ -60,11 +60,16 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         }
 
         convertImage( imgData, palette, name ){
+            if( Array.isArray(palette) ){
+                palette = {palette};
+            }
             return convert(imgData, palette);
         }
     });
 
-    function convert( img, palette, name ){
+    function convert( img, settings, name ){
+        let transparentIndex = settings.transparent|0;
+        let palette = settings.palette;
         let out;
         let bpp = (Math.log(palette.length) / Math.log(2))|0;
 
@@ -111,7 +116,9 @@ ${img.width}, ${img.height}`;
                     closest = PCC;
                 } else if( A > 128 || !transparent ) {
                     
-                    for( let c=transparent|0; c<max; ++c ){
+                    for( let c=0; c<max; ++c ){
+                        if( transparent && c == transparentIndex )
+                            continue;
                         const ca = palette[c];
                         const PR = ca[0]|0;
                         const PG = ca[1]|0;
@@ -129,6 +136,8 @@ ${img.width}, ${img.height}`;
                     
                     PC = C;
                     PCC = closest;
+                }else{
+                    closest = transparentIndex;
                 }
 
                 let shift = (ppb - 1 - x%ppb) * bpp;
