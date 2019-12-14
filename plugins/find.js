@@ -30,20 +30,34 @@ APP.addPlugin("Find", [], _=>{
             let container = this.container = DOC.create("div", frame, {
                 className:"FindContainer"
             }, [
-                ["input", {
-                    onchange:ex=>{
-                        if( ex.target.value )
-                            this.regexSearch(ex.target.value);
-                        else
-                            this.hideFindResults();
-                    }
-                }]
+                ["div", {className:"FindHeader"}, [
+                    ["span", {
+                        html:"&#8999;",
+                        onclick:_=>APP.clearSearch(),
+                        style:{
+                            float: "right",
+                            cursor: "pointer"
+                        }
+                    }],
+                    ["input", {
+                        onchange:ex=>{
+                            if( ex.target.value )
+                                this.regexSearch(ex.target.value);
+                            else
+                                this.hideFindResults();
+                        }
+                    }]/*,
+                    ["input", {
+                        id:"replacement"
+                    }]*/
+                ]],
+                ["div", {className:"FindBody"}]
             ]);
 
             this.list = DOC.create(
                 "ul",
                 {className:"FindList"},
-                container
+                DOC.index(container).FindBody[0]
             );
 
             this.DOM = DOC.index(container);
@@ -66,16 +80,19 @@ APP.addPlugin("Find", [], _=>{
             APP.onResize();
         }
 
-        clearSearch(){
+        _removeSearchResults(){
             while( this.list.children.length )
                 this.list.removeChild( this.list.lastChild );
+        }
+
+        clearSearch(){
+            this.DOM.INPUT[0].value = "";
             this.hideFindResults();
         }
 
         regexSearch(exp, flags){
             let results = 0;
-            APP.clearSearch();
-
+            this._removeSearchResults();
             this.showFindResults();
 
             try{

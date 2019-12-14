@@ -532,25 +532,23 @@ class Chrome {
 
     _renderChromeItem( name, optionMessage ){
         let menu = this.menus[ name ];
-        if( !menu )
-		{
+
+        if( !menu ){
             this.menus[name] = menu = DOC.create("div", document.querySelector(".chrome"), {
-                    className:"menu",
-                    onblur:()=>{menu.show=true;},
-                    onfocus:()=>{menu.show=false;},
-                    tabIndex:this.count++
-                });
-				
-			DOC.create("div", menu, {
-                    className:"menubtn",
-                    html:name==" femto"?"<img alt=' &#x1f175;' src='images/femto-icon2.png' width='20' height='20'>":name,
-                    onclick:()=>{if(menu.show ){ menu.blur();}else menu.show=true;},
-                });
- 
+                className:"menu",
+                onblur:()=>{menu.show=true;},
+                onfocus:()=>{menu.show=false;},
+                tabIndex:this.count++
+            });
+	    
+	    DOC.create("div", menu, {
+                className:"menubtn",
+                html:name==" femto"?"<img alt=' &#x1f175;' src='images/femto-icon2.png' width='20' height='20'>":name,
+                onclick:()=>{if(menu.show ){ menu.blur();}else menu.show=true;},
+            });
 
             menu.el=DOC.create("div", menu, {className:"dropdown"});
-
-		}
+	}
 
         for( let key in optionMessage ){
 	    let el = menu[ key ];

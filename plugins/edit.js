@@ -35,6 +35,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
 
         queryMenus(){
             APP.addMenu("Edit", {
+                "Find In Project":"search",
                 "Cut":"cut",
                 "Copy":"copy",
                 "Paste":"paste",

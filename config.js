@@ -13,6 +13,7 @@ APP.bindKeys("global", {
     "C-o":APP.focusFilter,
     "M-c g":APP.displayGeneratedCPP,
     "F1": APP.help,
+    "F3": APP.search,
     "F4": APP.stopEmulator,
     "F5": APP.debug,
     "S-F5": APP.debugJLink,
