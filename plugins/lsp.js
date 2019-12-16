@@ -154,8 +154,15 @@ APP.addPlugin("LSP", [], _=> {
                     if( buffer.length - header[0].length < length )
                         return;
 
-                    let msg = buffer.substr(header.index + header[0].length, length);
-                    buffer = buffer.substr(header.index + header[0].length + length);
+                    const headerLength = header[0].length;
+                    const bodyStart = header.index + headerLength;
+                    const msg = nw.Buffer.from(buffer, "utf-8")
+                        .slice(bodyStart, bodyStart + length)
+                        .toString();
+
+                    buffer = nw.Buffer.from(buffer, "utf-8")
+                        .slice(bodyStart + length)
+                        .toString();
 
                     let json;
                     try{
