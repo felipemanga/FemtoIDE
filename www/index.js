@@ -141,6 +141,8 @@ class Frame {
             DOC.create( ...frameSeparator, parent );
         
         this.currentFrame = DOC.create( ...frameLayout, parent );
+
+        APP.onCreateFrame( this.currentFrame, parent );
         
         return this.currentFrame;
 
@@ -227,9 +229,13 @@ class Frame {
         
     }
 
+    getCurrentFrame(){
+        return this.currentFrame;
+    }
+
     displayBuffer( buffer ){
         if( !buffer )
-            return;
+            return undefined;
         
         if( !this.currentFrame )
             APP.createFrameInParent(document.querySelector("#contents"));
