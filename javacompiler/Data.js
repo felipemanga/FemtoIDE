@@ -361,8 +361,48 @@ module.exports.Data = {
             "pointer",
             extension,
             [],
-            {rawData:data}
+            {rawData:data, type:"pointer", stride:0}
         ).isStatic = true;
+
+        const params = [
+            new Field(
+                null,
+                ["int"],
+                "index",
+                false,
+                null,
+                this
+            )
+        ];
+
+        this.addArtificial(
+            "byte",
+            "getByte",
+            params,
+            {rawData:data, type:"up_java::up_lang::uc_byte", stride:1, source:extension}
+        ).isStatic = true;
+
+        this.addArtificial(
+            "short",
+            "getShort",
+            params,
+            {rawData:data, type:"up_java::up_lang::uc_short", stride:2, source:extension}
+        ).isStatic = true;
+
+        this.addArtificial(
+            "int",
+            "getInt",
+            params,
+            {rawData:data, type:"up_java::up_lang::uc_int", stride:4, source:extension}
+        ).isStatic = true;
+
+        this.addArtificial(
+            "float",
+            "getFloat",
+            params,
+            {rawData:data, type:"up_java::up_lang::uc_float", stride:4, source:extension}
+        ).isStatic = true;
+        
     }
     
 };

@@ -142,6 +142,8 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         cut(){
+            if( !this.ace.isFocused() )
+                return;
             let range = this.ace.selection.getRange();
             let text = this.ace.session.getTextRange( range );
             this.ace.session.replace( range, "" );
@@ -149,12 +151,16 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         copy(){
+            if( !this.ace.isFocused() )
+                return;
             let range = this.ace.selection.getRange();
             let text = this.ace.session.getTextRange( range );
             nw.Clipboard.get().set(text, "text");
         }
 
         paste(){
+            if( !this.ace.isFocused() )
+                return;
             let range = this.ace.selection.getRange();
             this.ace.selection.clearSelection();
             this.ace.session.replace(range, "");

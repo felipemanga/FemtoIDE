@@ -471,8 +471,8 @@ class Keys {
         
         if( key == 16 || key == 17 || key == 18 ) // Shift/Ctrl/Alt
             return;
-        
-        if( evt.ctrlKey ) key |= MOD_C;
+
+        if( evt.ctrlKey || evt.metaKey ) key |= MOD_C;
         if( evt.altKey ) key |= MOD_M;
         if( evt.shiftKey ) key |= MOD_S;
 
