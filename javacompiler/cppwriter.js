@@ -1934,13 +1934,18 @@ function assertType( type, test, location ){
     }
 }
 
-function writeRawData( data ){
-    let out = "static const uint8_t d[] = {\n";
-    for( let i=0; i<data.length; ++i ){
-        out += `0x` + data[i].toString(16) + ",";
+function writeRawData( block ){
+    if( !block.source ){
+        const data = block.rawData;
+        let out = "static const uint8_t d[] __attribute__ ((aligned (4))) = {\n";
+        for( let i=0; i<data.length; ++i ){
+            out += `0x` + data[i].toString(16) + ",";
+        }
+        out += "\n};\nreturn d;\n";
+        return out;
+    }else{
+        return `return static_cast<const ${block.type}*>(${block.source}())[index];`;
     }
-    out += "\n};\nreturn d;\n";
-    return out;
 }
 
 function writeStreamData( data, index, end ){
@@ -1982,7 +1987,7 @@ function writeBlock( block ){
         out += require("./cppSprite.js")( block );
 
     if( block.rawData )
-        out += writeRawData( block.rawData );
+        out += writeRawData( block );
 
     if( block.stream )
         out += writeStreamData( block.stream, block.index, block.endOfData|0 );
