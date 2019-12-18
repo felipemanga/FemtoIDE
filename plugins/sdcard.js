@@ -3,7 +3,8 @@ Object.assign(encoding, {
 });
 
 APP.addPlugin("SDCard", [], _=>{
-    let fatfs = require("fatfs");
+    const fs = require("fs");
+    const fatfs = require("fatfs");
     
     let image, imagePath, nonzero;
     fs.readFile("www/blank.img", (err, data)=>{
@@ -65,15 +66,66 @@ APP.addPlugin("SDCard", [], _=>{
     class SDCard {
 
         pollBufferMeta( buffer, meta ){
-            if( buffer.type != "directory" )
-                meta.sdcard = {
-                    type:"bool",
-                    label:"Copy to SD",
-                    default: false
-                };
+            if( buffer.path==DATA.projectPath )
+                return;
+            meta.sdcard = {
+                type:"bool",
+                label:"Copy to SD",
+                default: false
+            };
         }
 
         ["make-img"]( files, cb ){
+            function copyFile(filePath, pending)
+            {
+
+                let rpath = filePath.substr(DATA.projectPath.length);
+                rpath = rpath.split(path.sep);
+                let pathDir="";
+     
+                for( let i=1;i<rpath.length-1;i++ ){
+                    pathDir+=rpath[i]+"/";
+                }
+
+                fs.readFile( filePath, (err, data)=>{
+                    ffs.writeFile(
+                        pathDir+rpath[rpath.length-1],
+                        data,
+                        err =>{
+                            pending.done();
+                        });
+                    
+                });
+                pending.start();
+            }
+
+            function copyDirectory(dirPath, pending)
+            {
+ 
+                let rpath = dirPath.substr(DATA.projectPath.length);
+                rpath = rpath.split(path.sep);
+                let pathDir="";
+     
+                for( let i=1;i<rpath.length;i++ ){
+                    pathDir+=rpath[i]+"/";
+                }
+
+                ffs.mkdir(pathDir,
+                    err =>{
+                        
+                    });
+                
+                fs.readdirSync(dirPath).map((fileName)=>{
+                        const filePath = dirPath+path.sep+fileName;
+                        const stat=fs.statSync(filePath);
+                        
+                        if(stat.isFile())
+                            copyFile(filePath, pending);
+                        if(stat.isDirectory())
+                            copyDirectory(filePath, pending);
+                });
+            }
+
             let meta = DATA.project.meta;
             if( !meta ){
                 cb();
@@ -102,11 +154,17 @@ APP.addPlugin("SDCard", [], _=>{
                 let rpath = file.path
                     .substr(DATA.projectPath.length);
 
-                if( !meta[rpath] || !meta[rpath].sdcard || file.type == "directory" )
+                if( !meta[rpath] || !meta[rpath].sdcard )
                     return;
-                
-                rpath = rpath.split(path.sep);
 
+                if(file.type == "directory" )
+                {
+                    copyDirectory(file.path, pending);
+                    return;
+                }
+
+                rpath = rpath.split(path.sep);
+     
                 APP.readBuffer( file, null, (err, data)=>{
 
                     ffs.writeFile(
