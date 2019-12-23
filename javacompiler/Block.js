@@ -3,6 +3,7 @@ const getLocation = require("./getLocation.js");
 
 class Block {
     constructor( node, scope ){
+        this.localIndex = {};
         this.locals = [];
         this.init = [];
         this.statements = [];
@@ -94,6 +95,13 @@ class Block {
                             varDeclNode.children
                             .variableDeclaratorId[0]
                            );
+
+                if( this.localIndex[ field.name ] ){
+                    const {StdError} = require("./StdError.js");
+                    StdError.throwError(field.location, `Redeclaration of local variable ${field.name}`);
+                }
+
+                this.localIndex[ field.name ]  = field;
 
                 this.locals.push( field );
                 this.statements.push( new Statement( varDeclNode, this ) );
