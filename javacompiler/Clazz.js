@@ -86,22 +86,6 @@ class Clazz extends Type {
         
     }
 
-    isOfType( other ){
-        if( other.getTarget )
-            other = other.getTarget();
-
-        if( this == other )
-            return true;
-
-        if( this.isNative || other.isNative )
-            return false;
-
-        if( this.extends && this.extends.name[0] != "__raw__" && this.extends.getTarget().isOfType(other) )
-            return true;
-
-        return this.implements.find( clazzref => clazzref.name[0] != "__stub__" && clazzref.getTarget().isOfType(other) );
-    }
-
     initClass( node ){
 
         if( node.children.normalClassDeclaration[0].children.superclass ){
