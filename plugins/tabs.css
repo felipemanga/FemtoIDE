@@ -1,0 +1,41 @@
+.TabBar {
+    background-color: #111;
+}
+
+.TabBar .hidden {
+    display: none !important;
+}
+
+.TabBar .Tab {
+    opacity: 0.25;
+    margin: 1px 1px 0px 1px;
+    border: solid 1px #888;
+    border-bottom: 0px;
+    background-color: #222;
+    color: #888;
+    display: inline-block;
+    padding: 1px;
+    border-radius: 0px 10px 0px 0px;
+}
+
+.TabBar .Tab .TabClose {
+    display: none;
+}
+
+.TabBar .Tab.focus .TabClose {
+    display: inline-block;
+}
+
+.TabBar .Tab.focus .TabClose:hover {
+    color: red;
+}
+
+.TabBar .Tab.focus {
+    opacity: 1;
+}
+
+.TabBar .Tab div {
+    display: inline-block;
+    cursor: pointer;
+    margin: 0 3px;
+}
