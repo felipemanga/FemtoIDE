@@ -90,7 +90,7 @@ APP.addPlugin("Tabs", [], _=>{
     APP.add(new class Tabs {
         
         displayBufferInFrame(buffer, frame){
-            if( frame.parentElement != contents )
+            if( !buffer || !buffer.path )
                 return;
 
             if( !container ){
