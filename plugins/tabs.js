@@ -16,7 +16,9 @@ APP.addPlugin("Tabs", [], _=>{
             this.DOM = DOC.index(DOC.create("div", parent, {className:"Tab"}, [
                 ["div", {
                     className:"TabLabel",
-                    onclick: _=>this.activate()
+                    onclick: evt=>{
+                        this.activate(evt.ctrlKey);
+                    }
                 }],
                 ["div", {
                     className:"TabClose",
@@ -49,10 +51,13 @@ APP.addPlugin("Tabs", [], _=>{
             }
         }
 
-        activate(){
+        activate(useAltView){
             if( !this.buffer )
                 return;
-            APP.displayBuffer(this.buffer);
+            if( !useAltView )
+                APP.displayBuffer(this.buffer);
+            else
+                APP.displayBufferInRightFrame(this.buffer);
         }
 
         setBuffer(buffer){

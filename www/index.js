@@ -120,6 +120,8 @@ class Frame {
         APP.add(this);
         this.currentSeparator = null;
         this.currentFrame = null;
+        this.rightFrame = null;
+        this.leftFrame = null;
     }
 
     focusSeparator( separator ){
@@ -250,7 +252,9 @@ class Frame {
     displayBufferInRightFrame( buffer, horizontal ){
         let currentFrame = this.currentFrame;
         const parent = document.querySelector("#contents");
-        const frame = APP.createFrameInParent(parent, horizontal);
+        let frame = this.rightFrame;
+        if( !frame )
+            frame = this.rightFrame = APP.createFrameInParent(parent, horizontal);
         let ret = APP.displayBufferInFrame( buffer, frame );
         this.currentFrame = currentFrame;
         return frame;
@@ -259,7 +263,9 @@ class Frame {
     displayBufferInLeftFrame( buffer, horizontal ){
         let currentFrame = this.currentFrame;
         const parent = document.querySelector("#contents");
-        const frame = APP.createFrameInParent(parent, horizontal);
+        let frame = this.leftFrame;
+        if( !frame )
+            frame = this.leftFrame = APP.createFrameInParent(parent, horizontal);
         frame.remove();
         parent.insertBefore( frame, currentFrame );
         this.currentFrame = currentFrame;
