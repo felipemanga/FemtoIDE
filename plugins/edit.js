@@ -3,8 +3,15 @@ APP.addPlugin("Edit", ["Project"], _=>{
     let index = 0;
     let ignore = false;
     
-    APP.add({
+    APP.add(new class Edit {
+        _filterBuffers(){
+            history = history.filter(x=>{
+                return DATA.buffers.find(b=>b.name == x);
+            });
+        }
+
         onDisplayBuffer(buffer){
+            this._filterBuffers();
             if( ignore ) return;
             if( index && history[index-1] == buffer.name ) return;
             history.length = index;
@@ -12,7 +19,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
             history.push(buffer.name);
             index = history.length;
             console.log(index, "History", history);
-        },
+        }
 
         goBack(){
             if( index <= 2 )
@@ -22,7 +29,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
             APP.displayBuffer(history[index-1]);
             ignore = false;
             console.log(index, "History", history);
-        },
+        }
 
         goForward(){
             if( index >= history.length )
@@ -31,7 +38,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
             APP.displayBuffer(history[index++]);
             ignore = false;
             console.log(index, "History", history);
-        },
+        }
 
         queryMenus(){
             APP.addMenu("Edit", {
