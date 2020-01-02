@@ -46,7 +46,7 @@ public class EXT {
     }
 
     public void write(boolean v){
-        STRB(LPC11U68.GPIO_BYTE + port*32 + pin, (byte) v);
+        STRB(LPC11U68.GPIO_BYTE + port*32 + pin, (ubyte) v);
     }
 
     public static final EXT PIN0 = new EXT(1, 19){
