@@ -349,6 +349,7 @@ function writeClassDecl( unit, type, dependencies ){
                     let trail = [];
                     let impl = t.resolve( [method.name], trail, x=>x.isMethod );
                     if( impl && impl.scope != t ){
+                        out += `/*BEGIN method ${method.uniqueId}*/\n`;
                         out += writeMethodSignature(
                             Object.assign({}, method, {isAbstract:false}),
                             false
@@ -364,6 +365,7 @@ function writeClassDecl( unit, type, dependencies ){
                             sep = ", ";
                         });
                         out += ' ); }\n';
+                        out += `\n/*END method ${method.uniqueId}*/\n`;
                     }
                 });
             });
@@ -622,7 +624,17 @@ function getReturnType( {methodName, method}, args, location ){
         return INT;
     }
 
-    let chosen = candidates[0];
+    let chosen = candidates.pop();
+
+    for(let better of candidates){
+        if( !better.parameters.find((param, i)=>{
+            return param.type.getTarget() != args[i].getTarget();
+        }) ){
+            chosen = better;
+            break;
+        }
+    }
+    
     currentMethod.dependencies[chosen.uniqueId] = chosen;
     return chosen.result;
 }
@@ -1723,6 +1735,10 @@ function writeStatement( stmt, block, noSemicolon ){
                     right = right.getTarget();
 
                 let left = method.result.getTarget();
+
+                if(!right.isOfType ){
+                    StdError.throwError(stmt.locatioin, Object.keys(right)); 
+                }
                 
                 if( !right.isOfType(left) && !isAssignableType(left, right) ){
                     StdError.throwError(stmt.location, `"${left.name} ${method.name}(...)" should not return ${right.name}.`);
@@ -2318,8 +2334,9 @@ function write( unit, main, plat, dbg ){
     });
 
     allMethods.forEach(method=>{
-        if(!method.isConstructor)
+        if(!method.isConstructor){
             method.propagateUseToDerived();
+        }
     });
 
     allMethods.forEach(method=>{
@@ -2338,7 +2355,7 @@ function write( unit, main, plat, dbg ){
         }
 
         let exp = new RegExp(`/\\*BEGIN method ${method.uniqueId}\\*/`, "g");
-        out = out.replace(exp, `/*[${Object.values(method.dependencies).map(m=>m.name).join(" ")}] ${method.name} usecount: ${method.useCount} *${cleanable?" ":""}/`);
+        out = out.replace(exp, `/*[${Object.values(method.dependencies).map(m=>writeMethodSignature(m, false, false)).join(" ")}] ${method.name} usecount: ${method.useCount} *${cleanable?" ":""}/`);
     });
 
     let end = fs.readFileSync( platformDir+"/end.cpp", "utf-8" );

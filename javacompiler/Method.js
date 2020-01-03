@@ -282,12 +282,51 @@ class Method {
     }
 
     propagateUseToDerived(){
-        let over = this.getOverridden();
-        while(over && !this.useCount){
-            if(over.useCount)
-                propagateUseToDependencies(this);
-            over = over.getOverridden();
+        // let over = this.getOverridden();
+        for( let over of this.getAllOverridden() ){
+            // while(over && !this.useCount){
+                if(over.useCount)
+                    propagateUseToDependencies(this);
+            // over = over.getOverridden();
         }
+    }
+
+    getAllOverridden(arr=[], scope=this.scope){
+        let other = scope.methods.find(method=>{
+            if(method == this)
+                return false;
+            if( method.name != this.name || method.parameters.length != this.parameters.length )
+                return false;
+            return !method.parameters.find(
+                (other, i)=>other.type.getTarget() != this.parameters[i].type.getTarget()
+            );
+        });
+
+        if(other)
+            arr.push(other);
+        
+        if(scope.extends){
+            let base = scope.extends.getTarget();
+            if(base)
+                this.getAllOverridden(arr, base);
+        }
+
+        if(scope.implements){
+            for( let baseRef of scope.implements ){
+                if( baseRef.name.length == 1 && (
+                    baseRef.name == "__stub__" ||
+                    baseRef.name == "__stub_only__" ||
+                    baseRef.name == "__raw__"
+                ))
+                    continue;
+
+                let base = baseRef.getTarget();
+                if(base)
+                    this.getAllOverridden(arr, base);
+            }
+        }
+
+        return arr;
     }
 
     getOverridden(){
