@@ -229,7 +229,7 @@ APP.addPlugin("Tree", [], _=>{
         setBufferColor(buffer, color){
             if( buffer != this.buffer )
                 return;
-            this.DOM.itemExpander[0].style.background = color;
+            this.DOM.__ROOT__.style.background = color;
         }
 
         setBufferAction(buffer, meta){

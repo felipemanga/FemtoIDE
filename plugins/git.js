@@ -18,12 +18,12 @@ APP.addPlugin("Git", ["Project"], _=>{
 
     const colorMap = {
         "ignored":"",
-        "unmodified":"#33AA00",
-        "*modified":"#AA3300",
-        "modified":"#AAAA00",
-        "*added":"#AA3300",
-        "added":"#AAAA00",
-        "*unmodified":"#11AA11"
+        "unmodified":"",
+        "*modified":"#552200",
+        "modified":"#555500",
+        "*added":"#552200",
+        "added":"#555500",
+        "*unmodified":"#115511"
     };
     
     function gitCommit( message ){
