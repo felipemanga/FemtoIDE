@@ -76,7 +76,8 @@ APP.addPlugin("Find", [], _=>{
         }
 
         hideFindResults(){
-            this.container.parentElement.style.display = "none";
+            APP.closeFrame(this);
+            // this.container.parentElement.style.display = "none";
             APP.onResize();
         }
 
@@ -160,8 +161,9 @@ APP.addPlugin("Find", [], _=>{
             if( !buffer ){
                 buffer = new Buffer();
                 buffer.name = "*Find View*";
-                APP.displayBufferInRightFrame(buffer);            
             }
+            
+            APP.displayBufferInRightFrame(buffer);            
 
         }
 

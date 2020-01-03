@@ -11,6 +11,7 @@ APP.addPlugin("Tabs", [], _=>{
     class Tab {
         constructor(parent){
             APP.add(this);
+            this.count = 0;
             this.age = 0;
             this.buffer = null;
             this.DOM = DOC.index(DOC.create("div", parent, {className:"Tab"}, [
@@ -22,13 +23,25 @@ APP.addPlugin("Tabs", [], _=>{
                 }],
                 ["div", {
                     className:"TabClose",
-                    onclick: _=>this.setBuffer(null),
+                    onclick: _=>this._close(),
                     html:"&#8999;"
                 }]
             ]));
             this.el = this.DOM.TabLabel[0];
             this.root = this.DOM.__ROOT__;
             this.hide();
+        }
+
+        _close(){
+            if(!this.buffer)
+                return;
+            
+            this.buffer.views.forEach(v=>{
+                if( v.frame != null )
+                    APP.closeFrame(v.view);
+            });
+
+            this.setBuffer(null);
         }
 
         onOpenProject(){
@@ -43,12 +56,29 @@ APP.addPlugin("Tabs", [], _=>{
             this.hide();
         }
 
-        onDisplayBuffer( buffer ){
-            if( buffer == this.buffer ){
-                this.focus();
-            }else{
+        updateCount(inc){
+            this.count += inc;
+
+            if( this.count <= 0 ){
+
                 this.blur();
+                this.count = 0;
+
+            }else{
+
+                this.focus();
+
             }
+        }
+
+        onAttachView( view ){
+            if( this.buffer && this.buffer.views.find(v=>v.view == view) )
+                this.updateCount(1);
+        }
+
+        onDetachView( view ){
+            if( this.buffer && this.buffer.views.find(v=>v.view == view) )
+                this.updateCount(-1);
         }
 
         activate(useAltView){
@@ -69,6 +99,8 @@ APP.addPlugin("Tabs", [], _=>{
                 }
                 this.el.textContent = name;
                 this.show();
+                this.count = 0;
+                this.updateCount(1);
             }else{
                 this.hide();
             }

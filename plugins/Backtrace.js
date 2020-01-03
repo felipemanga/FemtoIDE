@@ -128,7 +128,8 @@ APP.addPlugin("Backtrace", [], _=>{
         }
 
         onDebugStopped(){
-            this.container.parentElement.style.display = "none";
+            APP.closeFrame(this);
+            // this.container.parentElement.style.display = "none";
             APP.onResize();
             this.stale = true;
         }
@@ -152,8 +153,9 @@ APP.addPlugin("Backtrace", [], _=>{
             if( !buffer ){
                 buffer = new Buffer();
                 buffer.name = "*Backtrace View*";
-                APP.displayBufferInRightFrame(buffer);            
             }
+            
+            APP.displayBufferInRightFrame(buffer);            
 
         }
 

@@ -137,7 +137,8 @@ APP.addPlugin("Profiler", [], _=>{
         }
 
         onEmulatorStopped(){
-            this.container.parentElement.style.display = "none";
+            APP.closeFrame(this);
+            // this.container.parentElement.style.display = "none";
             APP.onResize();
             this.stale = true;
         }
@@ -222,8 +223,9 @@ APP.addPlugin("Profiler", [], _=>{
                 buffer = new Buffer();
                 buffer.name = "*Profiler View*";
                 buffer.data = data;
-                APP.displayBufferInRightFrame(buffer);            
             }
+
+            APP.displayBufferInRightFrame(buffer);            
 
         },
 

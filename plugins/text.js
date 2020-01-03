@@ -37,6 +37,11 @@ APP.addPlugin("Text", ["Project"], _=>{
                 this.ace.resize(true);
             });
         }
+
+        onCloseFrame(){
+            this.onResize();
+        }
+        
 /*
         onCommandStarted(){
             this.ace.setReadOnly(true);

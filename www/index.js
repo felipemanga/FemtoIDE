@@ -138,10 +138,10 @@ class Frame {
     createFrameInParent( parent, horizontal ){
         
         if( !parent ) return null;
-        
+/*        
         if( parent.childElementCount )
             DOC.create( ...frameSeparator, parent );
-        
+*/        
         this.currentFrame = DOC.create( ...frameLayout, parent );
 
         APP.onCreateFrame( this.currentFrame, parent );
@@ -233,6 +233,37 @@ class Frame {
 
     getCurrentFrame(){
         return this.currentFrame;
+    }
+
+    closeFrame(view){
+        let frame = null;
+        DATA.buffers.forEach( b => {
+            b.views.forEach( v => {
+                if( v.view != view )
+                    return;
+
+                frame = v.frame;
+                if( !frame )
+                    return;
+
+                v.frame = null;
+                if( v.view.detach )
+                    v.view.detach();
+                APP.onDetachView(v.view, b);
+            });
+        });
+
+        if( frame == this.rightFrame )
+            this.rightFrame = null;
+        else if( frame == this.leftFrame )
+            this.leftFrame = null;
+        else{
+            APP.goBack();
+            return;
+        }
+
+        frame.remove();
+        APP.onCloseFrame(frame);
     }
 
     displayBuffer( buffer ){
