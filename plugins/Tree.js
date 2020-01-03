@@ -1,5 +1,9 @@
 APP.addPlugin("Tree", [], _=>{
-
+    document.body.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+    
     function makeAction( meta ){
         let parent = this.DOM.actions;
         
@@ -61,19 +65,8 @@ APP.addPlugin("Tree", [], _=>{
                 { className:"item " + buffer.type + " " + (depth == 1 ? "open" : "closed")},
                 [
                     ["div", {id:"itemContainer"}, [
-                        ["button", {
-                            className: "itemExpander",
-                            text: " ",
-                            onclick:_=>{
-                                let isExpanded = this.DOM.__ROOT__.classList.contains("expand");
-                                APP.hideTreeActions();
-                                
-                                if( !isExpanded )
-                                    this.DOM.__ROOT__.classList.add("expand");
-                            }
-                        }],
                         ["div", { style:{marginLeft:(depth*15)+"px"}, id:"line", title:buffer.path,
-                            onclick:_=>{
+                            onclick:evt=>{
                                 this.DOM.__ROOT__.classList.toggle("closed");
                                 this.DOM.__ROOT__.classList.toggle("open");
                                 this.isOpen=!this.isOpen;
@@ -121,8 +114,19 @@ APP.addPlugin("Tree", [], _=>{
                         
                     },
                     
-                    click:_=>{
+                    click:evt=>{
                         APP.displayBuffer( this.buffer );
+                    },
+
+                    mousedown:evt=>{
+                        if( evt.button != 2 )
+                            return;
+                        
+                        let isExpanded = this.DOM.__ROOT__.classList.contains("expand");
+                        APP.hideTreeActions();
+                        
+                        if( !isExpanded )
+                            this.DOM.__ROOT__.classList.add("expand");
                     }
                 }
             } );
