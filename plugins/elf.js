@@ -120,9 +120,39 @@ APP.addPlugin("Elf", [], _ => {
         attach(){
             this.NM(16)
                 .then(({flash, ram})=>{
-                    this._update(flash, this.flashConfig, this.flashChart);
-                    this._update(ram, this.ramConfig, this.ramChart);
+                    this._update(
+                        flash,
+                        this.flashConfig,
+                        this.flashChart
+                    );
+
+                    this._updateLabel(
+                        flash, 
+                        this.DOM.flashLabel,
+                        220*1024
+                    );
+                    
+                    this._update(
+                        ram,
+                        this.ramConfig,
+                        this.ramChart
+                    );
+
+                    this._updateLabel(
+                        ram, 
+                        this.DOM.ramLabel,
+                        32*1024
+                    );
                 });
+        }
+
+        _updateLabel( data, label, max ){
+            let acc = data.reduce((a, v)=>a+v.size, 0);
+            let txt = label.textContent.replace(/\s.*/, "");
+            txt += " ";
+            txt += Math.floor(acc * 1000 / max) / 10;
+            txt += "%";
+            label.textContent = txt;
         }
 
         _update(data, config, chart){
