@@ -106,14 +106,15 @@ public class Sprite implements __stub__ {
         float y = this.y;
         boolean mirror = (flags&2) != 0;
         boolean flip = (flags&4) != 0;
-
+        int recolor = getRecolor();
+        
         if( (flags&1) == 0 ){
             x -= screen.cameraX;
             y -= screen.cameraY;
         }
 
         __inline_cpp__("
-const auto pal = screen->palette->elements + (getRecolor()<<4);
+const auto pal = screen->palette->elements + (recolor<<4);
 const auto &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_HiRes16Color*)nullptr);
 int frameWidth = ((char*)f.frame)[0];
 int frameHeight= ((char*)f.frame)[1];

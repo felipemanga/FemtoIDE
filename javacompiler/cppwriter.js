@@ -365,6 +365,10 @@ function writeClassDecl( unit, type, dependencies ){
                             sep = ", ";
                         });
                         out += ' ); }\n';
+
+                        impl.dependencies[ method.uniqueId ] = method;
+                        method.dependencies[ impl.uniqueId ] = impl;
+
                         out += `\n/*END method ${method.uniqueId}*/\n`;
                     }
                 });
