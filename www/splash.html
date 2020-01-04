@@ -46,11 +46,11 @@
          }
 
          #bg {
-             left: 15%;
-             top: 25%;
+             bottom: 0;
+             right: 0;
              background-color: rgba(255,255,255,0.6);
              position: fixed;
-             width: 70%;
+             width: 30%;
              animation: fadein 2s forwards;
          }
 
@@ -60,13 +60,15 @@
          }
 
          h2 {
-             margin-top: 0.1em;
+             margin: 0.1em;
+             font-size: 2.5em;
          }
 
         </style>
     </head>
-    <body>
-        <script>
+    <body style="background-image: url(splash.png)">
+      <script>
+        /*
          const video = document.createElement("video");
          const source = document.createElement("source");
          video.setAttribute("width", "100%");
@@ -77,10 +79,11 @@
          video.appendChild(source);
          document.body.appendChild(video);
          video.play();
+        */
         </script>
         <div id="bg">
-          <h1>FemtoIDE</h1>
-          <h2 id="version">Hangover Edition </h2>
+          <!--<h1>FemtoIDE</h1>-->
+          <h2 id="version"></h2>
         </div>
         <script>
           version.textContent += require("../package.json").version;
