@@ -21,6 +21,10 @@ APP.addPlugin("Profiler", [], _=>{
             this._update();
         }
 
+        attach(){
+            this._update();
+        }
+
         _update(){
             if( !socket )
                 return;

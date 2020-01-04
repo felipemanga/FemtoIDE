@@ -253,6 +253,9 @@ class Frame {
             });
         });
 
+        if( !frame )
+            return;
+
         if( frame == this.rightFrame )
             this.rightFrame = null;
         else if( frame == this.leftFrame )
