@@ -1,5 +1,5 @@
 APP.addPlugin("Tabs", [], _=>{
-    if( !DATA.enableTabs ){
+    if( DATA.enableTabs === false ){
         return;
     }
 
