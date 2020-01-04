@@ -153,8 +153,16 @@ class Frame {
     openExternally( buffer ){
         let cmd;
         if( DATA.os == "windows" ){
-            if( buffer.type == "directory" ) cmd = "explorer";
-            else cmd = "start";
+            if( buffer.type == "directory" ){
+                APP.spawn("start", {cwd:buffer.path}, ".");
+            }else{
+                APP.spawn(
+                    "start",
+                    {cwd:path.dirname(buffer.path)},
+                    path.basename(buffer.path)
+                );
+            }
+            return;
         }else if( DATA.os == "linux" ){
             cmd = "xdg-open";
         }else if( DATA.os == "darwin" ){
