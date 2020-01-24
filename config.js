@@ -61,7 +61,10 @@ let platform = process
     .platform
     .toLowerCase()
     .startsWith("win") ? "windows" : process.platform.toLowerCase();
+
 APP.customSetVariables({
+    "enableTabs":true,
+    "maxTabWidth":16,
     "verbose":false,
     "aceTheme":"ace/theme/monokai",
     "projectsPath":platform == "darwin" ?

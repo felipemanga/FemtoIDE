@@ -7,7 +7,7 @@
 }
 
 .TabBar .Tab {
-    opacity: 0.25;
+    opacity: 0.5;
     margin: 1px 1px 0px 1px;
     border: solid 1px #888;
     border-bottom: 0px;

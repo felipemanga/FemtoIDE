@@ -18,7 +18,7 @@ APP.addPlugin("Tabs", [], _=>{
                 ["div", {
                     className:"TabLabel",
                     onclick: evt=>{
-                        this.activate(evt.ctrlKey);
+                        this.activate(evt.ctrlKey || evt.metaKey);
                     }
                 }],
                 ["div", {
@@ -94,7 +94,7 @@ APP.addPlugin("Tabs", [], _=>{
             this.buffer = buffer;
             if( buffer ){
                 let name = (buffer.name||"") + "";
-                if( name.length > 16 ){
+                if( name.length > ((DATA.maxTabWidth|0)||16) ){
                     name = name.substr(0, 3) + '...' + name.substr(name.length-6);
                 }
                 this.el.textContent = name;
