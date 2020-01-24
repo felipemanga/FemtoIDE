@@ -1,0 +1,1739 @@
+{
+	"lastBuffer": "Editor.html",
+	"PNGFlags": {
+		"ALL": [
+			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp"
+		]
+	},
+	"libs": {},
+	"SFlags": {
+		"Pokitto": [
+			"-I${projectPath}",
+			"-mcpu=cortex-m0plus",
+			"-mthumb"
+		]
+	},
+	"CPPFlags": {
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"RELEASE": [
+			"-Os"
+		],
+		"Pokitto": [
+			"-I${projectPath}",
+			"-DPOKITTO",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks",
+			"-fomit-frame-pointer",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wno-psabi",
+			"-Wno-conversion-null",
+			"-Wno-narrowing",
+			"-Wno-write-strings",
+			"-DTARGET_LPC11U68",
+			"-D__MBED__=1",
+			"-DDEVICE_I2CSLAVE=1",
+			"-DTARGET_LIKE_MBED",
+			"-DTARGET_NXP",
+			"-D__MBED_CMSIS_RTOS_CM",
+			"-DDEVICE_RTC=1",
+			"-DTOOLCHAIN_object",
+			"-D__CMSIS_RTOS",
+			"-DTOOLCHAIN_GCC",
+			"-DTARGET_CORTEX_M",
+			"-DTARGET_M0P",
+			"-DTARGET_UVISOR_UNSUPPORTED",
+			"-DDEVICE_SERIAL=1",
+			"-DDEVICE_INTERRUPTIN=1",
+			"-DTARGET_LPCTarget",
+			"-DTARGET_CORTEX",
+			"-DDEVICE_I2C=1",
+			"-D__CORTEX_M0PLUS",
+			"-DTARGET_FF_ARDUINO",
+			"-DTARGET_RELEASE",
+			"-DMBED_BUILD_TIMESTAMP=1526394586.66",
+			"-DARM_MATH_CM0PLUS",
+			"-DTARGET_LPC11U6X",
+			"-DDEVICE_SLEEP=1",
+			"-DTOOLCHAIN_GCC_ARM",
+			"-DDEVICE_SPI=1",
+			"-DDEVICE_ANALOGIN=1",
+			"-DDEVICE_PWMOUT=1",
+			"-DTARGET_LIKE_CORTEX_M0"
+		],
+		"Desktop": [
+			"-I${projectPath}",
+			"-DDESKTOP",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks"
+		],
+		"ALL": [
+			"-std=c++17"
+		]
+	},
+	"CFlags": {
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"RELEASE": [
+			"-Os"
+		],
+		"Pokitto": [
+			"-I${projectPath}",
+			"-DPOKITTO",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks",
+			"-fomit-frame-pointer",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wno-psabi",
+			"-Wwrite-strings",
+			"-DTARGET_LPC11U68",
+			"-D__MBED__=1",
+			"-DDEVICE_I2CSLAVE=1",
+			"-DTARGET_LIKE_MBED",
+			"-DTARGET_NXP",
+			"-D__MBED_CMSIS_RTOS_CM",
+			"-DDEVICE_RTC=1",
+			"-DTOOLCHAIN_object",
+			"-D__CMSIS_RTOS",
+			"-DTOOLCHAIN_GCC",
+			"-DTARGET_CORTEX_M",
+			"-DTARGET_M0P",
+			"-DTARGET_UVISOR_UNSUPPORTED",
+			"-DDEVICE_SERIAL=1",
+			"-DDEVICE_INTERRUPTIN=1",
+			"-DTARGET_LPCTarget",
+			"-DTARGET_CORTEX",
+			"-DDEVICE_I2C=1",
+			"-D__CORTEX_M0PLUS",
+			"-DTARGET_FF_ARDUINO",
+			"-DTARGET_RELEASE",
+			"-DMBED_BUILD_TIMESTAMP=1526394586.66",
+			"-DARM_MATH_CM0PLUS",
+			"-DTARGET_LPC11U6X",
+			"-DDEVICE_SLEEP=1",
+			"-DTOOLCHAIN_GCC_ARM",
+			"-DDEVICE_SPI=1",
+			"-DDEVICE_ANALOGIN=1",
+			"-DDEVICE_PWMOUT=1",
+			"-DTARGET_LIKE_CORTEX_M0"
+		],
+		"Desktop": [
+			"-I${projectPath}",
+			"-DDESKTOP",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-exceptions",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks"
+		],
+		"ALL": []
+	},
+	"GDBFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.elf"
+		]
+	},
+	"emuFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"ELF2BINFlags": {
+		"Pokitto": [
+			"-O",
+			"binary",
+			"${projectPath}/${projectName}.elf",
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"LDFlags": {
+		"RELEASE": [
+			"-Os"
+		],
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"Pokitto": [
+			"-Wl,--gc-sections",
+			"-Wl,-n",
+			"--specs=nano.specs",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wl,--undefined=g_pfnVectors",
+			"-Wl,--undefined=boot",
+			"-T",
+			"${appPath}/PokittoLib/Pokitto/mbed-pokitto/targets/cmsis/TARGET_NXP/TARGET_LPC11U6X/TOOLCHAIN_GCC_ARM/TARGET_LPC11U68/LPC11U68.ld",
+			"--output",
+			"${projectPath}/${projectName}.elf",
+			"$objectFiles",
+			"-Wl,--start-group",
+			"-lstdc++",
+			"-lsupc++",
+			"-lm",
+			"-lc",
+			"-lgcc",
+			"-lnosys",
+			"-Wl,--end-group"
+		]
+	},
+	"target": "Pokitto",
+	"pipelines": {
+		"Pokitto": [
+			"pre-build",
+			"img-to-c",
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin",
+			"make-img"
+		],
+		"Desktop": [
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin"
+		]
+	},
+	"meta": {
+		"/deploy.js": {
+			"sdcard": false
+		},
+		"": {},
+		"/PokittoMini.h": {
+			"sdcard": false
+		},
+		"/SystemInit.s": {
+			"sdcard": false
+		},
+		"/main.cpp": {
+			"sdcard": false
+		},
+		"/project.json": {
+			"sdcard": false
+		},
+		"/startup.cpp": {
+			"sdcard": false
+		},
+		"/converter.js": {
+			"sdcard": false
+		},
+		"/write_your_game_s_title_here.html": {
+			"sdcard": false
+		},
+		"/bitsy.html": {
+			"sdcard": false
+		},
+		"/bitsy": {
+			"sdcard": false
+		},
+		"/bitsy/CREDITS.md": {
+			"sdcard": false
+		},
+		"/bitsy/LICENSE.md": {
+			"sdcard": false
+		},
+		"/bitsy/README.md": {
+			"sdcard": false
+		},
+		"/bitsy/VERSION_NOTES.txt": {
+			"sdcard": false
+		},
+		"/bitsy/classic": {
+			"sdcard": false
+		},
+		"/bitsy/classic/bitsy.js": {
+			"sdcard": false
+		},
+		"/bitsy/classic/index.html": {
+			"sdcard": false
+		},
+		"/bitsy/dev": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resource_packager.js": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/bitsyfont": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/bitsyfont/arabic.bitsyfont": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/bitsyfont/ascii_small.bitsyfont": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/bitsyfont/unicode_asian.bitsyfont": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/bitsyfont/unicode_european_large.bitsyfont": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/bitsyfont/unicode_european_small.bitsyfont": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/defaultGameData.bitsy": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/export": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/localization.tsv": {
+			"sdcard": false
+		},
+		"/bitsy/editor": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/export/exportStyleFixed.css": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/export/exportTemplate.html": {
+			"sdcard": false
+		},
+		"/bitsy/dev/resources/export/exportStyleFull.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/font": {
+			"sdcard": false
+		},
+		"/bitsy/editor/icons": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image": {
+			"sdcard": false
+		},
+		"/bitsy/editor/index.html": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script": {
+			"sdcard": false
+		},
+		"/bitsy/editor/font/google-material-icons.woff2": {
+			"sdcard": false
+		},
+		"/bitsy/editor/font/google-nunito-latin.woff2": {
+			"sdcard": false
+		},
+		"/bitsy/editor/font/google-nunito-latinext.woff2": {
+			"sdcard": false
+		},
+		"/bitsy/editor/font/google-nunito-vietnamese.woff2": {
+			"sdcard": false
+		},
+		"/bitsy/editor/icons/bitsy.hqx": {
+			"sdcard": false
+		},
+		"/bitsy/editor/icons/bitsy.icns": {
+			"sdcard": false
+		},
+		"/bitsy/editor/icons/bitsy.ico": {
+			"sdcard": false
+		},
+		"/bitsy/editor/icons/bitsy.png": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/bitsy-itch-cover.png": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/bitsy.icns": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat.png": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat.svg": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat2.png": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat5.png": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/color_picker.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/dialog_editor.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/editor.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/event_manager.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/explorer.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/exporter.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/generated": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/bitsy.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/color_util.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/dialog.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/font.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/renderer.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/script.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/engine/transition.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/generated/resources.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/gif.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/inventory.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/localization.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/paint.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/palette.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/room.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/room_markers.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/script/util.js": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style": {
+			"sdcard": false
+		},
+		"/bitsy/experiments": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/colorPickerStyle.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/editorAnimations.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/editorButtons.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/editorColors.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/editorLanguageStyles.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/editorStyle.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/googleMaterialIcons.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/googleNunito.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/markerToolStyle.css": {
+			"sdcard": false
+		},
+		"/bitsy/editor/style/responsiveStyle.css": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/audio.html": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/bitsyscript_syntax.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/CommandsRun.bat": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/_READMEonHowToUseScripts.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/arabic2.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/bitsy-with-arabic.ttf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/bitsy-with-arabic.ttx": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/extra": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/ttx_to_bitsyfont.js": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/12x13ja.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/18x18ko.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/18x18ja.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/5x7.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/5x8.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/6x9.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/8x13.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/9x18.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/ascii-bitsy.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/bdfFontData.js": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/bdf_converter.js": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/bitsyFontData.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/bitsy_ascii_font.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/bitsy_default_font.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/to_bdf_converter.js": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/ucs_fixed_18x18ja.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/ucs_fixed_18x18ja_font.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/ucs_fixed_6x9_font.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/ucs_fixed_8x13_font.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/ucs_fixed_9x18.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bdf/unifont-10.0.07.bdf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/extra/ArTestGame.bitsy": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/extra/_READMEonHowToUseScripts.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/extra/bitsy-ar-2-26-2019-AllRaised3Pixels-Final.ttf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/arabic2-bitsy/extra/bitsy-ar-2-26-2019-UneditedFontstruct.zip": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bitmap2svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/font_files": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/ttf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/notes.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/old_notes_apr_5_19.js": {
+			"sdcard": false
+		},
+		"/bitsy/index.html": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bitmap2svg/bitmap2svg.js": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/bitmap2svg/font_module.js": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/font_files/bitsy_font.ttf": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+10.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+100.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+101.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+11.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+12.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+13.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+14.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+15.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+16.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+17.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+18.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+19.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+1f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+20.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+21.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+22.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+23.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+24.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+25.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+26.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+27.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+28.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+29.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+2f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+30.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+31.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+32.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+33.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+34.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+35.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+36.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+37.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+38.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+39.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+3f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+40.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+41.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+42.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+43.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+44.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+45.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+46.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+47.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+48.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+49.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+4f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+50.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+51.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+52.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+53.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+54.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+55.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+56.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+57.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+58.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+59.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+5f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+60.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+61.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+62.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+63.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+64.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+65.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+66.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+67.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+68.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+69.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+6f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+70.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+71.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+72.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+73.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+74.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+75.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+76.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+77.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+78.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+79.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+7f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+80.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+81.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+82.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+83.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+84.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+85.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+86.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+87.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+88.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+89.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+8f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+90.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+91.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+92.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+93.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+94.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+95.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+96.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+97.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+98.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+99.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+9f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+a9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+aa.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ab.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ac.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ad.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ae.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+af.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+b9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ba.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+bb.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+bc.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+bd.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+be.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+bf.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+c9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ca.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+cb.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+cc.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+cd.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ce.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+cf.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+d9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+da.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+db.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+dc.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+dd.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+de.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+df.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+e9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ea.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+eb.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ec.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ed.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ee.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ef.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f0.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f1.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f2.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f3.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f4.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f5.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f6.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f7.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f8.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+f9.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+fa.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+fb.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+fc.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+fd.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+fe.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/svg_characters/U+ff.svg": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/ttf/arabic.ttx": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/ttf/arabic.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/ttf/bitsy-with-arabic.ttx": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/ttf/bitsy-with-arabic.txt": {
+			"sdcard": false
+		},
+		"/bitsy/experiments/font/ttf/ttx_to_bitsyfont.js": {
+			"sdcard": false
+		},
+		"/index.html": {
+			"sdcard": false
+		},
+		"/font": {
+			"sdcard": false
+		},
+		"/font/google-material-icons.woff2": {
+			"sdcard": false
+		},
+		"/font/google-nunito-latin.woff2": {
+			"sdcard": false
+		},
+		"/font/google-nunito-latinext.woff2": {
+			"sdcard": false
+		},
+		"/font/google-nunito-vietnamese.woff2": {
+			"sdcard": false
+		},
+		"/icons": {
+			"sdcard": false
+		},
+		"/image": {
+			"sdcard": false
+		},
+		"/script": {
+			"sdcard": false
+		},
+		"/style": {
+			"sdcard": false
+		},
+		"/icons/bitsy.hqx": {
+			"sdcard": false
+		},
+		"/icons/bitsy.icns": {
+			"sdcard": false
+		},
+		"/icons/bitsy.ico": {
+			"sdcard": false
+		},
+		"/icons/bitsy.png": {
+			"sdcard": false
+		},
+		"/image/bitsy-itch-cover.png": {
+			"sdcard": false
+		},
+		"/image/bitsy.icns": {
+			"sdcard": false
+		},
+		"/image/cat.png": {
+			"sdcard": false
+		},
+		"/image/cat.svg": {
+			"sdcard": false
+		},
+		"/image/cat2.png": {
+			"sdcard": false
+		},
+		"/image/cat5.png": {
+			"sdcard": false
+		},
+		"/script/color_picker.js": {
+			"sdcard": false
+		},
+		"/script/dialog_editor.js": {
+			"sdcard": false
+		},
+		"/script/editor.js": {
+			"sdcard": false
+		},
+		"/script/engine": {
+			"sdcard": false
+		},
+		"/script/event_manager.js": {
+			"sdcard": false
+		},
+		"/script/explorer.js": {
+			"sdcard": false
+		},
+		"/script/exporter.js": {
+			"sdcard": false
+		},
+		"/script/generated": {
+			"sdcard": false
+		},
+		"/script/gif.js": {
+			"sdcard": false
+		},
+		"/script/inventory.js": {
+			"sdcard": false
+		},
+		"/script/localization.js": {
+			"sdcard": false
+		},
+		"/script/paint.js": {
+			"sdcard": false
+		},
+		"/script/palette.js": {
+			"sdcard": false
+		},
+		"/script/room.js": {
+			"sdcard": false
+		},
+		"/script/room_markers.js": {
+			"sdcard": false
+		},
+		"/script/util.js": {
+			"sdcard": false
+		},
+		"/style/colorPickerStyle.css": {
+			"sdcard": false
+		},
+		"/style/editorAnimations.css": {
+			"sdcard": false
+		},
+		"/style/editorButtons.css": {
+			"sdcard": false
+		},
+		"/style/editorColors.css": {
+			"sdcard": false
+		},
+		"/style/editorLanguageStyles.css": {
+			"sdcard": false
+		},
+		"/style/editorStyle.css": {
+			"sdcard": false
+		},
+		"/style/googleMaterialIcons.css": {
+			"sdcard": false
+		},
+		"/style/responsiveStyle.css": {
+			"sdcard": false
+		},
+		"/style/markerToolStyle.css": {
+			"sdcard": false
+		},
+		"/script/engine/bitsy.js": {
+			"sdcard": false
+		},
+		"/script/engine/dialog.js": {
+			"sdcard": false
+		},
+		"/script/engine/font.js": {
+			"sdcard": false
+		},
+		"/script/engine/color_util.js": {
+			"sdcard": false
+		},
+		"/script/engine/renderer.js": {
+			"sdcard": false
+		},
+		"/script/engine/script.js": {
+			"sdcard": false
+		},
+		"/script/engine/transition.js": {
+			"sdcard": false
+		},
+		"/script/generated/resources.js": {
+			"sdcard": false
+		},
+		"/style/googleNunito.css": {
+			"sdcard": false
+		},
+		"/LICENSE.md": {
+			"sdcard": false
+		},
+		"/engine.js": {
+			"sdcard": false
+		},
+		"/game.html": {
+			"sdcard": false
+		},
+		"/bitsy.h": {
+			"sdcard": false
+		},
+		"/Functions.hpp": {
+			"sdcard": false
+		},
+		"/Node.hpp": {
+			"sdcard": false
+		},
+		"/bitsyTypes.hpp": {
+			"sdcard": false
+		},
+		"/icons/bitsy.h": {
+			"sdcard": false
+		},
+		"/image/bitsy-itch-cover.h": {
+			"sdcard": false
+		},
+		"/image/cat.h": {
+			"sdcard": false
+		},
+		"/image/cat2.h": {
+			"sdcard": false
+		},
+		"/image/cat5.h": {
+			"sdcard": false
+		},
+		"/bitsy/editor/icons/bitsy.h": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/bitsy-itch-cover.h": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat.h": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat2.h": {
+			"sdcard": false
+		},
+		"/bitsy/editor/image/cat5.h": {
+			"sdcard": false
+		},
+		"/print.hpp": {
+			"sdcard": false
+		},
+		"/compat.h": {
+			"sdcard": false
+		},
+		"/DirectPrint.h": {
+			"sdcard": false
+		},
+		"/BitsyProject.elf": {
+			"sdcard": false
+		},
+		"/BitsyProject.bin": {
+			"sdcard": false
+		},
+		"/Direct.h": {
+			"sdcard": false
+		},
+		"/bitsyTypes.h": {
+			"sdcard": false
+		},
+		"/script/editor.js~": {
+			"sdcard": false
+		},
+		"/script/#editor.js#": {
+			"sdcard": false
+		},
+		"/source": {
+			"sdcard": false
+		},
+		"/source/bitsy.h": {
+			"sdcard": false
+		},
+		"/source/bitsyTypes.h": {
+			"sdcard": false
+		},
+		"/source/compat.h": {
+			"sdcard": false
+		},
+		"/source/converter.js": {
+			"sdcard": false
+		},
+		"/source/Direct.h": {
+			"sdcard": false
+		},
+		"/source/engine.js": {
+			"sdcard": false
+		},
+		"/source/Functions.hpp": {
+			"sdcard": false
+		},
+		"/source/game.html": {
+			"sdcard": false
+		},
+		"/source/index.html": {
+			"sdcard": false
+		},
+		"/source/LICENSE.md": {
+			"sdcard": false
+		},
+		"/source/main.cpp": {
+			"sdcard": false
+		},
+		"/source/Node.hpp": {
+			"sdcard": false
+		},
+		"/source/PokittoMini.h": {
+			"sdcard": false
+		},
+		"/source/print.hpp": {
+			"sdcard": false
+		},
+		"/source/project.json~": {
+			"sdcard": false
+		},
+		"/source/startup.cpp": {
+			"sdcard": false
+		},
+		"/source/SystemInit.s": {
+			"sdcard": false
+		},
+		"/script/converter.js": {
+			"sdcard": false
+		},
+		"/Editor.html": {
+			"sdcard": false
+		},
+		"/out.js": {
+			"sdcard": false
+		},
+		"/game_files": {
+			"sdcard": false
+		},
+		"/game_files/02.mp3": {
+			"sdcard": false
+		}
+	}
+}

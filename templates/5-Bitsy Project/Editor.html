@@ -1,0 +1,1207 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Bitsy</title>
+		<link rel="icon" type="image/png" href="image/cat5.png" />
+
+		<!-- STYLES -->
+		<link rel="stylesheet" type="text/css" href="style/editorStyle.css">
+		<link rel="stylesheet" type="text/css" href="style/editorButtons.css">
+		<link rel="stylesheet" type="text/css" href="style/editorColors.css">
+		<link rel="stylesheet" type="text/css" href="style/editorLanguageStyles.css">
+		<link rel="stylesheet" type="text/css" href="style/editorAnimations.css">
+		<link rel="stylesheet" type="text/css" href="style/colorPickerStyle.css">
+		<link rel="stylesheet" type="text/css" href="style/markerToolStyle.css">
+		<link rel="stylesheet" type="text/css" href="style/responsiveStyle.css">
+
+		<!-- GENERATED -->
+		<script src="script/generated/resources.js"></script>
+
+		<!-- ENGINE SCRIPTS -->
+		<script src="script/engine/color_util.js"></script>
+		<script src="script/engine/font.js"></script>
+		<script src="script/engine/transition.js"></script>
+		<script src="script/engine/script.js"></script>
+		<script src="script/engine/dialog.js"></script>
+		<script src="script/engine/renderer.js"></script>
+		<script src="script/engine/bitsy.js"></script>
+
+		<!-- EDITOR SCRIPTS -->
+		<script src="script/util.js"></script>
+		<script src="script/paint.js"></script>
+		<script src="script/room.js"></script>
+		<script src="script/room_markers.js"></script>
+		<script src="script/explorer.js"></script>
+		<script src="script/localization.js"></script>
+		<script src="script/event_manager.js"></script>
+		<script src="script/palette.js"></script>
+		<script src="script/color_picker.js"></script>
+		<script src="script/gif.js"></script>
+		<script src="script/exporter.js"></script>
+		<script src="script/editor.js"></script>
+		<script src="script/dialog_editor.js"></script>
+		<script src="script/inventory.js"></script>
+
+		<!-- FONTS -->
+		<link href="style/googleNunito.css" rel="stylesheet">
+		<link href="style/googleMaterialIcons.css" rel="stylesheet">
+
+	</head>
+ 
+	<body onload="start()">
+
+		<div id="appRoot">
+
+		<div id="topbar">
+
+			<div id="topbarMain" style="width:100%;display:block;overflow:auto;">
+
+				<div id="topbarFlexContainer">
+
+					<div id="logoFlexItem">
+						<span title="Bitsy ~ make little worlds ~" id="bitsyLogoTitle">
+							<img src="image/cat.svg" height="24px" width="24px" id="bitsyLogo"/>
+							<span class="localize bitsy_title">Bitsy</span>
+						</span>	
+					</div>
+
+					<div id="titleFlexItem">
+						<input title="title text for your game" type="text" id="titleText" class="gameTextDir titleTextBox" onchange="on_change_title(event);" value="Write your game's title here" placeholder="Title" style="width:100%;">
+					</div>
+
+					<div id="toolsCheckFlexItem">
+						<input type="checkbox" value="toolsPanel" id="toolsCheck" onclick="toggleToolBar(event);" />
+						<label title="show / hide toolbar" for="toolsCheck" id="toolsCheckLabel">
+							<i class="material-icons">settings</i>
+							<span class="localize tools_label">tools</span>
+							<i id="toolsCheckIcon" class="material-icons">expand_less</i>
+						</label>
+					</div>
+
+					<div id="topbarSpaceFlexItem"> <!-- TODO : do I still want this? -->
+					</div>
+
+				</div>
+
+			</div>
+
+			<div id="toolsPanel">
+
+				<input type="checkbox" value="aboutPanel" id="aboutCheck" onclick="togglePanelAnimated(event);" checked/>
+				<label title="show / hide about window" for="aboutCheck">
+					<i class="material-icons">favorite</i> 
+					<span class="localize about_tool_name">about</span>
+				</label>
+				
+				<input type="checkbox" value="roomPanel" id="roomCheck" onclick="togglePanelAnimated(event);" checked/>
+				<label title="show / hide room window" for="roomCheck">
+					<i class="material-icons">grid_on</i>
+					<span class="localize room_tool_name">room</span>
+				</label>
+
+				<input type="checkbox" value="exitsPanel" id="exitsCheck" onclick="togglePanelAnimated(event);" />
+				<label title="show / hide exits & endings window" for="exitsCheck">
+					<i class="material-icons">directions</i>
+					<span class="localize marker_tool_name">exits & endings</span>
+				</label>
+
+				<input type="checkbox" value="paintPanel" id="paintCheck" onclick="togglePanelAnimated(event);"  checked/>
+				<label title="show / hide paint window" for="paintCheck">
+					<i class="material-icons">brush</i>
+					<span class="localize paint_tool_name">paint</span>
+				</label>
+				
+				<input type="checkbox" value="paintExplorerPanel" id="paintExplorerCheck" onclick="togglePanelAnimated(event);" />
+				<label title="show / hide find drawing window" for="paintExplorerCheck">
+					<i class="material-icons">brush</i>
+					<span class="localize explorer_tool_name">find drawing</span>
+				</label>
+				
+				<input type="checkbox" value="colorsPanel" id="colorsCheck" onclick="togglePanelAnimated(event);"  checked/>
+				<label title="show / hide color palette window" for="colorsCheck">
+					<i class="material-icons">palette</i>
+					<span class="localize palette_tool_name">colors</span>
+				</label>
+
+				<input type="checkbox" value="dialogPanel" id="dialogCheck" onclick="togglePanelAnimated(event);"  checked/>
+				<label title="show / hide dialog window" for="dialogCheck">
+					<i class="material-icons">chat</i>
+					<span class="localize dialog_tool_name">dialog</span>
+				</label>
+
+				<input type="checkbox" value="inventoryPanel" id="inventoryCheck" onclick="togglePanelAnimated(event);"  checked/>
+				<label title="show / hide inventory window" for="inventoryCheck">
+					<i class="material-icons">vpn_key</i>
+					<span class="localize inventory_tool_name">inventory</span>
+				</label>
+				
+				<input type="checkbox" value="downloadPanel" id="downloadCheck" onclick="togglePanelAnimated(event);"  checked/>
+				<label title="show / hide download window" for="downloadCheck">
+					<i class="material-icons">file_download</i>
+					<span class="localize download_tool_name">download</span>
+				</label>
+				
+				<input type="checkbox" value="gifPanel" id="gifCheck" onclick="togglePanelAnimated(event);" />
+				<label title="show / hide gif recording window" for="gifCheck">
+					<i class="material-icons">videocam</i>
+					<span class="localize gif_tool_name">record gif</span>
+				</label>
+				
+				<input type="checkbox" value="dataPanel" onclick="togglePanelAnimated(event);" id="dataCheck"/>
+				<label title="show / hide game data window" for="dataCheck">
+					<i class="material-icons">save</i>
+					<span class="localize data_tool_name">game data</span>
+				</label>
+
+				<input type="checkbox" value="settingsPanel" onclick="togglePanelAnimated(event);" id="settingsCheck"/>
+				<label title="show / hide settings window" for="settingsCheck">
+					<i class="material-icons">settings</i>
+					<span class="localize settings_tool_name">settings</span>
+				</label>
+
+				<button title="reset everything and start new game" class="color0" onclick="newGameDialog();" style="margin-left:20px;">
+					<i class="material-icons">restore_page</i>
+					<span class="localize reset_game">new game</span>
+				</button>
+			</div>
+		</div>
+
+		<div id="unsupportedFeatures" class="warning" style="display:none;">
+			<span class="localize unsupported_features">uh oh ~ your browser doesn't support all of bitsy's features, so some things might not work right. maybe try another browser, such as:</span>
+			<a href="https://www.google.com/chrome/browser" target="_blank">
+				<span class="localize browser_chrome">chrome</span>
+			</a>,
+			<a href="https://www.mozilla.org/firefox" target="_blank">
+				<span class="localize browser_firefox">firefox</span>
+			</a>
+			<button onclick="hideUnsupportedFeatureWarning();">
+				<span class="localize unsupported_features_dismiss">I'll be ok, hide this message</span>
+			</button>
+		</div>
+
+		<div id="fontMissingCharacter" class="warning" style="display:none;">
+			<div>
+				<span class="localize font_missing_character">The current font is missing some of the characters used in your dialog. Not all text in your game will display correctly. Consider picking a different font in the settings.</span>
+			</div>
+			<div>
+				<button onclick="showPanel('settingsPanel');">
+					<i class="material-icons">open_in_new</i>
+					<span class="localize open_settings">open settings</span>
+				</button>
+				<button onclick="hideFontMissingCharacterWarning();">
+					<i class="material-icons">close</i>
+					<span class="localize close_label">close</span>
+				</button>
+			</div>
+		</div>
+
+		<div id="editorWindow" onmousewheel="blockScrollBackpage(event);">
+			<div id="editorContent">
+
+				<div id="titlePanel" class="panel color0">
+					<div class="bar color0">
+						<div title="title window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">edit</i>
+							<span class="localize title_tool_title">title</span>
+						</div>
+					</div>
+					<div id="titlePanelInner">
+						<input title="title text for your game" type="text" id="titleTextPanel" class="gameTextDir titleTextBox" onchange="on_change_title(event);" value="Write your game's title here" placeholder="Title">
+					</div>
+				</div>
+
+				<div id="aboutPanel" class="panel color0">
+					<div class="bar color0">
+						<button title="minimize about window" class="light panelBarClose" onclick="hidePanel('aboutPanel');">
+							<i class="material-icons">close</i>
+						</button>
+						<div title="about window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">favorite</i>
+							<span class="localize about_tool_title">about bitsy</span>
+							 <span class="curVersionLabel"></span>
+						</div>
+					</div>
+					<div id="aboutInner">
+						<p>
+							<span class="localize about1">hi! bitsy is a little editor for little games or worlds. the goal is to make it easy to make games where you can walk around and talk to people and be somewhere.</span>
+						</p>
+
+						<p>
+							<span class="localize about9">have fun making things with bitsy!</span>
+						</p>
+
+						<p>
+							- 
+							<a target="_blank" href="https://www.twitter.com/adamledoux">
+								<span class="localize about10_link_twitter">adam</span>
+							</a>
+						</p>
+
+						<p>
+							getting started: <br/>
+							<a target="_blank" href="https://www.shimmerwitch.space/bitsyTutorial.html">tutorial</a>
+						</p>
+
+						<p>
+							community: <br/>
+							<a target="_blank" href="https://itch.io/games/made-with-bitsy">made with bitsy</a> |
+							<a target="_blank" href="https://discordapp.com/invite/9rAjhtr">discord server</a> |
+							<a target="_blank" href="https://ledoux.itch.io/bitsy/community">itch.io forum</a>
+						</p>
+
+						<p>
+							development: <br/>
+							<a target="_blank" href="https://github.com/le-doux/bitsy/blob/master/CREDITS.md">contributors</a> |
+							<a target="_blank" href="https://github.com/le-doux/bitsy/blob/master/VERSION_NOTES.txt">version notes</a> |
+							<a target="_blank" href="https://github.com/le-doux/bitsy/issues">report a bug</a> |
+							<a target="_blank" href="https://github.com/le-doux/bitsy">source code</a>
+						</p>
+					</div>
+				</div>
+
+				<div id="roomPanel" class="panel">
+					<div class="bar">
+						<button title="minimize room editing window" class="light panelBarClose" onclick="hidePanel('roomPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="room window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">grid_on</i>
+							<span class="localize room_tool_name">room</span>
+						</div>
+					</div>
+					
+					<div style="margin-bottom:2px;">			
+						<input type="checkbox" id="playModeCheck" onclick="togglePlayMode(event);" />
+						<label title="play / pause game" for="playModeCheck">
+							<i class="material-icons" id="playModeIcon">play_arrow</i>
+							<span id="playModeText" class="localize play_game">play</span> <!-- TODO LOCALIZE: also stop_game -->
+						</label>
+					</div>
+
+					<canvas id="game"></canvas>
+
+					<div id="roomToolsOuter" class="controlBox">
+
+						<input type="checkbox" id="roomToolsCheck" onclick="toggleRoomTools(event);" />
+						<label title="show / hide additional room tools" for="roomToolsCheck">
+							<span class="localize room_tool_advanced">room tools</span>
+							<i id="roomToolsCheckIcon" class="material-icons">expand_less</i>
+						</label>
+
+						<br>
+						
+						<div id="roomTools" style="display:none;">
+							<div id="roomNav" class="buttonGroup">
+								<span title="a name to refer to this room" class="controlSpan">
+									<span class="localize name_label">name</span>
+									<!-- <span id="roomId">0</span> -->
+									
+									<input type="text" id="roomName" class="nameTextbox" onchange="on_room_name_change();" size="10"></input>
+									
+								</span>
+								<button title="previous room" class="color0" onclick="prevRoom();">
+									<i class="navigate_before material-icons"><span>navigate_before</span></i>
+								</button>
+								<button title="next room" class="color0" onclick="nextRoom();">
+									<i class="navigate_next material-icons"><span>navigate_next</span></i>
+								</button>
+							</div>
+
+							<div id="roomCommands" class="buttonGroup">
+								<button title="add new room" class="color0" onclick="newRoom();">
+									<i class="material-icons">add</i>
+								</button>
+								<button title="duplicate room" class="color0" onclick="duplicateRoom();">
+									<i class="material-icons">content_copy</i>
+								</button>
+								<button title="delete room" class="color0" onclick="deleteRoom();">
+									<i class="material-icons">remove_circle</i>
+								</button>
+							</div>
+
+							<div id="roomColor" class="buttonGroup">
+								<span class="localize palette_tool_name">colors</span>: 
+								<select title="select color palette for room" id="roomPaletteSelect" onchange="roomPaletteChange(event);">
+									<option value="0">palette 0</option> <!-- other options are added dynamically -->
+								</select>
+							</div>
+
+							<br>
+
+							<div id="roomVisibility" class="buttonGroup">
+								<input type="checkbox" id="roomGridCheck" onclick="toggleMapGrid(event);" checked/>
+								<label title="show / hide grid" for="roomGridCheck">
+									<i class="material-icons" id="roomGridIcon">visibility</i> 
+									<span class="localize grid_toggle_visible">grid</span>
+								</label>
+
+								<input type="checkbox" id="roomWallsCheck" onclick="toggleCollisionMap(event);" />
+								<label title="show / hide walls" for="roomWallsCheck">
+									<i class="material-icons" id="roomWallsIcon">visibility_off</i> 
+									<span class="localize walls_toggle_visible">walls</span>
+								</label>
+
+								<input type="checkbox" id="roomMarkersCheck" onclick="toggleRoomMarkers(event.target.checked);" checked/>
+								<label title="show / hide exits & endings" for="roomMarkersCheck">
+									<i class="material-icons" id="roomMarkersIcon">visibility</i> 
+									<span class="localize marker_tool_name">exits & endings</span>
+								</label>
+							</div>
+
+							<div id="roomMarkers" class="buttonGroup">
+								<button title="add exits and endings" class="color0" onclick="showPanel('exitsPanel');">
+									<i class="material-icons">open_in_new</i>
+									<span class="localize room_add_markers">add exits & endings</span>
+								</button>
+							</div>
+						</div>
+
+					</div>
+
+
+				</div>
+
+				<div id="exitsPanel" class="panel color3" style="display:none;">
+					<div class="bar color3">
+
+						<button title="minimize exits & endings window" class="light panelBarClose" onclick="hidePanel('exitsPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="exits & endings window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">directions</i>
+							<span class="localize marker_tool_name">exits & endings</span>
+						</div>
+					</div>
+					<div id="exitsPanelContent">
+						<div id="noMarkerMessage" class="controlBox">
+							<span class="localize marker_tool_empty">There are no exits or endings in this room yet! You can add one with this tool. :)</span>
+						</div>
+						<div id="markersSelect">
+							<div id="markerControl1" class="controlBox">
+								<span id="markerName1">marker 1</span>
+								<canvas id="markerCanvas1" title="location of marker (click to go to room)" onclick="selectMarkerRoom1();"></canvas>
+								<div class="markerPosControl">
+									<input type="checkbox" id="toggleMoveMarker1" onclick="toggleMoveMarker1(event);" />
+									<label for="toggleMoveMarker1" title="click to move marker">
+										<i class="material-icons">location_searching</i>
+										<span id="textMoveMarker1" class="localize marker_move">move</span>
+									</label>
+									<button id="cancelMoveMarker1" title="cancel move" onclick="cancelMoveMarker1();">
+										<i class="material-icons">cancel</i>
+									</button>
+									<div title="marker coordinates">
+										<span id="textMarkerPos1">room 0 (0,0)</span>
+									</div>
+									<div>
+										<span id="textMoveMessage1">
+											<i class="localize marker_move_click">click in room</i>
+										</span>
+									</div>
+								</div>
+							</div>
+							<div id="markerLinkControl">
+								<button title="change exit direction" onclick="changeExitDirection();">
+									<i class="material-icons" id="exitDirectionBackIcon">arrow_back</i>
+									<i class="material-icons" id="exitDirectionForwardIcon">arrow_forward</i>
+								</button>
+							</div>
+							<div id="markerControl2" class="controlBox" style="display: flex; flex-direction: column;">
+								<span id="markerName2">marker 2</span>
+								<canvas id="markerCanvas2" title="location of marker (click to go to room)" onclick="selectMarkerRoom2();"></canvas>
+								<div class="markerPosControl">
+									<input type="checkbox" id="toggleMoveMarker2" onclick="toggleMoveMarker2(event);" />
+									<label for="toggleMoveMarker2" title="click to move marker">
+										<i class="material-icons">location_searching</i>
+										<span id="textMoveMarker2"class="localize marker_move">move</span>
+									</label>
+									<button id="cancelMoveMarker2" title="cancel move" onclick="cancelMoveMarker2();">
+										<i class="material-icons">cancel</i>
+									</button>
+									<div title="marker coordinates">
+										<span id="textMarkerPos2">room 0 (0,0)</span>
+									</div>
+									<div>
+										<span id="textMoveMessage2">
+											<i class="localize marker_move_click">click in room</i>
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="markersControls" class="controlBox">
+							<div id="markersNav" class="buttonGroup">
+								<button title="previous" class="color0" onclick="prevMarker();">
+									<i class="navigate_before material-icons"><span>navigate_before</span></i>
+								</button>
+								<button title="next" class="color0" onclick="nextMarker();" style="margin-left:-5px;">
+									<i class="navigate_next material-icons"><span>navigate_next</span></i>
+								</button>
+								<button title="delete" class="color0" onclick="deleteMarker();">
+									<i class="material-icons">remove_circle</i>
+								</button>
+							</div>
+							<div id="markersAddCommands" class="buttonGroup">
+								<button title="add exit" class="color0" onclick="newExit();">
+									<i class="material-icons">add</i> <span class="localize exit_label">exit</span>
+								</button>
+								<button title="add ending" class="color0" onclick="newEnding();">
+									<i class="material-icons">add</i> <span class="localize ending_label">ending</span>
+								</button>
+								<!-- <button title="add scripted effect" class="color0" onclick="newEffect();">
+									<i class="material-icons">add</i> effect
+								</button> -->
+							</div>
+						</div>
+						<div id="markerOptions">
+							<div id="endingOptions" class="controlBox">
+								<span class="localize ending_dialog">ending dialog</span>
+								<br/>
+								<textarea title="text to show on ending" id="endingText" onchange="onEndingTextChange(event);" onkeydown="onEndingTextChange(event);" onkeyup="onEndingTextChange(event);"></textarea>
+							</div>
+							<!-- <div id="effectOptions" class="controlBox">
+								<span>effect script</span>
+								<br/>
+								<textarea id="effectText" onchange="onEffectTextChange(event);" onkeydown="onEffectTextChange(event);" onkeyup="onEffectTextChange(event);" style="resize: vertical; width: 32ch;"></textarea>
+							</div> -->
+							<div id="exitOptions" class="controlBox">
+								<input type="checkbox" id="showExitOptionsCheck" onclick="onToggleExitOptions();" />
+								<label title="show / hide exit options" for="showExitOptionsCheck">
+									<span class="localize exit_options">exit options</span>
+									<i class="material-icons" id="showExitOptionsCheckIcon">expand_less</i>
+								</label>
+
+								<div id="exitOptionsInner">
+									<form id="exitOptionsRadio">
+										<input type="radio" name="exit options select" value="exit1" onclick="onChangeExitOptionsSelect(event.target.value);" id="exitOptions1" checked>
+										<label title="show exit 1 options" for="exitOptions1" class="left">
+											<span class="localize exit_label">exit</span>
+										</label>
+
+										<input type="radio" name="exit options select" value="exit2" onclick="onChangeExitOptionsSelect(event.target.value);" id="exitOptions2">
+										<label title="show exit 2 options" for="exitOptions2" class="right">
+											<span class="localize exit_return_label">return exit</span>
+										</label>
+									</form>
+
+									<div style="padding:4px;">
+										<div title="select transition effect" class="controlBox" style="font-size:80%;">
+											<span class="localize exit_transition_label">transition effect</span>: 
+											<select id="exitTransitionEffectSelect" onchange="onChangeExitTransitionEffect(event.target.value);">
+												<option value="none">none</option>
+												<option value="fade_w">fade (white)</option>
+												<option value="fade_b">fade (black)</option>
+												<option value="wave">wave</option>
+												<option value="tunnel">tunnel</option>
+												<option value="slide_u">slide up</option>
+												<option value="slide_d">slide down</option>
+												<option value="slide_l">slide left</option>
+												<option value="slide_r">slide right</option>
+											</select>
+										</div>
+
+										<!-- <div style="margin-bottom: 5px; margin-top: 12px;">
+											<span id="exitScriptOptions">
+												<input type="checkbox" id="exitDialogCheck" onchange="setElementClass('exitScriptControls','exitDialogActive',event.target.checked);"/>
+												<label for="exitDialogCheck">
+													<i class="material-icons">chat</i>
+													dialog
+												</label>
+
+												<input type="checkbox" id="exitChangeAvatarCheck" onchange="setElementClass('exitScriptControls','exitAvatarActive',event.target.checked);"/>
+												<label for="exitChangeAvatarCheck">
+													<i class="material-icons">nature_people</i>
+													change avatar
+												</label>
+
+												<input type="checkbox" id="exitLockCheck" onchange="setElementClass('exitScriptControls','exitLockActive',event.target.checked);"/>
+												<label for="exitLockCheck">
+													<i class="material-icons">vpn_key</i>
+													lock
+												</label>
+											</span>
+										</div> -->
+
+										<!-- <div id="exitScriptControls" class="controlBox">
+											<span class="exitLockControl">unlock door if:</span>
+											<br class="exitLockControl"/>
+
+											<span class="exitDialogAndLockControl">dialog when door is locked:</span>
+											<br class="exitDialogAndLockControl"/>
+											<textarea class="exitDialogAndLockControl" style="resize: vertical; width: 32ch;"></textarea>
+											<br class="exitDialogAndLockControl"/>
+
+											<span class="exitDialogControl">dialog</span><span class="exitDialogAndLockControl"> when door is unlocked</span><span class="exitDialogControl">:</span>
+											<br class="exitDialogControl"/>
+											<textarea class="exitDialogControl" style="resize: vertical; width: 32ch;"></textarea>
+											<br class="exitDialogControl"/>
+
+											<span class="exitAvatarControl">on enter, change avatar sprite to:</span>
+											<br class="exitAvatarControl"/>
+											<select class="exitAvatarControl">
+												<option>sprite A</option>
+												<option>sprite a</option>
+											</select>
+										</div> -->
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="paintPanel" class="panel color1">
+					<div class="bar color1">
+
+						<button title="minimize paint window" class="light panelBarClose" onclick="hidePanel('paintPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="paint window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">brush</i>
+							<span class="localize paint_tool_name">paint</span>
+						</div>
+					</div>
+					<form>
+						<input type="radio" name="paint mode" value="avatar" onclick="on_paint_avatar();" id="paintOptionAvatar" checked>
+						<label title="edit the avatar: the player's character" for="paintOptionAvatar" class="left">
+							<i class="material-icons">perm_identity</i>
+							<span class="localize avatar_label">avatar</span>
+						</label>
+
+						<input type="radio" name="paint mode" value="tile" onclick="on_paint_tile();" id="paintOptionTile">
+						<label title="edit tiles: pieces of scenery" for="paintOptionTile" class="middle">
+							<i class="material-icons">terrain</i>
+							<span class="localize tile_label">tile</span>
+						</label>
+
+						<input type="radio" name="paint mode" value="sprite" onclick="on_paint_sprite();" id="paintOptionSprite">
+						<label title="edit sprites: non-player characters and interactive objects" for="paintOptionSprite" class="middle">
+							<i class="material-icons">nature_people</i>
+							<span class="localize sprite_label">sprite</span>
+						</label>
+
+						<input type="radio" name="paint mode" value="item" onclick="on_paint_item();" id="paintOptionItem">
+						<label title="edit items: things the player can pick up" for="paintOptionItem" class="right">
+							<i class="material-icons">vpn_key</i>
+							<span class="localize item_label">item</span>
+						</label>
+						
+					</form>
+					<canvas id="paint"></canvas>
+					<br>
+					<div id="paintEditMain">
+						<div id="paintNav" class="buttonGroup">
+							<button title="previous drawing" class="color0" onclick="prev();">
+								<i class="navigate_before material-icons"><span>navigate_before</span></i>
+							</button>
+							<button title="next drawing" class="color0" onclick="next();" style="margin-left:-5px;">
+								<i class="navigate_next material-icons"><span>navigate_next</span></i>
+							</button>
+							<button title="find drawing: browse list of all drawings" class="color0" onclick="showPanel('paintExplorerPanel');">
+								<i class="material-icons">search</i>
+							</button>
+						</div>
+						<div id="paintCommands" class="buttonGroup">
+							<button title="add drawing" class="color0" onclick="newDrawing();">
+								<i class="material-icons">add</i>
+							</button>
+							<button title="duplicate drawing" class="color0" onclick="duplicateDrawing();">
+								<i class="material-icons">content_copy</i>
+							</button>
+							<button title="delete drawing" class="color0" onclick="deleteDrawing();">
+								<i class="material-icons">remove_circle</i>
+							</button>
+						</div>
+						<div class="buttonGroup">
+							<input type="checkbox" id="paintGridCheck" onclick="togglePaintGrid(event);" checked/>
+							<label title="show / hide grid" for="paintGridCheck">
+								<i class="material-icons" id="paintGridIcon">visibility</i> 
+								<span class="localize grid_toggle_visible">grid</span>
+							</label>
+						</div>
+						<div style="margin-bottom: 5px;">
+							
+							<span id="drawingNameUI" title="a name to refer to this drawing" class="controlSpan">
+								<span class="localize name_label">name</span>
+								<input type="text" id="drawingName" class="nameTextbox" onchange="on_drawing_name_change();" size="10"></input>
+							</span>
+
+							<button id="showInventoryButton" title="show inventory" onclick="showPanel('inventoryPanel');">
+								<i class="material-icons">vpn_key</i> 
+								<span class="localize inventory_tool_name">inventory</span>
+							</button>
+							
+						</div>
+					</div>
+
+					<div id="wall" class="controlBox" style="display:none;">
+						<input type="checkbox" id="wallCheckbox" onchange="on_toggle_wall(event);">
+						<label title="make tile an impassible wall" for="wallCheckbox">
+							<i id="wallCheckboxIcon" class="material-icons">border_clear</i>
+							<span class="localize wall_toggle">wall</span>
+						</label>
+					</div>
+					<div id="dialog" class="controlBox" style="display:none;">
+						<span style="float:left;">
+							<span class="localize dialog_tool_name">dialog</span>
+						</span>
+						<button title="open in advanced dialog editor" style="float:right;" onclick="showPanel('dialogPanel');">
+							<i class="material-icons">open_in_new</i>
+						</button>
+						<br>
+						<textarea title="dialog text will be displayed when player approaches this sprite" id="dialogText" class="dialogTextArea gameTextDir" onkeydown="on_change_dialog();" onkeyup="on_change_dialog();" onchange="on_change_dialog_finished();"></textarea> <!-- rows="2" cols="32" -->
+					</div>
+
+					<div id="animationOuter" class="controlBox">
+						<div id="isAnimated">
+							<input type="checkbox" id="animatedCheckbox" onchange="on_toggle_animated();">
+							<label title="add animation to drawing" for="animatedCheckbox">
+								<span class="localize animation_title">animation</span>
+								<i id="animatedCheckboxIcon" class="material-icons">expand_less</i>
+							</label>
+						</div>
+						<div id="animation" style="display:none;">
+							<div class="buttonGroup">
+								<div class="animationThumbnail preview">
+									<img id="animationThumbnailPreview" />
+									<div>
+										<span class="localize animation_preview">preview</span>
+									</div>
+								</div>
+								<div id="animationKeyframe1" class="animationThumbnail left selected" onclick="on_paint_frame1();">
+									<img id="animationThumbnailFrame1" />
+									<div>
+										<span class="localize animation_frame1">frame 1</span>
+									</div>
+								</div>
+								<div id="animationKeyframe2" class="animationThumbnail right unselected" onclick="on_paint_frame2();">
+									<img id="animationThumbnailFrame2" />
+									<div>
+										<span class="localize animation_frame2">frame 2</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+
+				<div id="paintExplorerPanel" class="panel color1">
+					<div class="bar color1">
+
+						<button title="minimize find drawing window" class="light panelBarClose" onclick="hidePanel('paintExplorerPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="find drawing window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">brush</i>
+							<span class="localize explorer_tool_name">find drawing</span>
+						</div>
+					</div>
+
+					<form>
+						<input type="radio" name="paint explorer mode" value="avatar" onclick="on_paint_avatar();" id="paintExplorerOptionAvatar" checked>
+						<label title="find the avatar: the player's character" for="paintExplorerOptionAvatar" class="left">
+							<i class="material-icons">perm_identity</i>
+							<span class="localize avatar_label">avatar</span>
+						</label>
+
+						<input type="radio" name="paint explorer mode" value="tile" onclick="on_paint_tile();" id="paintExplorerOptionTile">
+						<label title="find tiles: pieces of scenery" for="paintExplorerOptionTile" class="middle">
+							<i class="material-icons">terrain</i>
+							<span class="localize tile_label">tile</span>
+						</label>
+
+						<input type="radio" name="paint explorer mode" value="sprite" onclick="on_paint_sprite();" id="paintExplorerOptionSprite">
+						<label title="find sprites: non-player characters and interactive objects" for="paintExplorerOptionSprite" class="middle">
+							<i class="material-icons">nature_people</i>
+							<span class="localize sprite_label">sprite</span>
+						</label>
+
+						<input type="radio" name="paint explorer mode" value="item" onclick="on_paint_item();" id="paintExplorerOptionItem">
+						<label title="find items: things the player can pick up" for="paintExplorerOptionItem" class="right">
+							<i class="material-icons">vpn_key</i>
+							<span class="localize item_label">item</span>
+						</label>
+					</form>
+
+					<div id="paintExplorerViewport">
+						<div id="paintExplorerContent">
+
+							<form id="paintExplorerForm">
+								<span id="paintExplorerFormInner">
+								</span>
+								<div id="paintExplorerAdd">
+									<button title="add drawing" onclick="newDrawing(); return false;">
+										<i class="material-icons">add</i>
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+
+					<div class="controlBox" id="paintExplorerFilter">
+						<span id="paintExplorerFilterIcon">
+							<i class="material-icons">search</i>
+						</span>
+						<input id="paintExplorerFilterInput" type="text" onkeyup="paintExplorerFilterChange(event);" onchange="paintExplorerFilterChange(event);" placeholder="filter drawings" title="filter drawings by name" size="30">
+					</div>
+				</div>
+
+				<div id="colorsPanel" class="panel color1">
+					<div class="bar color1">
+
+						<button title="minimize color palette window" class="light panelBarClose" onclick="hidePanel('colorsPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="color palette window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">palette</i>
+							<span class="localize palette_tool_name">colors</span>
+						</div>
+					</div>
+
+					<form id="colorPaletteForm">
+						<input type="radio" name="colorPalette" value="background" id="colorPaletteOptionBackground" onclick="changeColorPickerIndex(0);" checked>
+						<label id="colorPaletteLabelBackground" for="colorPaletteOptionBackground" title="pick background color">
+							<i class="material-icons">grid_on</i> 
+							<span class="localize palette_background">background color</span>
+						</label>
+
+						<input type="radio" name="colorPalette" value="background" id="colorPaletteOptionTile" onclick="changeColorPickerIndex(1);">
+						<label id="colorPaletteLabelTile" for="colorPaletteOptionTile" title="pick tile color">
+							<i class="material-icons">terrain</i> 
+							<span class="localize palette_tile">tile color</span>
+						</label>
+
+						<input type="radio" name="colorPalette" value="background" id="colorPaletteOptionSprite" onclick="changeColorPickerIndex(2);">
+						<label id="colorPaletteLabelSprite" for="colorPaletteOptionSprite" title="pick sprite / avatar / item color">
+							<i class="material-icons">nature_people</i> 
+							<span class="localize palette_sprite">sprite color</span>
+						</label>
+					</form>
+
+					<div id="colorPicker" title="color picker">
+						<canvas id="colorPickerWheel"></canvas>
+						<canvas id="colorPickerSelect" title="color picker wheel"></canvas>
+						<div id="colorPickerSliderBg" title="color picker darkness / lightness slider">
+							<div id="colorPickerSliderThumb"></div>
+						</div>
+						<input id="colorPickerHexText" title="color picker hex code" type="text" />
+					</div>
+
+					<div id="paletteToolsOuter" class="controlBox">
+
+						<input type="checkbox" id="paletteToolsCheck" onclick="togglePaletteTools(event);" />
+						<label title="show / hide additional palette tools" for="paletteToolsCheck">
+							<span class="localize palette_tool_advanced">palette select</span>
+							<i id="paletteToolsCheckIcon" class="material-icons">expand_less</i>
+						</label>
+
+						<br>
+						
+						<div id="paletteTools" style="display:none;">
+							<span id="paletteNameUI" title="a name to refer to this drawing" class="controlSpan">
+								<span class="localize name_label">name</span>
+								<input type="text" id="paletteName" class="nameTextbox" onchange="on_palette_name_change(event);" size="10"></input>
+							</span>
+							<br>
+							
+							<div class="buttonGroup" id="paletteNav">
+								<button title="previous color palette" class="color0" onclick="prevPalette();">
+									<i class="navigate_before material-icons"><span>navigate_before</span></i>
+								</button>
+								<button title="next color palette" class="color0" onclick="nextPalette();">
+									<i class="navigate_next material-icons"><span>navigate_next</span></i>
+								</button>
+								<button title="add new color palette" class="color0" onclick="newPalette();">
+									<i class="material-icons">add</i>
+								</button>
+								<button title="duplicate palette" class="color0" onclick="duplicatePalette();">
+									<i class="material-icons">content_copy</i>
+								</button>
+								<button title="delete palette" class="color0" onclick="deletePalette();">
+									<i class="material-icons">remove_circle</i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="dialogPanel" class="panel color3">
+					<div class="bar color3">
+
+						<button title="minimize dialog window" class="light panelBarClose" onclick="hidePanel('dialogPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="dialog window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">chat</i>
+							<span class="localize dialog_tool_name">dialog</span>
+						</div>
+					</div>
+
+					<div id="dialogEditorHasContent">
+						<div id="dialogTop">
+							<span style="float:left">
+								<input type="checkbox" id="previewDialogCheck" onclick="togglePreviewDialog(event);" />
+								<label title="preview dialog" for="previewDialogCheck">
+									<i class="material-icons" id="previewDialogIcon">play_arrow</i>
+									<span id="previewDialogText" class="localize dialog_start_preview">preview</span> <!-- TODO LOCALIZE : other state? dialog_stop_preview -->
+								</label>
+							</span>
+
+							<span style="float:right">
+								<input type="checkbox" id="dialogShowCodeCheck" onclick="toggleDialogCode(event);" />
+								<label title="show / hide the code for this dialog" for="dialogShowCodeCheck">
+									<i class="material-icons">code</i> 
+									<span id="dialogToggleCodeShowText" class="localize dialog_show_code">show code</span> 
+									<span id="dialogToggleCodeHideText" class="localize dialog_hide_code" style="display:none;">hide code</span>
+								</label>
+							</span>
+						</div>
+
+						<div id="dialogTools" class="controlBox">
+							<form style="display:inline;">
+								<input type="radio" name="dialogTools" value="section" id="dialogToolsOptionSection" onclick="showDialogToolsSection();" checked>
+								<label for="dialogToolsOptionSection" class="left" onmousedown="preventTextDeselectAndClick(event);" title="add new dialog sections">
+									<i class="material-icons">add_circle</i> 
+									<span class="localize dialog_block_new">new section</span>
+								</label>
+								<input type="radio" name="dialogTools" value="format" id="dialogToolsOptionEffects" onclick="showDialogToolsEffects();">
+								<label for="dialogToolsOptionEffects" class="right" onmousedown="preventTextDeselectAndClick(event);" title="add special effects to selected text">
+									<i class="material-icons">text_format</i> 
+									<span class="localize dialog_effect_new">text effects</span>
+								</label>
+							</form>
+
+							<hr style="background:#6767b2;border:0px;height:1px;margin:4px;margin-left:0px;margin-right:0px;">
+							<div id="dialogToolsSection">
+								<button onclick="addDialogBlockUI();" title="add new dialog: the same line is said each time">
+									<i class="material-icons">subject</i>
+									<span class="localize dialog_block_basic">dialog</span>
+								</button>
+								<button onclick="addSeqBlockUI();" title="add new dialog list: different lines said each time, in the order you choose">
+									<i class="material-icons">list</i>
+									<span class="localize dialog_block_list">list</span>
+								</button>
+								<button onclick="addIfBlockUI();" title="add new conditional dialog: what option is said is determined by conditions you define">
+									<i class="material-icons">call_split</i>
+									<span class="localize dialog_block_conditional">conditional</span>
+								</button>
+							</div>
+							<div id="dialogToolsEffects" style="display:none;">
+								<button onclick="wrapTextSelection('{clr1}');" onmousedown="preventTextDeselect(event);" class="dialogEffectButton" disabled title="text in tags matches the 1st color in the palette">
+									<span class="localize dialog_effect_color1">color 1</span>
+								</button>
+								<button onclick="wrapTextSelection('{clr2}');" onmousedown="preventTextDeselect(event);" class="dialogEffectButton" disabled title="text in tags matches the 2nd color in the palette">
+									<span class="localize dialog_effect_color2">color 2</span>
+								</button>
+								<button onclick="wrapTextSelection('{clr3}');" onmousedown="preventTextDeselect(event);" class="dialogEffectButton" disabled title="text in tags matches the 3rd color in the palette">
+									<span class="localize dialog_effect_color3">color 3</span>
+								</button>
+								<button onclick="wrapTextSelection('{wvy}');" onmousedown="preventTextDeselect(event);" class="dialogEffectButton" disabled title="text in tags waves up and down">
+									<span class="localize dialog_effect_wavy">wavy</span>
+								</button>
+								<button onclick="wrapTextSelection('{shk}');" onmousedown="preventTextDeselect(event);" class="dialogEffectButton" disabled title="text in tags shakes constantly">
+									<span class="localize dialog_effect_shaky">shaky</span>
+								</button>
+								<button onclick="wrapTextSelection('{rbw}');" onmousedown="preventTextDeselect(event);" class="dialogEffectButton" disabled title="text in tags is rainbow colored">
+									<span class="localize dialog_effect_rainbow">rainbow</span>
+								</button>
+							</div>
+						</div>
+
+						<div id="dialogCode" style="display:none;">
+							<textarea id="dialogCodeText" onkeydown="on_change_adv_dialog();" onkeyup="on_change_adv_dialog();" onchange="on_change_adv_dialog();"></textarea>
+						</div>
+
+						<div id="dialogEditor">
+							<div id="advDialogViewport">
+							</div>
+						</div>
+					</div>
+
+					<div id="dialogEditorNoContent" class="controlBox" style="display:none;">
+						<span class="localize dialog_no_selection">Select a sprite or item to edit its dialog.</span>
+					</div>
+				</div>
+
+				<div id="inventoryPanel" class="panel color3">
+					<div class="bar color3">
+
+						<button title="minimize inventory window" class="light panelBarClose" onclick="hidePanel('inventoryPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="inventory window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">vpn_key</i>
+							<span class="localize inventory_tool_name">inventory</span>
+						</div>
+					</div>
+
+					<div>
+						<!-- TODO -->
+						<form>
+							<input type="radio" name="inventory mode" value="item" onclick="showInventoryItem();" id="inventoryOptionItem" checked>
+							<label title="items: set count of items the player starts with" for="inventoryOptionItem" class="left">
+								<i class="material-icons">vpn_key</i>
+								<span class="localize items_label">items</span>
+							</label>
+							<input type="radio" name="inventory mode" value="variable" onclick="showInventoryVariable()" id="inventoryOptionVariable">
+							<label title="variables: set initial values of variables" for="inventoryOptionVariable" class="right">
+								<i class="material-icons">code</i>
+								<span class="localize variables_label">variables</span>
+							</label>
+						</form>
+
+						<div id="inventoryItem" class="inventoryViewport">
+						</div>
+
+						<div id="inventoryVariable" class="inventoryViewport" style="display:none;">
+						</div>
+					</div>
+				</div>
+
+				<div id="downloadPanel" class="panel color2">
+					<div class="bar color2">
+
+						<button title="minimize download window" class="light panelBarClose" onclick="hidePanel('downloadPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="download window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">file_download</i>
+							<span class="localize download_tool_name">download</span>
+						</div>
+					</div>
+
+					<div>
+						<span class="localize download_html">download game as html file:</span>
+						<br>
+						<button title="download game as html file" class="color0" onclick="exportGame();">
+							<i class="material-icons">file_download</i>
+							<span class="localize download_game">download game</span>
+						</button>
+					</div>
+
+					<div>
+						<span class="localize import_html">import game from html file:</span>
+						<br>
+						<label for="importGamePicker" class="filePickerLabel" title="import game from html file on your computer">
+							<i class="material-icons">file_upload</i>
+							<span class="localize upload_game">upload game</span>
+						</label>
+						<input type="file" id="importGamePicker" style="display:none;" onchange="importGameFromFile(event);"/>
+					</div>
+
+					<!-- TODO LOCALIZE - word wrap -->
+					<div id="downloadHelp" class="helpMessage" style="display:none;">
+						Note: your browser doesn't support<br>
+						direct downloads, so sharing requires<br>
+						some extra steps:<br>
+						- press share <br>
+						- a new tab will open <br>
+						- save that tab <br>
+						- name it "mygame.html" <br>
+						- share your game as a web page!
+					</div>
+				</div>
+
+				<div id="gifPanel" class="panel color2" style="display:none;">
+					<div class="bar color2">
+
+						<button title="minimize gif recording window" class="light panelBarClose" onclick="hidePanel('gifPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="gif recording window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">videocam</i>
+							<span class="localize gif_tool_name">record gif</span>
+						</div>
+					</div>
+					
+					<button title="start recording a gif of your game" class="color0" id="gifStartButton" onclick="startRecordingGif();">
+						<i class="material-icons">videocam</i>
+						<span class="localize gif_start">start recording</span>
+					</button>
+					<button title="stop recording a gif of your game" class="color0" id="gifStopButton" onclick="stopRecordingGif();" style="display:none;">
+						<i class="material-icons">videocam_off</i>
+						<span class="localize gif_stop">stop recording</span>
+					</button>
+					<span id="gifRecordingText" style="display:none;">
+						<i class="material-icons">lens</i>
+						<span class="localize gif_recording">recording...</span>
+					</span>
+					<span id="gifEncodingText" style="display:none;">
+						<i class="material-icons">movie_creation</i>
+						<span class="localize gif_encoding">encoding...</span> <span id="gifEncodingProgress">0</span>%
+					</span>
+
+					<button title="make screenshot of current room" class="color0" id="gifSnapshotButton" onclick="takeSnapshotGif(event);">
+						<i class="material-icons">camera</i>
+						<span class="localize gif_snapshot">snapshot</span>
+					</button>
+					
+					<br/>
+					
+					<img id="gifPreview" style="display:none;" />
+					<div id="gifPlaceholder"></div>
+					
+					<br/>
+					
+					<a title="download latest gif recording of your game" href="" download="recording.gif" id="gifDownload">
+						<i class="material-icons">file_download</i>
+						<span class="localize gif_download">download gif</span>
+					</a>
+				</div>
+
+				<div id="dataPanel" class="panel color0" style="display:none;">
+					<div class="bar color0">
+
+						<button title="minimize game data window" class="light panelBarClose" onclick="hidePanel('dataPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="game data window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">save</i>
+							<span class="localize data_tool_name">game data</span>
+						</div>
+					</div>
+					<textarea title="raw text of the bitsy game data file (be careful when editing)" id="game_data" onchange="on_game_data_change();"></textarea>
+					<br>
+					<button title="reset everything and start new game" class="color0" onclick="newGameDialog();">
+						<i class="material-icons">restore_page</i>
+						<span class="localize reset_data">reset game data</span>
+					</button>
+					<button title="download game data" class="color0" onclick="exportGameData();">
+						<i class="material-icons">file_download</i>
+						<span class="localize download_data">download data</span>
+					</button>
+					<br/>
+					<input type="checkbox" id="fontDataCheck" onclick="toggleFontDataVisibility(event);" />
+					<label title="show / hide font data (WARNING: can be very slow for large fonts)" for="fontDataCheck">
+						<i class="material-icons" id="fontDataIcon">visibility_off</i> 
+						<span class="localize font_data_toggle_visible">font data</span>
+					</label>
+				</div>
+
+				<div id="settingsPanel" class="panel color0" style="display:none;">
+					<div class="bar color0">
+
+						<button title="minimize settings window" class="light panelBarClose" onclick="hidePanel('settingsPanel');">
+							<i class="material-icons">close</i>
+						</button>
+
+						<div title="settings window" class="panelBarTitle" onmousedown="grabCard(event);">
+							<i class="material-icons">settings</i>
+							<span class="localize settings_tool_name">settings</span>
+						</div>
+					</div>
+					<div id="settingsInner">
+						<div>
+							<span class="localize editor_settings">editor settings</span>
+						</div>
+						<div class="controlBox">
+							<span class="localize language_label">language</span>:
+							<select id="languageSelect" onchange="on_change_language(event);"></select>
+							<br/>
+							<span class="localize language_translator_credit" style="font-size: 80%;">English text by Adam Le Doux</span>
+						</div>
+						<div>
+							<span class="localize game_settings">game settings</span>
+						</div>
+						<div class="controlBox">
+							<span class="localize option_page_color">html page color:</span>
+							<br/>
+							<input title="pick background color for exported html page" type="color" value="#ffffff" id="pageColor" onchange="on_change_color_page();" autocomplete="off">
+						</div>
+						<div class="controlBox">
+							<form>
+								<span class="localize option_window_size">game window size:</span>
+								<br/>
+								<input type="radio" name="export size" value="full" onclick="chooseExportSizeFull();" id="exportSizeOptionFull" checked>
+								<label title="game window resizes to fill page (mobile friendly)" for="exportSizeOptionFull" class="left">
+									<i class="material-icons">crop_free</i>
+									<span class="localize option_full_size">full page</span>
+								</label>
+
+								<input type="radio" name="export size" value="fixed" onclick="chooseExportSizeFixed();" id="exportSizeOptionFixed">
+								<label title="game window stays a fixed size" for="exportSizeOptionFixed" class="right">
+									<i class="material-icons">crop</i>
+									<span class="localize option_fixed_size">fixed size</span>
+								</label>
+
+								<div style="margin-top:5px;">
+									<span class="controlBox" id="exportSizeFixedInputSpan" style="display:none;">
+										<input type="number" min="0" value="512" style="width:60px;" id="exportSizeFixedInput"> px
+									</span>
+								</div>
+							</form>
+						</div>
+						<div class="controlBox">
+							<span class="localize font_label">font</span>:
+							<select id="fontSelect" onchange="on_change_font(event);">
+								<option value="ascii_small" class="localize font_ascii_small">ASCII Small</option>
+								<option value="unicode_european_small" class="localize font_unicode_european_small">Unicode European Small</option>
+								<option value="unicode_european_large" class="localize font_unicode_european_large">Unicode European Large</option>
+								<option value="unicode_asian" class="localize font_unicode_asian">Unicode Asian</option>
+								<option value="arabic" class="localize font_arabic">Arabic</option>
+								<option value="custom">Custom Font - none</option> <!-- TODO : localize -->
+							</select>
+							<div id="ascii_small_description" style="font-size: 80%">
+								<span class="localize font_ascii_small_description">Small font limited to ASCII, which includes English characters and some symbols.</span>
+							</div>
+							<div id="unicode_european_small_description" style="font-size: 80%">
+								<span class="localize font_unicode_european_small_description">Small font with some unicode support. Includes characters for most European languages.</span>
+							</div>
+							<div id="unicode_european_large_description" style="font-size: 80%">
+								<span class="localize font_unicode_european_large_description">Large font with more unicode support. Includes characters for all European languages.</span>
+							</div>
+							<div id="unicode_asian_description" style="font-size: 80%">
+								<span class="localize font_unicode_asian_description">Large font which includes characters for Asian languages such as Chinese, Japanese, and Korean.</span>
+							</div>
+							<div id="arabic_description" style="font-size: 80%">
+								<span class="localize font_arabic_description">Pixel font with Arabic characters</span>
+							</div>
+							<div id="custom_description" style="font-size: 80%">
+								<span class="localize font_custom_description">Upload your own custom font in the ".bitsyfont" format!</span>
+								<br/>
+								<label for="importFontPicker" class="filePickerLabel" title="import font from bitsyfont file on your computer">
+									<i class="material-icons">file_upload</i>
+									<span class="localize upload_font">upload font</span>
+								</label>
+								<input title="import font from bitsyfont file on your computer" type="file" id="importFontPicker" style="display:none;" onchange="importFontFromFile(event);"/>
+							</div>
+							<div style="margin-top:3px;">
+								<button title="download font file" class="color0" onclick="exportFont();">
+									<i class="material-icons">file_download</i>
+									<span class="localize download_font">download font</span>
+								</button>
+							</div>
+							<div>
+								<span class="localize text_direction_label">text direction</span>:
+								<select id="textDirectionSelect" onchange="on_change_text_direction(event);">
+									<option value="LTR" class="localize text_direction_ltr">Left to Right</option>
+									<option value="RTL" class="localize text_direction_rtl">Right to Left</option>
+								</select>
+							</div>
+							<div style="font-size: 80%">
+								<span class="localize text_direction_description">Option for languages that read right to left</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div> <!-- Editor Content -->
+		</div> <!-- Editor Window -->
+
+		</div>
+
+	</body>
+
+</html>
