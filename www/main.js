@@ -64,6 +64,6 @@ nw.Window.open("www/splash.html", {
     setTimeout(_=>{
         boot();
         splash.close(true);
-    }, 3000);
+    }, 4000);
 
 });
