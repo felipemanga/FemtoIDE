@@ -239,7 +239,8 @@ APP.addPlugin("LSP", [], _=> {
                 },
                 position
             }).then(result=>{
-                let out = result.items.map(entry=>({
+                let items = (result && result.items) || [];
+                let out = items.map(entry=>({
                     caption:entry.label,
                     snippet:entry.insertText,
                     meta:entry.detail,

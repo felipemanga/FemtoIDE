@@ -1,5 +1,53 @@
 APP.addPlugin("Elf", [], _ => {
 
+    const palette = [
+
+        "#5e315b",
+        "#8c3f5d",
+        "#ba6156",
+        "#f2a65e",
+        "#ffe478",
+        "#cfff70",
+        "#8fde5d",
+        "#3ca370",
+        "#3d6e70",
+        "#323e4f",
+        "#322947",
+        "#473b78",
+        "#4b5bab",
+        "#4da6ff",
+        "#66ffe3",
+        "#ffffeb",
+        "#c2c2d1",
+        "#7e7e8f",
+        "#606070",
+        "#43434f",
+        "#272736",
+        "#3e2347",
+        "#57294b",
+        "#964253",
+        "#e36956",
+        "#ffb570",
+        "#ff9166",
+        "#eb564b",
+        "#b0305c",
+        "#73275c",
+        "#422445",
+        "#5a265e",
+        "#80366b",
+        "#bd4882",
+        "#ff6b97",
+        "#ffb5b5",
+    ];
+
+    function shuffle(array) {
+        for (let i = 0; i < array.length; i++) {
+            const j = 0|(Math.random() * array.length);
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     const config = {
 		type: 'doughnut',
 		data: {
@@ -7,24 +55,7 @@ APP.addPlugin("Elf", [], _ => {
                         {
 			    data: [
 			    ],
-			    backgroundColor: [
-                                "#1a1c2c",
-                                "#5d275d",
-                                "#b13e53",
-                                "#ef7d57",
-                                "#ffcd75",
-                                "#a7f070",
-                                "#38b764",
-                                "#257179",
-                                "#29366f",
-                                "#3b5dc9",
-                                "#41a6f6",
-                                "#73eff7",
-                                "#f4f4f4",
-                                "#94b0c2",
-                                "#566c86",
-                                "#333c57"
-			    ]
+			    backgroundColor: shuffle(palette)
 		        },
                     ],
 		    labels: [
@@ -118,7 +149,7 @@ APP.addPlugin("Elf", [], _ => {
         }
 
         attach(){
-            this.NM(16)
+            this.NM(palette.length)
                 .then(({flash, ram})=>{
                     this._update(
                         flash,

@@ -353,6 +353,13 @@ APP.addPlugin("Text", ["Project"], _=>{
             }, true);            
         }
 
+        onAfterWriteBuffer( buffer ){
+            if( buffer != this.buffer || buffer.data == this.ace.session )
+                return;
+            this._setValue(buffer.data || "");
+            buffer.data = this.ace.session;
+        }
+
         _setValue(value){
             this.ignoreChange = true;
             this.ace.session.setValue( value );
