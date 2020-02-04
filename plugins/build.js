@@ -71,7 +71,10 @@ APP.addPlugin("Build", ["Project"], _=>{
                 if( error ){
                     busy = false;
                     APP.setStatus("Compilation FAILED");
-                    APP.error(error);
+                    if(Array.isArray(error))
+                        APP.logDump(error, "error");
+                    else
+                        APP.error(error);
                     return;
                 }
 

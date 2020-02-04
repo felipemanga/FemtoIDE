@@ -1,4 +1,5 @@
 APP.addPlugin("BuildCPP", ["Build"], _=> {
+    let firstFail;
     let buildFolder = "";
     let objFile = {};
     let nextObjFileId = 1;
@@ -226,6 +227,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         }
         
         ["compile-cpp"]( files, cb ){
+            firstFail = true;
             cdb = [];
             objBuffer.data = [];
 
@@ -297,7 +299,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             "-o", output
         ];
 
-        buffer.error = "";
+        var error = [];
 
         cdb.push({
             directory: DATA.projectPath,
@@ -307,25 +309,39 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
         APP.spawn( compilerPath, ...flags )
             .on("data-err", err =>{
-                buffer.error += err;
+                let prev = "";
+                let wasError = "log";
+                for(let line of (err+"").split("\n")){
+                    let isError = /.*?:[0-9]*:[0-9]*: error:/.test(line)?"error":"log";
+                    if( isError == wasError ){
+                        prev += "\n" + line;
+                    }else{
+                        error.push([wasError, prev]);
+                        prev = line;
+                        wasError = isError;
+                    }
+                }
+                error.push([wasError, prev]);
             })
             .on("data-out", msg=>{
-                APP.log("CPP: " + msg);
+                error.push(["log", msg]);
             })
-            .on("close", error=>{
-                if( error ){
-                    APP.findFile( buffer.path, true );
-                    cb( (buffer
-                         .error
-                         .split("\n")
-                         .filter(x=>x.indexOf("rror:") != -1 )
-                         .join("\n") || buffer.error)
-                        .substr(0, 512)
-                      );
+            .on("close", failed=>{
+
+                if( failed ){
+
+                    if(firstFail){
+                        firstFail = false;
+                        APP.findFile( buffer.path, true );
+                    }
+
+                    cb(error);
+
                 }else{
-                    if( buffer.error != "" )
-                        APP.log("CPP: " + buffer.error);
+
+                    APP.logDump(error, "log");
                     cb( null, output );
+
                 }
             });
 

@@ -33,6 +33,22 @@
     color: #FF0000;
 }
 
+#logContainer .logItem.dump {
+    position: relative;
+    cursor: pointer;
+}
+
+#logContainer .logItem.dump::after {
+    content: "[View Full Log]";
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    background: #555;
+    color: #eee;
+    border-radius: 5px;
+    pointer-events: none;
+}
+
 #closeLogBtn {
     position: absolute;
     padding: 0px 4px;

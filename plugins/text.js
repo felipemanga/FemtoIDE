@@ -263,6 +263,8 @@ APP.addPlugin("Text", ["Project"], _=>{
             this.highlight = undefined;
 
             this.ace = ace.edit( id );
+            if(!buffer.path)
+                this.ace.setReadOnly(true);
             this.ace.setTheme( DATA.aceTheme || "ace/theme/kuroir" );
             let hnd;
             let session = this.ace.session;

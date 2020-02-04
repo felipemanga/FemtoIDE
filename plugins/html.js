@@ -6,6 +6,7 @@ APP.addPlugin("HTML", ["Text"], TextView => {
             super(frame, buffer);
             this.ace.session.setMode("ace/mode/xml");
             this.sourceMode = true;
+            this.blob = null;
             this.preview = DOC.create(
                 frame,
                 "iframe",
@@ -53,10 +54,36 @@ APP.addPlugin("HTML", ["Text"], TextView => {
             this.toggleMode();
         }
 
+        detach(){
+            if(this.blob){
+                URL.revokeObjectURL(this.blob);
+                this.blob = null;
+            }
+            super.detach();
+        }
+
+        attach(){
+            super.attach();
+            if( this.preview.style.display == "block" ){
+                this.preview.style.display = "none";
+                this.toggleMode();
+            }
+        }
+
         toggleMode(){
             if( this.preview.style.display == "none" ){
                 this.preview.style.display = "block";
-                this.preview.src = "file://" + this.buffer.path.replace(/\\/g, "/") + "?" + Math.random();
+                let url;
+                if( this.buffer.path ){
+                    url = "file://" + this.buffer.path.replace(/\\/g, "/") + "?" + Math.random();
+                }else{
+                    if(this.blob){
+                        URL.revokeObjectURL(this.blob);
+                    }
+                    this.blob = URL.createObjectURL(new Blob([this.buffer.data], {type: "text/html"}));
+                    url = this.blob;
+                }
+                this.preview.src = url;
             }else{
                 this.preview.style.display = "none";
             }
