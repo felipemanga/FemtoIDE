@@ -42,14 +42,20 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
                 }));
             }
 
+            let error = [];
+
             APP.spawn( linkerPath, {cwd}, ...flags )
                 .on("data-err", err=>{
-                    APP.error("LD: " + err);                    
+                    error.push(["error", err]);
                 })
-                .on("close", error=>{
-                    if( error ){
-                        cb( true );
+                .on("data-out", msg=>{
+                    error.push(["log", msg]);
+                })
+                .on("close", errorNum=>{
+                    if( errorNum ){
+                        cb( error );
                     }else{
+                        APP.logDump(error, "log");
                         let i = flags.indexOf("--output");
                         buffer.path = flags[i+1];
                         files.push( buffer );
