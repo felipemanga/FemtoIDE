@@ -37,18 +37,19 @@ APP.addPlugin("SDCard", [], _=>{
     
     class ABDriver {
         
-        constructor(){
+        constructor(image){
+            this.image = image;
             this.sectorSize=512;
             this.numSectors=image.byteLength/this.sectorSize|0;
         }
 
         readSectors( i, dest, cb ){
-	    dest.set( new Uint8Array(image, i*512, dest.length) );
+	    dest.set( new Uint8Array(this.image, i*512, dest.length) );
 	    cb();
         }
         
         writeSectors( i, data, cb ){
-	    new Uint8Array(image, i*512, data.length ).set( data );
+	    new Uint8Array(this.image, i*512, data.length ).set( data );
 	    cb();
         }
     }
@@ -73,6 +74,10 @@ APP.addPlugin("SDCard", [], _=>{
                 label:"Copy to SD",
                 default: false
             };
+        }
+
+        mountDisk(image){
+            return fatfs.createFileSystem( new ABDriver(image) );
         }
 
         ["make-img"]( files, cb ){
@@ -146,7 +151,7 @@ APP.addPlugin("SDCard", [], _=>{
             });
             
             format();
-            const ffs = fatfs.createFileSystem( new ABDriver() );
+            const ffs = this.mountDisk(image);
             files.forEach(file=>{
                 if( !file.path.startsWith(DATA.projectPath) )
                     return;

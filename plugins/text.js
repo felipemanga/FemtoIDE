@@ -346,6 +346,17 @@ APP.addPlugin("Text", ["Project"], _=>{
         onFileChanged( buffer ){
             if( buffer != this.buffer )
                 return;
+
+            if(buffer.data && buffer.data != this.ace.session && buffer.data.constructor == this.ace.session.constructor){
+                this._setValue(buffer.data.getValue());
+                return;
+            }
+
+            if(!buffer.path){
+                this._setValue( buffer.data || "" );
+                return;
+            }
+
             APP.readBuffer( buffer, "utf-8", (err, data) => {
                 buffer.data = this.ace.session;                
                 if( this.hash != buffer.hash ){
