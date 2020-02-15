@@ -96,7 +96,7 @@
 			"-fno-delete-null-pointer-checks"
 		],
 		"ALL": [
-			"-std=c++14"
+			"-std=c++17"
 		]
 	},
 	"CFlags": {

@@ -12,6 +12,7 @@ int main () {
     Pokitto::Core game;
     game.begin();
     game.display.persistence = 0;
+    game.display.setColorDepth(4);
     
     PyInSkyMain( p, new char[p] );
     return 1;

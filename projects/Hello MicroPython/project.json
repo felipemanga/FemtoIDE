@@ -31,7 +31,6 @@
 		],
 		"Pokitto": [
 			"-D_OSCT=2",
-			"-DPROJ_FPS=60",
 			"-I${projectPath}",
 			"-DPOKITTO",
 			"-fno-rtti",
@@ -97,7 +96,7 @@
 			"-fno-delete-null-pointer-checks"
 		],
 		"ALL": [
-			"-std=c++14"
+			"-std=c++17"
 		]
 	},
 	"CFlags": {

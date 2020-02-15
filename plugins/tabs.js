@@ -56,6 +56,11 @@ APP.addPlugin("Tabs", [], _=>{
             this.hide();
         }
 
+        closeTab(){
+            if(this.count)
+                this._close();
+        }
+
         updateCount(inc){
             this.count += inc;
 

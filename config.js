@@ -4,10 +4,12 @@ APP.customSetVariables({
 });
 
 APP.bindKeys("global", {
+    "C-w": APP.closeTab,
     "C-M-d": APP.disassemble,
     "M-h": APP.toggleHCPP,
     "\x1B": APP.clearLog,
     "C-\x0D": APP.action,
+    "C-M-b": ()=>{ APP.clean(); APP.compileAndRun(); },
     "C-b": APP.compile,
     "C-r": APP.run,
     "C-g":APP.compileAndRun,

@@ -71,7 +71,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         let transparentIndex = settings.transparent|0;
         let palette = settings.palette;
         let out;
-        let bpp = (Math.log(palette.length) / Math.log(2))|0;
+        let bpp = settings.bpp || (Math.log(palette.length) / Math.log(2))|0;
 
         if( name ){
             out = `// Automatically generated file, do not edit.
