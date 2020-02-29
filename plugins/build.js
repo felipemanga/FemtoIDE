@@ -49,17 +49,48 @@ APP.addPlugin("Build", ["Project"], _=>{
             APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});
             APP.setStatus("Compiling...");
 
+            const target = DATA.project.target;
+            let BUILDFlags = getFlags();
+
             let pipeline, files, current;
             try{
-                const target = DATA.project.target;
                 pipeline = DATA.project.pipelines[target];
                 files = buildFiles = [...DATA.projectFiles];
+                if(BUILDFlags.ignore){
+                    let exp = new RegExp(BUILDFlags.ignore, "gi");
+                    files = buildFiles = buildFiles.filter(f=>(
+                        !f.path || !f.path.replace(DATA.projectPath, "").match(exp)
+                    ));
+                }
                 current = -1;
                 setTimeout(_=>popQueue(),0);
             }catch( ex ){
                 APP.setStatus("Compilation FAILED");
                 APP.error(ex);
                 busy = false;
+            }
+
+            function getFlags(){
+                let flags = {};
+
+                let BUILDFlags = DATA.project["BUILDFlags"];
+
+                if( !BUILDFlags ){
+                    BUILDFlags = DATA.project["BUILDFlags"] = {
+                        [DATA.project.target]:{}
+                    };
+                }
+                
+                if( BUILDFlags ){
+                    if( BUILDFlags[DATA.project.target] )
+                        Object.assign(flags, BUILDFlags[DATA.project.target]);
+                    if( BUILDFlags.ALL )
+                        Object.assign(flags, BUILDFlags.ALL );
+                    if( BUILDFlags[DATA.buildMode] )
+                        Object.assign(flags, BUILDFlags[DATA.buildMode] );
+                }
+                
+                return flags;
             }
 
             function popQueue( error ){
