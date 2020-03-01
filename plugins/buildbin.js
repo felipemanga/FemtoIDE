@@ -42,7 +42,10 @@ APP.addPlugin("BuildBIN", ["Build"], _=> {
                     }else{
                         buffer.path = flags[flags.length-1];
                         files.push( buffer );
-                        calculateChecksum( buffer.path );
+                        if(!DATA.project.noChecksum)
+                            calculateChecksum( buffer.path );
+                        else
+                            cb(null);
                     }
                 });
             
