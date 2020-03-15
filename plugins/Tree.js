@@ -347,7 +347,16 @@ APP.addPlugin("Tree", [], _=>{
             }else if( path.length == 1 ){
                 if( this.children.find( child => child.buffer == buffer ) )
                     return;
-                let next = this.children.find( child => child.buffer.name > buffer.name );
+
+                let isDirectory = buffer.type == "directory";
+                let next = this.children.find( child => {
+                    if(child.buffer.type == "directory" && !isDirectory)
+                        return false;
+                    if(isDirectory && child.buffer.type != "directory")
+                        return true;
+                    return child.buffer.name > buffer.name;
+                });
+
                 if( next && next.DOM && [...this.DOM.dir.children].indexOf(next.DOM.__ROOT__) == -1 )
                     next = null;
                 
