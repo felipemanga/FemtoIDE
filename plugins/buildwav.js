@@ -53,8 +53,10 @@ APP.addPlugin("Wav", ["Project"], _=>{
     };
     
     APP.add(new class BuildAudio {
-        readAudio(file){
-            let settings = DATA.project.audio || {};
+        readAudio(file, opts){
+            let settings = Object.assign({},
+                                         DATA.project.audio,
+                                         opts);
             let bpp = settings.bpp || 8;
             let rate = settings.rate || 8000;
             let signed = settings.signed || false;
