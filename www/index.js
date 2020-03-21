@@ -76,6 +76,7 @@ class Buffer {
         this.pluginData = {};
         this.hash = 0;
         this.version = 1;
+        this.inode = null;
     }
 
     kill(){
@@ -358,10 +359,30 @@ class Frame {
         return buffer;
     }
 
+    inode( filePath ){
+        try{
+            return fs.statSync(filePath).ino;
+        }catch(ex){}
+        return null;
+    }
+
     findBuffer( filePath ){
-        return DATA.buffers.find(
+        let match = DATA.buffers.find(
             buffer => buffer.path == filePath
         );
+
+        if( match )
+            return match;
+
+        let inode = this.inode(filePath);
+
+        if( inode ){
+            match = DATA.buffers.find(
+                buffer => buffer.inode == inode
+            );
+        }
+
+        return match;
     }
 
     findFile( filePath, doDisplay ){
@@ -377,6 +398,7 @@ class Frame {
         buffer.path = filePath;
         buffer.name = filePath.split( path.sep ).pop();
         buffer.type = filePath.split(".").pop().toUpperCase();
+        buffer.inode = this.inode(filePath);
 
         if( doDisplay )
             APP.displayBuffer( buffer );
@@ -671,6 +693,7 @@ class Core {
         buffer.hash = hash(data);
         APP.onBeforeWriteBuffer(buffer, data);
         fs.writeFileSync( buffer.path, data, buffer.encoding );
+        buffer.inode = APP.inode(buffer.path);
         APP.onAfterWriteBuffer(buffer, data);
 
         buffer.modified = false;
