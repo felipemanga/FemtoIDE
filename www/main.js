@@ -42,16 +42,30 @@ nw.App.on('open', (args)=>{
         ignore = x.startsWith("--") && x.endsWith("=");
         return x.length && !x.startsWith("--");
     });
+
+    args = args.map(a => {
+	return a.replace(/^"(.*)"$/, "$1");
+    });
+
     if( args.length > 1 ){
-        let project = args.shift();
-        let inst = instances.find(inst=>inst.project == project);
+
+	let str = JSON.stringify(args);
+
+	let inst;
+	do {
+            let project = args.shift();
+	    inst = instances.find(inst=>inst.project == project);
+	} while(args.length && !inst);
+
         if(inst){
             args.forEach(arg=>{
                 inst.win.window.APP[arg]();
             });
         }else{
+	    instances[0].win.window.APP.log(str);
 	    boot();
 	};
+
     }else{
         boot();
     }
