@@ -106,11 +106,6 @@
 #define PROJ_TILE_W 16
 
 
-// Choose how many types of tile can be used per map
-// Optional. Can be 16 or 256. Default is 16.
-#define MAX_TILE_COUNT 256
-
-
 // ---- SECTION: MISC ----
 
 // Skips the initial Pokitto/Loader/Volume screens.

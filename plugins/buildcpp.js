@@ -1,5 +1,5 @@
 APP.addPlugin("BuildCPP", ["Build"], _=> {
-    let firstFail;
+    let failLine;
     let buildFolder = "";
     let objFile = {};
     let nextObjFileId = 1;
@@ -8,6 +8,9 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     let libFlags = [];
     let libSrc = {};
     let cdb = [];
+
+    let jobs = [];
+    let workerCount = 0;
 
     function validLibEntry(entry, ignore){
         if( /^\.|~$/.test(entry) ) 
@@ -227,7 +230,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         }
         
         ["compile-cpp"]( files, cb ){
-            firstFail = true;
+            failLine = null;
             cdb = [];
             objBuffer.data = [];
 
@@ -275,6 +278,24 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     }
 
     function compile( buffer, cb ){
+        jobs.push({buffer, cb});
+        if(workerCount >= 4) return;
+
+        workerCount++;
+        let job = jobs.pop();
+        doCompile(job.buffer, (...args) => {
+            workerCount--;
+
+            if(jobs.length){
+                let {buffer, cb} = jobs.pop();
+                compile(buffer, cb);
+            }
+            
+            job.cb(...args);
+        });
+    }
+
+    function doCompile(buffer, cb){
         if( !buffer.path || buffer.modified ){
             
             if( !buffer.path )
@@ -313,6 +334,9 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 let wasError = "log";
                 for(let line of (err+"").split("\n")){
                     let isError = /.*?:[0-9]*:[0-9]*: error:/.test(line)?"error":"log";
+                    if( failLine === null && isError == "error" ){
+                        failLine = line;
+                    }
                     if( isError == wasError ){
                         prev += "\n" + line;
                     }else{
@@ -330,9 +354,14 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
                 if( failed ){
 
-                    if(firstFail){
-                        firstFail = false;
-                        APP.findFile( buffer.path, true );
+                    if(failLine !== null){
+                        let match = failLine.match(/(.*?):([0-9]*):([0-9]*): error:/);
+                        let buffer = APP.findFile( match[1], true );
+                        APP.jumpTo(
+                            buffer,
+                            (match[2]|0)||1,
+                            ((match[3]|0)||1)-1
+                        );
                     }
 
                     cb(error);
