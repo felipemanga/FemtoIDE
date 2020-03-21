@@ -1,7 +1,14 @@
 APP.addPlugin("Tree", [], _=>{
     document.body.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        return false;
+        let t = e.target;
+        while(t){
+            if( t.classList.contains("nocontext") ){
+                e.preventDefault();
+                return false;
+            }
+            t = t.parentElement;
+        }
+        return true;
     });
     
     function makeAction( meta ){
@@ -408,7 +415,7 @@ APP.addPlugin("Tree", [], _=>{
             }, frame);
 
             let container = DOC.create("div", {
-                className:"FileListContainer"
+                className:"FileListContainer nocontext"
             }, frame);
 
             this.fileList = DOC.create(

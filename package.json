@@ -2,12 +2,13 @@
     "name": "FemtoIDE",
     "main": "www/main.js",
     "version": "{VERSION}",
+    "chromium-args": "--password-store=basic",
     "window": {
         "toolbar": false,
         "frame": false,
         "width": 1024,
         "height": 768,
-		"icon": "www/images/femto-icon2.png"
+	"icon": "www/images/femto-icon2.png"
     },
     "dependencies": {
         "fatfs": "^0.10.7",

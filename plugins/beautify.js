@@ -170,7 +170,10 @@ if (!Object.values) {
 
             exports.isIdentifierStart = function(code) {
                 // permit $ (36) and @ (64). @ is used in ES7 decorators.
-                if (code < 65) return code === 36 || code === 64;
+                if (code < 65)
+                    return code === 36 ||
+                           code === 64 ||
+                           code === 35; // #
                 // 65 through 91 are uppercase letters.
                 if (code < 91) return true;
                 // permit _ (95).

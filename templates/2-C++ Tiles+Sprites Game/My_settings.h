@@ -12,7 +12,7 @@
 // For more information on each mode, see:
 // https://talk.pokitto.com/t/wiki-5-pokitto-screen-modes/1180
 // Optional. Default is MODE_FAST_16COLOR.
-#define PROJ_SCREENMODE MODE_FAST_16COLOR
+#define PROJ_SCREENMODE TASMODE
 //#define PROJ_SCREENMODE MODE_HI_4COLOR
 //#define PROJ_SCREENMODE MODE13
 //#define PROJ_SCREENMODE MODE13
@@ -29,7 +29,7 @@
 
 // Limit the framerate so the game doesn't run too fast
 // Optional. Default is 30.
-#define PROJ_FPS 60
+#define PROJ_FPS 200
 
 
 // Choose how to use Pokitto's "extra" 4kb of RAM.
@@ -108,7 +108,7 @@
 
 // Choose how many types of tile can be used per map
 // Optional. Can be 16 or 256. Default is 16.
-#define MAX_TILE_COUNT 16
+#define MAX_TILE_COUNT 256
 
 
 // ---- SECTION: MISC ----

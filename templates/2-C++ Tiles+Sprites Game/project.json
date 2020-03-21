@@ -2,7 +2,8 @@
 	"lastBuffer": "main.cpp",
 	"PNGFlags": {
 		"ALL": [
-			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp"
+			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/miloslav.h",
+			"bpp=8"
 		]
 	},
 	"libs": {
@@ -30,7 +31,7 @@
 			"-O3"
 		],
 		"Pokitto": [
-			"-DPROJ_FPS=60",
+			"-D_OSCT=2",
 			"-I${projectPath}",
 			"-DPOKITTO",
 			"-fno-rtti",
@@ -109,6 +110,7 @@
 			"-O3"
 		],
 		"Pokitto": [
+			"-D_OSC=2",
 			"-I${projectPath}",
 			"-DPOKITTO",
 			"-Wno-pointer-arith",
@@ -237,40 +239,5 @@
 			"compile-bin"
 		]
 	},
-	"meta": {
-		"": {},
-		"/Bacon.png": {
-			"sdcard": false
-		},
-		"/Hello CPP.bin": {
-			"sdcard": false
-		},
-		"/File.cpp": {
-			"sdcard": false
-		},
-		"/Hello CPP.elf": {
-			"sdcard": false
-		},
-		"/My_settings.h": {
-			"sdcard": false
-		},
-		"/Smile.h": {
-			"sdcard": false
-		},
-		"/Smile.png": {
-			"sdcard": false
-		},
-		"/Test.h": {
-			"sdcard": false
-		},
-		"/Test.png": {
-			"sdcard": true
-		},
-		"/main.cpp": {
-			"sdcard": false
-		},
-		"/project.json": {
-			"sdcard": false
-		}
-	}
+	"meta": {}
 }

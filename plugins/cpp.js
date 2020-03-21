@@ -24,6 +24,12 @@ APP.addPlugin("CPP", ["Text"], TextView => {
             APP.compileAndRun();
         }
 
+        beautify(){
+            if( typeof js_beautify == "undefined" )
+                return;
+            let ret = js_beautify(this.ace.session.getValue());
+            this.ace.session.setValue(ret);
+        }
 
         complete(callback){
             let pos = this.ace.getCursorPosition();

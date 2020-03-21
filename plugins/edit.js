@@ -49,7 +49,8 @@ APP.addPlugin("Edit", ["Project"], _=>{
                 "Beautify":"beautify",
                 "Comment":"toggleComment",
                 "Go Back":"goBack",
-                "Go Forward":"goForward"
+                "Go Forward":"goForward",
+                "Go to Declaration":"jumpToDeclaration"
             });
         }
     });
