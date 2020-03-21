@@ -172,8 +172,7 @@ if (!Object.values) {
                 // permit $ (36) and @ (64). @ is used in ES7 decorators.
                 if (code < 65)
                     return code === 36 ||
-                           code === 64 ||
-                           code === 35; // #
+                           code === 64;
                 // 65 through 91 are uppercase letters.
                 if (code < 91) return true;
                 // permit _ (95).
@@ -1431,7 +1430,7 @@ if (!Object.values) {
                     allow_wrap_or_preserved_newline();
                     space_before = last_type === 'TK_START_BLOCK';
                     space_after = false;
-                } else if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
+                } else if (in_array(current_token.text, ['--', '++', '!', '~', '->']) || isUnary) {
                     // unary operators (and binary +/- pretending to be unary) special cases
 
                     space_before = false;
@@ -1896,7 +1895,7 @@ if (!Object.values) {
             this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ');
             var punct = this.positionable_operators.concat(
                 // non-positionable operators - these do not follow operator position settings
-                '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '));
+                '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ... ->'.split(' '));
 
             // words which should always start on new line.
             this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -2118,6 +2117,12 @@ if (!Object.values) {
 
                 if (c === ';') {
                     return [c, 'TK_SEMICOLON'];
+                }
+
+                if (c === '#') {
+                    comment_match = input.match(comment_pattern);
+                    comment = '#' + comment_match[0];
+                    return [comment, 'TK_COMMENT'];
                 }
 
                 if (c === '/') {
