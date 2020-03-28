@@ -247,13 +247,17 @@ ${img.width}, ${img.height}`;
             MIXMODE:8,
             MODE64:8,
             MODE14:3,
-            MODE15:4            
+            MODE15:4,
+            TASMODE:8,
+            TASMODELOW:8
         };
         
         src = removeComments(src);
 
         src.replace(/\s*#define\s+PROJ_([^\s]+)\s*([^\s]*)/mgi, (m, key, value)=>{
-            if(modes[key] && value != "0")
+            if(key == "SCREENMODE")
+                bpp = modes[value];
+            else if(modes[key] && value != "0")
                 bpp = modes[key];
         });
         

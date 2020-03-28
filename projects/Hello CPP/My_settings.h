@@ -36,15 +36,9 @@
 // Optional. Can be:
 //   HIGH_RAM_OFF   - Needed for USB to work
 //   HIGH_RAM_ON    - Simply enable the RAM hardware
-//   HIGH_RAM_MUSIC - Enable and move the sound buffers to high RAM
+//   HIGH_RAM_MUSIC - Enable and move the soud buffers to high RAM
 // Default is HIGH_RAM_OFF.
 #define PROJ_HIGH_RAM HIGH_RAM_OFF
-
-
-// Disabling persistence will clear the framebuffer
-// automatically when it is sent to the LCD.
-// Optional. Can be true or false, default is false.
-#define PROJ_PERSISTENCE true
 
 
 // ---- SECTION: SOUND ----
