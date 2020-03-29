@@ -23,7 +23,7 @@ bitmap Z:
 */
 
 function start(){
-    let sprites = dir("sprites")
+    let sprites = (dir("sprites")||[])
     .filter( file=>/\.json$/i.test(file) )
     .reduce( (index, file) => {
         let sprite = JSON.parse(read(`sprites/${file}`));
@@ -121,6 +121,10 @@ public:
     std::uint8_t getFrameId(std::uint32_t frame){ return data[ 2 + animation + 1 + frame * 2]; }
 
     std::uint32_t getFrameDuration(std::uint32_t frame){ return data[ 2 + animation + 1 + frame * 2 + 1 ] * 10; }
+    
+    std::uint32_t getFrameWidth(){ return getFrameBitmap(getFrameId(frame))[2]; }
+    
+    std::uint32_t getFrameHeight(){ return getFrameBitmap(getFrameId(frame))[3]; }
 
     const uint8_t *getFrameBitmap(std::uint32_t frameId){ 
         std::uint32_t offset = 2 + data[0] + (static_cast<std::uint32_t>(data[1]) << 8);

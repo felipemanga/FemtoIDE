@@ -17,7 +17,7 @@
   </tile>
   <tile id="20">
    <properties>
-    <property name="Event" value="GoToEncounter"/>
+    <property name="Event" value="WalkOnGrass"/>
    </properties>
   </tile>
   <tile id="65">
@@ -71,7 +71,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="9" name="Events" width="14" height="11" visible="0">
+ <layer id="9" name="Events" width="14" height="11">
   <properties>
    <property name="visible" type="bool" value="false"/>
   </properties>

@@ -2,6 +2,7 @@
 #include <miloslav.h>
 #include <Tilemap.hpp>
 #include <SDFileSystem.h>
+#include "sprites.h"
 #include "Smile.h"
 #include "maps.h"
 
@@ -18,29 +19,60 @@ int main(){
     for(int i=0; i<sizeof(tiles)/(POK_TILE_W*POK_TILE_H); i++)
         tilemap.setTile(i, POK_TILE_W, POK_TILE_H, tiles+i*POK_TILE_W*POK_TILE_H);
 
-    int x=32, y=32, c=0, speed=3;
+    int cameraX = 64, cameraY = 64, speed = 3, recolor = 0;
+    
+    Sprite player;
+    player.play(dude, Dude::walkS);
+    auto playerWidth = player.getFrameWidth();
+    auto playerHeight = player.getFrameHeight();
+    auto playerX = LCDWIDTH/2 - playerWidth/2;
+    auto playerY = LCDHEIGHT/2 - playerHeight/2;
+    
     while( PC::isRunning() ){
         if( !PC::update() ) 
             continue;
             
-        int oldX = x;
-        int oldY = y;
+        int oldX = cameraX;
+        int oldY = cameraY;
 
-        if(PB::leftBtn()) x -= speed;
-        else if(PB::rightBtn()) x += speed;
-        if(PB::downBtn()) y += speed;
-        else if(PB::upBtn()) y -= speed;
+        if(PB::rightBtn()){
+            cameraX += speed;
+            if(player.animation != Dude::walkE)
+                player.play(dude, Dude::walkE);
+        }else if(PB::leftBtn()){
+            cameraX -= speed;
+            if(player.animation != Dude::walkW)
+                player.play(dude, Dude::walkW);
+        }
         
-        int tileX = (x + 8 + PROJ_TILE_W/2) / PROJ_TILE_W;
-        int tileY = (y + 12 + PROJ_TILE_H/2) / PROJ_TILE_H;
+        if(PB::upBtn()){
+            cameraY -= speed;
+            if(player.animation != Dude::walkN)
+                player.play(dude, Dude::walkN);
+        }else if(PB::downBtn()){
+            cameraY += speed;
+            if(player.animation != Dude::walkS)
+                player.play(dude, Dude::walkS);
+        }
+        
+        int tileX = (cameraX + playerX + PROJ_TILE_W/2) / PROJ_TILE_W;
+        int tileY = (cameraY + playerY + playerHeight) / PROJ_TILE_H;
         auto tile = gardenPathEnum(tileX, tileY);
+
         if( tile&Collide ){
-            x = oldX;
-            y = oldY;
+            cameraX = oldX;
+            cameraY = oldY;
+        }
+        
+        if( tile&WalkOnGrass ){
+            recolor++;
+        }else{
+            recolor = 0;
         }
 
-        PD::drawSprite(110 - 12, 88 - 12, Smile);
-        tilemap.draw(x + 12 - 110, y + 12 - 88);
+        tilemap.draw(-cameraX, -cameraY);
+        PD::drawSprite(-cameraX, -cameraY, Smile, false, false, recolor);
+        player.draw(playerX, playerY, false, false, recolor);
     }
     
     return 0;
