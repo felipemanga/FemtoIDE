@@ -1,4 +1,16 @@
 APP.addPlugin("Tree", [], _=>{
+    let expanded;
+
+    document.body.addEventListener('mousedown', (e) => {
+        let t = e.target;
+        while(t){
+            if(t == expanded)
+                return;
+            t = t.parentElement;
+        }
+        APP.hideTreeActions();
+    });
+    
     document.body.addEventListener('contextmenu', (e) => {
         let t = e.target;
         while(t){
@@ -132,8 +144,10 @@ APP.addPlugin("Tree", [], _=>{
                         let isExpanded = this.DOM.__ROOT__.classList.contains("expand");
                         APP.hideTreeActions();
                         
-                        if( !isExpanded )
+                        if( !isExpanded ){
                             this.DOM.__ROOT__.classList.add("expand");
+                            expanded = this.DOM.__ROOT__;
+                        }
                     }
                 }
             } );

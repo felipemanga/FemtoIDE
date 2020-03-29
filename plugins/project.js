@@ -275,7 +275,7 @@ APP.addPlugin("Project", [], _=>{
                 ]],
 
             ["div", {className:"row"}, [
-                ["label", {text:"Project name"}],
+                ["label", {text:"Template"}],
                 ["select", {className:"INPUT", id:"template"},
                  templates.map( text => ["option", {value:text, text}] )
                 ]
