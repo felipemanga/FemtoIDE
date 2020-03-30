@@ -27,8 +27,6 @@
              height: 100%;
              font-family: 'Varela Round', sans-serif;
              user-select: none;
-             background-color: none;
-             background-size: 100%;
          }
 
          video {
@@ -49,12 +47,10 @@
 
          #bg {
              bottom: 0;
+             right: 0;
              background-color: rgba(255,255,255,0.6);
-             position: absolute;
-             width: 100%;
-             margin: 0;
-             padding: 0;
-             overflow: hidden;
+             position: fixed;
+             width: 30%;
              animation: fadein 2s forwards;
          }
 
@@ -70,18 +66,28 @@
 
         </style>
     </head>
-    <body style="background-image: url(splash2.png)">
+    <body style="background-image: url(splash.png)">
+      <script>
+        /*
+         const video = document.createElement("video");
+         const source = document.createElement("source");
+         video.setAttribute("width", "100%");
+         video.setAttribute("height", "100%");
+         // source.setAttribute("src", `splash${Math.random()*4|0}.webm`);
+         source.setAttribute("src", `splash.webm`);
+         source.setAttribute("type", "video/mp4");
+         video.appendChild(source);
+         document.body.appendChild(video);
+         video.play();
+        */
+      </script>
+      <img src="capture.gif" style="transform: perspective(390px) translate(390px, 30px) rotateY(-38deg) skewY(21deg) scaleX(0.8) scaleY(1.4)">
         <div id="bg">
           <!--<h1>FemtoIDE</h1>-->
           <h2 id="version"></h2>
         </div>
         <script>
-          version.textContent = require("../package.json").version + [
-              " DieselPunk Edition",
-              " BagelPunk Edition",
-              " Punk Edition",
-              " CyberPunk Edition"
-          ][Math.random()*4|0];
+          version.textContent += require("../package.json").version;
         </script>
     </body>
 </html>

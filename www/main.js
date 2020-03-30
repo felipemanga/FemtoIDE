@@ -72,10 +72,11 @@ nw.App.on('open', (args)=>{
 });
 
 nw.Window.open("www/splash.html", {
-    width:868,
-    height:374,
+    width:485,//868,
+    height:280,//374,
     position:"center",
-    frame:false
+    frame:false,
+    transparent:true
 }, splash =>{
 
     setTimeout(_=>{
