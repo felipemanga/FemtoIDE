@@ -89,7 +89,7 @@ Promise.all(promises)
             let {str, special} = processTMX(maps[name], name);
             acc += `inline const uint8_t ${name}[] = {\n`;
             acc += `${str[0].length}, ${str.length},\n`;
-            acc += str.map(l=>l.map(m=>"0x"+(m-1).toString(16).padStart(2, "0")).join(", ")).join(",\n");
+            acc += str.map(l=>l.map(m=>"0x"+((m||1)-1).toString(16).padStart(2, "0")).join(", ")).join(",\n");
             acc += `\n};\n`;
             acc += `inline MapEnum ${name}Enum(uint32_t x, uint32_t y){
 static const MapEnum parameters[] = {\n\t`;
@@ -164,22 +164,36 @@ function getObjects(xml){
 */
 function getTileSets(xml){
     return [...xml.querySelectorAll("tileset")]
-        .map(tset=>Object.assign(
-            {}, 
+        .map(tset=>parseTset(tset))
+        .sort((a, b)=>(a.firstgid|0) - (b.firstgid|0));
 
-            [...tset.attributes]
-                .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {}),
+    function parseTset(tset){
+        let obj = {};
+        let attributes = [...tset.attributes]
+                .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {});
+
+        if( attributes.source ){
+            tset = XML(read(`maps/${attributes.source}`)).querySelector("tileset");
+            obj = attributes;
+            attributes = [...tset.attributes]
+                .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {});
+        }
+
+        return Object.assign(
+            obj,
+
+            attributes,
 
             [...(tset.querySelector("image")||{attributes:[]}).attributes]
                 .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {}),
-            
+
             [...(tset.querySelectorAll("tile"))]
                 .reduce((obj, tile)=>{
                     obj.properties[tile.id|0] = getProperties(tile);
                     return obj;
                 }, {properties:{}})
-        ))
-        .sort((a, b)=>(a.firstgid|0) - (b.firstgid|0));
+        );
+    }
 }
 
 function getProperties(node){
@@ -192,12 +206,10 @@ function getProperties(node){
 function processTMX(map, name){
     let str = [];
 
-    if( !width ){
-        width = map.width|0;
-        height = map.height|0;
-        tileW = map.tilewidth|0;
-        tileH = map.tileheight|0;
-    }
+    width = map.width|0;
+    height = map.height|0;
+    tileW = map.tilewidth|0;
+    tileH = map.tileheight|0;
 
     let special = new Array(width*height);
     for( let i=0; i<special.length; ++i )
