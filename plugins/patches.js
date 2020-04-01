@@ -11,6 +11,10 @@ APP.addPlugin("Patches", [], _=>{
             let flags = project.CPPFlags[key];
             if(Array.isArray(flags)){
                 let i = flags.indexOf("-std=c++14");
+
+                if(i == -1)
+                    i = flags.indexOf("-std=c++11");
+
                 if(i != -1){
                     flags[i] = "-std=c++17";
                     APP.dirtyProject();
