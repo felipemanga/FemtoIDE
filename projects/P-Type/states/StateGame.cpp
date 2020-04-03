@@ -19,11 +19,22 @@ void StateGame::initEntities(){
 }
 
 void StateGame::initTilemap(){
-    tilemap.fillOutOfBounds = -1;
+    uimap.set(::uimap[0], ::uimap[1], ::uimap+2);
     tilemap.set(Level1[0], Level1[1], Level1+2);
     for(int i = 0; i < sizeof(tiles)/(POK_TILE_W*POK_TILE_H); i++){
-        tilemap
-            .setTile(i, POK_TILE_W, POK_TILE_H, tiles+i*POK_TILE_W*POK_TILE_H);
+        auto tile = tiles + i * POK_TILE_W * POK_TILE_H;
+        tilemap.setTile(
+            i,
+            POK_TILE_W,
+            POK_TILE_H,
+            tile
+            );
+        uimap.setTile(
+            i,
+            POK_TILE_W,
+            POK_TILE_H,
+            tile
+            );
     }
 }
 
@@ -52,12 +63,30 @@ void StateGame::spawnEnemies(){
     }
 }
 
+void StateGame::updateHUD(){
+    if(!uidirty)
+        return;
+    uidirty = false;
+    PD::setTASRowMask(0b1111'11000000'00000000);
+
+    uimap.draw(0, 0);
+    PD::setCursor(3 * POK_TILE_W + 5, 9 * POK_TILE_H + 5);
+    PD::color = 49;
+    PD::bgcolor = PD::invisiblecolor;
+    PD::print(player.getHP());
+    PD::update();
+
+    PD::setTASRowMask(0b0000'00111111'11111111);
+}
+
 void StateGame::update(){
     frame++;
     if(PROJ_LCDWIDTH - cameraX >= Level1[0] * POK_TILE_W){
         stateMachine.setState<StateIntro>();
         return;
     }
+
+    updateHUD();
 
     int shakeX = cos(frame) * screenShake;
     int shakeY = sin(frame) * screenShake;

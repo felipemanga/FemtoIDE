@@ -24,8 +24,10 @@ class StateGame : public State<StateGame> {
     Bullet playerBullet[bulletCount];
     Bullet enemyBullet[bulletCount];
     Player player;
+    bool uidirty = true;
     int32_t frame = 0;
     Tilemap tilemap;
+    Tilemap uimap;
 
     void initTilemap();
     void initEntities();
@@ -40,6 +42,7 @@ class StateGame : public State<StateGame> {
 
     void spawnEnemy(int32_t x, int32_t y, EnemySprite::Animation anim);
     void spawnEnemies();
+    void updateHUD();
 
 public:
     float screenShake = 0;
@@ -48,6 +51,8 @@ public:
 
     StateGame();
     void update();
+
+    void dirty(){ uidirty = true; }
 
     Player& getPlayer(){ return player; }
 

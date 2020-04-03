@@ -579,6 +579,39 @@
 		},
 		"/images/gameover.h": {
 			"sdcard": false
+		},
+		"/P-Type.bin.1.gif": {
+			"sdcard": false
+		},
+		"/P-Type.bin.2.gif": {
+			"sdcard": false
+		},
+		"/P-Type.bin.3.gif": {
+			"sdcard": false
+		},
+		"/maps/UI.png": {
+			"sdcard": false
+		},
+		"/maps/Level1.tmx.j14640": {
+			"sdcard": false
+		},
+		"/maps/uimap.tmx.W14640": {
+			"sdcard": false
+		},
+		"/maps/uimap.tmx": {
+			"sdcard": false
+		},
+		"/maps/UI.h": {
+			"sdcard": false
+		},
+		"/maps/uimap.tmx.Z14640": {
+			"sdcard": false
+		},
+		"/maps/uimap.tmx.E14640": {
+			"sdcard": false
+		},
+		"/maps/Level1.tmx.a14640": {
+			"sdcard": false
 		}
 	},
 	"BUILDFlags": {

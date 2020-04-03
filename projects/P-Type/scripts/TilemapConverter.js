@@ -45,20 +45,20 @@ let maps = dir("maps")
 
         [...xml.querySelector("map").attributes]
             .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), map),
-        
+
         index[file.replace(/\..*/,"")] = map;
 
         promises.push(...getTileSets(xml).map(ts=>{
             ts.gid = ts.firstgid|0;
             for( let i=0; i<ts.tilecount|0; ++i )
                 tileSets[ts.gid+i] = ts;
-            
+
             let imgPath = "maps" + path.sep + ts.source;
             if(textureIndex[imgPath]){
                 textureIndex[imgPath].push(ts);
                 return new Promise(ok=>ok(ts));
             }
-            
+
             let tslist = [ts];
             textureIndex[imgPath] = tslist;
 
@@ -73,9 +73,9 @@ let maps = dir("maps")
                     return ts;
                 });
         }));
-        
+
         return index;
-    }, 
+    },
     {}
 );
 
@@ -89,7 +89,7 @@ Promise.all(promises)
             let {str, special} = processTMX(maps[name], name);
             acc += `inline const uint8_t ${name}[] = {\n`;
             acc += `${str[0].length}, ${str.length},\n`;
-            acc += str.map(l=>l.map(m=>"0x"+(m-1).toString(16).padStart(2, "0")).join(", ")).join(",\n");
+            acc += str.map(l=>l.map(m=>"0x"+((m||1)-1).toString(16).padStart(2, "0")).join(", ")).join(",\n");
             acc += `\n};\n`;
             acc += `inline MapEnum ${name}Enum(uint32_t x, uint32_t y){
 static const MapEnum parameters[] = {\n\t`;
@@ -124,7 +124,7 @@ inline const uint8_t tiles[] = {
             acc += ",\n\n";
         }
         acc += `};\n`;
-        
+
         write("maps.h", acc);
         log("Conversion complete!");
     })
@@ -164,22 +164,36 @@ function getObjects(xml){
 */
 function getTileSets(xml){
     return [...xml.querySelectorAll("tileset")]
-        .map(tset=>Object.assign(
-            {}, 
+        .map(tset=>parseTset(tset))
+        .sort((a, b)=>(a.firstgid|0) - (b.firstgid|0));
 
-            [...tset.attributes]
-                .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {}),
+    function parseTset(tset){
+        let obj = {};
+        let attributes = [...tset.attributes]
+                .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {});
+
+        if( attributes.source ){
+            tset = XML(read(`maps/${attributes.source}`)).querySelector("tileset");
+            obj = attributes;
+            attributes = [...tset.attributes]
+                .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {});
+        }
+
+        return Object.assign(
+            obj,
+
+            attributes,
 
             [...(tset.querySelector("image")||{attributes:[]}).attributes]
                 .reduce((obj, attr)=>(obj[attr.name] = attr.value, obj), {}),
-            
+
             [...(tset.querySelectorAll("tile"))]
                 .reduce((obj, tile)=>{
                     obj.properties[tile.id|0] = getProperties(tile);
                     return obj;
                 }, {properties:{}})
-        ))
-        .sort((a, b)=>(a.firstgid|0) - (b.firstgid|0));
+        );
+    }
 }
 
 function getProperties(node){
@@ -192,17 +206,15 @@ function getProperties(node){
 function processTMX(map, name){
     let str = [];
 
-    if( !width ){
-        width = map.width|0;
-        height = map.height|0;
-        tileW = map.tilewidth|0;
-        tileH = map.tileheight|0;
-    }
+    width = map.width|0;
+    height = map.height|0;
+    tileW = map.tilewidth|0;
+    tileH = map.tileheight|0;
 
     let special = new Array(width*height);
     for( let i=0; i<special.length; ++i )
         special[i] = [];
-        
+
     let merged = [];
     for( let y=0; y<height; ++y ){
         for( let x=0; x<width; ++x ){
@@ -213,14 +225,14 @@ function processTMX(map, name){
                 if(!gid) return;
 
                 allTiles.push(gid);
-                
+
                 if(!layer.visible) return;
-                
+
                 tiles.push( gid );
             });
-            
+
             merged.push( tiles.length ? getMergedTile( map, tiles ) : 0 );
-            
+
             for( let id of allTiles ){
                 let ts = map.tileSets[id&~0xE0000000];
                 let tprops = ts.properties[(id&~0xE0000000) - ts.gid];
@@ -232,25 +244,25 @@ function processTMX(map, name){
         str.push(merged);
         merged = [];
     }
-    
+
     return {str, special};
 }
 
 function getMergedTile(map, ids){
     let compositeKey = ids.map(id=>`${map.tileSets[id&~0xE0000000].textureId}:${id}`).join(",");
     let compositeId = composites[compositeKey];
-    
+
     if( compositeId ){
         return compositeId;
     }
-    
+
     const composite = new ImageData(tileW, tileH);
     composite.key = compositeKey;
     composites[compositeKey] = compositeId = compositeList.length + 1;
     compositeList.push( composite );
-    
+
     let srcIndex, outIndex;
-    
+
     for( let id of ids ){
         let gid = id&~0xE0000000;
         let ts = map.tileSets[gid];
@@ -261,7 +273,7 @@ function getMergedTile(map, ids){
         outIndex = 0;
         let data = src.data;
         let srcWidth = src.width;
-        
+
         if( id&0xE0000000 ){
             let out = new Uint8Array(tileH*tileW*4);
             for( let y=0; y<tileH; ++y ){
@@ -276,7 +288,7 @@ function getMergedTile(map, ids){
             srcIndex = 0;
             srcWidth = tileW;
             data = out;
-            
+
             if( id&0x20000000 ){ // FLIPPED_DIAGONALLY_FLAG
                 let out = new Uint8Array(tileH*tileW*4);
                 for( let y=0; y<tileH; ++y ){
@@ -291,7 +303,7 @@ function getMergedTile(map, ids){
                 }
                 data = out;
             }
-            
+
             if( id&0x80000000 ){ // FLIPPED_HORIZONTALLY_FLAG
                 let out = new Uint8Array(tileH*tileW*4);
                 for( let y=0; y<tileH; ++y ){
@@ -306,7 +318,7 @@ function getMergedTile(map, ids){
                 }
                 data = out;
             }
-    
+
             if( id&0x40000000 ){ // FLIPPED_VERTICALLY_FLAG
                 let out = new Uint8Array(tileH*tileW*4);
                 for( let y=0; y<tileH; ++y ){
@@ -322,7 +334,7 @@ function getMergedTile(map, ids){
                 data = out;
             }
         }
-        
+
         for( let y=0; y<tileH; ++y ){
             for( let x=0; x<tileW; ++x ){
                 let A = data[srcIndex + x*4 + 3];

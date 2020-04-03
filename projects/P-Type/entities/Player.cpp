@@ -56,7 +56,9 @@ Player::Player(){
 }
 
 void Player::hit(int damage){
-    StateGame::get().screenShake += 5;;
+    auto &game = StateGame::get();
+    game.screenShake += 5;
+    game.dirty();
     HP -= damage;
     if(HP < 0){
         stateMachine.setState<StateGameOver>();

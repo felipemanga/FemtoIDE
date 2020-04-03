@@ -20,4 +20,5 @@ public:
     Player();
     void update(int32_t cameraX, int32_t cameraY) override;
     void hit(int damage);
+    int getHP(){ return HP; }
 };
