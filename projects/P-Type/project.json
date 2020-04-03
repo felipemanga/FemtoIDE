@@ -244,13 +244,25 @@
 		"/My_settings.h": {
 			"sdcard": false
 		},
-		"/Smile.h": {
+		"/P-Type.bin": {
 			"sdcard": false
 		},
-		"/Smile.png": {
+		"/P-Type.eeprom": {
 			"sdcard": false
 		},
-		"/main.cpp": {
+		"/P-Type.elf": {
+			"sdcard": false
+		},
+		"/StateMachine.h": {
+			"sdcard": false
+		},
+		"/entities": {
+			"sdcard": false
+		},
+		"/global.h": {
+			"sdcard": false
+		},
+		"/images": {
 			"sdcard": false
 		},
 		"/maps": {
@@ -259,19 +271,82 @@
 		"/maps.h": {
 			"sdcard": false
 		},
+		"/main.cpp": {
+			"sdcard": false
+		},
+		"/music": {
+			"sdcard": true
+		},
 		"/project.json": {
 			"sdcard": false
 		},
 		"/scripts": {
 			"sdcard": false
 		},
-		"/maps/basictiles_2.png": {
+		"/sprites": {
 			"sdcard": false
 		},
-		"/maps/gardenPath.tmx": {
+		"/sprites.cpp": {
 			"sdcard": false
 		},
-		"/maps/magecity_1.png": {
+		"/sprites.h": {
+			"sdcard": false
+		},
+		"/states": {
+			"sdcard": false
+		},
+		"/entities/Bullet.cpp": {
+			"sdcard": false
+		},
+		"/entities/Bullet.h": {
+			"sdcard": false
+		},
+		"/entities/Enemy.cpp": {
+			"sdcard": false
+		},
+		"/entities/Enemy.h": {
+			"sdcard": false
+		},
+		"/entities/Entity.h": {
+			"sdcard": false
+		},
+		"/entities/Player.cpp": {
+			"sdcard": false
+		},
+		"/entities/Player.h": {
+			"sdcard": false
+		},
+		"/images/gameover.h": {
+			"sdcard": false
+		},
+		"/images/gameover.png": {
+			"sdcard": false
+		},
+		"/maps/Level1.tmx": {
+			"sdcard": false
+		},
+		"/maps/UI-sheet.h": {
+			"sdcard": false
+		},
+		"/maps/UI-sheet.png": {
+			"sdcard": false
+		},
+		"/maps/calciumtrice.h": {
+			"sdcard": false
+		},
+		"/maps/calciumtrice.png": {
+			"sdcard": false
+		},
+		"/maps/dungeon tileset calciumtrice instructions.txt": {
+			"sdcard": false
+		},
+		"/maps/uimap.tmx": {
+			"sdcard": false
+		},
+		"/music/dream.beep": {
+			"sdcard": false
+		},
+		"/music/dream.raw": {
 			"sdcard": false
 		},
 		"/scripts/SpriteConverter.js": {
@@ -280,7 +355,10 @@
 		"/scripts/TilemapConverter.js": {
 			"sdcard": false
 		},
-		"/sprites": {
+		"/sprites/Dude.bin": {
+			"sdcard": false
+		},
+		"/sprites/Dude.h": {
 			"sdcard": false
 		},
 		"/sprites/Dude.json": {
@@ -289,46 +367,79 @@
 		"/sprites/Dude.png": {
 			"sdcard": false
 		},
-		"/sprites/Dude.bin": {
+		"/sprites/bulletSprite.bin": {
 			"sdcard": false
 		},
-		"/sprites.h": {
+		"/sprites/bulletSprite.h": {
 			"sdcard": false
 		},
-		"/sprites.cpp": {
+		"/sprites/bulletSprite.json": {
 			"sdcard": false
 		},
-		"/maps/basictiles_2.h": {
+		"/sprites/bulletSprite.png": {
 			"sdcard": false
 		},
-		"/sprites/Dude.h": {
+		"/sprites/bullets.aseprite": {
 			"sdcard": false
 		},
-		"/maps/magecity_1.h": {
+		"/sprites/enemySprite.aseprite": {
 			"sdcard": false
 		},
-		"/NewProject.elf": {
+		"/sprites/enemySprite.bin": {
 			"sdcard": false
 		},
-		"/NewProject.bin": {
+		"/sprites/enemySprite.h": {
 			"sdcard": false
 		},
-		"/maps/gardenPath.tmx.X30735": {
+		"/sprites/enemySprite.json": {
 			"sdcard": false
 		},
-		"/maps/gardenPath.tmx.S30735": {
+		"/sprites/enemySprite.png": {
 			"sdcard": false
 		},
-		"/#main.cpp#": {
+		"/sprites/heads.aseprite": {
 			"sdcard": false
 		},
-		"/StateMachine.h": {
+		"/sprites/heads.bin": {
 			"sdcard": false
 		},
-		"/global.h": {
+		"/sprites/heads.h": {
 			"sdcard": false
 		},
-		"/states": {
+		"/sprites/heads.json": {
+			"sdcard": false
+		},
+		"/sprites/heads.png": {
+			"sdcard": false
+		},
+		"/sprites/ships.aseprite": {
+			"sdcard": false
+		},
+		"/sprites/ships.bin": {
+			"sdcard": false
+		},
+		"/sprites/ships.h": {
+			"sdcard": false
+		},
+		"/sprites/ships.json": {
+			"sdcard": false
+		},
+		"/sprites/ships.png": {
+			"sdcard": false
+		},
+		"/sprites/start.aseprite": {
+			"sdcard": false
+		},
+		"/sprites/start.bin": {
+			"sdcard": false
+		},
+		"/sprites/start.h": {
+			"sdcard": false
+		},
+		"/sprites/start.json": {
+			"sdcard": false
+		},
+		"/sprites/start.png": {
 			"sdcard": false
 		},
 		"/states/State.h": {
@@ -340,286 +451,28 @@
 		"/states/StateGame.h": {
 			"sdcard": false
 		},
+		"/states/StateGameOver.cpp": {
+			"sdcard": false
+		},
+		"/states/StateGameOver.h": {
+			"sdcard": false
+		},
 		"/states/StateIntro.cpp": {
 			"sdcard": false
 		},
 		"/states/StateIntro.h": {
 			"sdcard": false
 		},
-		"/P-Type.elf": {
+		"/sfx": {
 			"sdcard": false
 		},
-		"/P-Type.bin": {
+		"/sfx/Explosion__003.wav": {
 			"sdcard": false
 		},
-		"/entities": {
+		"/sfx/Boop.wav": {
 			"sdcard": false
 		},
-		"/entities/Entity.h": {
-			"sdcard": false
-		},
-		"/entities/Entity.h~": {
-			"sdcard": false
-		},
-		"/StateMachine.h~": {
-			"sdcard": false
-		},
-		"/#StateMachine.h#": {
-			"sdcard": false
-		},
-		"/sprites/heads.png": {
-			"sdcard": false
-		},
-		"/sprites/heads.aseprite": {
-			"sdcard": false
-		},
-		"/sprites/heads.json": {
-			"sdcard": false
-		},
-		"/sprites/heads.bin": {
-			"sdcard": false
-		},
-		"/entities/#Entity.h#": {
-			"sdcard": false
-		},
-		"/states/StateIntro.h~": {
-			"sdcard": false
-		},
-		"/states/#StateIntro.cpp#": {
-			"sdcard": false
-		},
-		"/sprites/heads.h": {
-			"sdcard": false
-		},
-		"/images": {
-			"sdcard": false
-		},
-		"/images/menutile.png": {
-			"sdcard": false
-		},
-		"/images/menutile.h": {
-			"sdcard": false
-		},
-		"/states/StateIntro.cpp~": {
-			"sdcard": false
-		},
-		"/sprites/ships.aseprite": {
-			"sdcard": false
-		},
-		"/sprites/ships.json": {
-			"sdcard": false
-		},
-		"/sprites/ships.png": {
-			"sdcard": false
-		},
-		"/sprites/ships.bin": {
-			"sdcard": false
-		},
-		"/sprites/ships.h": {
-			"sdcard": false
-		},
-		"/sprites/start.json": {
-			"sdcard": false
-		},
-		"/sprites/start.png": {
-			"sdcard": false
-		},
-		"/sprites/start.bin": {
-			"sdcard": false
-		},
-		"/sprites/start.h": {
-			"sdcard": false
-		},
-		"/entities/#Player.h#": {
-			"sdcard": false
-		},
-		"/entities/Player.h": {
-			"sdcard": false
-		},
-		"/entities/Bullet.h": {
-			"sdcard": false
-		},
-		"/entities/Bullet.h~": {
-			"sdcard": false
-		},
-		"/entities/#Bullet.h#": {
-			"sdcard": false
-		},
-		"/entities/Player.h~": {
-			"sdcard": false
-		},
-		"/entities/Player.cpp": {
-			"sdcard": false
-		},
-		"/states/#StateGame.h#": {
-			"sdcard": false
-		},
-		"/entities/#Player.cpp#": {
-			"sdcard": false
-		},
-		"/states/#StateGame.cpp#": {
-			"sdcard": false
-		},
-		"/entities/Player.cpp~": {
-			"sdcard": false
-		},
-		"/entities/Bullet.cpp": {
-			"sdcard": false
-		},
-		"/entities/Bullet.cpp~": {
-			"sdcard": false
-		},
-		"/entities/#Bullet.cpp#": {
-			"sdcard": false
-		},
-		"/states/#State.h#": {
-			"sdcard": false
-		},
-		"/sprites/bullets.aseprite": {
-			"sdcard": false
-		},
-		"/sprites/bullets.json": {
-			"sdcard": false
-		},
-		"/sprites/bullets.png": {
-			"sdcard": false
-		},
-		"/sprites/bullets.bin": {
-			"sdcard": false
-		},
-		"/sprites/bulletSprite.json": {
-			"sdcard": false
-		},
-		"/sprites/bulletSprite.png": {
-			"sdcard": false
-		},
-		"/sprites/bulletSprite.bin": {
-			"sdcard": false
-		},
-		"/sprites/bulletSprite.h": {
-			"sdcard": false
-		},
-		"/maps/dungeon tileset calciumtrice instructions.txt": {
-			"sdcard": false
-		},
-		"/maps/dungeon tileset calciumtrice simple.png": {
-			"sdcard": false
-		},
-		"/maps/calciumtrice.png": {
-			"sdcard": false
-		},
-		"/maps/gardenPath.tmx.BC1012": {
-			"sdcard": false
-		},
-		"/maps/Level1.tmx": {
-			"sdcard": false
-		},
-		"/maps/calciumtrice.h": {
-			"sdcard": false
-		},
-		"/sprites/enemySprite.aseprite": {
-			"sdcard": false
-		},
-		"/entities/Enemy.h": {
-			"sdcard": false
-		},
-		"/entities/Enemy.h~": {
-			"sdcard": false
-		},
-		"/entities/#Enemy.h#": {
-			"sdcard": false
-		},
-		"/maps/Level1.tmx.k14640": {
-			"sdcard": false
-		},
-		"/sprites/enemySprite.json": {
-			"sdcard": false
-		},
-		"/sprites/enemySprite.png": {
-			"sdcard": false
-		},
-		"/sprites/enemySprite.bin": {
-			"sdcard": false
-		},
-		"/sprites/enemySprite.h": {
-			"sdcard": false
-		},
-		"/maps/Level1.tmx.w14640": {
-			"sdcard": false
-		},
-		"/states/#StateGameOver.h#": {
-			"sdcard": false
-		},
-		"/states/StateGameOver.h": {
-			"sdcard": false
-		},
-		"/states/#StateGameOver.cpp#": {
-			"sdcard": false
-		},
-		"/states/StateGameOver.cpp": {
-			"sdcard": false
-		},
-		"/states/StateGameOver.cpp~": {
-			"sdcard": false
-		},
-		"/entities/#Enemy.cpp#": {
-			"sdcard": false
-		},
-		"/entities/Enemy.cpp": {
-			"sdcard": false
-		},
-		"/entities/Enemy.cpp~": {
-			"sdcard": false
-		},
-		"/states/StateGameOver.h~": {
-			"sdcard": false
-		},
-		"/images/gameover.png": {
-			"sdcard": false
-		},
-		"/images/gameover.h": {
-			"sdcard": false
-		},
-		"/P-Type.bin.1.gif": {
-			"sdcard": false
-		},
-		"/P-Type.bin.2.gif": {
-			"sdcard": false
-		},
-		"/P-Type.bin.3.gif": {
-			"sdcard": false
-		},
-		"/maps/UI.png": {
-			"sdcard": false
-		},
-		"/maps/Level1.tmx.j14640": {
-			"sdcard": false
-		},
-		"/maps/uimap.tmx.W14640": {
-			"sdcard": false
-		},
-		"/maps/uimap.tmx": {
-			"sdcard": false
-		},
-		"/maps/UI.h": {
-			"sdcard": false
-		},
-		"/maps/uimap.tmx.Z14640": {
-			"sdcard": false
-		},
-		"/maps/uimap.tmx.E14640": {
-			"sdcard": false
-		},
-		"/maps/Level1.tmx.a14640": {
-			"sdcard": false
-		},
-		"/maps/UI-sheet.png": {
-			"sdcard": false
-		},
-		"/sprites/start.aseprite": {
-			"sdcard": false
-		},
-		"/maps/UI-sheet.h": {
+		"/sfx/Boop.h": {
 			"sdcard": false
 		}
 	},

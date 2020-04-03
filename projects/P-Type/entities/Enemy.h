@@ -34,9 +34,7 @@ public:
         }
     }
 
-    void hit(int damage){
-        HP -= damage;
-    }
+    void hit(int damage);
 
     void update(int32_t cameraX, int32_t cameraY) override;
 };

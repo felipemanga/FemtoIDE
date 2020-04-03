@@ -1,5 +1,6 @@
 #include <Pokitto.h>
 #include "global.h"
+#include "sfx/Boop.h"
 
 extern "C" void CheckStack();
 
@@ -8,7 +9,6 @@ StateIntro::StateIntro(){
     for(int i = 0; i < 256; ++i)
         tilemap.setColorTile(i, i);
     tilemap.set(14, 11, map);
-
     head[0].play(heads, Heads::Diesel);
     head[1].play(heads, Heads::Bagel);
     head[2].play(heads, Heads::Punk);
@@ -50,6 +50,7 @@ void StateIntro::update(){
         debounce = false;
     } else if(PB::aBtn()) {
         if(debounce){
+            PS::playSFX(Boop, sizeof(Boop));
             switch(selection){
             case 0: shared::playerAnim = Ships::Diesel; break;
             case 1: shared::playerAnim = Ships::Bagel; break;

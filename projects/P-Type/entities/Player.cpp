@@ -104,7 +104,7 @@ void Player::move(){
     auto& game = StateGame::get();
     y = std::clamp<int>(y,
                         -game.cameraY + 16,
-                        -game.cameraY + PROJ_LCDHEIGHT - 32);
+                        -game.cameraY + PROJ_LCDHEIGHT - 32 - 16 * 3);
 
     x = std::clamp<int>(x,
                         -game.cameraX + 0,

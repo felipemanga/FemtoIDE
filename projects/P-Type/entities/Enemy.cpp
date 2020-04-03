@@ -1,4 +1,5 @@
 #include "global.h"
+#include "sfx/Boop.h"
 
 void Enemy::updateKaren(){
     if(ticksSinceAction < 30)
@@ -21,6 +22,11 @@ void Enemy::updateKaren(){
         );
 
     bullet->recolor = 5;
+}
+
+void Enemy::hit(int damage){
+    PS::playSFX(Boop, sizeof(Boop));
+    HP -= damage;
 }
 
 void Enemy::updateBob(){

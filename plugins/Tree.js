@@ -493,7 +493,7 @@ APP.addPlugin("Tree", [], _=>{
                 actions.push(
                 {
                     type:"button",
-                    label:"delete",
+                    label:"Delete",
                     cb:_=>{
                         if( confirm(`Do you really want to delete ${buffer.name}?`) )
                             APP.deleteBuffer(buffer);

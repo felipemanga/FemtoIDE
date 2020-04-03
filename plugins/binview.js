@@ -1,5 +1,5 @@
 APP.addPlugin("Bin", [], _ => {
-    const extensions = ["PNG", "JPG", "MP3", "BIN", "ELF"];
+    const extensions = ["PNG", "JPG", "MP3", "BIN", "ELF", "RAW"];
     
     class BinView {
         attach(){
