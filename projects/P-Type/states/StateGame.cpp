@@ -70,7 +70,8 @@ void StateGame::updateHUD(){
     PD::setTASRowMask(0b1111'11000000'00000000);
 
     uimap.draw(0, 0);
-    PD::setCursor(3 * POK_TILE_W + 5, 9 * POK_TILE_H + 5);
+    PD::setCursor(3 * POK_TILE_W + 5, 9 * POK_TILE_H - 3);
+    PD::fontSize = 2;
     PD::color = 49;
     PD::bgcolor = PD::invisiblecolor;
     PD::print(player.getHP());

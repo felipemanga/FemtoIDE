@@ -612,6 +612,15 @@
 		},
 		"/maps/Level1.tmx.a14640": {
 			"sdcard": false
+		},
+		"/maps/UI-sheet.png": {
+			"sdcard": false
+		},
+		"/sprites/start.aseprite": {
+			"sdcard": false
+		},
+		"/maps/UI-sheet.h": {
+			"sdcard": false
 		}
 	},
 	"BUILDFlags": {
