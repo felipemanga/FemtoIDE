@@ -10,10 +10,11 @@ This project would not be possible without these other opensource projects:
 - VisualBoyAdvance - GPL - https://github.com/visualboyadvance/visualboyadvance
 - fatfs - Apache 2.0 - https://github.com/natevw/fatfs
 - Piskel - Apache 2.0 - https://github.com/piskelapp/piskel
+- BeepBox - MIT - https://beepbox.co
 
 MIT License
 
-Copyright (c) 2019 Felipe Manga
+Copyright (c) 2020 Felipe Manga
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
