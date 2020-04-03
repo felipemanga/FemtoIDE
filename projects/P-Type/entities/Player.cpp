@@ -6,6 +6,7 @@ Player::Player(){
     y = PROJ_LCDHEIGHT / 2 - 16;
     play(ships, shared::playerAnim);
     boundingBox.init(*this);
+    boundingBox.shrink(2);
 
     switch(shared::playerAnim){
     case Ships::Diesel:
@@ -80,7 +81,7 @@ void Player::fire(){
         x + bulletX,
         y + bulletY,
         fireSpeed,
-        0,
+        animation == Ships::Bagel ? (rand()&7) - 2 : 0,
         bulletAnim
         );
 }
@@ -95,7 +96,7 @@ void Player::move(){
     if(PB::leftBtn()){
         x -= moveSpeed;
     } else if(PB::rightBtn()){
-        x += moveSpeed;
+        x += moveSpeed + 1;
     }
 
     auto& game = StateGame::get();

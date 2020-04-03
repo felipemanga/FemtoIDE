@@ -33,7 +33,7 @@ class StateGame : public State<StateGame> {
     Bullet *getFreeBullet(Bullet *bullets){
         for(int i = 0; i < bulletCount; ++i){
             if(!bullets[i].isLive())
-                return &playerBullet[i];
+                return &bullets[i];
         }
         return nullptr;
     }

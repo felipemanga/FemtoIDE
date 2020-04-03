@@ -14,6 +14,13 @@ struct AABB {
         top = sprite.getFrameY();
         bottom = top + sprite.getFrameHeight();
     }
+
+    void shrink(uint32_t amount){
+        left += amount;
+        right -= amount;
+        top += amount;
+        bottom -= amount;
+    }
 };
 
 class Entity : public Sprite {
