@@ -1,0 +1,38 @@
+{ "frames": [
+   {
+    "filename": "enemySprite 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 31, "h": 28 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 1, "y": 1, "w": 31, "h": 28 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "enemySprite 1.aseprite",
+    "frame": { "x": 31, "y": 0, "w": 29, "h": 31 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 2, "y": 1, "w": 29, "h": 31 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.3-dev",
+  "image": "enemySprite.png",
+  "format": "I8",
+  "size": { "w": 60, "h": 31 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "Karen", "from": 0, "to": 0, "direction": "forward" },
+   { "name": "Bob", "from": 1, "to": 1, "direction": "forward" }
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}
