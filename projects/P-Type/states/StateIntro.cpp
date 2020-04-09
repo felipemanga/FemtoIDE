@@ -5,7 +5,7 @@
 extern "C" void CheckStack();
 
 StateIntro::StateIntro(){
-    PD::setTASRowMask(0b1111'11111111'11111111);
+    PD::setTASRowMask(0b111111'1111'1111'1111'1111);
     for(int i = 0; i < 256; ++i)
         tilemap.setColorTile(i, i);
     tilemap.set(14, 11, map);
