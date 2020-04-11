@@ -130,7 +130,7 @@ APP.addPlugin("Elf", [], _ => {
                             size = parseInt(size, 16);
 
                             let container = flash;
-                            if( "AaBbCcDdGg".indexOf(type) != -1 )
+                            if( address >= 0x10000000 )
                                 container = ram;
 
                             if( container.length > max ){
