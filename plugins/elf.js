@@ -64,7 +64,7 @@ APP.addPlugin("Elf", [], _ => {
 		options: {
 		    responsive: true,
 		    legend: {
-			position: 'top',
+			display: false
 		    },
 		    title: {
 			display: false
@@ -107,7 +107,7 @@ APP.addPlugin("Elf", [], _ => {
 
             flags = [this.buffer.path]; // flags.filter(f=>/\.elf$/i.test(f));
 
-            let flash = [], ram = [];
+            let flash = [], ram = [], raw = {flash:[], ram:[]};
             let acc = "";
             APP.spawn(execPath, "--print-size", "--size-sort", "-r", "-C", ...flags)
                 .on("data-out", str=>{
@@ -121,7 +121,7 @@ APP.addPlugin("Elf", [], _ => {
                         .trim()
                         .split("\n")
                         .forEach((l, i)=>{
-                            let match = l.match(/([0-9a-f]+)\s+([0-9a-f]+)\s+([a-z])\s+([^\s]+)/i);
+                            let match = l.match(/([0-9a-f]+)\s+([0-9a-f]+)\s+([a-z])\s+(.+)/i);
                             if( !match ) return;
 
                             let [, address, size, type, name] = match;
@@ -130,9 +130,12 @@ APP.addPlugin("Elf", [], _ => {
                             size = parseInt(size, 16);
 
                             let container = flash;
-                            if( address >= 0x10000000 )
+                            if( address >= 0x10000000 ){
                                 container = ram;
-
+                                raw.ram.push({size, name});
+                            }else{
+                                raw.flash.push({size, name});
+                            }
                             if( container.length > max ){
                                 container[max].name = "<Other>";
                                 container[max].size += size;
@@ -142,7 +145,7 @@ APP.addPlugin("Elf", [], _ => {
 
                         });
 
-                    ok({flash, ram});
+                    ok({flash, ram, raw});
                 });
             
             return ret;
@@ -150,7 +153,9 @@ APP.addPlugin("Elf", [], _ => {
 
         attach(){
             this.NM(palette.length)
-                .then(({flash, ram})=>{
+                .then(({flash, ram, raw})=>{
+                    this._updateRaw(raw);
+
                     this._update(
                         flash,
                         this.flashConfig,
@@ -175,6 +180,34 @@ APP.addPlugin("Elf", [], _ => {
                         32*1024
                     );
                 });
+        }
+
+        _updateRaw( {flash, ram} ){
+            flash = flash.sort((a, b) => b.size - a.size);
+            ram = ram.sort((a, b) => b.size - a.size);
+
+            this.DOM.rawFlash.innerHTML = "";
+            this.DOM.rawRam.innerHTML = "";
+
+            flash.forEach(entry=>{
+                DOC.create(
+                    "li",
+                    this.DOM.rawFlash,
+                    {
+                        text:`${entry.size} - ${entry.name}`
+                    }
+                );
+            });
+
+            ram.forEach(entry=>{
+                DOC.create(
+                    "li",
+                    this.DOM.rawRam,
+                    {
+                        text:`${entry.size} - ${entry.name}`
+                    }
+                );
+            });
         }
 
         _updateLabel( data, label, max ){
@@ -234,8 +267,10 @@ APP.addPlugin("Elf", [], _ => {
                         onclick:_=>{
                             this.DOM.flash.style.display = "block";
                             this.DOM.ram.style.display = "none";
+                            this.DOM.raw.style.display = "none";
                             this.DOM.flashLabel.style.opacity = 1;
                             this.DOM.ramLabel.style.opacity = 0.2;
+                            this.DOM.rawLabel.style.opacity = 0.2;
                         }
                     }],
 
@@ -249,8 +284,27 @@ APP.addPlugin("Elf", [], _ => {
                         onclick:_=>{
                             this.DOM.ram.style.display = "block";
                             this.DOM.flash.style.display = "none";
+                            this.DOM.raw.style.display = "none";
                             this.DOM.ramLabel.style.opacity = 1;
                             this.DOM.flashLabel.style.opacity = 0.2;
+                            this.DOM.rawLabel.style.opacity = 0.2;
+                        }
+                    }],
+
+                    ["span", {
+                        text:"RAW",
+                        id:"rawLabel",
+                        style:Object.assign(
+                            {opacity:0.2},
+                            spanStyle,
+                        ),
+                        onclick:_=>{
+                            this.DOM.raw.style.display = "flex";
+                            this.DOM.flash.style.display = "none";
+                            this.DOM.ram.style.display = "none";
+                            this.DOM.rawLabel.style.opacity = 1;
+                            this.DOM.flashLabel.style.opacity = 0.2;
+                            this.DOM.ramLabel.style.opacity = 0.2;
                         }
                     }]
 
@@ -266,7 +320,37 @@ APP.addPlugin("Elf", [], _ => {
                     }, [
                         ["canvas", {id:"flash", width:"100%", height:"100%"}],
                 
-                        ["canvas", {id:"ram", width:"100%", height:"100%"}]
+                        ["canvas", {id:"ram", width:"100%", height:"100%"}],
+                        ["div", {
+                            id:"raw",
+                            style:{
+                                display : "flex",
+                                position : "absolute",
+                                flexDirection : "row",
+                                overflow : "auto",
+                                width:"100%",
+                                height:"100%"
+                            }
+                        }, [
+                            ["ul", {
+                                id:"rawFlash",
+                                style: {
+                                    maxWidth: "50%",
+                                    width: "50%",
+                                    overflow: "auto",
+                                    margin: 0
+                                }
+                            }],
+                            ["ul", {
+                                id:"rawRam",
+                                style: {
+                                    maxWidth: "50%",
+                                    width: "50%",
+                                    overflow: "auto",
+                                    margin: 0
+                                }
+                            }]
+                        ]]
                     ]]
                 ]]
                 

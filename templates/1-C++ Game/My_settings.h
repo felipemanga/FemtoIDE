@@ -4,6 +4,7 @@
 // TASMODE      - Settings specific to TASMode
 // MISC         - Other stuff
 
+// If you change anything, DO A CLEAN BUILD!
 
 // ---- SECTION: COMMON ----
 

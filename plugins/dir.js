@@ -27,15 +27,37 @@ APP.addPlugin("Directory", [], _ => {
             if( err ) return;
 
             if( !files.length ){
-                DOC.create("h1", {text:"Empty directory"}, parent);
+                DOC.create("span", {text:"(Empty directory)"}, parent);
                 return;
             }
 
             files.forEach( file => {
+                if(file[0] == "." || file[file.length-1] == "~")
+                    return;
+
                 let fullpath = p + path.sep + file;
                 fs.stat( fullpath, (err, stat)=>{
                     if(err) return;
-                    let el = DOC.create(parent, "li", { text:file });
+                    let text = file;
+
+                    if(!stat.isDirectory()){
+                        let len = stat.size;
+                        let unit = 'B';
+                        if( len > 1024 ){
+                            unit = 'KB';
+                            len /= 1024;
+                        }
+                        if( len > 1024 ){
+                            unit = 'MB';
+                            len /= 1024;
+                        }
+                        len = (len*10|0)/10;
+                        if(len != 1)
+                            unit += "s";
+                        text += " - " + len + unit;
+                    }
+
+                    let el = DOC.create(parent, "li", { text });
                     if(stat.isDirectory()){
                         recurse(fullpath, el, fs);
                     } else {

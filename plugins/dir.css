@@ -1,0 +1,10 @@
+.frame > ul.DirectoryView {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.frame.DirectoryView li>li {
+    margin-left: 20px;
+}
