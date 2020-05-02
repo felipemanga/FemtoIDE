@@ -33,9 +33,13 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         onResize(){
-            APP.async(_=>{
+            if(this.resizeScheduled)
+                return;
+            this.resizeScheduled = true;
+            setTimeout(_=>{
+                this.resizeScheduled = false;
                 this.ace.resize(true);
-            });
+            }, 200);
         }
 
         onCloseFrame(){
@@ -248,7 +252,13 @@ APP.addPlugin("Text", ["Project"], _=>{
             this.ignoreBPEvents = false;
         }
 
+        getTextFrame(){
+            return this.frame;
+        }
+
         constructor( frame, buffer ){
+            this.frame = frame;
+            this.resizeScheduled = false;
             this.buffer = buffer;
             this.hash = buffer.hash;
 
@@ -374,6 +384,8 @@ APP.addPlugin("Text", ["Project"], _=>{
         }
 
         _setValue(value){
+            if(this.ace.session.getValue() == value)
+                return;
             this.ignoreChange = true;
             this.ace.session.setValue( value );
             this.ignoreChange = false;

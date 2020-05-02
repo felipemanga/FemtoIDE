@@ -37,14 +37,49 @@ APP.addPlugin("Project", [], _=>{
     };
 
     let project = {}, dirtyHnd, strproject;
+    let target;
 
-    APP.add({
+    APP.add(new class Project {
+
+        getFlags(type){
+            let flags = [];
+            let typeFlags = DATA.project[type+"Flags"];
+            if( typeFlags ){
+                addFlags(DATA.project.target);
+                addFlags("ALL");
+                addFlags(DATA.buildMode);
+            }
+
+            function addFlags(name){
+                let value = typeFlags[name], bl = {};
+                if(!value)
+                    return;
+
+                if(value && typeof value == "object" && !Array.isArray(value)){
+                    if(value.extend)
+                        flags.push(...typeFlags[value.extend]);
+                    value = value.flags;
+                }
+
+                while(typeof value == "string"){
+                    if(bl[value]){
+                        return;
+                    }
+                    bl[value] = 1;
+                    value = typeFlags[value];
+                }
+
+                flags.push(...value);
+            }
+
+            return flags;
+        }
 
         dirtyProject(){
             if( dirtyHnd )
                 clearTimeout(dirtyHnd);
             dirtyHnd = setTimeout( APP.saveProject, 1000 );
-        },
+        }
 
         saveProject(){
             let str = JSON.stringify(DATA.project, null, "\t");
@@ -56,7 +91,7 @@ APP.addPlugin("Project", [], _=>{
                 strproject,
                 "utf-8"
             );
-        },
+        }
 
         onAfterWriteBuffer( buffer, data ){
             if( buffer.path != DATA.projectPath + path.sep + "project.json" )
@@ -75,7 +110,7 @@ APP.addPlugin("Project", [], _=>{
             APP.customSetVariables({
                 project: json
             });
-        },
+        }
 
         onDeleteBuffer( buffer ){
             let pf = DATA.projectFiles;
@@ -83,14 +118,35 @@ APP.addPlugin("Project", [], _=>{
             if( index == -1 )
                 return;
             pf.splice(index, 1);
-        },
+        }
+
+        setTarget(newtarget){
+            target.value = newtarget;
+            DATA.project.target = newtarget;
+            APP.dirtyProject();
+            APP.clean();
+        }
 
         queryMenus(){
+            if(!target){
+                target = DOC.create("select", {
+                    className: "menu TargetSelector",
+                    onchange:_=>{
+                        APP.setTarget(target.value);
+                    }
+                }, [
+                    ["option", {value:"Pokitto", text:"Pokitto"}],
+                    ["option", {value:DATA.os, text:DATA.os}]
+                ]);
+            }
+
+            APP.addCustomChromeElement(target);
+
             APP.addMenu(" femto", {
                 "Close Project":_=>require('nw.gui').Window.get().reload(3),
                 "Exit":"exit"
             });
-        },
+        }
 
         pollViewForBuffer( buffer, vf ){
 
@@ -99,11 +155,11 @@ APP.addPlugin("Project", [], _=>{
                 vf.priority = 999;
             }
             
-        },
+        }
 
         onDisplayBuffer( buffer ){
             document.querySelector(".title").innerHTML =`${buffer.name} ${DATA.projectName?("- "+DATA.projectName+" "):""}- ${require("../package.json").name}`;
-        },
+        }
 
         newProject(){
             let name = "New Project";
@@ -114,7 +170,7 @@ APP.addPlugin("Project", [], _=>{
             }
 
             APP.displayBuffer(buffer);
-        },
+        }
         
         openProject( projectPath ){
             if( !projectPath )
@@ -142,6 +198,7 @@ APP.addPlugin("Project", [], _=>{
             APP.onOpenProject();
 
             APP.loadProjectFiles(projectPath, _=>{
+                target.value = DATA.project.target;
 
                 APP.findFile( `${projectPath}${path.sep}${DATA.project.lastBuffer}`, true );
                 APP.onProjectReady();
@@ -149,7 +206,7 @@ APP.addPlugin("Project", [], _=>{
                     window.onOpenProject(DATA.projectPath);
             });
             
-        },
+        }
 
         loadProjectFiles( projectPath, cb ){
             let pending = 1;
@@ -207,7 +264,7 @@ APP.addPlugin("Project", [], _=>{
                 if( !pending && cb ) 
                     cb();
             }
-        },
+        }
 
         createNewProject( settings ){
             let projectPath = settings.path + path.sep + settings.name;

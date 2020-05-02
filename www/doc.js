@@ -37,7 +37,10 @@ self.onerror = function(...args) {
     self.__ignoreErrors = true;
     let msg = args[0] + "";
     try{
-        APP.error( msg.replace(/^Uncaught /, "") );
+        if( typeof APP != "undefined" )
+            APP.error( msg.replace(/^Uncaught /, "") );
+        else
+            console.warn( msg );
     }catch(ex){
         console.error(ex);
     }

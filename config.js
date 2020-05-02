@@ -10,6 +10,7 @@ APP.bindKeys("global", {
     "\x1B": APP.clearLog,
     "C-\x0D": APP.action,
     "C-M-b": ()=>{ APP.clean(); APP.compileAndRun(); },
+    "C-S-b": APP.compileDebug,
     "C-b": APP.compile,
     "C-r": APP.run,
     "C-g":APP.compileAndRun,
@@ -19,6 +20,7 @@ APP.bindKeys("global", {
     "F3": APP.search,
     "F4": APP.stopEmulator,
     "F5": APP.debug,
+    "F2": APP.debugRestart,
     "S-F5": APP.debugJLink,
     "F8": APP.debugContinue,
     "F10": APP.debugStepOver,
@@ -77,6 +79,18 @@ APP.customSetVariables({
     "os": platform,
 
     "executableExt":platform=="windows" ? ".exe" : "",
+
+    "GDB-linux": "gdb",
+    "C-linux": "gcc",
+    "CPP-linux": "g++",
+    "S-linux": "as",
+    "LD-linux": "g++",
+
+    "GDB-windows":[DATA.appPath, process.platform, "x86", "bin", "gdb"].join(path.sep),
+    "C-windows":[DATA.appPath, process.platform, "x86", "bin", "gcc"].join(path.sep),
+    "CPP-windows":[DATA.appPath, process.platform, "x86", "bin", "g++"].join(path.sep),
+    "S-windows":[DATA.appPath, process.platform, "x86", "bin", "as"].join(path.sep),
+    "LD-windows":[DATA.appPath, process.platform, "x86", "bin", "g++"].join(path.sep),
 
     "ADDR2LINE-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-addr2line"].join(path.sep),
 

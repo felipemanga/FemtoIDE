@@ -198,18 +198,8 @@ ${img.width}, ${img.height}`;
     }
 
     function parseSettings(settingsFile){
-        let flags = [];
+        let flags = APP.getFlags("PNG");
         let settings={ transparent:0 };
-        
-        let typeFlags = DATA.project["PNGFlags"];
-        if( typeFlags ){
-            if( typeFlags[DATA.project.target] )
-                flags.push(...typeFlags[DATA.project.target]);
-            if( typeFlags.ALL )
-                flags.push( ...typeFlags.ALL );
-            if( typeFlags[DATA.buildMode] )
-                flags.push( ...typeFlags[DATA.buildMode] );
-        }
 
         flags.forEach(f=>{
             let m = (f+"").match(/^([a-z]+)\s*=\s*(.+)/);

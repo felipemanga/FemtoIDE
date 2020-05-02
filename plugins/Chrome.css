@@ -22,6 +22,10 @@
     float: left;
 }
 
+.chrome .menu.TargetSelector {
+    margin-top: 0px;
+}
+
 .chrome .menu:focus {
     outline: 0;
 }

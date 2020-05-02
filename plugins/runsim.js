@@ -1,34 +1,17 @@
-APP.addPlugin("RunEMU", [], _=> {
+APP.addPlugin("RunSIM", [], _=>{
     let running = false, restart = false;
-
-    APP.add({
-
+    APP.add(new class RunSIM {
         isEmulatorRunning(){
             return !!running;
-        },
-
-        runDebug(){
-            if(DATA.project.target != "Pokitto")
-                return;
-
-            this.run(["-g", "-x"]);
-            APP.setStatus("Debugging " + DATA.buildFolder);
-            if( DATA.debugBuffer )
-                APP.displayBuffer( DATA.debugBuffer );
-            setTimeout( _=>{
-                if( running ){
-                    APP.onDebugEmulatorStarted(1234);
-                }
-            }, 500);
-        },
+        }
 
         stopEmulator(){
             if( running )
                 APP.killChild( running );
-        },
+        }
 
         run( flags ){
-            if(DATA.project.target != "Pokitto")
+            if(DATA.project.target != DATA.os)
                 return;
 
             if( running ){
@@ -37,22 +20,15 @@ APP.addPlugin("RunEMU", [], _=> {
                 return;
             }
 
-            let execPath = DATA[
-                "EMU-" + DATA.project.target
-            ] + DATA.executableExt;
-
+            let ldflags = APP.getFlags("LD");
+            let execPath = ldflags[ldflags.indexOf("--output")+1];
             if( !execPath )
                 return;
 
             flags = flags || [];
-
-            flags.push(...APP.getFlags("emu"));
-
-            APP.pollEmulatorFlags(flags);
-
             flags = APP.replaceDataInString(flags);
 
-            APP.setStatus("Emulating...");
+            APP.setStatus("Executing...");
             let emu = APP.spawn( execPath, ...flags );
 
             emu.stdout.on('data', data => {
@@ -65,7 +41,7 @@ APP.addPlugin("RunEMU", [], _=> {
 
             emu.on('close', code => {
                 APP.onEmulatorStopped();
-                APP.setStatus("Emulation ended");
+                APP.setStatus("Execution ended");
                 running = false;
                 if(restart){
                     restart = false;

@@ -11,22 +11,31 @@ APP.addPlugin("Disasm", [], _=>{
             });
         }
 
+        debugStepInstruction(){
+            if(!APP.isViewingDisassembly())
+                this.disassemble();
+        }
+
+        debugNextInstruction(){
+            if(!APP.isViewingDisassembly())
+                this.disassemble();
+        }
+
         disassemble(){
+            if( APP.isDebugging() ){
+                buffer.data = null;
+                APP.displayBuffer(buffer);
+                return;
+            }
+
             let dumpPath = (
                 DATA["OBJDUMP-" + DATA.project.target] ||
                     DATA["ELF2BIN-" + DATA.project.target].replace(/objcopy$/i, "objdump")
             ) + DATA.executableExt;
 
-            let flags = [];
-            let typeFlags = DATA.project["LDFlags"];
-            if( typeFlags ){
-                if( typeFlags[DATA.project.target] )
-                    flags.push(...typeFlags[DATA.project.target]);
-                if( typeFlags.ALL )
-                    flags.push( ...typeFlags.ALL );
-                if( typeFlags[DATA.releaseMode] )
-                    flags.push( ...typeFlags[DATA.buildMode] );
-            }else typeFlags = ["${projectPath}/${projectName}.elf"];
+            let flags = APP.getFlags["LD"];
+            if(!flags)
+                flags = ["${projectPath}/${projectName}.elf"];
             let elf = flags.find(x=>/\.elf$/i.test(x));
 
             let acc = "";

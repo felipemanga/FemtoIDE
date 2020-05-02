@@ -74,18 +74,26 @@ APP.addPlugin("Backtrace", [], _=>{
             while( this.variables.children.length )
                 this.variables.removeChild( this.variables.lastChild );
 
-            APP.gdbQuery("info args -q", addVariables.bind(this));
-            APP.gdbQuery("info locals -q", addVariables.bind(this));
+            let varExp = /^\s*([^=]+)=\s*(.*)$/;
+            let regExp = /^\s*([^\s]+)\s*(.+)$/;
+
+            if(APP.isViewingDisassembly()){
+                APP.gdbQuery("info reg", addVariables.bind(this, regExp));
+            }
+
+
+            APP.gdbQuery("info args -q", addVariables.bind(this, varExp));
+            APP.gdbQuery("info locals -q", addVariables.bind(this, varExp));
 
             function show(){
                 this.container.parentElement.style.display = "block";
             }
 
-            function addVariables( args ){
+            function addVariables( exp, args ){
                 (args+"")
                     .split(/\r?\n/)
                     .forEach( arg => {
-                        let match = arg.match(/^\s*([^=]+)=\s*(.*)$/);
+                        let match = arg.match(exp);
                         if( !match )
                             return;
                         let name = match[1].trim();

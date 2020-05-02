@@ -27,6 +27,17 @@ APP.addPlugin("Build", ["Project"], _=>{
             }
         }
 
+        buildAnyWay(){
+            if(busy){
+                APP.log("If you say so.");
+            }
+            busy = false;
+        }
+
+        compileDebug(){
+            APP.compile(false);
+        }
+
         compile( release=true, callback=null ){
             let timings = "",
                 startTime = 0,
@@ -55,6 +66,9 @@ APP.addPlugin("Build", ["Project"], _=>{
             let pipeline, files, current;
             try{
                 pipeline = DATA.project.pipelines[target];
+                if(typeof pipeline == "string")
+                    pipeline = DATA.project.pipelines[pipeline];
+
                 files = buildFiles = [...DATA.projectFiles];
                 if(BUILDFlags.ignore){
                     let exp = new RegExp(BUILDFlags.ignore, "gi");
@@ -153,6 +167,7 @@ APP.addPlugin("Build", ["Project"], _=>{
             APP.addMenu("Build", {
                 "Clean":"clean",
                 "Build":"compile",
+                "Build (Debug)":"compileDebug",
                 "Run":"run",
                 "Build & Run":"compileAndRun"
             });

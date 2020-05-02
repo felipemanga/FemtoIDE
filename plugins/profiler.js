@@ -69,17 +69,7 @@ APP.addPlugin("Profiler", [], _=>{
                 ].replace(/gdb$/, "addr2line") + DATA.executableExt;
             }
 
-            let flags = [];
-
-            let typeFlags = DATA.project["GDBFlags"];
-            if( typeFlags ){
-                if( typeFlags[DATA.project.target] )
-                    flags.push(...typeFlags[DATA.project.target]);
-                if( typeFlags.ALL )
-                    flags.push( ...typeFlags.ALL );
-                if( typeFlags[DATA.releaseMode] )
-                    flags.push( ...typeFlags[DATA.buildMode] );
-            }
+            let flags = APP.getFlags("GDB");
 
             flags = flags.filter(f=>/\.elf$/i.test(f));
             

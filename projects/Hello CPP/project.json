@@ -11,6 +11,15 @@
 				"recurse": "${appPath}/PokittoLib/Pokitto",
 				"ignore": "POKITTO_SIM|POKITTO_XTERNALS|Documentation|examples?|Physics|(?:.*_SIM.*)|main.cpp"
 			}
+		],
+		"linux": "Desktop",
+		"windows": "Desktop",
+		"darwin": "Desktop",
+		"Desktop": [
+			{
+				"recurse": "${appPath}/PokittoLib/Pokitto",
+				"ignore": "BmpImage.cpp|ChaN|old_32bitSDL|libpff|SDFileSystem|File/ChaN|USBDevice|tinydir/tests|tinydir/samples|JoyHat|mbed-pokitto|POKITTO_HW|POKITTO_XTERNALS|PokittoDisk.cpp|PokittoBattery.cpp|Documentation|examples?|Physics|main.cpp|Pokitto_simsound.cpp"
+			}
 		]
 	},
 	"SFlags": {
@@ -83,11 +92,14 @@
 		],
 		"Desktop": [
 			"-I${projectPath}",
-			"-DDESKTOP",
+			"-DPOK_SIM",
+			"-Wall",
+			"-std=gnu++17",
+			"-fsigned-char",
+			"-DPOK_SIM",
 			"-fno-rtti",
 			"-Wno-pointer-arith",
 			"-c",
-			"-fno-exceptions",
 			"-fno-builtin",
 			"-ffunction-sections",
 			"-fdata-sections",
@@ -97,7 +109,15 @@
 		],
 		"ALL": [
 			"-std=c++17"
-		]
+		],
+		"linux": {
+			"extend": "Desktop",
+			"flags": [
+				"-DPROJ_LINUX=1",
+				"-D_REENTRANT"
+			]
+		},
+		"windows": "Desktop"
 	},
 	"CFlags": {
 		"DEBUG": [
@@ -158,11 +178,12 @@
 		],
 		"Desktop": [
 			"-I${projectPath}",
-			"-DDESKTOP",
-			"-fno-rtti",
+			"-DPOK_SIM",
+			"-Wall",
+			"-fsigned-char",
+			"-DPOK_SIM",
 			"-Wno-pointer-arith",
 			"-c",
-			"-fno-exceptions",
 			"-fno-builtin",
 			"-ffunction-sections",
 			"-fdata-sections",
@@ -170,7 +191,10 @@
 			"-MMD",
 			"-fno-delete-null-pointer-checks"
 		],
-		"ALL": []
+		"ALL": [],
+		"linux": "Desktop",
+		"windows": "Desktop",
+		"darwin": "Desktop"
 	},
 	"GDBFlags": {
 		"Pokitto": [
@@ -220,6 +244,26 @@
 			"-lgcc",
 			"-lnosys",
 			"-Wl,--end-group"
+		],
+		"linux": [
+			"$objectFiles",
+			"-lpthread",
+			"-lSDL2",
+			"--output",
+			"${projectPath}/${projectName}"
+		],
+		"windows": [
+			"-lmingw32",
+			"-lSDL2main",
+			"-lSDL2.dll",
+			"-luser32",
+			"-lgdi32",
+			"-lwinmm",
+			"-ldxguid",
+			"-L${appPath}/PokittoLib/Pokitto/POKITTO_SIM/SDL2/lib",
+			"--output",
+			"${projectPath}/${projectName}.exe",
+			"$objectFiles"
 		]
 	},
 	"target": "Pokitto",
@@ -232,10 +276,13 @@
 			"make-img"
 		],
 		"Desktop": [
+			"img-to-c",
 			"compile-cpp",
-			"compile-ld",
-			"compile-bin"
-		]
+			"compile-ld"
+		],
+		"linux": "Desktop",
+		"windows": "Desktop",
+		"darwin": "Desktop"
 	},
 	"meta": {
 		"": {},
@@ -271,6 +318,16 @@
 		},
 		"/project.json": {
 			"sdcard": false
+		},
+		"/Hello CPP": {
+			"sdcard": false
+		},
+		"/EEP.ROM": {
+			"sdcard": false
 		}
+	},
+	"ideVersion": 10000,
+	"BUILDFlags": {
+		"linux": {}
 	}
 }

@@ -33,6 +33,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         }
 
         clean(){
+            APP.log("Cleaned");
             libFlags = [];
             libSrc = {};
             libs = {};            
@@ -127,11 +128,11 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 pending.start();
                 fs.readdir(path, (error, entries)=>{
                     entries.forEach( entry =>{
+                        let full = path + "/" + entry;
 
-                        if(!validLibEntry(entry, ignore))
+                        if(!validLibEntry(full, ignore))
                             return;
                         
-                        let full = path + "/" + entry;
                         pending.start();
                         
                         fs.stat( full, (err, stat)=>{
@@ -168,16 +169,20 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
         }
 
+        _getLibsConfig(){
+            let libs = DATA.project.libs || {};
+            libs = libs[DATA.project.target] || [];
+            if(typeof libs == "string")
+                libs = (DATA.project.libs || {})[libs];
+            return libs;
+        }
+
         writeCompileFlags(){
             let flags = getFlags();
 
-            if( DATA.project.libs && DATA.project.libs[DATA.project.target] ){
-                DATA.project
-                    .libs[DATA.project.target]
-                    .forEach( path => {
-                        flags.push(...addLib(path));
-                    });
-            }
+            this._getLibsConfig().forEach( path => {
+                flags.push(...addLib(path));
+            });
             
             fs.writeFileSync(
                 path.join(DATA.buildFolder, "compile_flags.txt"),
@@ -250,27 +255,15 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 cb(err);
             });
 
-            if( DATA.project.libs && DATA.project.libs[DATA.project.target] )
-                DATA.project.libs[DATA.project.target].forEach( path => {
-                    this._addLib(path, pendingLibs);
-                });
+            this._getLibsConfig().forEach( path => {
+                this._addLib(path, pendingLibs);
+            });
             
         }
     });
 
     function getFlags(type = "CPP"){
-        let flags = [];
-
-        let typeFlags = DATA.project[type+"Flags"];
-        if( typeFlags ){
-            if( typeFlags[DATA.project.target] )
-                flags.push(...typeFlags[DATA.project.target]);
-            if( typeFlags.ALL )
-                flags.push( ...typeFlags.ALL );
-            if( typeFlags[DATA.buildMode] )
-                flags.push( ...typeFlags[DATA.buildMode] );
-        }
-
+        let flags = APP.getFlags(type);
         if( type == "C" || type == "CPP" )
             flags.push("-D" + DATA.buildMode);
         
@@ -306,7 +299,17 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
         let compilerPath = DATA[
             buffer.type + "-" + DATA.project.target
-        ] + DATA.executableExt;
+        ];
+
+        if(!compilerPath){
+            compilerPath = {
+                C:"gcc",
+                CPP:"g++",
+                S:"as"
+            }[buffer.type];
+        }
+
+        compilerPath += DATA.executableExt;
 
         if( !objFile[ buffer.path ] )
             objFile[ buffer.path ] = nextObjFileId++;
@@ -322,13 +325,21 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
         var error = [];
 
-        cdb.push({
-            directory: DATA.projectPath,
-            command: `"${compilerPath.replace(/([\\"])/g, "\\$1")}" ${flags.map(f=>'"'+f.replace(/([\\"])/g, "\\$1")+'"').join(" ")}`,
-            file: buffer.path
-        });
+	try {
+            cdb.push({
+                directory: DATA.projectPath,
+                command: `"${compilerPath.replace(/([\\"])/g, "\\$1")}" ${flags.map(f=>'"'+f.replace(/([\\"])/g, "\\$1")+'"').join(" ")}`,
+                file: buffer.path
+            });
+        }catch(ex){
+            console.log(ex);
+        }
 
-        APP.spawn( compilerPath, ...flags )
+	const cwd = compilerPath.split(/[\\\/]/).slice(0, -1).join(path.sep);
+	const PATH = cwd + ";" + process.env.PATH;
+	const env = Object.assign({}, process.env, {PATH, Path:PATH});
+
+        APP.spawn( compilerPath, {cwd, env}, ...flags )
             .on("data-err", err =>{
                 let prev = "";
                 let wasError = "log";

@@ -19,20 +19,14 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
 
             let linkerPath = DATA[
                 "LD-" + DATA.project.target
-            ] + DATA.executableExt;
+            ];
 
-            let flags = [];
+            if(!linkerPath)
+                linkerPath = "g++";
 
-            let typeFlags = DATA.project["LDFlags"];
-            if( typeFlags ){
-                if( typeFlags[DATA.project.target] )
-                    flags.push(...typeFlags[DATA.project.target]);
-                if( typeFlags.ALL )
-                    flags.push( ...typeFlags.ALL );
-                if( typeFlags[DATA.buildMode] )
-                    flags.push( ...typeFlags[DATA.buildMode] );
-            }
+            linkerPath += DATA.executableExt;
 
+            let flags = APP.getFlags("LD");
             let i = flags.indexOf("$objectFiles");
             if( i > -1 ){
                 flags.splice( i, 1, ...olist.data.map(p=>{
@@ -44,7 +38,11 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
 
             let error = [];
 
-            APP.spawn( linkerPath, {cwd}, ...flags )
+	    const folder = linkerPath.split(/[\\\/]/).slice(0, -1).join(path.sep);
+	    const PATH = folder + ";" + process.env.PATH;
+	    const env = Object.assign({}, process.env, {PATH, Path:PATH});
+
+            APP.spawn( linkerPath, {cwd, env}, ...flags )
                 .on("data-err", err=>{
                     error.push(["error", err]);
                 })

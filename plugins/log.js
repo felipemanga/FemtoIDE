@@ -41,8 +41,11 @@
 
         error( ...args ){
             args.map(arg=>{
-                if( DATA.verbose && arg && arg.message && arg.stack ){
-                    return arg.stack;
+                if( arg && arg.message && arg.stack ){
+                    if( DATA.verbose )
+                        return arg.stack;
+                    else
+                        console.error(arg.stack);
                 }
                 return arg;
             }).join(" ")

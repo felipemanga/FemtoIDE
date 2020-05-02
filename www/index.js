@@ -316,6 +316,17 @@ class Frame {
         return frame;
     }
 
+    getFrameWithType(type){
+        let found = null;
+        DATA.buffers
+            .filter( b => b.type == type )
+            .find( b => {
+                let view = b.views.find(v => v.frame);
+                if(view) found = view.frame;
+            });
+        return found;
+    }
+
     displayBufferInFrame( buffer, frame ){
 
         if( typeof buffer == "string" )
@@ -324,9 +335,14 @@ class Frame {
         if( !buffer )
             return false;
 
+        let found = false;
         DATA.buffers.forEach( b => {
             b.views.forEach( v => {
                 if( v.frame == frame ){
+                    if(b == buffer){
+                        found = true;
+                        return;
+                    }
                     v.frame = null;
                     if( v.view.detach )
                         v.view.detach();
@@ -334,6 +350,9 @@ class Frame {
                 }
             });
         });
+
+        if(found)
+            return buffer;
 
         frame.innerHTML = '';
 
@@ -582,6 +601,7 @@ class Keys {
 class Chrome {
     constructor(){
         APP.add(this);
+        this.customElements = [];
         this.el = document.querySelector(".menuContainer");
         this.resetMenus();
     }
@@ -591,12 +611,20 @@ class Chrome {
     }
 
     resetMenus(){
+        this.customElements = [];
         this.menus = {};
         this.count = 0;
         this.menuList = [];
         this.hnd = 0;
         this.el.innerHTML = "";
         APP.queryMenus();
+    }
+
+    addCustomChromeElement( element ){
+        this.customElements.push(element);
+        if( !this.hnd ){
+            this.hnd = setTimeout(_=>this.renderChrome(), 10);
+        }
     }
 
     addMenu( name, optionMessage ){
@@ -654,6 +682,10 @@ class Chrome {
         this.menuList
             .sort()
             .forEach( item => this._renderChromeItem(...item) );
+
+        let menu = document.querySelector(".chrome");
+        this.customElements
+            .forEach( item => menu.appendChild(item) );
     }
 }
 
@@ -897,7 +929,7 @@ class Core {
 
         let options = {};
 
-        if( typeof args[0] == "object" && args[0].cwd ){
+        if( typeof args[0] == "object" && ("cwd" in args[0]) ){
             Object.assign( options, args.shift() );
         }
 
@@ -919,6 +951,7 @@ class Core {
                 child.emit("error", child.exitCode);
             }, 1);
         } else {
+            child.stdout.setEncoding('utf-8');
         
             child.stdout.on('data', data => {
                 child.emit('data-out', data);

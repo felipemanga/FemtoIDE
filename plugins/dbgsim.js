@@ -1,5 +1,5 @@
-APP.addPlugin("Debug", ["Build"], _=>{
-    let gdb, jlink, standby, pendingCommands, sigSent, isEmulator;
+APP.addPlugin("DebugSim", ["Build"], _=>{
+    let gdb, standby, pendingCommands, sigSent, isEmulator;
 
     function getBreakpointLocation(buffer, row){
         let translated = [];
@@ -30,11 +30,11 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 breakpoints.push(path);
             }
         }
-        
+
         return breakpoints;
     }
 
-    class Debug {
+    class DebugSim {
         constructor(){
             APP.add(this);
             this._defaultListener = this._defaultListenerUnbound.bind(this);
@@ -54,6 +54,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
             if( !oldStandby )
                 this.gdbCommand("c", true);
         }
+
 
         removeAllBreakpoints(){
             for( let file of DATA.projectFiles ){
@@ -84,7 +85,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
             let m = data.match(/\s+at\s+([^\n]+):([0-9]+)$/m);
             if( m )
                 this.currentFile = APP.findFile( m[1] );
-            
+
             m = data.match(/^([0-9]+)\s+([^\n]*)/m);
             if( m && this.currentFile ){
                 let map = APP.sourceMap( this.currentFile.path, m[1]|0 );
@@ -97,7 +98,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
                         m = null;
                     }
                 }
-                
+
                 if( m ){
                     if(!APP.isViewingDisassembly())
                         APP.displayBuffer( this.currentFile );
@@ -115,40 +116,41 @@ APP.addPlugin("Debug", ["Build"], _=>{
             APP.log("GDB: " + data);
         }
 
-        onDebugEmulatorStarted(port, isJLink){
-            isEmulator = !isJLink;
+        runDebug(){
+            if(DATA.project.target != DATA.os)
+                return;
 
             sigSent = false;
             pendingCommands = getBreakpoints()
                 .map(c => "b " + c);
 
-            if( jlink ){
-                pendingCommands.unshift("load");
-                pendingCommands.push("mon reset 0");
-            }
+            pendingCommands.push("r");
 
-            pendingCommands.push("c");
-            
-            let gdbPath =DATA[
+            let gdbPath = (DATA[
                 "GDB-" + DATA.project.target
-            ] + DATA.executableExt;
+            ] || "gdb") + DATA.executableExt;
 
             let buildFolder = APP.getCPPBuildFolder();
 
+            let ldflags = APP.getFlags("LD");
+            let execPath = ldflags[ldflags.indexOf("--output")+1];
+            if( !execPath )
+                return;
+
             let flags = [
                 "-q",
-                "-ex", "target remote :" + port,
                 "-ex", `dir "${buildFolder}"`,
                 "-ex", "set width unlimited",
                 "-ex", "set height unlimited",
-                "-ex", "set pagination off"
+                "-ex", "set pagination off",
+                execPath
             ];
 
             flags.push(...APP.getFlags("GDB"));
 
             let dataAcc = "";
 
-            gdb = APP.spawn(gdbPath, ...flags);
+            gdb = APP.spawn(gdbPath, {cwd:DATA.projectPath}, ...flags);
             gdb.stdin.setEncoding('utf-8');
 
             gdb.stdout.on('data', data => {
@@ -160,8 +162,6 @@ APP.addPlugin("Debug", ["Build"], _=>{
 
                 sigSent = false;
 
-                let silent = false;
-
                 if( standby ){
                     silent = this.listener != this._defaultListener;
                     let listener = this.listener.bind(null, dataAcc);
@@ -169,11 +169,11 @@ APP.addPlugin("Debug", ["Build"], _=>{
                     this.listener = this._defaultListener;
                     listener();
                 }
-                
+
                 if( standby ){
                     if( pendingCommands.length ){
                         this.gdbCommand(pendingCommands.shift());
-                    }else if(!silent){
+                    }else{
                         APP.onDebugStandby();
                     }
                 }
@@ -205,18 +205,16 @@ APP.addPlugin("Debug", ["Build"], _=>{
         }
 
         onCompileComplete(){
-            if(!jlink || !gdb)
+            if(!gdb)
                 return;
             this.gdbCommand("load", true);
-            pendingCommands.push("mon reset 0");
-            pendingCommands.push("c");
+            pendingCommands.push("run");
         }
 
         debugRestart(){
-            if(!gdb) return;
+            if( !gdb ) return;
             APP.clearHighlight();
-            this.gdbCommand("mon reset 0", true);
-            pendingCommands.push("c");
+            this.gdbCommand("run");
         }
 
         debugContinue(){
@@ -226,7 +224,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 if( sigSent )
                     return;
                 sigSent = true;
-                APP.sendBreak();                
+                APP.sendBreak();
             }else{
                 APP.clearHighlight();
                 this.gdbCommand("continue");
@@ -282,7 +280,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
         gdbCommand( cmd, enqueue ){
             if( !gdb )
                 return;
-            
+
             if( !standby ){
                 if( enqueue ){
                     pendingCommands.push(cmd);
@@ -308,106 +306,25 @@ APP.addPlugin("Debug", ["Build"], _=>{
             gdb.stdin.write(cmd + "\n");
         }
 
-        stopGDB(){
-            if( gdb )
-                APP.killChild(gdb);
-        }
-
         stopEmulator(){
-            if( jlink )
-                APP.killChild( jlink );
+            if(!gdb) return;
+            this.stopGDB();
         }
 
-        runJLink(){
-
-            if( jlink ){
-                APP.error("JLink already running");
-                return;
-            }
-
-            let execPath = (DATA[
-                "JLINK"
-            ] || "JLinkGDBServer") + DATA.executableExt;
-
-            if( !execPath )
-                return;
-
-            let flags = [];
-            let typeFlags = DATA.project["jlinkFlags"];
-            if( typeFlags ){
-                if( typeFlags[DATA.project.target] )
-                    flags.push(...typeFlags[DATA.project.target]);
-                if( typeFlags.ALL )
-                    flags.push( ...typeFlags.ALL );
-            }else{
-                flags = [
-                    "-select",
-                    "USB",
-                    "-device",
-                    "LPC11U68",
-                    "-endian",
-                    "little",
-                    "-if",
-                    "SWD",
-                    "-speed",
-                    "4000",
-                    "-noir",
-                    "-localhostOnly"
-                ];
-            }
-
-            flags = APP.replaceDataInString(flags);
-
-            APP.setStatus("Running JLink...");
-            jlink = APP.spawn( execPath, ...flags );
-
-            setTimeout( _=>{
-                if( jlink ){
-                    APP.onDebugEmulatorStarted(2331, true);
-                }
-            }, 500);
-
-            jlink.stdout.on('data', data => {
-                console.log(data);
-            });
-
-            jlink.stderr.on('data', data => {
-                APP.error(data);
-            });
-
-            jlink.on('close', code => {
-                APP.onEmulatorStopped();
-                APP.setStatus("JLink ended");
-                jlink = null;
-            });
-
-        }
-
-        debugJLink(){
-            if( jlink ){
-                APP.stopJLink();
-            }
-
+        stopGDB(){
             if( gdb ){
-                APP.stopEmulator();
-                APP.stopGDB();
+                APP.killChild(gdb);
+                setTimeout(_=>{
+                    if(gdb)
+                        gdb.stdin.write("q\n");
+                }, 50);
             }
-
-            APP.compile( false, _=>{
-                APP.runJLink();
-            });
         }
 
-        debug(){
-            APP.setTarget("Pokitto");
-            if( gdb && !jlink ){
-                APP.stopEmulator();
-                APP.stopGDB();
-                APP.compile( false, _=>{
-                    APP.runDebug();
-                });
-            } else if(gdb && jlink) {
-                APP.compile( false );
+        debugSim(){
+            APP.setTarget(DATA.os);
+            if(gdb){
+                APP.compile(false);
             } else {
                 APP.compile( false, _=>{
                     APP.runDebug();
@@ -418,14 +335,13 @@ APP.addPlugin("Debug", ["Build"], _=>{
 
     APP.add(new class Debugger {
         onOpenProject(){
-            new Debug();
+            new DebugSim();
         }
 
         queryMenus(){
-            APP.addMenu("Debug", {
-                "Start":"debug",
-                "Start J-Link":"debugJLink",
-                "Restart": "debugRestart",
+            APP.addMenu("Simulator", {
+                "Start":"debugSim",
+                "Restart":"debugRestart",
                 "Stop":"stopEmulator",
                 "Continue / Pause":"debugContinue",
                 "Step In":"debugStepIn",
