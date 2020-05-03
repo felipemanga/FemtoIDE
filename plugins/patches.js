@@ -114,8 +114,7 @@ APP.addPlugin("Patches", [], _=>{
 		"compile-ld"
 	    ],
 	    "linux": "Desktop",
-	    "windows": "Desktop",
-	    "darwin": "Desktop"
+	    "windows": "Desktop"
         });
     }
 

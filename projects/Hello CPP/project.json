@@ -294,8 +294,7 @@
 			"compile-ld"
 		],
 		"linux": "Desktop",
-		"windows": "Desktop",
-		"darwin": "Desktop"
+		"windows": "Desktop"
 	},
 	"meta": {
 		"": {},

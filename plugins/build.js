@@ -68,7 +68,8 @@ APP.addPlugin("Build", ["Project"], _=>{
                 pipeline = DATA.project.pipelines[target];
                 if(typeof pipeline == "string")
                     pipeline = DATA.project.pipelines[pipeline];
-
+                if(!pipeline)
+                    throw `Project has no ${target} pipeline`;
                 files = buildFiles = [...DATA.projectFiles];
                 if(BUILDFlags.ignore){
                     let exp = new RegExp(BUILDFlags.ignore, "gi");
