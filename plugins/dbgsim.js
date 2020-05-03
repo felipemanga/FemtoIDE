@@ -203,7 +203,7 @@ APP.addPlugin("DebugSim", ["Build"], _=>{
         }
 
         sendBreak(){
-            if( gdb && !isEmulator )
+            if( gdb )
                 gdb.kill('SIGINT');
         }
 
