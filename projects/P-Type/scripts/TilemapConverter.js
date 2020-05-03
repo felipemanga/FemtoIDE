@@ -95,7 +95,12 @@ Promise.all(promises)
 static const MapEnum parameters[] = {\n\t`;
             acc += special.map(l => {
                 l.forEach(l => keys[l] = l);
-                return l.length ? l.join(", ") : "EMPTY";
+                let v = "EMPTY";
+                if(l.length == 1)
+                    v = l[0];
+                else if(l.length > 1)
+                    v = "MapEnum(" + [...new Set(l)].join("|") + ")";
+                return v;
             }).join(",\n\t");
             acc += `
     };

@@ -13,6 +13,7 @@ APP.bindKeys("global", {
     "C-S-b": APP.compileDebug,
     "C-b": APP.compile,
     "C-r": APP.run,
+    "C-M-c": APP.clean,
     "C-g":APP.compileAndRun,
     "C-o":APP.focusFilter,
     "M-c g":APP.displayGeneratedCPP,
@@ -23,7 +24,9 @@ APP.bindKeys("global", {
     "F2": APP.debugRestart,
     "S-F5": APP.debugJLink,
     "F8": APP.debugContinue,
+    "M-F10": APP.debugNextInstruction,
     "F10": APP.debugStepOver,
+    "M-F11": APP.debugStepInstruction,
     "F11": APP.debugStepIn,
     "F6": APP.debugStepOut,
     "C-q": APP.exit,
@@ -51,6 +54,7 @@ APP.add({
         ace.setOption( "printMargin" , false);
         ace.commands.bindKeys({
             "f1":null,
+            "f3":null,
             "ctrl-l":null,
             "alt-y" :null,
             "ctrl-y":null,
@@ -67,8 +71,8 @@ let platform = process
     .startsWith("win") ? "windows" : process.platform.toLowerCase();
 
 APP.customSetVariables({
+    "maxTabWidth":20,
     "enableTabs":true,
-    "maxTabWidth":16,
     "verbose":false,
     "aceTheme":"ace/theme/monokai",
     "projectsPath":platform == "darwin" ?
@@ -86,11 +90,18 @@ APP.customSetVariables({
     "S-linux": "as",
     "LD-linux": "g++",
 
-    "GDB-windows":[DATA.appPath, process.platform, "x86", "bin", "gdb"].join(path.sep),
-    "C-windows":[DATA.appPath, process.platform, "x86", "bin", "gcc"].join(path.sep),
-    "CPP-windows":[DATA.appPath, process.platform, "x86", "bin", "g++"].join(path.sep),
-    "S-windows":[DATA.appPath, process.platform, "x86", "bin", "as"].join(path.sep),
-    "LD-windows":[DATA.appPath, process.platform, "x86", "bin", "g++"].join(path.sep),
+
+    "GDB-darwin": "gdb",
+    "C-darwin": "gcc",
+    "CPP-darwin": "g++",
+    "S-darwin": "as",
+    "LD-darwin": "g++",
+
+    "GDB-windows":[DATA.appPath, platform, "x86", "bin", "gdb"].join(path.sep),
+    "C-windows":[DATA.appPath, platform, "x86", "bin", "gcc"].join(path.sep),
+    "CPP-windows":[DATA.appPath, platform, "x86", "bin", "g++"].join(path.sep),
+    "S-windows":[DATA.appPath, platform, "x86", "bin", "as"].join(path.sep),
+    "LD-windows":[DATA.appPath, platform, "x86", "bin", "g++"].join(path.sep),
 
     "ADDR2LINE-Pokitto":[DATA.appPath, platform, "arm", "bin", "arm-none-eabi-addr2line"].join(path.sep),
 

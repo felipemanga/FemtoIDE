@@ -67,7 +67,7 @@ void StateGame::updateHUD(){
     if(!uidirty)
         return;
     uidirty = false;
-    PD::setTASRowMask(0b10'1011'00000000'00000000);
+    PD::setTASRowMask(0b11'1111'11000000'00000000);
 
     uimap.draw(0, 0);
     PD::setCursor(3 * POK_TILE_W + 5, 9 * POK_TILE_H - 3);
@@ -77,7 +77,7 @@ void StateGame::updateHUD(){
     PD::print(player.getHP());
     PD::update();
 
-    PD::setTASRowMask(0b00'0000'11111111'11111011);
+    PD::setTASRowMask(0b00'0000'00111111'11111111);
 }
 
 void StateGame::update(){

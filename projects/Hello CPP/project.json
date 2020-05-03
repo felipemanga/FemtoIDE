@@ -279,7 +279,7 @@
 			"$objectFiles"
 		]
 	},
-	"target": "linux",
+	"target": "Pokitto",
 	"pipelines": {
 		"Pokitto": [
 			"img-to-c",
