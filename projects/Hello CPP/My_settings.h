@@ -9,7 +9,6 @@
 
 // ---- SECTION: COMMON ----
 
-
 // Choose a Screen Mode
 // For more information on each mode, see:
 // https://talk.pokitto.com/t/wiki-5-pokitto-screen-modes/1180
@@ -23,6 +22,12 @@
 //#define PROJ_SCREENMODE TASMODE // See also SECTION: TASMODE
 //#define PROJ_SCREENMODE TASMODELOW
 
+
+// Define if the screen should be cleared automatically
+// every frame or if the previous frame should persist.
+// Does not apply to TASMODE.
+// Optional. Can be true or false. Default is true.
+#define PROJ_PERSISTENCE true
 
 // Show the actual framerate
 // Optional. Uncomment this define to show.

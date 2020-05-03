@@ -253,20 +253,33 @@
 			"${projectPath}/${projectName}"
 		],
 		"windows": [
+			"-static",
 			"-lmingw32",
+			"-L${appPath}/PokittoLib/Pokitto/POKITTO_SIM/SDL2/lib",
 			"-lSDL2main",
-			"-lSDL2.dll",
+			"-lSDL2",
+			"-lm",
+			"-ldinput8",
+			"-ldxguid",
+			"-ldxerr8",
 			"-luser32",
 			"-lgdi32",
 			"-lwinmm",
-			"-ldxguid",
-			"-L${appPath}/PokittoLib/Pokitto/POKITTO_SIM/SDL2/lib",
+			"-limm32",
+			"-lole32",
+			"-loleaut32",
+			"-lshell32",
+			"-lversion",
+			"-luuid",
+			"-lsetupapi",
+			"-static-libgcc",
+			"-mwindows",
 			"--output",
 			"${projectPath}/${projectName}.exe",
 			"$objectFiles"
 		]
 	},
-	"target": "Pokitto",
+	"target": "linux",
 	"pipelines": {
 		"Pokitto": [
 			"img-to-c",
@@ -323,6 +336,39 @@
 			"sdcard": false
 		},
 		"/EEP.ROM": {
+			"sdcard": false
+		},
+		"\\Hello CPP": {
+			"sdcard": false
+		},
+		"\\EEP.ROM": {
+			"sdcard": false
+		},
+		"\\Hello CPP.bin": {
+			"sdcard": false
+		},
+		"\\Hello CPP.elf": {
+			"sdcard": false
+		},
+		"\\My_settings.h": {
+			"sdcard": false
+		},
+		"\\main.cpp": {
+			"sdcard": false
+		},
+		"\\project.json": {
+			"sdcard": false
+		},
+		"\\Smile.h": {
+			"sdcard": false
+		},
+		"\\Smile.png": {
+			"sdcard": false
+		},
+		"\\Hello CPP.exe": {
+			"sdcard": false
+		},
+		"/Hello CPP.exe": {
 			"sdcard": false
 		}
 	},

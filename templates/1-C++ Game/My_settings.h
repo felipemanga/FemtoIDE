@@ -23,6 +23,13 @@
 //#define PROJ_SCREENMODE TASMODELOW
 
 
+// Define if the screen should be cleared automatically
+// every frame or if the previous frame should persist.
+// Does not apply to TASMODE.
+// Optional. Can be true or false. Default is true.
+#define PROJ_PERSISTENCE true
+
+
 // Show the actual framerate
 // Optional. Uncomment this define to show.
 // #define PROJ_SHOW_FPS_COUNTER
