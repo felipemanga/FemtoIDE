@@ -1,5 +1,5 @@
 APP.addPlugin("DebugSim", ["Build"], _=>{
-    let gdb, standby, pendingCommands, sigSent, isEmulator;
+    let gdb, standby, pendingCommands, sigSent, wasInit;
 
     function getBreakpointLocation(buffer, row){
         let translated = [];
@@ -120,6 +120,7 @@ APP.addPlugin("DebugSim", ["Build"], _=>{
             if(DATA.project.target != DATA.os)
                 return;
 
+            wasInit = false;
             sigSent = false;
             pendingCommands = getBreakpoints()
                 .map(c => "b " + c);
@@ -161,6 +162,8 @@ APP.addPlugin("DebugSim", ["Build"], _=>{
                     return;
 
                 sigSent = false;
+                wasInit = true;
+                let silent = false;
 
                 if( standby ){
                     silent = this.listener != this._defaultListener;
@@ -173,7 +176,7 @@ APP.addPlugin("DebugSim", ["Build"], _=>{
                 if( standby ){
                     if( pendingCommands.length ){
                         this.gdbCommand(pendingCommands.shift());
-                    }else{
+                    }else if(!silent){
                         APP.onDebugStandby();
                     }
                 }
@@ -205,7 +208,7 @@ APP.addPlugin("DebugSim", ["Build"], _=>{
         }
 
         onCompileComplete(){
-            if(!gdb)
+            if(!gdb || !wasInit)
                 return;
             this.gdbCommand("load", true);
             pendingCommands.push("run");
