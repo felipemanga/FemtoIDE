@@ -112,30 +112,34 @@ ${img.width}, ${img.height}`;
                 let C = (R<<16) + (G<<8) + B;
                 let A = data[i++]|0;
 
-                if(C === PC){
-                    closest = PCC;
-                } else if( A > 128 || !transparent ) {
-                    
-                    for( let c=0; c<max; ++c ){
-                        if( transparent && c == transparentIndex )
-                            continue;
-                        const ca = palette[c];
-                        const PR = ca[0]|0;
-                        const PG = ca[1]|0;
-                        const PB = ca[2]|0;
-		        const dist = (R-PR)*(R-PR)
-                            + (G-PG)*(G-PG)
-                            + (B-PB)*(B-PB)
-                        ;
+                if( A > 128 || !transparent ) {
+                    if(C === PC){
+                        closest = PCC;
+                    } else {
+                        
+                        for( let c=0; c<max; ++c ){
+                            if( transparent && c == transparentIndex )
+                                continue;
+                            const ca = palette[c];
+                            const PR = ca[0]|0;
+                            const PG = ca[1]|0;
+                            const PB = ca[2]|0;
+		            const dist = (R-PR)*(R-PR)
+                                  + (G-PG)*(G-PG)
+                                  + (B-PB)*(B-PB)
+                            ;
 
-                        if( dist < closestDist ){
-                            closest = c;
-                            closestDist = dist;
+                            if( dist < closestDist ){
+                                closest = c;
+                                closestDist = dist;
+                            }
                         }
+                        
+                        PC = C;
+                        PCC = closest;
+
                     }
-                    
-                    PC = C;
-                    PCC = closest;
+
                 }else{
                     closest = transparentIndex;
                 }
