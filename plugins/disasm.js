@@ -39,7 +39,7 @@ APP.addPlugin("Disasm", [], _=>{
             let elf = flags.find(x=>/\.elf$/i.test(x));
 
             let acc = "";
-            APP.spawn(dumpPath, "-lSD", elf)
+            APP.spawn(dumpPath, "-lSD", "-Mforce-thumb", elf)
                 .on("data-err", (err)=>{
                     APP.error(err);
                 })
