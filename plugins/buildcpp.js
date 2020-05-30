@@ -136,7 +136,8 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                         pending.start();
                         
                         fs.stat( full, (err, stat)=>{
-                            if(stat.isDirectory() ){
+                            if(!stat){
+                            } else if(stat.isDirectory() ){
                                 libDir( full, src, pending, ignore );
                             } else if(
                                 srcext.indexOf(
