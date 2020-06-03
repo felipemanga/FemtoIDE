@@ -1,3 +1,6 @@
 [submodule "PokittoLib"]
 	path = PokittoLib
 	url = https://github.com/Pokitto/PokittoLib
+[submodule "www/BassoonTracker"]
+	path = www/BassoonTracker
+	url = https://github.com/steffest/BassoonTracker
