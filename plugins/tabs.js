@@ -130,6 +130,35 @@ APP.addPlugin("Tabs", [], _=>{
     }
 
     APP.add(new class Tabs {
+        nextTab(){
+            for(let i=0; i<tabs.length; ++i){
+                let next = (i + 1) % tabs.length;
+                for(; next != i && !tabs[next].buffer; next = (next + 1) % tabs.length);
+                let tab = tabs[i];
+                if(tab.count){
+                    tabs[next].activate();
+                    return;
+                }
+            }
+        }
+
+        previousTab(){
+            for(let i=0; i<tabs.length; ++i){
+                let next = i - 1;
+                if(next < 0) next = tabs.length - 1;
+
+                for(; next != i && !tabs[next].buffer;){
+                    next--;
+                    if(next < 0) next = tabs.length - 1;
+                }
+
+                let tab = tabs[i];
+                if(tab.count){
+                    tabs[next].activate();
+                    return;
+                }
+            }
+        }
         
         displayBufferInFrame(buffer, frame){
             if( !buffer || !buffer.path )
