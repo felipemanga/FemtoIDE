@@ -9,28 +9,28 @@ APP.add({
         });
     },
 */
-    
+
     openProject(...args){
-        if( !args.length ) 
+        if( !args.length )
             APP.displayBuffer( buffer );
     },
-    
+
     pollViewForBuffer( buffer, vf ){
 
         if( buffer.name == "Welcome" ){
             vf.view = ProjectsListView;
             vf.priority = 999;
         }
-        
+
     }
-    
+
 });
 
 class ProjectsListView {
 
     constructor( frame, buffer ){
         this.css = "blocking InitView";
-        
+
         let projectsList;
 
         try{
@@ -39,7 +39,7 @@ class ProjectsListView {
                 .filter( item => {
                     try{
                         return fs
-                            .lstatSync(DATA.projectsPath + path.sep + item)
+                            .statSync(DATA.projectsPath + path.sep + item)
                             .isDirectory();
                     }catch(ex){
                         return false;
@@ -68,10 +68,10 @@ class ProjectsListView {
                     }
                 }
                 //alert(element.parentNode.classList);
-        
+
                 if( visible ) element.parentNode.style.display='flex';
                 else element.parentNode.style.display='none';
-                
+
             });
         };
 
@@ -126,14 +126,14 @@ class ProjectsListView {
                     try {
                         folderTime = fs.statSync(DATA.projectsPath + path.sep + project).mtime;
                         const prinfo=require(DATA.projectsPath + path.sep + project+ path.sep+"project.json");
-                    
+
                         if(prinfo.pipelines.Pokitto.find(element => element == "compile-java"))
                             icon="images/icons/java.svg";
                         if(prinfo.LDFlags.Pokitto.find(element => element.search("libmicropython.a")>0))
                             icon="images/icons/python.svg";
 
                     } catch (error) {
-                        
+
                     }
 
                     return [
@@ -142,12 +142,12 @@ class ProjectsListView {
                             html: `<img src="${icon}"><div class="name">${project}</div> <span>${folderTime.toLocaleString()}</span>`,
                             onclick: _=>APP.openProject(DATA.projectsPath + path.sep + project)
                         }];
-                    
+
                 })
-                
+
             ]
         );
-        
+
         if( localStorage.getItem("lastProject") ){
             DOC.create(
                 frame,
@@ -159,7 +159,7 @@ class ProjectsListView {
                     title: localStorage.getItem("lastProject"),
                     className:"lastProjectLink",
                     onclick:()=>{APP.openProject(localStorage.getItem("lastProject"))}}
-                ]  
+                ]
                 ]
             );
         }
