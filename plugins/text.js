@@ -4,6 +4,7 @@ APP.addPlugin("Text", ["Project"], _=>{
     let killRing = [];
     let yankRange;
     let highlightView = null;
+    let fontSize = 16;
 
     class TextView {
 
@@ -330,6 +331,7 @@ APP.addPlugin("Text", ["Project"], _=>{
                     APP.onRemoveBreakpoint(buffer, row);
 	    });
 
+            this.applyFontSizeChange();
             APP.onCreateACE( this.ace );
             
             buffer.transform = "transformSessionToString";
@@ -391,9 +393,24 @@ APP.addPlugin("Text", ["Project"], _=>{
             this.ignoreChange = false;
         }
 
+        applyFontSizeChange(){
+            this.ace.setFontSize(fontSize);
+        }
+
     };
 
     APP.add({
+
+        increaseFontSize(amount = 2){
+            fontSize += Math.abs(amount);
+            APP.applyFontSizeChange();
+        },
+
+        decreaseFontSize(amount = 2){
+            fontSize -= Math.abs(amount);
+            if(fontSize < 6) fontSize = 6;
+            APP.applyFontSizeChange();
+        },
 
         transformSessionToString( session ){
             if( !session || !session.getValue )

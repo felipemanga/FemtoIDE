@@ -4,6 +4,8 @@ APP.customSetVariables({
 });
 
 APP.bindKeys("global", {
+    "C--": APP.decreaseFontSize,
+    "C-=": APP.increaseFontSize,
     "C-w": APP.closeTab,
     "C-M-d": APP.disassemble,
     "M-h": APP.toggleHCPP,

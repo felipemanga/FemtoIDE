@@ -72,7 +72,7 @@ html, body {
 }
 
 .ace_editor {
-    font: 0.9em 'Source Code Pro' !important;
+    font: 'Source Code Pro' !important;
 }
 
 .hidden {
