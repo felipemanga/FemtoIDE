@@ -31,6 +31,23 @@ APP.addPlugin("Sound", [], _ => {
 
     APP.add({
 
+        convertToRaw(buffer){
+            if( !buffer || extensions.indexOf(buffer.type) == -1 )
+                return;
+            let data = APP.readBufferSync(buffer);
+            if(!data)
+                return;
+            APP.readAudio(data.buffer)
+                .then(data=>{
+                    buffer.data = null;
+                    let filePath = buffer.path.replace(/\....$/, ".raw");
+                    let out = APP.findFile(filePath);
+                    out.data = data;
+                    out.transform = null;
+                    APP.writeBuffer(out);
+                });
+        },
+
         convertToCpp(buffer){
             if( !buffer || extensions.indexOf(buffer.type) == -1 )
                 return;
@@ -61,6 +78,11 @@ ${data.map(x=>(x>255?255:(x<0?0:x))|0).join(",")}
                 type: "button",
                 label: "Convert to C++",
                 cb: APP.convertToCpp.bind(null, buffer)
+            });
+            actions.push({
+                type: "button",
+                label: "Convert to RAW",
+                cb: APP.convertToRaw.bind(null, buffer)
             });
         },
         
