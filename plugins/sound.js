@@ -42,7 +42,7 @@ APP.addPlugin("Sound", [], _ => {
                     buffer.data = null;
                     let filePath = buffer.path.replace(/\....$/, ".raw");
                     let out = APP.findFile(filePath);
-                    out.data = data;
+                    out.data = new Uint8ClampedArray(data);
                     out.transform = null;
                     APP.writeBuffer(out);
                 });
