@@ -23,6 +23,10 @@ APP.addPlugin("Debug", ["Build"], _=>{
                 continue;
             for( let k in file.pluginData.breakpoints ){
                 let classes = file.pluginData.breakpoints[k];
+                if (!classes) {
+                    delete file.pluginData.breakpoints[k];
+                    continue;
+                }
                 if( classes.indexOf("unconditional") == -1 )
                     continue;
 

@@ -58,6 +58,8 @@ class Pending {
 
 }
 
+window.Pending = Pending;
+
 let nextBufferId = 1;
 class Buffer {
 
@@ -309,8 +311,11 @@ class Frame {
         let frame = this.leftFrame;
         if( !frame )
             frame = this.leftFrame = APP.createFrameInParent(parent, horizontal);
-        frame.remove();
-        parent.insertBefore( frame, currentFrame );
+        if (frame){
+            frame.remove();
+            if(parent)
+                parent.insertBefore( frame, currentFrame );
+        }
         this.currentFrame = currentFrame;
         let ret = APP.displayBufferInFrame( buffer, frame );
         return frame;
@@ -328,6 +333,8 @@ class Frame {
     }
 
     displayBufferInFrame( buffer, frame ){
+        if(window.headless)
+            return true;
 
         if( typeof buffer == "string" )
             buffer = DATA.buffers.find( b => b.name == buffer );
@@ -600,6 +607,8 @@ class Keys {
 
 class Chrome {
     constructor(){
+        if(document.body == document)
+            return;
         APP.add(this);
         this.customElements = [];
         this.el = document.querySelector(".menuContainer");
@@ -690,6 +699,7 @@ class Chrome {
 }
 
 const encoding = {};
+window.encoding = encoding;
 
 class Core {
     
@@ -821,18 +831,22 @@ class Core {
     }
 
     load( __script_path ){
-        /* */
-        let tag = document.createElement("script");
-        tag.src = "file://" + __script_path;
-        document.head.appendChild( tag );
-        /*/
-        try{
-            eval( fs.readFileSync( __script_path, "utf-8") );
-        }catch(ex){
-            console.log( "Could not read script ", __script_path, ": ", ex.message );
-            return false;
+        if (window.headless) {
+            include(__script_path);
+        } else {
+            /* */
+            let tag = document.createElement("script");
+            tag.src = "file://" + __script_path;
+            document.head.appendChild( tag );
+            /*/
+              try{
+              eval( fs.readFileSync( __script_path, "utf-8") );
+              }catch(ex){
+              console.log( "Could not read script ", __script_path, ": ", ex.message );
+              return false;
+              }
+              /* */
         }
-        /* */
 
         return true;
     }
@@ -856,6 +870,15 @@ class Core {
         });
         
         return true;
+    }
+
+    hasPendingPlugins(){
+        for(let name in this.plugins){
+            let plugin = this.plugins[name];
+            if(!plugin.loaded)
+                return true;
+        }
+        return false;
     }
 
     addPlugin(name, dependencies, cb){
@@ -893,6 +916,9 @@ class Core {
                     }
                 }
             }while(retry);
+
+            if(!this.hasPendingPlugins())
+                APP.onPluginsLoaded();
         }
     }
 
@@ -999,15 +1025,20 @@ class Core {
     }
 };
 
+window.Buffer = Buffer;
+window.fs = fs;
+
 (function(){
 
     new Core();
     new Keys();
     new Frame();
-    new Chrome();
+
+    if (!window.headless)
+        new Chrome();
 
     let isDerpy = process.platform == "darwin";
-    
+
     importData({
         appPath:process.argv[0].split( path.sep ).slice(0, isDerpy ? -6 : -1).join( path.sep ) + (isDerpy ? "/Resources/app.nw" : ""),
         buffers:[]
@@ -1016,3 +1047,4 @@ class Core {
     APP.load( DATA.appPath + path.sep + "config.js" );
 
 })();
+

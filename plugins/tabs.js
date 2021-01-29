@@ -1,3 +1,4 @@
+if(!window.headless)
 APP.addPlugin("Tabs", [], _=>{
     if( DATA.enableTabs === false ){
         return;

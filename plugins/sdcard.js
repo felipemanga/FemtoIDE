@@ -6,10 +6,15 @@ APP.addPlugin("SDCard", [], _=>{
     const fs = require("fs");
     const fatfs = require("fatfs");
     
-    let image, imagePath, nonzero;
+    let image, imagePath, nonzero, waiting = [];
+
     fs.readFile("www/blank.img", (err, data)=>{
         image = data.buffer;
         loadNonZero();
+        let c = waiting;
+        waiting = null;
+        for(let cb of c)
+            cb();
     });
 
     function loadNonZero(){
@@ -63,6 +68,62 @@ APP.addPlugin("SDCard", [], _=>{
         }
         // image.set(header);
     }
+
+    function copyFile(ffs, filePath, pending){
+
+        let rpath = filePath.substr(DATA.projectPath.length);
+        rpath = rpath.split(path.sep);
+        let pathDir="";
+
+        for( let i=1;i<rpath.length-1;i++ ){
+            pathDir+=rpath[i]+"/";
+        }
+
+        fs.readFile( filePath, (err, data)=>{
+            if(err){
+                pending.error(err);
+                return;
+            }
+
+            ffs.writeFile(
+                pathDir+rpath[rpath.length-1],
+                data,
+                err =>{
+                    if(err) pending.error(err);
+                    else pending.done();
+                });
+
+        });
+        pending.start();
+    }
+
+    function copyDirectory(ffs, dirPath, pending){
+
+        let rpath = dirPath.substr(DATA.projectPath.length);
+        rpath = rpath.split(path.sep);
+        let pathDir="";
+
+        for( let i=1;i<rpath.length;i++ ){
+            pathDir+=rpath[i]+"/";
+        }
+
+        ffs.mkdir(pathDir, err =>{
+            if(err){
+                pending.error(err);
+                return;
+            }
+            pending.done();
+            fs.readdirSync(dirPath).map((fileName)=>{
+                const filePath = dirPath+path.sep+fileName;
+                const stat=fs.statSync(filePath);
+                if(stat.isFile())
+                    copyFile(ffs, filePath, pending);
+                if(stat.isDirectory())
+                    copyDirectory(ffs, filePath, pending);
+            });
+        });
+        pending.start();
+    }
     
     class SDCard {
 
@@ -81,65 +142,22 @@ APP.addPlugin("SDCard", [], _=>{
         }
 
         ["make-img"]( files, cb ){
-            function copyFile(filePath, pending)
-            {
-
-                let rpath = filePath.substr(DATA.projectPath.length);
-                rpath = rpath.split(path.sep);
-                let pathDir="";
-     
-                for( let i=1;i<rpath.length-1;i++ ){
-                    pathDir+=rpath[i]+"/";
-                }
-
-                fs.readFile( filePath, (err, data)=>{
-                    ffs.writeFile(
-                        pathDir+rpath[rpath.length-1],
-                        data,
-                        err =>{
-                            pending.done();
-                        });
-                    
+            if(waiting){
+                waiting.push(_=>{
+                    this["make-img"](files, cb);
                 });
-                pending.start();
-            }
-
-            function copyDirectory(dirPath, pending)
-            {
- 
-                let rpath = dirPath.substr(DATA.projectPath.length);
-                rpath = rpath.split(path.sep);
-                let pathDir="";
-     
-                for( let i=1;i<rpath.length;i++ ){
-                    pathDir+=rpath[i]+"/";
-                }
-
-                ffs.mkdir(pathDir,
-                    err =>{
-                        
-                    });
-                
-                fs.readdirSync(dirPath).map((fileName)=>{
-                        const filePath = dirPath+path.sep+fileName;
-                        const stat=fs.statSync(filePath);
-                        
-                        if(stat.isFile())
-                            copyFile(filePath, pending);
-                        if(stat.isDirectory())
-                            copyDirectory(filePath, pending);
-                });
+                return;
             }
 
             let meta = DATA.project.meta;
             if( !meta ){
+                // APP.log("No meta, bailing");
                 cb();
                 return;
             }
-            
+
             const pending = new Pending(_=>{
                 imagePath = DATA.buildFolder+path.sep+"fs.img";
-                
                 fs.writeFile(
                     imagePath,
                     new Uint8Array(image),
@@ -153,18 +171,20 @@ APP.addPlugin("SDCard", [], _=>{
             format();
             const ffs = this.mountDisk(image);
             files.forEach(file=>{
-                if( !file.path.startsWith(DATA.projectPath) )
+                if( !file.path.startsWith(DATA.projectPath) ){
                     return;
+                }
                 
                 let rpath = file.path
                     .substr(DATA.projectPath.length);
 
-                if( !meta[rpath] || !meta[rpath].sdcard )
+                if( !meta[rpath] || !meta[rpath].sdcard ){
                     return;
+                }
 
                 if(file.type == "directory" )
                 {
-                    copyDirectory(file.path, pending);
+                    copyDirectory(ffs, file.path, pending);
                     return;
                 }
 
@@ -191,7 +211,7 @@ APP.addPlugin("SDCard", [], _=>{
                 flags.push("-I");
                 flags.push(imagePath);
             }
-            console.log(flags);
+            // console.log(flags);
         }
         
     }

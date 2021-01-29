@@ -1,5 +1,6 @@
 APP.addPlugin("BuildCPP", ["Build"], _=> {
     let failLine;
+    let isCleanBuild = false;
     let buildFolder = "";
     let objFile = {};
     let nextObjFileId = 1;
@@ -8,9 +9,17 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     let libFlags = [];
     let libSrc = {};
     let cdb = [];
-
+    let cdbCompilerPath = "clang", cdbIncludes = [];
     let jobs = [];
     let workerCount = 0;
+
+    function hash(str){
+        let v = 5381;
+        for(let i=0; i<str.length; ++i){
+            v = ((v*31 >>> 0) + str.charCodeAt(i)) >>> 0;
+        }
+        return v;
+    }
 
     function validLibEntry(entry, ignore){
         if( /^\.|~$/.test(entry) ) 
@@ -29,11 +38,12 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     APP.add(new class BuildCPP {
 
         getCPPBuildFolder(){
-            return buildFolder;
+            return path.join(require("os").tmpdir(), "b_" + DATA.projectName);
         }
 
         clean(){
             APP.log("Cleaned");
+            isCleanBuild = true;
             libFlags = [];
             libSrc = {};
             libs = {};            
@@ -44,13 +54,12 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             objBuffer = new Buffer();
             objBuffer.type = "o list";
 
-            this.clean();
+            // this.clean();
 
-            const tmpDir = require("os").tmpdir();
-            fs.mkdtemp(`${tmpDir}${path.sep}`, (err, folder) => {
-                buildFolder = folder;
+            buildFolder = this.getCPPBuildFolder();
+            fs.mkdir(buildFolder, _ => {
                 APP.customSetVariables({buildFolder});
-                this.writeCompileFlags();
+                this.writeCompileFlags(buildFolder);
             });
         }
 
@@ -76,32 +85,33 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 });
         }
 
-        _addLib(path, pending){
+        _addLib(libPath, pending){
             let srcext = ["CPP", "C", "CC", "S"];
             let obj;
-            if( typeof path == "object" ){
-                obj = path;
-                path = path.recurse;
+            if( typeof libPath == "object" ){
+                obj = libPath;
+                libPath = libPath.recurse;
             }
             
-            let id = libs[path];
+            let id = libs[libPath];
             
-            if( id ){
+            // if( id ){
                 
-                this._addObj(id, pending);
+            //     this._addObj(id, pending);
                 
-            }else if( !obj ){
+            // }else
+            if( !obj ){
 
-                libFile.call(this, path, pending);
+                libFile.call(this, libPath, pending);
 
-            }else if( libSrc[path] ){
+            }else if( libSrc[libPath] ){
 
-                let src = libSrc[path];
-                src.forEach( path=>{
-                    if( libs[path] )
-                        this._addObj(libs[path], pending);
-                    else
-                        libFile.call(this, path, pending);
+                let src = libSrc[libPath];
+                src.forEach( libPath=>{
+                    // if( libs[libPath] )
+                    //     this._addObj(libs[libPath], pending);
+                    // else
+                        libFile.call(this, libPath, pending);
                 });
 
             }else{
@@ -110,15 +120,15 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 if( obj.ignore )
                     ignore = new RegExp(obj.ignore, "gi");
                 
-                let src = libSrc[path] = [];
+                let src = libSrc[libPath] = [];
                 pending.start();
 
                 let p = new Pending(_=>{
-                    src.forEach( path=>libFile.call(this, path, pending) );
+                    src.forEach( libPath=>libFile.call(this, libPath, pending) );
                     pending.done();
                 }, pending.error);
 
-                let realPath = APP.replaceDataInString(path.replace(/\*/g, ""));
+                let realPath = APP.replaceDataInString(libPath.replace(/\*/g, ""));
                 libDir(realPath, src, p, ignore);
 
             }
@@ -154,7 +164,29 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 });
             }
 
-            function libFile( path, pending ){
+            function libFile(srcPath, pending){
+                if(isCleanBuild){
+                    libFileEx.call(this, srcPath, pending);
+                } else {
+                    let key = hash(srcPath);
+                    let objPath = path.join(buildFolder, key + ".o");
+                    fs.exists(objPath, error => {
+                        let exists = error === true;
+                        // console.log(srcPath typeof
+                        if(!exists){
+                            libFileEx.call(this, srcPath, pending);
+                        } else {
+                            libs[path] = objPath;
+                            this._addObj(objPath, pending);
+                        }
+                        pending.done();
+                    });
+                    pending.start();
+                }
+            }
+
+            function libFileEx( path, pending ){
+
                 pending.start();
                 let buffer = {};
                 buffer.path = APP.replaceDataInString( path );
@@ -178,7 +210,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             return libs;
         }
 
-        writeCompileFlags(){
+        writeCompileFlags( buildFolder = DATA.buildFolder ){
             let flags = getFlags();
 
             this._getLibsConfig().forEach( path => {
@@ -186,8 +218,8 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             });
             
             fs.writeFileSync(
-                path.join(DATA.buildFolder, "compile_flags.txt"),
-                flags.join("\n"),
+                path.join(buildFolder, "compile_flags.txt"),
+                flags.map(f=>APP.replaceDataInString(f)).join("\n"),
                 "utf-8"
             );
 
@@ -226,12 +258,33 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         }
 
         writeCDB(cdb, sync){
+            let propsPath = DATA.projectPath + "/.vscode/c_cpp_properties.json";
+            if (!fs.existsSync(propsPath)){
+                console.log("could not find " + propsPath);
+                return;
+            }
+
             cdb = JSON.stringify(cdb);
             const filePath = path.join(DATA.projectPath, "compile_commands.json");
             if( sync ){
                 fs.writeFileSync(filePath, cdb, "utf-8");
             }else{
                 fs.writeFile(filePath, cdb, "utf-8", _=>{});
+            }
+
+            try {
+                let props = JSON.parse(fs.readFileSync(propsPath, "utf-8"));
+                Object.values(props.configurations).forEach(obj=>{
+                    obj.compileCommands = filePath;
+                    obj.compilerPath = cdbCompilerPath;
+                    // obj.includePath = cdbIncludes.map(x=>APP.replaceDataInString(x));
+                    obj.intelliSenseMode = "gcc-arm";
+                });
+
+                fs.writeFileSync(propsPath, JSON.stringify(props, null, 1), "utf-8");
+                console.log("Wrote " + filePath);
+            }catch(ex){
+                console.log(ex.stack);
             }
         }
         
@@ -244,7 +297,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
                 let pending = new Pending(_=>{
                     files.push(objBuffer);
-                    // this.writeCDB(cdb);
+                    this.writeCDB(cdb);
                     cb();
                 }, err => {
                     cb(err);
@@ -298,6 +351,8 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             APP.writeBuffer( buffer );
         }
 
+        console.log(buffer.path);
+
         let compilerPath = DATA[
             buffer.type + "-" + DATA.project.target
         ];
@@ -313,7 +368,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         compilerPath += DATA.executableExt;
 
         if( !objFile[ buffer.path ] )
-            objFile[ buffer.path ] = nextObjFileId++;
+            objFile[ buffer.path ] = hash(buffer.path);
 
         let id = objFile[ buffer.path ];
         let output = path.join(buildFolder, id + ".o");
@@ -324,12 +379,17 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             "-o", output
         ];
 
+        if(buffer.type == "C" || buffer.type == "CPP"){
+            cdbCompilerPath = compilerPath;
+            cdbIncludes = flags.filter(f=>f.startsWith("-I")).map(f=>f.substr(2));
+        }
+
         var error = [];
 
 	try {
             cdb.push({
                 directory: DATA.projectPath,
-                command: `"${compilerPath.replace(/([\\"])/g, "\\$1")}" ${flags.map(f=>'"'+f.replace(/([\\"])/g, "\\$1")+'"').join(" ")}`,
+                command: `"${compilerPath.replace(/([\\"])/g, "\\$1")}" ${flags.map(f=>'"'+APP.replaceDataInString(f).replace(/([\\"])/g, "\\$1")+'"').join(" ")}`,
                 file: buffer.path
             });
         }catch(ex){

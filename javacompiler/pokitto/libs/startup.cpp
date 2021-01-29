@@ -110,6 +110,7 @@ extern void (* const g_pfnVectors[])(void);
 WEAK void NMI_Handler(void);
 WEAK void HardFault_Handler(void);
 WEAK void SVC_Handler(void);
+WEAK void DebugMon_Handler(void);
 WEAK void PendSV_Handler(void);
 WEAK void SysTick_Handler(void);
 WEAK void IntDefaultHandler(void);

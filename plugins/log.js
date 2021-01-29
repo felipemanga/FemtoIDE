@@ -1,4 +1,49 @@
-(function(){
+if(window.headless){
+    APP.add(new class CMDLogger {
+        clearLog(){}
+
+        log( ...args ){
+            args.join(" ")
+                .split("\n")
+                .forEach( line => this.logLine(line) );
+        }
+
+        error( ...args ){
+            args.map(arg=>{
+                if( arg && arg.message && arg.stack ){
+                    if( DATA.verbose )
+                        return arg.stack;
+                    else
+                        console.error(arg.stack);
+                }
+                return arg;
+            }).join(" ")
+                .split("\n")
+                .forEach( line => this.logErrorLine(line) );
+        }
+
+        logErrorLine( ...args ){
+            console.error(args.join(" "));
+        }
+
+        logLine( ...args ){
+            console.log(args.join(" "));
+        }
+
+        logDump( dump, style ){
+            if(!Array.isArray(dump) || dump.length==0 )
+                return;
+            dump.forEach(m=>{
+                if(m[0] == "error") console.error(m[1]);
+                else console.log(m[1]);
+            });
+        }
+
+        setStatus(status){
+            console.log("STATUS: " + status);
+        }
+    });
+}else (function(){
     let dumpBuffer = null;
     let container = document.querySelector('#logContainer');
     APP.customSetVariables({maxLogLength:300});

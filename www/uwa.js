@@ -1,5 +1,6 @@
 const DOM = {};
 const DATA = {};
+window.DATA = DATA;
 let hnd;
 
 function importData( desc ){
@@ -51,14 +52,13 @@ function cancelEvent(event){
 }
 
 function render(){
-
     if( hnd )
         return;
 
     hnd = setTimeout( innerRender.bind(null, null, null), 0 );
 
     function innerRender( e, ctx ){
-        e = e || document.body;
+        e = e || document.body || {dataset:{}};
         ctx = ctx || DATA;
         hnd = null;
 
@@ -212,12 +212,13 @@ function render(){
 
 }
 
-(function(){
+if(!window.headless){
     let el = document.createElement("style");
     el.textContent = '.unrendered { display: none; visibility: hidden; }';
     document.head.appendChild(el);
-})();
+}
 
 render();
+
 if( typeof module != "undefined" )
     module.exports = { importData, DOM, render };

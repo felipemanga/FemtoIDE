@@ -135,8 +135,12 @@ APP.addPlugin("Project", [], _=>{
                         APP.setTarget(target.value);
                     }
                 }, [
-                    ["option", {value:"Pokitto", text:"Pokitto"}],
-                    ["option", {value:DATA.os, text:DATA.os}]
+                    // ["option", {value:"Pokitto", text:"Pokitto"}],
+                    ...Object.keys(DATA.project.pipelines||{})
+                        .filter(name=>name[0] == name[0].toUpperCase())
+                        .map(name=>["option", {value:name, text:name}]),
+                    ["option", {value:DATA.os, text:DATA.os}],
+
                 ]);
             }
 
@@ -158,7 +162,8 @@ APP.addPlugin("Project", [], _=>{
         }
 
         onDisplayBuffer( buffer ){
-            document.querySelector(".title").innerHTML =`${buffer.name} ${DATA.projectName?("- "+DATA.projectName+" "):""}- ${require("../package.json").name}`;
+            if(!window.headless)
+                document.querySelector(".title").innerHTML =`${buffer.name} ${DATA.projectName?("- "+DATA.projectName+" "):""}- ${require("../package.json").name}`;
         }
 
         newProject(){
@@ -186,7 +191,6 @@ APP.addPlugin("Project", [], _=>{
                 APP.onCloseProject();
 
             APP.killAllBuffers();
-            APP.resetMenus();
 
             APP.customSetVariables({
                 projectPath,
@@ -195,10 +199,12 @@ APP.addPlugin("Project", [], _=>{
                 project: JSON.parse(strproject)
             });
 
+            APP.resetMenus();
             APP.onOpenProject();
 
             APP.loadProjectFiles(projectPath, _=>{
-                target.value = DATA.project.target;
+                if(target)
+                    target.value = DATA.project.target;
 
                 APP.findFile( `${projectPath}${path.sep}${DATA.project.lastBuffer}`, true );
                 APP.onProjectReady();

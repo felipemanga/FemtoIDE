@@ -164,6 +164,16 @@ APP.addPlugin("Build", ["Project"], _=>{
             new Build();
         },
 
+        cleanCompile(){
+            APP.clean();
+            APP.compile();
+        },
+
+        cleanCompileRun(){
+            APP.clean();
+            APP.compileAndRun();
+        },
+
         queryMenus(){
             APP.addMenu("Build", {
                 "Clean":"clean",

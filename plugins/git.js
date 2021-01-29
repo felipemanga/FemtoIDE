@@ -1,3 +1,4 @@
+if(!window.headless)
 APP.addPlugin("Git", ["Project"], _=>{
     
     const log = APP.log;

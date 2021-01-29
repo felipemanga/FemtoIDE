@@ -1,3 +1,6 @@
+if(!window.headless)
+(function(){
+
 let buffer = new Buffer();
 buffer.name = "Welcome";
 
@@ -168,3 +171,5 @@ class ProjectsListView {
 }
 
 APP.displayBuffer( buffer );
+
+})();

@@ -1,3 +1,4 @@
+if(!window.headless)
 APP.addPlugin("LSP", [], _=> {
     let server = null;
     let nextId = 0;
