@@ -817,6 +817,32 @@ class Core {
         }
     }
 
+    escape( s ){
+        if( !s )
+            return s;
+
+        if( typeof s == "string" )
+            return this.replaceDataInString(s).replace(/\\/g, "\\\\");
+
+        if( typeof s == "object" ){
+            if(Array.isArray(s)){
+                let r = [];
+                for(let i=0; i<s.length; ++i){
+                    r[i] = this.escape(s[i]);
+                }
+                return r;
+            } else {
+                let r = {};
+                for(let k in s){
+                    r[k] = this.escape(s[k]);
+                }
+                return r;
+            }
+        }
+
+        return s;
+    }
+
     replaceDataInString( f ){
         if( Array.isArray(f) )
             return f.map( s => this.replaceDataInString(s) );

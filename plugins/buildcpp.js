@@ -38,7 +38,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     APP.add(new class BuildCPP {
 
         getCPPBuildFolder(){
-            return path.join(require("os").tmpdir(), "b_" + DATA.projectName);
+            return path.join(require("os").tmpdir(), ""+hash(DATA.projectName));
         }
 
         clean(){

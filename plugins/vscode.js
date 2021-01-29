@@ -63,7 +63,7 @@ const defaultLaunch = {
             "type": "cppdbg",
             "request": "launch",
             "program": "${appPath}/${os}/PokittoEmu${executableExt}",
-            "args": ["${projectPath}/Juroku.bin", "-I", "/tmp/b_${projectName}/fs.img"],
+            "args": ["${projectPath}/${projectName}.bin", "-I", "${buildFolder}/fs.img"],
             "stopAtEntry": false,
             "cwd": "${projectPath}",
             "environment": [],
@@ -99,6 +99,10 @@ APP.add(new class VSCode {
         APP.log("Creating VSCode workspace");
         fs.mkdirSync(vscode);
 
+        APP.customSetVariables({
+            buildFolder:APP.getCPPBuildFolder()
+        });
+
         fs.writeFileSync(
             vscode + path.sep + "c_cpp_properties.json",
             JSON.stringify(defaultCPPProperties, null, 1),
@@ -107,14 +111,14 @@ APP.add(new class VSCode {
 
         fs.writeFileSync(
             vscode + path.sep + "launch.json",
-            APP.replaceDataInString(JSON.stringify(defaultLaunch, null, 1)),
+            JSON.stringify(APP.escape(defaultLaunch), null, 1),
             "utf-8"
         );
 
 
         fs.writeFileSync(
             vscode + path.sep + "tasks.json",
-            APP.replaceDataInString(JSON.stringify(defaultTask, null, 1)),
+            JSON.stringify(APP.escape(defaultTask), null, 1),
             "utf-8"
         );
 
