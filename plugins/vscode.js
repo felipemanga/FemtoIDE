@@ -22,7 +22,7 @@ const defaultTask = {
         {
             "label": "Femto compile",
             "type": "shell",
-            "command": "${appPath}/IDE${executableExt} ${projectName} compile",
+            "command": "${appPath}/IDE${executableExt} \"${projectName}\" compile",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -34,7 +34,7 @@ const defaultTask = {
         {
             "label": "Femto clean compile",
             "type": "shell",
-            "command": "${appPath}/IDE${executableExt} ${projectName} cleanCompile",
+            "command": "${appPath}/IDE${executableExt} \"${projectName}\" cleanCompile",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -43,7 +43,7 @@ const defaultTask = {
         {
             "label": "Femto compile & run",
             "type": "shell",
-            "command": "${appPath}/IDE${executableExt} ${projectName} compileAndRun",
+            "command": "${appPath}/IDE${executableExt} \"${projectName}\" compileAndRun",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -68,6 +68,7 @@ const defaultLaunch = {
             "cwd": "${projectPath}",
             "environment": [],
             "externalConsole": false,
+            "avoidWindowsConsoleRedirection": true,
             "MIMode": "gdb",
             "setupCommands": [
                 {
