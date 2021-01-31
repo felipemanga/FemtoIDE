@@ -1,16 +1,139 @@
 APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
-    function loadSettings( callback ){
+    let extensions = [
+        "PNG",
+        "JPG"
+    ];
+
+    let innerHTML = (function(){
+        const p = DATA.appPath + path.sep + "plugins" + path.sep + "imageview.html";
+        try {
+            return fs.readFileSync(p, "utf-8");
+        }catch(ex){
+            return "Could not find '" + p + "'";
+        }
+    })();
+
+    const settingsBuffer = new Buffer(false);
+    settingsBuffer.type = "image settings";
+    settingsBuffer.name = "Conversion Settings";
+    
+    function loadSettings( callback, file ){
         let buffer = DATA
             .projectFiles
             .find( f=>f.name.toLowerCase()=="my_settings.h" );
         if( buffer ){
             APP.readBuffer( buffer, null, (error, data)=>{
-                callback(parseSettings(data));
+                callback(parseSettings(data, file));
             });
         } else {
-            callback(parseSettings(""));
+            callback(parseSettings("", file));
         }
     }
+
+    class ImageView {
+        constructor(frame, buffer){
+            this.buffer = null;
+            this.frame = frame;
+            this.DOM = null;
+        }
+
+        attach(){
+            let buffer = this.buffer = settingsBuffer.pluginData.imageBuffer;
+            if(!buffer)
+                return;
+
+            settingsBuffer.pluginData.imageBuffer = null;
+
+            let settings = {};
+            let locals = {};
+
+            let DOM = this.DOM = DOC.index(DOC.create(this.frame, "div", {
+                innerHTML: APP.replaceDataInString(innerHTML)
+            }), null, {
+                localHeader: {
+                    click:_=>{
+                        DOM.localHeader.innerHTML = "Clicked"
+                    }
+                },
+
+                globalConvertAutomatically: {
+                    change: _=> update("automatic", (DOM.globalConvertAutomatically.value != "No") | 0)
+                },
+
+                globalPalettePath: {
+                    change: _=> update("palette", DOM.globalPalettePath.value)
+                },
+
+                globalTransparent: {
+                    change: _=> update("settings", DOM.globalTransparent.value | 0)
+                },
+
+                globalBPP: {
+                    change: _=> update("bpp", DOM.globalBPP.value|0)
+                },
+
+                localConvertAutomatically: {
+                    change: _=> update("automatic", {"Yes":1, "No":0}[DOM.localConvertAutomatically.value], true)
+                },
+                localIsTransparent: {
+                    change: _=> update("isTransparent", {"No":0}[DOM.localIsTransparent.value], true)
+                },
+                localTransparent: {
+                    change: _=> update("transparent", DOM.localTransparent.value || undefined, true)
+                },
+                localPalettePath: {
+                    change: _=> update("palette", DOM.localPalettePath.value || undefined, true)
+                },
+                localBPP: {
+                    change: _=> update("bpp", DOM.localBPP.value || undefined, true)
+                },
+                localIndex: {
+                    change: _=> update("index", DOM.localIndex.value || undefined, true)
+                }
+            });
+
+            loadSettings(s=>{
+                settings = s;
+                DOM.localHeader.innerText = buffer.name + " Conversion Settings";
+                DOM.settings.innerText = JSON.stringify(s, null, true);
+                DOM.globalConvertAutomatically.value = s.automatic != "0" ? "Yes" : "No";
+                DOM.globalPalettePath.value = s.palette;
+                DOM.globalTransparent.value = s.transparent;
+                DOM.globalBPP.value = s.bpp|0;
+
+                s = locals = parseFlags(APP.getBufferMeta(buffer).PNGFlags);
+                DOM.localConvertAutomatically.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.automatic];
+                DOM.localPalettePath.value = s.palette || "";
+                DOM.localBPP.value = s.bpp|0;
+                DOM.localIndex.value = s.index|0;
+            });
+
+            function update(key, value, isLocal){
+                let old;
+                if(isLocal){
+                    old = locals[key];
+                    if(value === undefined)
+                        delete locals[key];
+                    else
+                        locals[key] = value;
+                }else{
+                    old = settings[key];
+                    settings[key] = value;
+                }
+
+                if(old == value)
+                    return;
+
+                if(!DATA.project.PNGFlags)
+                    DATA.project.PNGFlags = {};
+
+                DATA.project.PNGFlags.ALL = rebuildFlags(settings);
+                APP.setBufferMeta(buffer, "PNGFlags", rebuildFlags(locals));
+                
+                APP.dirtyProject();
+            }
+        }
+    };
 
     APP.add(new class BuildPNG {
 
@@ -19,12 +142,34 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 getPalette(settings, callback);
             });
         }
+
+        pollBufferActions(buffer, actions){
+            if(extensions.indexOf(buffer.type) == -1)
+                return;
+            actions.push({
+                type: "button",
+                label: "Conversion...",
+                cb: _=>{
+                    settingsBuffer.pluginData.imageBuffer = buffer;
+                    APP.displayBuffer(settingsBuffer);
+                }
+            });            
+        }
+
+        pollViewForBuffer( buffer, vf ){
+
+            if( buffer == settingsBuffer ){
+                vf.view = ImageView;
+                vf.priority = 99;
+            }
+            
+        }        
         
         ["img-to-c"]( files, cb ){
             loadSettings(settings=>{
                 getPalette(settings, palette=>{
                     
-                    let pnglist = files.filter( f=>f.type=="PNG" );
+                    let pnglist = files.filter( f=>extensions.indexOf(f.type) != -1 );
                     let pending = new Pending(cb, cb);
                     settings.palette = palette;
                     settings.pending = pending;
@@ -78,7 +223,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
 
 #pragma once
 
-const uint8_t ${name}[] = {
+inline constexpr uint8_t ${name}[] = {
 ${img.width}, ${img.height}`;
         }else{
             out = "";
@@ -170,6 +315,10 @@ ${img.width}, ${img.height}`;
             file = APP.findFile(fileName, false);
         
         APP.readBuffer(file, null, (error, data)=>{
+            if(error){
+                APP.log("Error: Could not load palette from: \n" + file);
+                callback([]);
+            }
             if( data.startsWith("JASC-PAL") ){
                 callback(parsePal(data));
             }else{
@@ -201,15 +350,30 @@ ${img.width}, ${img.height}`;
         return palette;
     }
 
-    function parseSettings(settingsFile){
-        let flags = APP.getFlags("PNG");
-        let settings={ transparent:0 };
+    function parseFlags(flags){
+        let settings = {};
+
+        if(!Array.isArray(flags))
+            return settings;
 
         flags.forEach(f=>{
             let m = (f+"").match(/^([a-z]+)\s*=\s*(.+)/);
             if( !m ) return;
             settings[ m[1].toLowerCase() ] = m[2].trim();
         });
+
+        return settings;
+    }
+
+    function parseSettings(settingsFile, imageMeta){
+        let flags = APP.getFlags("PNG");
+        let settings={
+            transparent: 0,
+            automatic: 1
+        };
+
+        Object.assign(settings, parseFlags(flags));
+        Object.assign(settings, parseFlags(imageMeta));
 
         if( settings.palette && settings.palette[0] == "[" ){
             settings.palette = JSON.parse(settings.palette);
@@ -222,6 +386,14 @@ ${img.width}, ${img.height}`;
         settings.bpp = settings.bpp || 4;
         
         return settings;
+    }
+
+    function rebuildFlags(settings){
+        let flags = [];
+        for(let key in settings){
+            flags.push(`${key}=${settings[key]}`);
+        }
+        return flags;
     }
 
     function inferBPP( src ){

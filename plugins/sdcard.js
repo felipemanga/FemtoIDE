@@ -131,7 +131,7 @@ APP.addPlugin("SDCard", [], _=>{
             if( buffer.path==DATA.projectPath )
                 return;
             meta.sdcard = {
-                type:"bool",
+                type:"boolean",
                 label:"Copy to SD",
                 default: false
             };

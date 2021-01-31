@@ -1,31 +1,54 @@
 APP.addPlugin("Meta", ["Project"], _=>{
+    let defaultMeta = {};
+
+    let projectFileMeta = {};
+
+    function getOldKey(buffer){
+        let path = buffer.path;
+        const projectPath = DATA.projectPath;
+        if( !path.startsWith(projectPath) )
+            return null;
+
+        path = path.substr( projectPath.length );
+        return path;
+    }
 
     class Meta {
 
+        getMetaKey(buffer){
+            let path = typeof buffer == "string" ? buffer : buffer.path+"";
+            let projectPath = DATA.projectPath.replace(/\\/g, "/");
+            path = path.replace(/\\/g, "/");
+            if( !path.startsWith(projectPath) )
+                return null;
+            return path.substr(projectPath.length + 1);
+        }
+
+        onOpenProject(){
+            projectFileMeta = DATA.project.meta || {};
+            DATA.project.meta = {};
+        }
+
         registerProjectFile( buffer ){
-            let project = DATA.project;
-            let path = buffer.path;
-            let projectPath = DATA.projectPath;
-            if( !path.startsWith(DATA.projectPath) || buffer.pluginData.Meta )
+            const project = DATA.project;
+            if( buffer.pluginData.Meta )
                 return;
 
-            buffer.pluginData.Meta = {};
+            let key = this.getMetaKey(buffer);
+            if( !key )
+                return;
 
-            path = path.substr( projectPath.length );
-
-            if( !project.meta )
-                project.meta = {};
-
+            let metabuf = DATA.project.meta[key] = {};
+            let oldmeta = projectFileMeta[key] || projectFileMeta[getOldKey(buffer)] || {};
             let metadef = {};
             APP.pollBufferMeta( buffer, metadef );
-
-            let metabuf = project.meta[ path ];
-            if( !metabuf )
-                metabuf = project.meta[path] = {};
-
+            buffer.pluginData.Meta = {};
             for( let key in metadef ){
-                if( !(key in metabuf) ){
-                    metabuf[key] = metadef[key]["default"];
+                let value = defaultMeta[key] = metadef[key]["default"];
+                let type = metadef[key].type;
+                if(key in oldmeta && oldmeta[key] != value){
+                    if(type && typeof oldmeta[key] == type)
+                        value = metabuf[key] = oldmeta[key];
                 }
                 buffer.pluginData.Meta[key] = metadef[key];
             }
@@ -35,11 +58,12 @@ APP.addPlugin("Meta", ["Project"], _=>{
         }
 
         pollBufferActions( buffer, actions ){
-            const meta = this.getBufferMeta(buffer);
-            
-            for( let key in meta ){
-                if( buffer.pluginData.Meta[ key ] )
-                    actions.push( getAction(key) );
+            let meta = this.getBufferMeta(buffer);
+            if(!meta)
+                return;
+
+            for( let key in buffer.pluginData.Meta ){
+                actions.push( getAction(key) );
             }
 
             function getAction( key ){
@@ -64,17 +88,32 @@ APP.addPlugin("Meta", ["Project"], _=>{
             }
         }
 
-        setMeta( buffer, key, value ){
+        setBufferMeta( buffer, K, value ){
+            let key = this.getMetaKey(buffer);
+            if(key == null)
+                return;
+
+            let meta = DATA.project.meta[key];
+            if(!meta)
+                DATA.project.meta[key] = meta = {};
+            
+            meta[K] = value;
+            APP.dirtyProject();
         }
 
-        getBufferMeta( buffer, key ){
-            let path = buffer.path;
-            const projectPath = DATA.projectPath;
-            if( !path.startsWith(projectPath) )
-                return null;
+        getBufferMeta( buffer, K ){
+            let key = this.getMetaKey(buffer);
+            if(key == null)
+                return undefined;
 
-            path = path.substr( projectPath.length );
-            return DATA.project.meta[path];
+            let meta = DATA.project.meta[key];
+            if(!meta)
+                DATA.project.meta[key] = meta = {};
+
+            if(arguments.length == 1)
+                return meta;
+
+            return meta[K];
         }
 
         addMeta( buffer, key, type, args ){

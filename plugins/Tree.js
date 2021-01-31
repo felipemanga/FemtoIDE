@@ -278,7 +278,7 @@ APP.addPlugin("Tree", [], _=>{
             return [[{
                 className:"button",
                 text:(meta.label || "") + (meta.label&&meta.text?": ":"") + (meta.text || ""),
-                onclick:meta.cb,
+                onclick:meta.cb
             }]];
         }
 

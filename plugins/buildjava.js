@@ -63,7 +63,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
             
             if( buffer.type == "XML" ){
                 meta.putInResources = {
-                    type:"bool",
+                    type:"boolean",
                     label:"Put in Resources",
                     default: false
                 };
@@ -259,17 +259,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         });
 
         function getMeta( file ){
-            let meta = DATA.project.meta;
-            if( !meta )
-                return null;
-
-            if( !file.startsWith(DATA.projectPath) )
-                return null;
-            
-            let rpath = file
-                .substr(DATA.projectPath.length);
-
-            return meta[rpath];
+            return APP.getBufferMeta(file);
         }
 
         function loadToResources( file ){
