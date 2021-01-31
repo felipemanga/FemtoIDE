@@ -348,6 +348,8 @@ class Frame {
                 if( v.frame == frame ){
                     if(b == buffer){
                         found = true;
+                        if( v.view.reattach )
+                            v.view.reattach();
                         return;
                     }
                     v.frame = null;

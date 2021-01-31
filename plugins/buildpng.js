@@ -1,7 +1,8 @@
 APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     let extensions = [
         "PNG",
-        "JPG"
+        "JPG",
+        "GIF"
     ];
 
     let innerHTML = (function(){
@@ -16,18 +17,17 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     const settingsBuffer = new Buffer(false);
     settingsBuffer.type = "image settings";
     settingsBuffer.name = "Conversion Settings";
+
+    let cachedBPP = null;
+    let cachedPalette = {};
+
+    function getBufferURL(buffer){
+        return "file://" + buffer.path + "?" + Math.random();
+    }
     
-    function loadSettings( callback, file ){
-        let buffer = DATA
-            .projectFiles
-            .find( f=>f.name.toLowerCase()=="my_settings.h" );
-        if( buffer ){
-            APP.readBuffer( buffer, null, (error, data)=>{
-                callback(parseSettings(data, file));
-            });
-        } else {
-            callback(parseSettings("", file));
-        }
+    function loadSettings( buffer ){
+        let flags = buffer ? APP.getBufferMeta(buffer, "PNGFlags") : [];
+        return parseSettings(flags);
     }
 
     class ImageView {
@@ -38,75 +38,161 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         }
 
         attach(){
-            let buffer = this.buffer = settingsBuffer.pluginData.imageBuffer;
+            this.buffer = settingsBuffer.pluginData.imageBuffer;
+            settingsBuffer.pluginData.imageBuffer = null;
+            this.refresh();
+        }
+
+        reattach(){
+            this.buffer = settingsBuffer.pluginData.imageBuffer;
+            settingsBuffer.pluginData.imageBuffer = null;
+            this.refresh();
+        }
+
+        redraw(){
+            if(!this.buffer)
+                return;
+
+            let settings = loadSettings(this.buffer);
+            getImageData(this.buffer, imgData => {
+                if(!imgData)
+                    return;
+                cachedPalette = {};
+                getPalette(settings, palette=>{
+                    settings.palette = palette;
+                    let u8 = convertToU8( imgData, settings );
+                    let I = 0;
+                    let bpp = settings.bpp|0;
+                    let transparent = undefined;
+                    if(settings.transparent|0)
+                        transparent = settings.transparentIndex|0;
+                    let palOffset = settings.paloffset|0;
+
+                    for(let y = 0; y < imgData.height; ++y){
+                        if(bpp == 4){
+                            for(let x = 0; x < u8[1].length; ++x){
+                                let ci = u8[y+1][x];
+                                let c = palette[(ci >> 4) + palOffset] || [];
+                                imgData.data[I++] = c[0];
+                                imgData.data[I++] = c[1];
+                                imgData.data[I++] = c[2];
+                                imgData.data[I++] = ci == transparent ? 0 : 255;
+
+                                c = palette[(ci & 0xF) + palOffset] || [];
+                                imgData.data[I++] = c[0];
+                                imgData.data[I++] = c[1];
+                                imgData.data[I++] = c[2];
+                                imgData.data[I++] = ci == transparent ? 0 : 255;
+                            }
+                        }else if(bpp == 8){
+                            for(let x = 0; x < imgData.width; ++x){
+                                let ci = (u8[y+1][x]|0) + palOffset;
+                                let c = palette[ci] || [];
+                                imgData.data[I++] = c[0];
+                                imgData.data[I++] = c[1];
+                                imgData.data[I++] = c[2];
+                                imgData.data[I++] = ci == transparent ? 0 : 255;
+                            }
+                        }else if(bpp == 16){
+                            for(let x = 0; x < imgData.width; ++x){
+                                let ci = u8[y+1][x];
+                                if(ci == transparent){
+                                    I += 4;
+                                    continue;
+                                }
+
+                                imgData.data[I++] = (ci >> 11)/0x1F*0xFF;
+                                imgData.data[I++] = (ci >> 5)/0x3F*0xFF;
+                                imgData.data[I++] = (ci)/0x1F*0xF;
+                                I++;
+                            }
+                        }
+                    }
+
+                    let canvas = this.DOM.convertedPreview;
+                    canvas.width = u8[0][0];
+                    canvas.height = u8[0][1];
+                    let ctx = canvas.getContext("2d");
+                    ctx.putImageData(imgData, 0, 0);
+                });
+            });
+        }
+
+        refresh(){
+            let buffer = this.buffer;
             if(!buffer)
                 return;
 
-            settingsBuffer.pluginData.imageBuffer = null;
+            this.frame.innerHTML = "";
 
             let settings = {};
             let locals = {};
 
             let DOM = this.DOM = DOC.index(DOC.create(this.frame, "div", {
+                className: "innerView",
                 innerHTML: APP.replaceDataInString(innerHTML)
             }), null, {
-                localHeader: {
-                    click:_=>{
-                        DOM.localHeader.innerHTML = "Clicked"
-                    }
-                },
 
                 globalConvertAutomatically: {
-                    change: _=> update("automatic", (DOM.globalConvertAutomatically.value != "No") | 0)
+                    change: _=> update.call(this, "automatic", (DOM.globalConvertAutomatically.value != "No") | 0)
                 },
 
                 globalPalettePath: {
-                    change: _=> update("palette", DOM.globalPalettePath.value)
+                    change: _=> update.call(this, "palette", DOM.globalPalettePath.value)
+                },
+
+                globalType: {
+                    change: _=> update.call(this, "cpptype", DOM.globalType.value)
                 },
 
                 globalTransparent: {
-                    change: _=> update("settings", DOM.globalTransparent.value | 0)
+                    change: _=> update.call(this, "settings", DOM.globalTransparent.value | 0)
                 },
 
                 globalBPP: {
-                    change: _=> update("bpp", DOM.globalBPP.value|0)
+                    change: _=> update.call(this, "bpp", DOM.globalBPP.value|0)
                 },
 
                 localConvertAutomatically: {
-                    change: _=> update("automatic", {"Yes":1, "No":0}[DOM.localConvertAutomatically.value], true)
+                    change: _=> update.call(this, "automatic", {"Yes":1, "No":0}[DOM.localConvertAutomatically.value], true)
                 },
                 localIsTransparent: {
-                    change: _=> update("isTransparent", {"No":0}[DOM.localIsTransparent.value], true)
+                    change: _=> update.call(this, "isTransparent", {"Yes":1, "No":0}[DOM.localIsTransparent.value], true)
                 },
                 localTransparent: {
-                    change: _=> update("transparent", DOM.localTransparent.value || undefined, true)
+                    change: _=> update.call(this, "transparent", DOM.localTransparent.value || undefined, true)
                 },
                 localPalettePath: {
-                    change: _=> update("palette", DOM.localPalettePath.value || undefined, true)
+                    change: _=> update.call(this, "palette", DOM.localPalettePath.value || undefined, true)
+                },
+                localType: {
+                    change: _=> update.call(this, "cpptype", DOM.localType.value)
                 },
                 localBPP: {
-                    change: _=> update("bpp", DOM.localBPP.value || undefined, true)
+                    change: _=> update.call(this, "bpp", (DOM.localBPP.value|0) || undefined, true)
                 },
-                localIndex: {
-                    change: _=> update("index", DOM.localIndex.value || undefined, true)
+                localPalOffset: {
+                    change: _=> update.call(this, "paloffset", (DOM.localPalOffset.value|0) || undefined, true)
                 }
             });
 
-            loadSettings(s=>{
-                settings = s;
-                DOM.localHeader.innerText = buffer.name + " Conversion Settings";
-                DOM.settings.innerText = JSON.stringify(s, null, true);
-                DOM.globalConvertAutomatically.value = s.automatic != "0" ? "Yes" : "No";
-                DOM.globalPalettePath.value = s.palette;
-                DOM.globalTransparent.value = s.transparent;
-                DOM.globalBPP.value = s.bpp|0;
+            let s = settings = loadSettings();
+            DOM.localHeader.innerText = buffer.name + " Conversion Settings";
+            DOM.globalConvertAutomatically.value = s.automatic != "0" ? "Yes" : "No";
+            DOM.globalPalettePath.value = s.palette;
+            DOM.globalType.value = s.type;
+            DOM.globalTransparent.value = s.transparent;
+            DOM.globalBPP.value = s.bpp|0;
+            DOM.originalPreview.src = getBufferURL(buffer);
 
-                s = locals = parseFlags(APP.getBufferMeta(buffer).PNGFlags);
-                DOM.localConvertAutomatically.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.automatic];
-                DOM.localPalettePath.value = s.palette || "";
-                DOM.localBPP.value = s.bpp|0;
-                DOM.localIndex.value = s.index|0;
-            });
+            s = locals = parseFlags(APP.getBufferMeta(buffer).PNGFlags);
+            DOM.localConvertAutomatically.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.automatic];
+            DOM.localPalettePath.value = s.palette || "";
+            DOM.localType.value = s.type || "";
+            DOM.localBPP.value = s.bpp|0;
+            DOM.localPalOffset.value = s.paloffset|0;
+
+            this.redraw();
 
             function update(key, value, isLocal){
                 let old;
@@ -131,16 +217,27 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 APP.setBufferMeta(buffer, "PNGFlags", rebuildFlags(locals));
                 
                 APP.dirtyProject();
+
+                this.redraw();
             }
         }
     };
 
     APP.add(new class BuildPNG {
 
-        getPalette( callback ){
-            loadSettings(settings=>{
-                getPalette(settings, callback);
-            });
+        getPalette( callback, buffer ){
+            cachedPalette = {};
+            getPalette(loadSettings(buffer), callback);
+        }
+
+        pollBufferMeta( buffer, meta ){
+            if( DATA.project.javaFlags )
+                return;
+
+            if(extensions.indexOf(buffer.type) == -1)
+                return;
+
+            meta.PNGFlags = { hidden: true };
         }
 
         pollBufferActions(buffer, actions){
@@ -166,42 +263,49 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         }        
         
         ["img-to-c"]( files, cb ){
-            loadSettings(settings=>{
-                getPalette(settings, palette=>{
-                    
-                    let pnglist = files.filter( f=>extensions.indexOf(f.type) != -1 );
-                    let pending = new Pending(cb, cb);
-                    settings.palette = palette;
-                    settings.pending = pending;
-                    
-                    pnglist.forEach( buffer=>{                        
-                        pending.start();
-                        let img = new Image();
-                        img.src = "file://" + buffer.path + "?" + Math.random();
-                        img.onload = _=>{
-                            let canvas = document.createElement("canvas");
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            let ctx = canvas.getContext("2d");
-                            ctx.drawImage(img, 0, 0);
-                            let imgData = ctx.getImageData( 0, 0, img.width, img.height );
-                            let name = buffer.name.replace(/\..*/, '');
-                            let str = convert( imgData, settings, name );
-                            let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, '.h'), false);
-                            target.data = str;
-                            target.modified = true;
-                            target.transform = null;
-                            APP.writeBuffer(target);
-                            
-                            settings.pending.done();
-                        };
-                        
-                        img.onerror = _=>{
-                            pending.error("Could not load image " + buffer.name);
-                        };
-                    });
+            cachedBPP = null;
+            cachedPalette = {};
+
+            let pnglist = files.filter( f=>extensions.indexOf(f.type) != -1 );
+            let pending = new Pending(cb, cb);
+            pnglist.forEach( buffer=>{
+                let settings = loadSettings(buffer);
+                if(!(settings.automatic|0))
+                    return;
+
+                settings.pending = pending;
+                pending.start();
+                getImageData(buffer, data => {
+                    if(data){
+                        onLoadImage(
+                            data,
+                            buffer,
+                            settings,
+                            _=>{
+                                pending.done();
+                            }
+                        );
+                    } else {
+                        pending.error("Could not load image " + buffer.name);
+                    }
                 });
             });
+
+            function onLoadImage(imgData, buffer, settings, cb){
+                getPalette(settings, palette=>{
+                    settings.palette = palette;
+
+                    let name = buffer.name.replace(/\..*/, '');
+                    let str = convert( imgData, settings, name );
+                    let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, '.h'), false);
+                    target.data = str;
+                    target.modified = true;
+                    target.transform = null;
+                    APP.writeBuffer(target);
+
+                    cb();
+                });
+            }
         }
 
         convertImage( imgData, palette, name ){
@@ -212,41 +316,49 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         }
     });
 
-    function convert( img, settings, name ){
+    function getImageData(buffer, callback){
+        let img = new Image();
+        img.src = getBufferURL(buffer);
+
+        img.onload = _=>{
+            let canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            callback(ctx.getImageData( 0, 0, img.width, img.height ));
+        };
+
+        img.onerror = _=>{
+            callback();
+        };
+    }
+
+    function convertToU8(img, settings){
         let transparentIndex = settings.transparent|0;
         let palette = settings.palette;
-        let out;
-        let bpp = settings.bpp || (Math.log(palette.length) / Math.log(2))|0;
-
-        if( name ){
-            out = `// Automatically generated file, do not edit.
-
-#pragma once
-
-inline constexpr uint8_t ${name}[] = {
-${img.width}, ${img.height}`;
-        }else{
-            out = "";
-        }
-        
+        let out = [[img.width, img.height]];
+        let bpp = (settings.bpp|0) || (Math.log(palette.length) / Math.log(2))|0;
         let i=0, len, bytes, data = img.data;
         let ppb = 8 / bpp;
-        let run = [], max = Math.min(palette.length, 1<<bpp);
+        let run = [],
+            min = settings.paloffset|0,
+            max = Math.min(palette.length, min+(1<<bpp));
 
-        let transparent = false;
+        let transparent = settings.isTransparent;
 
-        for( i=3; !transparent && i<data.length; i+=4 ){
-            transparent = data[i] < 128;
-        }
+        if (transparent === undefined){
+            for( i=3; !transparent && i<data.length; i+=4 ){
+                transparent = data[i] < 128;
+            }
+        } else transparent = transparent|0;
 
         i=0;
         let PC = undefined, PCC = 0;
 
         for( let y=0; y<img.height; ++y ){
-            if(out)
-                out += ",\n";
-            
-            run.length = 0;
+
+            run = [];
 
             for( let x=0; x<img.width; ++x ){
                 let closest = 0;
@@ -261,8 +373,8 @@ ${img.width}, ${img.height}`;
                     if(C === PC){
                         closest = PCC;
                     } else {
-                        
-                        for( let c=0; c<max; ++c ){
+
+                        for( let c=min; c<max; ++c ){
                             if( transparent && c == transparentIndex )
                                 continue;
                             const ca = palette[c];
@@ -279,7 +391,7 @@ ${img.width}, ${img.height}`;
                                 closestDist = dist;
                             }
                         }
-                        
+
                         PC = C;
                         PCC = closest;
 
@@ -290,14 +402,34 @@ ${img.width}, ${img.height}`;
                 }
 
                 let shift = (ppb - 1 - x%ppb) * bpp;
-                run[(x/ppb)|0] = (run[(x/ppb)|0]||0) + (closest<<shift);
+                run[(x/ppb)|0] = (run[(x/ppb)|0]||0) + ((closest-min)<<shift);
             }
 
-            out += run.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",");
+            out.push(run);
+        }
+
+        return out;
+    }
+
+    function convert( img, settings, name ){
+        let out = "";
+        if( name ){
+            out = `// Automatically generated file, do not edit.
+
+#pragma once
+
+${settings.cpptype} ${name}[] = {
+`;
+        }
+
+        let u8 = convertToU8(img, settings);
+        for(let row of u8){
+            out += row.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",") + ",\n";
+
         }
 
         if( name )
-            out += "\n};\n";
+            out += "};\n";
 
         return out;
     }
@@ -305,26 +437,33 @@ ${img.width}, ${img.height}`;
     function getPalette(settings, callback){
         if( Array.isArray(settings.palette) ){
             callback( settings.palette );
+            return;
         }
 
         if( typeof settings.palette != "string" )
             settings.palette = "${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/palCGA.cpp";
         let fileName = APP.replaceDataInString(settings.palette);
+
+        if(fileName in cachedPalette){
+            callback(cachedPalette[fileName]);
+            return;
+        }
+
         let file = DATA.projectFiles.find( f=>f.path == fileName );
         if( !file )
             file = APP.findFile(fileName, false);
         
         APP.readBuffer(file, null, (error, data)=>{
+            let palette = [];
             if(error){
                 APP.log("Error: Could not load palette from: \n" + file);
-                callback([]);
-                return;
-            }
-            if( data.startsWith("JASC-PAL") ){
-                callback(parsePal(data));
+            }else if( data.startsWith("JASC-PAL") ){
+                palette = parsePal(data);
             }else{
-                callback(parseCPP(data));
+                palette = parseCPP(data);
             }
+            cachedPalette[fileName] = palette;
+            callback(palette);
         });
     }
 
@@ -366,11 +505,14 @@ ${img.width}, ${img.height}`;
         return settings;
     }
 
-    function parseSettings(settingsFile, imageMeta){
+    function parseSettings(imageMeta){
         let flags = APP.getFlags("PNG");
-        let settings={
+        let settings = {
             transparent: 0,
-            automatic: 1
+            automatic: 1,
+            bpp:cachedBPP,
+            cpptype:"inline constexpr uint8_t",
+            paloffset: 0
         };
 
         Object.assign(settings, parseFlags(flags));
@@ -380,12 +522,16 @@ ${img.width}, ${img.height}`;
             settings.palette = JSON.parse(settings.palette);
         }
 
-        if( !settings.bpp ){
-            settings.bpp = inferBPP(settingsFile);
-        }
+        if( !settings.bpp )
+            settings.bpp = cachedBPP = inferBPP();
 
         settings.bpp = settings.bpp || 4;
-        
+
+
+        let max = 1 << (settings.bpp|0);
+
+        settings.paloffset = Math.max(0, Math.min(settings.paloffset|0, 256 - max));
+
         return settings;
     }
 
@@ -397,7 +543,15 @@ ${img.width}, ${img.height}`;
         return flags;
     }
 
-    function inferBPP( src ){
+    function inferBPP(){
+        let buffer = DATA
+            .projectFiles
+            .find( f=>f.name.toLowerCase()=="my_settings.h" );
+        let src = "";
+
+        if( buffer )
+            src = APP.readBufferSync( buffer, null );
+
         let bpp;
         let modes = {
             HIRES:2,

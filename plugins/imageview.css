@@ -1,5 +1,11 @@
 .ImageView {
-    
+}
+
+.ImageView .innerView {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 .ImageView label {
@@ -9,9 +15,30 @@
     background-color: rgba(0, 0, 0, 0.4);
 }
 
+.ImageView label:after {
+    content: " ";
+    clear: both;
+    display: block;
+}
+
 .ImageView select, .ImageView input {
     float: right;
     width: 200px;
+}
+
+.ImageView #previewContainer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.ImageView #previewContainer img, .ImageView #previewContainer canvas {
+    width: initial;
+}
+
+.ImageView #previewContainer .preview {
+    flex-grow: 1;
+    text-align: center;
 }
 
 .ImageView .filePath {
@@ -21,8 +48,4 @@
 .ImageView section {
     padding-bottom: 10px;
     margin: 0 10px;
-}
-
-.ImageView preview {
-    max-width: 100%;
 }

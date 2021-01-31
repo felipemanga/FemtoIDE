@@ -47,7 +47,7 @@ APP.addPlugin("Meta", ["Project"], _=>{
                 let value = defaultMeta[key] = metadef[key]["default"];
                 let type = metadef[key].type;
                 if(key in oldmeta && oldmeta[key] != value){
-                    if(type && typeof oldmeta[key] == type)
+                    if(!type || typeof oldmeta[key] == type)
                         value = metabuf[key] = oldmeta[key];
                 }
                 buffer.pluginData.Meta[key] = metadef[key];
@@ -63,11 +63,15 @@ APP.addPlugin("Meta", ["Project"], _=>{
                 return;
 
             for( let key in buffer.pluginData.Meta ){
-                actions.push( getAction(key) );
+                let action = getAction(key);
+                if(action)
+                    actions.push( action );
             }
 
             function getAction( key ){
                 let def = buffer.pluginData.Meta[ key ];
+                if(def.hidden)
+                    return null;
                 return {
                     category: def.category,
                     label: def.label,

@@ -1,6 +1,6 @@
-<h1>Image conversion settings:</h1>
+<h1>Image Conversion Settings:</h1>
 <section>
-  <h2>Global settings</h2>
+  <h2>Global Settings</h2>
   <label>
     Convert images automatically when building:
     <select id="globalConvertAutomatically">
@@ -13,12 +13,19 @@
     <input id="globalPalettePath" class="filePath"></input>
   </label>
   <label>
+    Type:
+    <input id="globalType"></input>
+  </label>
+  <label>
     Transparent color index:
     <input type=number id="globalTransparent"></input>
   </label>
   <label>
     Bits per pixel:
-    <input type=number id="globalBPP"></input>
+    <select id="globalBPP">
+      <option value="4">4 (16 colors)</value>
+      <option value="8">8 (256 colors)</value>
+    </select>
   </label>
 </section>
 <section>
@@ -31,12 +38,20 @@
     </select>
   </label>
   <label>
-    Palette path:
+    Palette path (empty = inherit global):
     <input id="localPalettePath" class="filePath"></input>
   </label>
   <label>
+    Type (empty = inherit global):
+    <input id="localType"></input>
+  </label>
+  <label>
     Is Transparent:
-    <input type=number id="localIsTransparent"></input>
+    <select id="localIsTransparent">
+      <option value=Autodetect>Autodetect</option>
+      <option value=Yes>Yes</option>
+      <option value=No>No</option>
+    </select>
   </label>
   <label>
     Transparent color index:
@@ -44,14 +59,24 @@
   </label>
   <label>
     Bits per pixel:
-    <input type=number id="localBPP"></input>
+    <select id="localBPP">
+      <option value="0">Inherit global</value>
+      <option value="4">4 (16 colors)</value>
+      <option value="8">8 (256 colors)</value>
+    </select>
   </label>
   <label>
     First palette index:
-    <input type=number id="localIndex"></input>
+    <input type=number id="localPalOffset"></input>
   </label>
-  <h3>Original</h3>
-  <img></img>
-  <h3>Converted Preview</h3>
-  <pre id="settings"></pre>
+  <div id=previewContainer>
+    <div class=preview>
+      <h3>Original</h3>
+      <img id=originalPreview></img>
+    </div>
+    <div class=preview>
+      <h3>Converted Preview</h3>
+      <canvas id=convertedPreview></canvas>
+    </div>
+  </div>
 </section>
