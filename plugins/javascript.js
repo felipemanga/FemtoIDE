@@ -1,4 +1,4 @@
-APP.addPlugin("JS", ["Text"], TextView => {
+APP.addPlugin("JS", (window.headless ? [] : ["Text"]), TextView => {
     const extensions = ["JS"];
 
     function XML(src){
@@ -100,15 +100,28 @@ APP.addPlugin("JS", ["Text"], TextView => {
     function run(src, hookTrigger, hookArgs){
         eval(src);
     }
-    
-    class JSView extends TextView {
-        constructor( frame, buffer ){
-            super(frame, buffer);
-            this.ace.session.setMode("ace/mode/javascript");
+
+    function processScript(src, buffer){
+        src.replace(/\/\/!APP-HOOK:\s*([^\n]+)/g, (str, hook)=>{
+            hook = hook.trim();
+            console.log("Found script " + buffer.name + " hooking " + hook);
+            APP.add({[hook]:doAction.bind(null, hook)});
+        });
+
+        let match = src.match(/\/\/!MENU-ENTRY:\s*([^\n]+)/);
+        if( !match )
+            return;
+
+        let binding = src.match(/\/\/!MENU-SHORTCUT:\s*([^\n]+)/);
+        if( binding ){
+            APP.bindKeys("global", {[binding[1].trim()]:doAction.bind(null, "menu")});
         }
 
-        doAction(){
-            run(this.ace.session.getValue(), "manual", []);
+        APP.addMenu("Scripts", {[match[1]]:doAction.bind(null, "menu")});
+
+        function doAction(hookTrigger, ...hookArgs){
+            let src = APP.readBufferSync( buffer );
+            run(src, hookTrigger, hookArgs);
         }
     }
 
@@ -117,44 +130,38 @@ APP.addPlugin("JS", ["Text"], TextView => {
         registerProjectFile( buffer ){
             if( !/\.js$/.test(buffer.name) )
                 return;
-            APP.readBuffer( buffer, undefined, (err, src)=>{
-                if( err )
-                    return;
-                
-
-                src.replace(/\/\/!APP-HOOK:\s*([^\n]+)/g, (str, hook)=>{
-                    hook = hook.trim();
-                    APP.add({[hook]:doAction.bind(null, hook)});
+            if(window.headless){
+                processScript( APP.readBufferSync(buffer), buffer );
+            } else {
+                APP.readBuffer( buffer, undefined, (err, src)=>{
+                    if(!err)
+                        processScript(src, buffer);
                 });
-
-                let match = src.match(/\/\/!MENU-ENTRY:\s*([^\n]+)/);
-                if( !match )
-                    return;
-
-                let binding = src.match(/\/\/!MENU-SHORTCUT:\s*([^\n]+)/);
-                if( binding ){
-                    APP.bindKeys("global", {[binding[1].trim()]:doAction.bind(null, "menu")});
-                }
-                
-                APP.addMenu("Scripts", {[match[1]]:doAction.bind(null, "menu")});
-
-                function doAction(hookTrigger, ...hookArgs){
-                    let src = APP.readBufferSync( buffer );
-                    run(src, hookTrigger, hookArgs);
-                }
-            });
+            }
         }
         
         pollViewForBuffer( buffer, vf ){
+            if(window.headless)
+                return;
 
             if( extensions.indexOf(buffer.type) != -1 && vf.priority < 1 ){
-                vf.view = JSView;
                 vf.priority = 1;
+                vf.view = class JSView extends TextView {
+                    constructor( frame, buffer ){
+                        super(frame, buffer);
+                        this.ace.session.setMode("ace/mode/javascript");
+                    }
+
+                    doAction(){
+                        run(this.ace.session.getValue(), "manual", []);
+                    }
+                };
             }
-            
         }
-        
     });
+
+    if(typeof JSView === "undefined")
+        return {};
 
     return JSView;
 });
