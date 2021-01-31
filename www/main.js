@@ -37,7 +37,7 @@ function boot(){
 
 function parseArgs(args){
     ARGS = args;
-    let ignore = false; // needs to be true on a certain OS?
+    let ignore = require('process').platform.toLowerCase() == "darwin";
 
     if(typeof args == "string")
         args = args.split(/("(?:[^\\"]*\\"|[^"])*")|\s+/);
@@ -85,21 +85,32 @@ parseArgs(nw.App.argv);
 
 function createConsole(){
     let process = require("process");
+    let write = process.stdout.write.bind(process.stdout);
+
+    // if(process.platform.toLowerCase() == "darwin")
+    //     write = str => {
+    //         fs.appendFileSync("/tmp/femtoide_log.txt", str);
+    //     };
+
+    let args = [];
+
     let console = {
         log(...args){
             for(let i of args)
                 console.writeArg(i);
-            process.stdout.write("\n");
+            write(args.join() + "\n");
+            args = [];
         },
 
         error(...args){
             for(let i of args)
                 console.writeArg(i);
-            process.stdout.write("\n");
+            write(args.join() + "\n");
+            args = [];
         },
 
         writeArg(arg){
-            process.stdout.write(arg + "");
+            args.push(arg + "");
         }
     };
     return console;

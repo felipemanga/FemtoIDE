@@ -60,7 +60,7 @@ class Pending {
 
 window.Pending = Pending;
 
-let nextBufferId = 1;
+let nextUniqueId = 1;
 class Buffer {
 
     constructor( killable ){
@@ -74,7 +74,7 @@ class Buffer {
         this.data = null;
         this.views = [];
         this.killable = killable;
-        this.id = nextBufferId++;
+        this.id = nextUniqueId++;
         this.pluginData = {};
         this.hash = 0;
         this.version = 1;
@@ -372,6 +372,8 @@ class Frame {
         }else{
             let viewCandidate = { view:null, priority:-1 };
             APP.pollViewForBuffer( buffer, viewCandidate );
+            if(!viewCandidate.view)
+                return buffer;
             view = new viewCandidate.view( frame, buffer );
             let elements = [...frame.children];
             buffer.views.push({ view, elements, frame });
@@ -700,6 +702,7 @@ class Chrome {
 
 const encoding = {};
 window.encoding = encoding;
+let isMaximized = false;
 
 class Core {
     
@@ -707,6 +710,19 @@ class Core {
         APP.add(this);
         this.plugins = {};
         this.resolveHnd = 0;
+    }
+
+    uniqueId(){
+        return nextUniqueId++;
+    }
+
+    toggleMaximized(){
+        if(isMaximized){
+            nw.Window.get().unmaximize();
+        } else {
+            nw.Window.get().maximize();
+        }
+        isMaximized = !isMaximized;
     }
 
     reload(){

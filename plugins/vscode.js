@@ -16,25 +16,27 @@ const defaultCPPProperties = {
     "version": 4
 };
 
+const IDE = DATA.os == "darwin" ?
+      DATA.appPath.replace(/^(.*?\.app).*/i, "\"$1/Contents/MacOS/nwjs\" \"$1/Contents/Resources/app.nw\"")
+      :
+      DATA.appPath + "/IDE" + executableExt;
+
 const defaultTask = {
     "version": "2.0.0",
     "tasks": [
         {
             "label": "Femto compile",
             "type": "shell",
-            "command": "${appPath}/IDE${executableExt} \"${projectName}\" compile",
+            "command": IDE + " \"${projectName}\" compile",
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
         },
         {
             "label": "Femto clean compile",
             "type": "shell",
-            "command": "${appPath}/IDE${executableExt} \"${projectName}\" cleanCompile",
+            "command": IDE + " \"${projectName}\" cleanCompile",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -43,11 +45,14 @@ const defaultTask = {
         {
             "label": "Femto compile & run",
             "type": "shell",
-            "command": "${appPath}/IDE${executableExt} \"${projectName}\" compileAndRun",
+            "command": IDE + " \"${projectName}\" compileAndRun",
             "problemMatcher": [
                 "$gcc"
             ],
-            "group":"test"
+            "group":{
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 };
