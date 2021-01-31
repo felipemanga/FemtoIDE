@@ -18,7 +18,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
             history = history.filter(x=>x!=buffer.name);
             history.push(buffer.name);
             index = history.length;
-            console.log(index, "History", history);
+            // console.log(index, "History", history);
         }
 
         goBack(){
@@ -28,7 +28,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
             ignore = true;
             APP.displayBuffer(history[index-1]);
             ignore = false;
-            console.log(index, "History", history);
+            // console.log(index, "History", history);
         }
 
         goForward(){
@@ -37,7 +37,7 @@ APP.addPlugin("Edit", ["Project"], _=>{
             ignore = true;
             APP.displayBuffer(history[index++]);
             ignore = false;
-            console.log(index, "History", history);
+            // console.log(index, "History", history);
         }
 
         queryMenus(){
