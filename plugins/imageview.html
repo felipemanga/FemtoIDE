@@ -1,0 +1,57 @@
+<h1>Image conversion settings:</h1>
+<section>
+  <h2>Global settings</h2>
+  <label>
+    Convert images automatically when building:
+    <select id="globalConvertAutomatically">
+      <option value=Yes>Yes</option>
+      <option value=No>No</option>
+    </select>
+  </label>
+  <label>
+    Conversion palette path:
+    <input id="globalPalettePath" class="filePath"></input>
+  </label>
+  <label>
+    Transparent color index:
+    <input type=number id="globalTransparent"></input>
+  </label>
+  <label>
+    Bits per pixel:
+    <input type=number id="globalBPP"></input>
+  </label>
+</section>
+<section>
+  <h2 id="localHeader"></h2>
+  <label>Convert automatically when building:
+    <select id="localConvertAutomatically">
+      <option value=Inherit>Inherit global</option>
+      <option value=Yes>Yes</option>
+      <option value=No>No</option>
+    </select>
+  </label>
+  <label>
+    Palette path:
+    <input id="localPalettePath" class="filePath"></input>
+  </label>
+  <label>
+    Is Transparent:
+    <input type=number id="localIsTransparent"></input>
+  </label>
+  <label>
+    Transparent color index:
+    <input type=number id="localTransparent"></input>
+  </label>
+  <label>
+    Bits per pixel:
+    <input type=number id="localBPP"></input>
+  </label>
+  <label>
+    First palette index:
+    <input type=number id="localIndex"></input>
+  </label>
+  <h3>Original</h3>
+  <img></img>
+  <h3>Converted Preview</h3>
+  <pre id="settings"></pre>
+</section>
