@@ -1080,9 +1080,23 @@ window.fs = fs;
         new Chrome();
 
     let isDerpy = process.platform == "darwin";
+    let offset = -1;
+    let pathParts = process.argv[0].split( path.sep );
+
+    if( isDerpy ){
+        // /Applications/FemtoIDE.app/Contents/Versions/72.0.3626.109/nwjs Helper.app/Contents/MacOS/nwjs Helper
+        // /Applications/FemtoIDE-51.app/Contents/Frameworks/nwjs Framework.framework/Versions/88.0.4324.96/Helpers/nwjs Helper (Renderer).app/Contents/MacOS/nwjs Helper (Renderer)
+        if(pathParts[pathParts.length-1] == "nwjs Helper (Renderer)")
+            pathParts = pathParts.slice(0, -9);
+        else
+            pathParts = pathParts.slice(0, -6);
+        pathParts.push("Resources/app.nw");
+    } else {
+            pathParts = pathParts.slice(0, -1);
+    }
 
     importData({
-        appPath:process.argv[0].split( path.sep ).slice(0, isDerpy ? -6 : -1).join( path.sep ) + (isDerpy ? "/Resources/app.nw" : ""),
+        appPath:pathParts.join( path.sep ),
         buffers:[]
     });
 
