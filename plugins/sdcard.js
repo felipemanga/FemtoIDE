@@ -178,9 +178,8 @@ APP.addPlugin("SDCard", [], _=>{
                 let rpath = file.path
                     .substr(DATA.projectPath.length);
 
-                if( !meta[rpath] || !meta[rpath].sdcard ){
+                if( !APP.getBufferMeta(file, "sdcard") )
                     return;
-                }
 
                 if(file.type == "directory" )
                 {
