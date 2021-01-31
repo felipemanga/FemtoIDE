@@ -19,7 +19,7 @@ const defaultCPPProperties = {
 const IDE = DATA.os == "darwin" ?
       DATA.appPath.replace(/^(.*?\.app).*/i, "\"$1/Contents/MacOS/nwjs\" \"$1/Contents/Resources/app.nw\"")
       :
-      DATA.appPath + "/IDE" + executableExt;
+      DATA.appPath + "/IDE" + DATA.executableExt;
 
 const defaultTask = {
     "version": "2.0.0",
