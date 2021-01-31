@@ -318,6 +318,7 @@ ${img.width}, ${img.height}`;
             if(error){
                 APP.log("Error: Could not load palette from: \n" + file);
                 callback([]);
+                return;
             }
             if( data.startsWith("JASC-PAL") ){
                 callback(parsePal(data));
