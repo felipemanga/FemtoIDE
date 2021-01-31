@@ -2,9 +2,11 @@ if(!window.headless)
 APP.addPlugin("LSP", [], _=> {
     let server = null;
     let nextId = 0;
-
+    let deathCount = 0;
     let ready = false;
     let promises = {};
+    let disabled = false;
+
     const ctypes = {
         CC:"cpp",
         CPP:"cpp",
@@ -12,6 +14,8 @@ APP.addPlugin("LSP", [], _=> {
         C:"c",
         H:"cpp"
     };
+
+    setInterval(_=>{ deathCount = 0; }, 10);
 
     APP.add(new class LSP {
 
@@ -129,14 +133,21 @@ APP.addPlugin("LSP", [], _=> {
             }
         }
 
+        onCompleComplete(){
+            this._startServer();
+        }
+
         _startServer(){
-            if( server || !DATA.buildFolder )
+            if( server || disabled )
                 return;
+
+            let buildFolder = APP.getCPPBuildFolder();
+            if(!buildFolder) return;
 
             server = APP.spawn(
                 path.join(DATA.appPath, DATA.os, "clangd", "clangd" + DATA.executableExt),
-                {cwd:DATA.buildFolder},
-                "-compile-commands-dir=" + DATA.buildFolder,
+                {cwd:buildFolder},
+                "-compile-commands-dir=" + buildFolder,
                 "-pch-storage=memory"
             );
 
@@ -200,6 +211,11 @@ APP.addPlugin("LSP", [], _=> {
             server.on("close", error=>{
                 server = null;
                 APP.log("LSP closed with error=" + error);
+                deathCount++;
+                if(deathCount >= 5){
+                    APP.log("Too many LSP errors. Disabling autocomplete.");
+                    disabled = true;
+                }
             });
 
             server.on("error", error=>{
@@ -290,9 +306,12 @@ APP.addPlugin("LSP", [], _=> {
 //                .replace(/ /g, "+")
             ;
         }
-        
+
         onOpenProject(){
             this.lspShutdown();
+        }
+        
+        onProjectReady(){
             this._startServer();
         }
     });
