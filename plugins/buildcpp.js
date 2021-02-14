@@ -1,6 +1,7 @@
 APP.addPlugin("BuildCPP", ["Build"], _=> {
     let failLine;
     let isCleanBuild = false;
+    let prevBuildMode = "";
     let buildFolder = "";
     let objFile = {};
     let nextObjFileId = 1;
@@ -274,6 +275,19 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             objBuffer.data = [];
             timestamps = {};
 
+            let buildModeFile = this.getCPPBuildFolder() + "/buildMode.txt";
+            if(prevBuildMode == "" && fs.existsSync(buildModeFile))
+                prevBuildMode = fs.readFileSync(buildModeFile, "utf-8");
+            let buildMode = getFlags("CPP").join(" ") +
+                getFlags("C").join(" ");
+            if(prevBuildMode != buildMode){
+                isCleanBuild = true;
+                APP.log("Compilation flags changed since last build. Performing a clean build.");
+            }
+            console.log("Build mode: ", buildMode, " previous: ", prevBuildMode);
+            prevBuildMode =  buildMode;
+            fs.writeFileSync(buildModeFile, prevBuildMode, "utf-8");
+
             let pendingLibs = new Pending(_=>{
 
                 let pending = new Pending(_=>{
@@ -306,7 +320,9 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     }
 
     function checkFileTime(path, cb){
-        if(path in timestamps){
+        if(isCleanBuild){
+            cb(null);
+        } else if(path in timestamps){
             cb(timestamps[path]);
         } else {
             fs.stat(path, function(error, stats){
