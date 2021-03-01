@@ -1,4 +1,5 @@
 APP.addPlugin("BuildCPP", ["Build"], _=> {
+    let dependencies = {};
     let failLine;
     let isCleanBuild = false;
     let prevBuildMode = "";
@@ -238,34 +239,60 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             }
         }
 
-        writeCDB(cdb, sync){
+        writeCDB(cdb, files, cb){
+            let ext = "C,CPP".split(",");
+
             let propsPath = DATA.projectPath + "/.vscode/c_cpp_properties.json";
             if (!fs.existsSync(propsPath)){
                 // console.log("could not find " + propsPath);
+                cb();
                 return;
             }
 
-            cdb = JSON.stringify(cdb);
-            const filePath = path.join(DATA.projectPath, "compile_commands.json");
-            if( sync ){
-                fs.writeFileSync(filePath, cdb, "utf-8");
-            }else{
-                fs.writeFile(filePath, cdb, "utf-8", _=>{});
+            let cdbIndex = {};
+            for(let entry of cdb){
+                cdbIndex[entry.file] = entry;
             }
 
-            try {
-                let props = JSON.parse(fs.readFileSync(propsPath, "utf-8"));
-                Object.values(props.configurations).forEach(obj=>{
-                    obj.compileCommands = filePath;
-                    obj.compilerPath = cdbCompilerPath;
-                    // obj.includePath = cdbIncludes.map(x=>APP.replaceDataInString(x));
-                    obj.intelliSenseMode = "gcc-arm";
-                });
+            for(let buffer of files){
+                if(ext.indexOf(buffer.type) == -1 || (buffer.path in cdbIndex))
+                    continue;
 
-                fs.writeFileSync(propsPath, JSON.stringify(props, null, 1), "utf-8");
-                // console.log("Wrote " + filePath);
-            }catch(ex){
-                console.log(ex.stack);
+                let flags = [
+                    buffer.path,
+                    ...getFlags(buffer.type == "C" ? "C" : "CPP"),
+                    ...libFlags
+                ];
+
+                cdb.push({
+                    directory: DATA.projectPath,
+                    command:`"${cdbCompilerPath.replace(/([\\"])/g, "\\$1")}" ${flags.map(f=>'"'+APP.replaceDataInString(f).replace(/([\\"])/g, "\\$1")+'"').join(" ")}`,
+                    file: buffer.path
+                });
+            }
+
+            write();
+
+            function write(){
+                cdb = JSON.stringify(cdb, null, 1);
+                const filePath = path.join(DATA.projectPath, "compile_commands.json");
+                fs.writeFileSync(filePath, cdb, "utf-8");
+
+                try {
+                    let props = JSON.parse(fs.readFileSync(propsPath, "utf-8"));
+                    Object.values(props.configurations).forEach(obj=>{
+                        obj.compileCommands = filePath;
+                        obj.compilerPath = cdbCompilerPath;
+                        obj.intelliSenseMode = "gcc-arm";
+                    });
+
+                    fs.writeFileSync(propsPath, JSON.stringify(props, null, 1), "utf-8");
+                    // console.log("Wrote " + filePath);
+                }catch(ex){
+                    console.log(ex.stack);
+                }
+
+                cb();
             }
         }
         
@@ -284,7 +311,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 isCleanBuild = true;
                 APP.log("Compilation flags changed since last build. Performing a clean build.");
             }
-            console.log("Build mode: ", buildMode, " previous: ", prevBuildMode);
+            // console.log("Build mode: ", buildMode, " previous: ", prevBuildMode);
             prevBuildMode =  buildMode;
             fs.writeFileSync(buildModeFile, prevBuildMode, "utf-8");
 
@@ -292,8 +319,8 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
                 let pending = new Pending(_=>{
                     files.push(objBuffer);
-                    this.writeCDB(cdb);
-                    cb();
+                    this.writeCDB(cdb, files, cb);
+                    isCleanBuild = false;
                 }, err => {
                     cb(err);
                 });
@@ -334,6 +361,24 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
         }
     }
 
+    function getDependencies(buffer, cb){
+        if(buffer.path in dependencies){
+            cb(dependencies[buffer.path]);
+            return;
+        }
+
+        let id = objFile[ buffer.path ] || hash(buffer.path);
+        let deps = path.join(buildFolder, id + ".d");
+        fs.readFile(deps, "utf-8", (err, data) => {
+            let parts = err ? [buffer.path] : data.split(/\s*\\[\r\n]+\s*/).slice(1);
+            for(let i=0; i<parts.length; ++i){
+                parts[i] = parts[i].trim();
+            }
+            dependencies[buffer.path] = parts;
+            cb(parts);
+        });
+    }
+
     function compile( buffer, cb ){
         jobs.push({buffer, cb});
         if(workerCount >= 4) return;
@@ -350,7 +395,6 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
         let id = objFile[ buffer.path ] || hash(buffer.path);
         let output = path.join(buildFolder, id + ".o");
-        let deps = path.join(buildFolder, id + ".d");
         let done = () => {
             workerCount--;
             if(jobs.length){
@@ -372,23 +416,15 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 return;
             }
 
-            fs.readFile(deps, "utf-8", (err, data) => {
+            getDependencies(buffer, (parts) => {
                 let isDirty = false;
-                let parts;
-
-                if(err)
-                    parts = [buffer.path];
-                else
-                    parts = data.split(/\s*\\[\r\n]+\s*/).slice(1);
 
                 let pendingDepCount = parts.length;
                 if(!pendingDepCount){
                     job.cb(null, output);
-                    console.log("No deps? How?");
                 }
 
                 parts.forEach(part => {
-                    part = part.trim();
                     checkFileTime(part, time => {
                         if(isDirty) return;
                         pendingDepCount--;
@@ -413,6 +449,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
     function doCompile(buffer, cb){
         console.log(buffer.path);
+        delete dependencies[buffer.path];
 
         if( !objFile[ buffer.path ] )
             objFile[ buffer.path ] = hash(buffer.path);

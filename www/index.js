@@ -434,7 +434,6 @@ class Frame {
             APP.displayBuffer( buffer );
 
         return buffer;
-
     }
 
     

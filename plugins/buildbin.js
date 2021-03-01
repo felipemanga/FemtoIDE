@@ -55,7 +55,7 @@ APP.addPlugin("BuildBIN", ["Build"], _=> {
                 fs.readFile( path, (err, buffer)=>{
                     if( err )
                         return cb( err );
-                    
+                    console.log("Bin size: " + buffer.length + " bytes (" + ((buffer.length / ((256-32)*1024))*100|0) + "%)" );
                     let acc = 0;
                     let u32 = new Uint32Array(buffer.buffer);
                     for( let i=0; i<4; ++i )

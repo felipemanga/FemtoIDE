@@ -94,16 +94,22 @@ APP.add(new class VSCode {
         });
     }
 
-    initVSCode(){
+    forceInitVSCode(){
+        this.initVSCode(true);
+    }
+
+    initVSCode(force){
 
         let vscode = DATA.projectPath + path.sep + ".vscode";
         if(fs.existsSync(vscode)){
-            APP.error("VSCode workspace already exists");
-            return;
+            if(!force){
+                APP.error("VSCode workspace already exists");
+                return;
+            }
+        } else {
+            APP.log("Creating VSCode workspace");
+            fs.mkdirSync(vscode);
         }
-
-        APP.log("Creating VSCode workspace");
-        fs.mkdirSync(vscode);
 
         APP.customSetVariables({
             buildFolder:APP.getCPPBuildFolder()

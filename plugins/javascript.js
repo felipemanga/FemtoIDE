@@ -9,7 +9,7 @@ APP.addPlugin("JS", (window.headless ? [] : ["Text"]), TextView => {
         return fs.readFileSync( DATA.projectPath + path.sep + file, "utf-8" );
     }
 
-    function readImage(file){
+    function readImage(file, opt={}){
         return new Promise((resolve, reject)=>{
             let img = new Image();
             fs.readFile(
@@ -25,11 +25,32 @@ APP.addPlugin("JS", (window.headless ? [] : ["Text"]), TextView => {
                     img.onload = _=>{
                         URL.revokeObjectURL(url);
                         let canvas = document.createElement("canvas");
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                        opt.width = opt.width || img.width;
+                        opt.height = opt.height || img.height;
+                        let w = opt.width, h = opt.height;
+
+                        canvas.width = opt.width;
+                        canvas.height = opt.height;
                         let ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0);
-                        resolve(ctx.getImageData( 0, 0, img.width, img.height ));
+
+                        if(opt.fit){
+                            let scale = Math.min(
+                                w / img.width,
+                                h / img.height
+                            );
+                            w = img.width * scale;
+                            h = img.height * scale;
+                        }
+
+                        ctx.drawImage(
+                            img,
+                            canvas.width/2 - w/2,
+                            canvas.height/2 - h/2,
+                            w, h);
+
+                        let data = ctx.getImageData( 0, 0, canvas.width, canvas.height );
+                        data.image = img;
+                        resolve(data);
                     };
 
                     img.onerror = ex => {
