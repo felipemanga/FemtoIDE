@@ -23,8 +23,10 @@
   <label>
     Bits per pixel:
     <select id="globalBPP">
+      <option value="1">1 (2 colors)</value>
       <option value="4">4 (16 colors)</value>
       <option value="8">8 (256 colors)</value>
+      <option value="16">16 (65k colors)</value>
     </select>
   </label>
 </section>
@@ -54,6 +56,22 @@
     </select>
   </label>
   <label>
+    Output binary:
+    <select id="localBinary">
+      <option value=Autodetect>Autodetect</option>
+      <option value=Yes>Yes</option>
+      <option value=No>No</option>
+    </select>
+  </label>
+  <label>
+    Start with {width, height, ...}
+    <select id="localHasHeader">
+      <option value=Inherit>Inherit</option>
+      <option value=Yes>Yes</option>
+      <option value=No>No</option>
+    </select>
+  </label>
+  <label>
     Transparent color index:
     <input type=number id="localTransparent"></input>
   </label>
@@ -61,8 +79,10 @@
     Bits per pixel:
     <select id="localBPP">
       <option value="0">Inherit global</value>
+      <option value="1">1 (2 colors)</value>
       <option value="4">4 (16 colors)</value>
       <option value="8">8 (256 colors)</value>
+      <option value="16">16 (65k colors)</value>
     </select>
   </label>
   <label>

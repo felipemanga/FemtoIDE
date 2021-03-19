@@ -1,8 +1,23 @@
+Object.assign(encoding, {
+    "PNG":null,
+    "BMP":null,
+    "JPG":null,
+    "GIF":null,
+    "I16":null,
+    "I8":null,
+    "I4":null,
+    "I2":null
+});
+
 APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     let extensions = [
         "PNG",
         "JPG",
-        "GIF"
+        "GIF",
+        "I16",
+        "I8",
+        "I4",
+        "I2"
     ];
 
     let innerHTML = (function(){
@@ -59,7 +74,11 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                     return;
                 cachedPalette = {};
                 getPalette(settings, palette=>{
-                    settings.palette = palette;
+                    settings = Object.assign({}, settings, {
+                        header: true,
+                        palette
+                    });
+
                     let u8 = convertToU8( imgData, settings );
                     let I = 0;
                     let bpp = settings.bpp|0;
@@ -69,7 +88,20 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                     let palOffset = settings.paloffset|0;
 
                     for(let y = 0; y < imgData.height; ++y){
-                        if(bpp == 4){
+                        if(bpp == 1){
+                            for(let x = 0; x < imgData.width;){
+                                let ci = (u8[y+1][x>>3]|0);
+                                for(let j=0; j<8; ++j, ++x){
+                                    let c = (ci & (1 << (7 - j))) ? 0xFF : 0;
+                                    let I = (y * imgData.width + x) * 4;
+                                    imgData.data[I++] = c;
+                                    imgData.data[I++] = c;
+                                    imgData.data[I++] = c;
+                                    imgData.data[I++] = c;
+                                }
+                            }
+
+                        } else if(bpp == 4){
                             for(let x = 0; x < u8[1].length; ++x){
                                 let ci = u8[y+1][x];
                                 let c = palette[(ci >> 4) + palOffset] || [];
@@ -95,15 +127,15 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                             }
                         }else if(bpp == 16){
                             for(let x = 0; x < imgData.width; ++x){
-                                let ci = u8[y+1][x];
+                                let ci = u8[y+1][x*2] | (u8[y+1][x*2+1] << 8);
                                 if(ci == transparent){
                                     I += 4;
                                     continue;
                                 }
 
-                                imgData.data[I++] = (ci >> 11)/0x1F*0xFF;
-                                imgData.data[I++] = (ci >> 5)/0x3F*0xFF;
-                                imgData.data[I++] = (ci)/0x1F*0xF;
+                                imgData.data[I++] = ((ci >> 11)&0x1F)/0x1F*0xFF;
+                                imgData.data[I++] = ((ci >> 5)&0x3F)/0x3F*0xFF;
+                                imgData.data[I++] = (ci & 0x1F)/0x1F*0xFF;
                                 I++;
                             }
                         }
@@ -159,6 +191,12 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 localIsTransparent: {
                     change: _=> update.call(this, "isTransparent", {"Yes":1, "No":0}[DOM.localIsTransparent.value], true)
                 },
+                localBinary: {
+                    change: _=> update.call(this, "binary", {"Yes":1, "No":0}[DOM.localBinary.value], true)
+                },
+                localHasHeader: {
+                    change: _=> update.call(this, "header", {"Yes":1, "No":0}[DOM.localHasHeader.value], true)
+                },
                 localTransparent: {
                     change: _=> update.call(this, "transparent", DOM.localTransparent.value || undefined, true)
                 },
@@ -180,15 +218,18 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
             DOM.localHeader.innerText = buffer.name + " Conversion Settings";
             DOM.globalConvertAutomatically.value = s.automatic != "0" ? "Yes" : "No";
             DOM.globalPalettePath.value = s.palette;
-            DOM.globalType.value = s.type;
-            DOM.globalTransparent.value = s.transparent;
+            DOM.globalType.value = s.cpptype;
+            DOM.globalTransparent.value = s.transparent ? "Yes" : "No";
             DOM.globalBPP.value = s.bpp|0;
             DOM.originalPreview.src = getBufferURL(buffer);
 
             s = locals = parseFlags(APP.getBufferMeta(buffer).PNGFlags);
             DOM.localConvertAutomatically.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.automatic];
+            DOM.localIsTransparent.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.isTransparent];
+            DOM.localBinary.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.binary];
+            DOM.localHasHeader.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.header];
             DOM.localPalettePath.value = s.palette || "";
-            DOM.localType.value = s.type || "";
+            DOM.localType.value = s.cpptype || "";
             DOM.localBPP.value = s.bpp|0;
             DOM.localPalOffset.value = s.paloffset|0;
 
@@ -297,7 +338,8 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
 
                     let name = buffer.name.replace(/\..*/, '');
                     let str = convert( imgData, settings, name );
-                    let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, '.h'), false);
+                    let ext = settings.binary|0 ? '.i' + settings.bpp : '.h';
+                    let target = APP.findFile(buffer.path.replace(/\.[^\\/.]*$/, ext), false);
                     target.data = str;
                     target.modified = true;
                     target.transform = null;
@@ -337,7 +379,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     function convertToU8(img, settings){
         let transparentIndex = settings.transparent|0;
         let palette = settings.palette;
-        let out = [[img.width, img.height]];
+        let out = (settings.header|0) ? [[img.width, img.height]] : [];
         let bpp = (settings.bpp|0) || (Math.log(palette.length) / Math.log(2))|0;
         let i=0, len, bytes, data = img.data;
         let ppb = 8 / bpp;
@@ -366,43 +408,55 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 let R = data[i++]|0;
                 let G = data[i++]|0;
                 let B = data[i++]|0;
-                let C = (R<<16) + (G<<8) + B;
                 let A = data[i++]|0;
-
-                if( A > 128 || !transparent ) {
-                    if(C === PC){
-                        closest = PCC;
+                if(bpp == 16) {
+                    let C = (R>>3<<11) | (G>>2<<5) | (B>>3);
+                    run.push(C&0xFF, C>>8);
+                } else if(bpp == 1) {
+                    if (transparent) {
+                        closest = A > 128;
                     } else {
-
-                        for( let c=min; c<max; ++c ){
-                            if( transparent && c == transparentIndex )
-                                continue;
-                            const ca = palette[c];
-                            const PR = ca[0]|0;
-                            const PG = ca[1]|0;
-                            const PB = ca[2]|0;
-		            const dist = (R-PR)*(R-PR)
-                                  + (G-PG)*(G-PG)
-                                  + (B-PB)*(B-PB)
-                            ;
-
-                            if( dist < closestDist ){
-                                closest = c;
-                                closestDist = dist;
-                            }
-                        }
-
-                        PC = C;
-                        PCC = closest;
-
+                        closest = (R + G + B) / 3 > 128;
                     }
 
-                }else{
-                    closest = transparentIndex;
-                }
+                    run[x>>3|0] = (run[x>>3]||0) + (closest<<(7 - (x&7)));
+                } else {
+                    let C = (R<<16) + (G<<8) + B;
+                    if( A > 128 || !transparent ) {
+                        if(C === PC){
+                            closest = PCC;
+                        } else {
 
-                let shift = (ppb - 1 - x%ppb) * bpp;
-                run[(x/ppb)|0] = (run[(x/ppb)|0]||0) + ((closest-min)<<shift);
+                            for( let c=min; c<max; ++c ){
+                                if( transparent && c == transparentIndex )
+                                    continue;
+                                const ca = palette[c];
+                                const PR = ca[0]|0;
+                                const PG = ca[1]|0;
+                                const PB = ca[2]|0;
+		                const dist = (R-PR)*(R-PR)
+                                      + (G-PG)*(G-PG)
+                                      + (B-PB)*(B-PB)
+                                ;
+
+                                if( dist < closestDist ){
+                                    closest = c;
+                                    closestDist = dist;
+                                }
+                            }
+
+                            PC = C;
+                            PCC = closest;
+
+                        }
+
+                    }else{
+                        closest = transparentIndex;
+                    }
+
+                    let shift = (ppb - 1 - x%ppb) * bpp;
+                    run[(x/ppb)|0] = (run[(x/ppb)|0]||0) + ((closest-min)<<shift);
+                }
             }
 
             out.push(run);
@@ -412,6 +466,21 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     }
 
     function convert( img, settings, name ){
+        let u8 = convertToU8(img, settings);
+        if (settings.binary|0) {
+            let total = 0;
+            for(let arr of u8)
+                total += arr.length;
+            let out = new Uint8Array(total);
+            total = 0;
+            for(let arr of u8){
+                for(let i=0; i<arr.length; ++i){
+                    out[total++] = arr[i];
+                }
+            }
+            return out;
+        }
+
         let out = "";
         if( name ){
             out = `// Automatically generated file, do not edit.
@@ -422,7 +491,6 @@ ${settings.cpptype} ${name}[] = {
 `;
         }
 
-        let u8 = convertToU8(img, settings);
         for(let row of u8){
             out += row.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",") + ",\n";
 
@@ -476,7 +544,7 @@ ${settings.cpptype} ${name}[] = {
 
     function parseCPP(data){
         let src = removeComments( data )
-            .replace(/^[^{]*/, "")
+            .replace(/^([^{]*\{)*/g, "")
             .replace(/\}[\s\S]*$/, "");
         let color = [], palette = [color];
         src.replace(/(0x[0-9a-f]{1,2}|[0-9]+)/gi, (m)=>{
@@ -512,7 +580,9 @@ ${settings.cpptype} ${name}[] = {
             automatic: 1,
             bpp:cachedBPP,
             cpptype:"inline constexpr uint8_t",
-            paloffset: 0
+            paloffset: 0,
+            binary: 0,
+            header: 1
         };
 
         Object.assign(settings, parseFlags(flags));

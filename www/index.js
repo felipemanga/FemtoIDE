@@ -43,14 +43,46 @@ function hash(str) {
 class Pending {
     constructor( cb, err ){
         let count = 1;
+        try {
+            throw new Exception();
+        }catch(ex){
+            this.name = (ex.stack+"").split("\n")[2];
+        }
+
+        this.onTimeout = _=>{
+            console.log("Pending timeout:\n" + this.name);
+        };
+
+        this.timeout = setTimeout(this.onTimeout, 1000);
+
         this.done = done.bind(this);
-        this.start = _=>count++;
+
+        this.start = _=>{
+            count++;
+            if (!this.timeout) {
+                this.timeout = setTimeout(this.onTimeout, 1000);
+            }
+            if (this.verbose) {
+                console.log(this.verbose + ": " + count);
+            }
+        };
+
         this.error = err;
-        
+        this.verbose = null;
+
         function done(){
             count--;
-            if( !count )
+            if (this.verbose) {
+                console.log(this.verbose + ": " + count);
+            }
+            if( !count ){
+                clearTimeout(this.timeout);
+                this.timeout = 0;
                 cb();
+            }
+            if( count < 0 ){
+                console.log("Pending underflow");
+            }
         }
 
         setTimeout( this.done, 1 );

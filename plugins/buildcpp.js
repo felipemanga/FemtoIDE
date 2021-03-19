@@ -186,9 +186,15 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 
         _getLibsConfig(){
             let libs = DATA.project.libs || {};
+            let all = libs.ALL;
             libs = libs[DATA.project.target] || [];
             if(typeof libs == "string")
                 libs = (DATA.project.libs || {})[libs];
+            if(all) {
+                libs = [...libs, ...all];
+            } else {
+                libs = [...libs];
+            }
             return libs;
         }
 
@@ -315,8 +321,22 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             prevBuildMode =  buildMode;
             fs.writeFileSync(buildModeFile, prevBuildMode, "utf-8");
 
-            let pendingLibs = new Pending(_=>{
+            const libs = this._getLibsConfig();
 
+            let pendingLibs = new Pending(_=>{
+                // console.log("Libs {" + JSON.stringify(libs) + "}");
+                if (libs.length){
+                    pendingLibs.start();
+                    this._addLib(libs.shift(), pendingLibs);
+                    setTimeout(_=>{pendingLibs.done();}, 1);
+                }else
+                    afterLibs.call(this);
+            }, err => {
+                cb(err);
+            });
+
+            function afterLibs(){
+                console.log("AFTER LIBS");
                 let pending = new Pending(_=>{
                     files.push(objBuffer);
                     this.writeCDB(cdb, files, cb);
@@ -326,15 +346,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 });
 
                 this._buildProjectFiles( files, pending );
-                
-            }, err => {
-                cb(err);
-            });
-
-            this._getLibsConfig().forEach( path => {
-                this._addLib(path, pendingLibs);
-            });
-            
+            }
         }
     });
 

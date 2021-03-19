@@ -109,10 +109,9 @@ APP.addPlugin("SDCard", [], _=>{
 
         ffs.mkdir(pathDir, err =>{
             if(err){
-                pending.error(err);
+                pending.error(pathDir + "\n" + err.stack);
                 return;
             }
-            pending.done();
             fs.readdirSync(dirPath).map((fileName)=>{
                 const filePath = dirPath+path.sep+fileName;
                 const stat=fs.statSync(filePath);
@@ -121,6 +120,7 @@ APP.addPlugin("SDCard", [], _=>{
                 if(stat.isDirectory())
                     copyDirectory(ffs, filePath, pending);
             });
+            pending.done();
         });
         pending.start();
     }
@@ -166,6 +166,9 @@ APP.addPlugin("SDCard", [], _=>{
                         else cb();
                     }
                 );
+            }, err => {
+                console.error(err);
+                cb();
             });
             
             format();
