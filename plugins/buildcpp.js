@@ -94,6 +94,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             if( typeof libPath == "object" ){
                 obj = libPath;
                 libPath = libPath.recurse;
+                if(!libPath) return;
             }
             
             let id = libs[libPath];
@@ -191,10 +192,15 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             if(typeof libs == "string")
                 libs = (DATA.project.libs || {})[libs];
             if(all) {
-                libs = [...libs, ...all];
+                libs = [...all, ...libs];
             } else {
                 libs = [...libs];
             }
+            libs.sort((a, b) => {
+                if ((a.priority|0) < (b.priority|0)) return 1;
+                if ((a.priority|0) > (b.priority|0)) return -1;
+                return 0;
+            });
             return libs;
         }
 
@@ -220,11 +226,13 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                     libPath = libPath.recurse;
                 }
 
-                let realPath = APP.replaceDataInString(
-                    libPath.replace(/\*/g, "")
-                );
+                if (libPath) {
+                    let realPath = APP.replaceDataInString(
+                        libPath.replace(/\*/g, "")
+                    );
 
-                libDir(realPath);
+                    libDir(realPath);
+                }
 
                 return libFlags;
                 
