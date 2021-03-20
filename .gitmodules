@@ -4,3 +4,6 @@
 [submodule "www/BassoonTracker"]
 	path = www/BassoonTracker
 	url = https://github.com/steffest/BassoonTracker
+[submodule "femto"]
+	path = femto
+	url = git@github.com:felipemanga/FemtoLib.git
