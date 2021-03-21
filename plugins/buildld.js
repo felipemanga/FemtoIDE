@@ -17,9 +17,7 @@ APP.addPlugin("BuildLD", ["Build"], _=> {
 
             cwd = DATA.buildFolder;
 
-            let linkerPath = DATA[
-                "LD-" + DATA.project.target
-            ];
+            let linkerPath = (DATA.project.BUILDFlags[DATA.project.target]||{}).LD || DATA["LD-" + DATA.project.target];
 
             if(!linkerPath)
                 linkerPath = "g++";

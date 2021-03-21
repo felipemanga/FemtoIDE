@@ -190,7 +190,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             let all = libs.ALL;
             libs = libs[DATA.project.target] || [];
             if(typeof libs == "string")
-                libs = (DATA.project.libs || {})[libs];
+                libs = (DATA.project.libs || {})[libs] || [];
             if(all) {
                 libs = [...all, ...libs];
             } else {
@@ -475,10 +475,8 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             objFile[ buffer.path ] = hash(buffer.path);
         let id = objFile[ buffer.path ];
         let output = path.join(buildFolder, id + ".o");
-
-        let compilerPath = DATA[
-            buffer.type + "-" + DATA.project.target
-        ];
+        let compilerName = buffer.type + "-" + DATA.project.target;
+        let compilerPath = (DATA.project.BUILDFlags[DATA.project.target]||{})[buffer.type] || DATA[compilerName];
 
         if(!compilerPath){
             compilerPath = {

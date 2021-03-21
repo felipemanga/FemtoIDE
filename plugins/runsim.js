@@ -29,7 +29,7 @@ APP.addPlugin("RunSIM", [], _=>{
             flags = APP.replaceDataInString(flags);
 
             APP.setStatus("Executing...");
-            let emu = APP.spawn( execPath, ...flags );
+            let emu = APP.spawn( execPath, {cwd:DATA.projectPath}, ...flags );
 
             emu.stdout.on('data', data => {
                 APP.log(data);
