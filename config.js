@@ -6,6 +6,7 @@ APP.customSetVariables({
 APP.bindKeys("global", {
     "C--": APP.decreaseFontSize,
     "C-=": APP.increaseFontSize,
+    "C-+": APP.increaseFontSize,
     "C-\t": APP.nextTab,
     "C-S-\t": APP.previousTab,
     "C-w": APP.closeTab,
