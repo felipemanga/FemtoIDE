@@ -1,3 +1,5 @@
 TAGS
 *.ts
 *.map
+*.*~
+.ccls-cache

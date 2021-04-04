@@ -133,9 +133,8 @@ APP.addPlugin("Debug", ["Build"], _=>{
 
             pendingCommands.push("c");
             
-            let gdbPath =DATA[
-                "GDB-" + DATA.project.target
-            ] + DATA.executableExt;
+            let name = "GDB-" + DATA.project.target;
+            let gdbPath = (DATA.project.BUILDFlags[DATA.project.target]||{})["GDB"] || DATA[name];
 
             let buildFolder = APP.getCPPBuildFolder();
 
@@ -403,7 +402,7 @@ APP.addPlugin("Debug", ["Build"], _=>{
         }
 
         debug(){
-            APP.setTarget("Pokitto");
+            // APP.setTarget("Pokitto");
             if( gdb && !jlink ){
                 APP.stopEmulator();
                 APP.stopGDB();

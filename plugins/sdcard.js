@@ -209,6 +209,8 @@ APP.addPlugin("SDCard", [], _=>{
         }
 
         pollEmulatorFlags(flags){
+            if(DATA.project.target != "Pokitto")
+                return;
             if( imagePath ){
                 flags.push("-I");
                 flags.push(imagePath);

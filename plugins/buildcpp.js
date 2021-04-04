@@ -344,7 +344,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
             });
 
             function afterLibs(){
-                console.log("AFTER LIBS");
+                // console.log("AFTER LIBS");
                 let pending = new Pending(_=>{
                     files.push(objBuffer);
                     this.writeCDB(cdb, files, cb);
@@ -468,7 +468,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
     }
 
     function doCompile(buffer, cb){
-        console.log(buffer.path);
+        APP.log(buffer.path);
         delete dependencies[buffer.path];
 
         if( !objFile[ buffer.path ] )
@@ -484,7 +484,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 CPP:"g++",
                 S:"as"
             }[buffer.type];
-        }
+        } else compilerPath = APP.replaceDataInString(compilerPath);
 
         compilerPath += DATA.executableExt;
 
@@ -515,7 +515,7 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
 	const cwd = compilerPath.split(/[\\\/]/).slice(0, -1).join(path.sep);
 	const PATH = cwd + ";" + process.env.PATH;
 	const env = Object.assign({}, process.env, {PATH, Path:PATH});
-
+        // console.log(compilerPath, ...flags);
         APP.spawn( compilerPath, {cwd, env}, ...flags )
             .on("data-err", err =>{
                 let prev = "";

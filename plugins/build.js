@@ -143,6 +143,8 @@ APP.addPlugin("Build", ["Project"], _=>{
                             .on("error", error=>{
                                 popQueue(error);
                             });
+                    } if (stage[0] == "'") {
+                        popQueue();
                     } else {
                         let ret = APP[stage]( files, popQueue );
                         if( ret instanceof Promise ){
