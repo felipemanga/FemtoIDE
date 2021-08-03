@@ -18,7 +18,7 @@ public class Integer {
         int acc=0;
         for( int i=0; s[i] >= '0' && s[i] <= '9'; ++i ){
             acc *= 10;
-            acc += s[i] - '0';
+            acc += (int)(s[i] - '0');
         }
         return acc;
     }
