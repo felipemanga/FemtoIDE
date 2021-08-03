@@ -14,23 +14,11 @@
  *                                                                                      modified by Keil
  *******************************************************************************************************/
 
+#pragma once
 
+#include <cstdint>
 
-/** @addtogroup (null)
-  * @{
-  */
-
-/** @addtogroup LPC11U6x
-  * @{
-  */
-
-#ifndef LPC11U6X_H
-#define LPC11U6X_H
-
-#ifdef __cplusplus
 extern "C" {
-#endif
-
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
@@ -1237,15 +1225,4 @@ typedef struct {                                    /*!< PINT Structure         
 #define LPC_GPIO_PORT                   ((LPC_GPIO_PORT_Type      *) LPC_GPIO_PORT_BASE)
 #define LPC_PINT                        ((LPC_PINT_Type           *) LPC_PINT_BASE)
 
-
-/** @} */ /* End of group Device_Peripheral_Registers */
-/** @} */ /* End of group LPC11U6x */
-/** @} */ /* End of group (null) */
-
-#ifdef __cplusplus
 }
-#endif
-
-
-#endif  /* LPC11U6x_H */
-

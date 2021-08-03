@@ -95,12 +95,22 @@
 /                   Changed option name _FS_SHARE to _FS_LOCK.
 /---------------------------------------------------------------------------*/
 
-#include "ff.h"         /* FatFs configurations and declarations */
-#include "sdfs_diskio.h"     /* Declarations of low level disk I/O functions */
+#include "fileff.h"         /* FatFs configurations and declarations */
+#include "file_diskio.h"     /* Declarations of low level disk I/O functions */
 
-namespace SDFS
+#include <MemOps>
+
+namespace YAPFS
 {
 
+
+static inline void mem_cpy(void* dst, const void* src, UINT len){
+    MemOps::copy(dst, src, len);
+}
+
+static inline void mem_set(void* dst, std::uint8_t val, std::size_t count){
+    MemOps::set(dst, val, count);
+}
 
 /*--------------------------------------------------------------------------
 
@@ -108,10 +118,9 @@ namespace SDFS
 
 ---------------------------------------------------------------------------*/
 
-#if _SDFS_FATFS != 4004  /* Revision ID */
+#if _YAPFS_FATFS != 4004  /* Revision ID */
 #error Wrong include file (ff.h).
 #endif
-
 
 /* Definitions on sector size */
 #if _MAX_SS != 512 && _MAX_SS != 1024 && _MAX_SS != 2048 && _MAX_SS != 4096
@@ -528,8 +537,8 @@ static WCHAR LfnBuf[_MAX_LFN+1];
 /* String functions                                                      */
 /*-----------------------------------------------------------------------*/
 
-/* Copy memory to memory */
-static
+/* Copy memory to memory * /
+static 
 void mem_cpy (void* dst, const void* src, UINT cnt) {
     BYTE *d = (BYTE*)dst;
     const BYTE *s = (const BYTE*)src;
@@ -544,15 +553,7 @@ void mem_cpy (void* dst, const void* src, UINT cnt) {
     while (cnt--)
         *d++ = *s++;
 }
-
-/* Fill memory */
-static
-void mem_set (void* dst, int val, UINT cnt) {
-    BYTE *d = (BYTE*)dst;
-
-    while (cnt--)
-        *d++ = (BYTE)val;
-}
+/* */
 
 /* Compare memory to memory */
 static
@@ -4155,4 +4156,4 @@ int f_printf (
 #endif /* _USE_STRFUNC */
 
 
-} // namespace SDFS
+} // namespace YAPFS

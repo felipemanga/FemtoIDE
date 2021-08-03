@@ -2,15 +2,14 @@
 //  Low level disk interface modlue include file
 //-----------------------------------------------------------------------
 
-#ifndef _SDFS_DISKIO
+#ifndef _FILE_DISKIO
 
+#include "file_integer.h"
 
-#include "sdfs_integer.h"
-
-namespace SDFS
+namespace YAPFS
 {
 
-#define _READONLY    1   // 1: Remove write functions
+#define _READONLY    0   // 1: Remove write functions
 #define _USE_IOCTL   1   // 1: Use disk_ioctl fucntion
 
 
@@ -76,7 +75,7 @@ DRESULT disk_ioctl (BYTE, BYTE, void*);
 #define NAND_FORMAT         30    // Create physical format
 
 
-} // namespace SDFS
+} // namespace YAPFS
 
-#define _SDFS_DISKIO
+#define _FILE_DISKIO
 #endif

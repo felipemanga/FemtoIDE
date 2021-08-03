@@ -1,0 +1,9 @@
+#pragma once
+
+#include <cstdint>
+
+#if defined(TARGET_CORTEX_M)
+#include "MemOpsCortexM.h"
+#else
+#include "MemOpsCpp.h"
+#endif
