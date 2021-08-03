@@ -1,0 +1,322 @@
+#pragma once
+
+#include <cstdint>
+#include <type_traits>
+#include <string_view>
+
+#ifndef OPT_SMALL
+#define OPT_SMALL
+#endif
+
+#ifdef TARGET_LPC11U6X
+#define USART 0x40008000
+#endif
+
+#ifndef USART
+#include <cstdio>
+
+inline void LOG( char c ){
+    putchar(c);
+}
+
+inline void LOGD( char c ){
+#ifndef RELEASE
+    LOG(c);
+#endif
+}
+
+inline void LOG( const char *str ){
+    printf("%s", str);
+}
+
+inline void LOG( std::string_view str ){
+    for(auto ch : str)
+        LOG(ch);
+}
+
+inline void LOGD( const char *str ){
+#ifndef RELEASE
+    LOG(str);
+#endif
+}
+
+inline void LOG( char *str ){
+    printf("%s", str);
+}
+
+inline void LOGD( char *str ){
+#ifndef RELEASE
+    LOG(str);
+#endif
+}
+
+inline void LOGNUM(unsigned int number){
+    if(number == 0){
+        LOG('0');
+        return;
+    }
+    char tmp[15];
+    char *cursor = tmp + sizeof(tmp);
+    *--cursor = 0;
+    while(number && cursor > tmp){
+        *--cursor = '0' + (number % 10);
+        number /= 10;
+    }
+    LOG(cursor);
+}
+
+inline void LOGNUMD(unsigned int n){
+#ifndef RELEASE
+    LOGNUM(n);
+#endif
+}
+
+template <typename Integer,
+          typename std::enable_if<std::is_integral<Integer>::value, int>::type = 0
+          >
+inline void LOG(Integer number){
+    if (std::is_signed<Integer>::value && number < 0){
+        LOG('-');
+        number = -number;
+    }
+    LOGNUM(static_cast<unsigned int>(number));
+}
+
+template <typename Integer,
+          typename std::enable_if<std::is_integral<Integer>::value, int>::type = 0
+          >
+inline void LOGD(Integer number){
+#ifndef RELEASE
+    LOG(number);
+#endif
+}
+
+template <typename Pointer,
+          typename std::enable_if<std::is_pointer<Pointer>::value, int>::type = 0
+          >
+inline void LOG(Pointer ptr){
+    auto v = reinterpret_cast<std::uintptr_t>(ptr);
+    const char digits[] = "0123456789ABCDEF";
+    for(int i=0; i<8; ++i){
+        putchar(digits[v >> (32 - 4)]);
+        v <<= 4;
+    }
+}
+
+inline void LOG( bool b ){
+    LOG(b ? "true" : "false");
+}
+
+inline void LOGD( bool b ){
+#ifndef RELEASE
+    LOG(b);
+#endif
+}
+
+template <typename Enum,
+          typename std::enable_if<std::is_enum<Enum>::value, int>::type = 0
+          >
+inline void LOG(Enum e){
+    LOG(static_cast<unsigned int>(e));
+}
+
+template <typename Enum,
+          typename std::enable_if<std::is_enum<Enum>::value, int>::type = 0
+          >
+inline void LOGD(Enum e){
+#ifndef RELEASE
+    LOG(e);
+#endif
+}
+
+template <
+    typename Arg,
+    typename ... Args
+    >
+void LOG(const Arg& arg, const Args& ... args){
+    LOG(arg);
+    LOG(args...);
+}
+
+template <
+    typename Arg,
+    typename ... Args
+    >
+void LOGD(const Arg& arg, const Args& ... args){
+#ifndef RELEASE
+    LOG(arg);
+    LOG(args...);
+#endif
+}
+
+#define LOG1(...)               \
+    {                           \
+        static bool _f_=false;  \
+        if(!_f_){               \
+            _f_=true;           \
+            LOG(__VA_ARGS__);   \
+        }                       \
+    }
+
+#define BREAKPOINT
+
+#else
+
+inline volatile char * const usart = (char*) USART;
+
+inline OPT_SMALL void LOG( char c ){
+    usart[0xC] = 3;
+    usart[0] = c;
+}
+
+inline OPT_SMALL void LOGD( char c ){
+#ifndef RELEASE
+    LOG(c);
+#endif
+}
+
+inline OPT_SMALL void LOG( const char *str ){
+    usart[0xC] = 3;
+    while( *str )
+        usart[0] = *str++;
+}
+
+inline void LOG( std::string_view str ){
+    for(auto ch : str)
+        LOG(ch);
+}
+
+inline OPT_SMALL void LOGD( const char *str ){
+#ifndef RELEASE
+    LOG(str);
+#endif
+}
+
+inline OPT_SMALL void LOG( char *str ){
+    LOG(static_cast<const char*>(str));
+}
+
+inline OPT_SMALL void LOGD( char *str ){
+#ifndef RELEASE
+    LOG(str);
+#endif
+}
+
+inline OPT_SMALL void LOGNUM(unsigned int number){
+    if(number == 0){
+        LOG('0');
+        return;
+    }
+    char tmp[15];
+    char *cursor = tmp + sizeof(tmp);
+    *--cursor = 0;
+    while(number && cursor > tmp){
+        *--cursor = '0' + (number % 10);
+        number /= 10;
+    }
+    LOG(cursor);
+}
+
+inline OPT_SMALL void LOGNUMD(unsigned int n){
+#ifndef RELEASE
+    LOGNUM(n);
+#endif
+}
+
+template <typename Integer,
+          typename std::enable_if<std::is_integral<Integer>::value, int>::type = 0
+          >
+inline OPT_SMALL void LOG(Integer number){
+    if (std::is_signed<Integer>::value && number < 0){
+        LOG('-');
+        number = -number;
+    }
+    LOGNUM(static_cast<unsigned int>(number));
+}
+
+template <typename Integer,
+          typename std::enable_if<std::is_integral<Integer>::value, int>::type = 0
+          >
+inline OPT_SMALL void LOGD(Integer number){
+#ifndef RELEASE
+    LOG(number);
+#endif
+}
+
+template <typename Pointer,
+          typename std::enable_if<std::is_pointer<Pointer>::value, int>::type = 0
+          >
+inline OPT_SMALL void LOG(Pointer ptr){
+    auto v = reinterpret_cast<std::uintptr_t>(ptr);
+    usart[0xC] = 3;
+    const char digits[] = "0123456789ABCDEF";
+    for(int i=0; i<8; ++i){
+        usart[0] = digits[v >> (32 - 4)];
+        v <<= 4;
+    }
+}
+
+inline OPT_SMALL void LOG( bool b ){
+    LOG(b ? "true" : "false");
+}
+
+inline OPT_SMALL void LOGD( bool b ){
+#ifndef RELEASE
+    LOG(b);
+#endif
+}
+
+template <typename Enum,
+          typename std::enable_if<std::is_enum<Enum>::value, int>::type = 0
+          >
+inline OPT_SMALL void LOG(Enum e){
+    LOG(static_cast<unsigned int>(e));
+}
+
+template <typename Enum,
+          typename std::enable_if<std::is_enum<Enum>::value, int>::type = 0
+          >
+inline OPT_SMALL void LOGD(Enum e){
+#ifndef RELEASE
+    LOG(e);
+#endif
+}
+
+template <
+    typename Arg,
+    typename ... Args,
+    typename std::enable_if<sizeof...(Args), int>::type = 0
+    >
+void OPT_SMALL LOG(const Arg& arg, const Args& ... args){
+    LOG(arg);
+    LOG(args...);
+}
+
+template <
+    typename Arg,
+    typename ... Args,
+    typename std::enable_if<sizeof...(Args), int>::type = 0
+    >
+void OPT_SMALL LOGD(const Arg& arg, const Args& ... args){
+#ifndef RELEASE
+    LOG(arg);
+    LOG(args...);
+#endif
+}
+
+#define LOG1(...)               \
+    {                           \
+        static bool _f_=false;  \
+        if(!_f_){               \
+            _f_=true;           \
+            LOG(__VA_ARGS__);   \
+        }                       \
+    }
+
+#ifndef RELEASE
+#define BREAKPOINT __asm__ volatile ("bkpt #1")
+#else
+#define BREAKPOINT
+#endif
+
+#endif

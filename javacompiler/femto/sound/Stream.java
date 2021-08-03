@@ -20,74 +20,70 @@ public class Stream {
     // static boolean wasInit = false;
 
     static boolean isOpen = false;
-
+    
     public static final Procedural procedural = new Procedural(){
 
-            public ubyte update(){
+        public ubyte update(){
 
-                if( offset == 0x400 ){
+            if( offset == 0x400 ){
 
-                    if( writeBuffer != null ){
-                        System.out.println(1);
-                        return 0;
-                    }
-
-                    offset = 0;
-                    writeBuffer = readBuffer;
-                    readBuffer = (readBuffer == buffer0) ? buffer1 : buffer0;
+                if( writeBuffer != null ){
+                    System.out.println(1);
+                    return 0;
                 }
 
-                return System.memory.LDRB(readBuffer + offset++);
+                offset = 0;
+                writeBuffer = readBuffer;
+                readBuffer = (readBuffer == buffer0) ? buffer1 : buffer0;
             }
 
-        };
+            return System.memory.LDRB(readBuffer + offset++);
+        }
 
-    @CPP(include="SDFileSystem.h")
+    };
+
+    @CPP(include="File")
     private static pointer getHandle(){
-        pointer hnd;
+		pointer hnd;
         __inline_cpp__("
-        static FIL fil;
-        hnd = &fil;
+            static File fil;
+            hnd = &fil;
         ");
         return hnd;
     }
 
 //    @IRQ(name="TIMER32_0")
     public static void update(){
-        if( !isOpen || writeBuffer == null )
+        if( !isOpen || writeBuffer == null ){
             return;
-
+        }
+		
         uint amountRead;
-
+		
         __inline_cpp__("
-        f_read((FIL*) getHandle(), 
-               (void*) writeBuffer, 
-               0x400, 
-               (SDFS::UINT*) &amountRead
-        );
+            auto& file = *(File*) getHandle();
+            amountRead = file.read((void*) writeBuffer, 0x400 );
         ");
-
+		
         if( amountRead < 0x400 ){
             if( loop != 0 ){
                 if( loop > 0 ) loop--;
+                
                 __inline_cpp__("
-                f_lseek((FIL*) getHandle(), 0);
-                f_read((FIL*) getHandle(), 
-                       (void*) writeBuffer, 
-                       0x400 - amountRead, 
-                       (SDFS::UINT*) &amountRead
-                );
+                    auto& file = *(File*) getHandle();
+                    file.seek(0);
+                    amountRead = file.read((void*) writeBuffer, 0x400 - amountRead);
                 ");
             }
-
+			
             for(; amountRead<0x400; ++amountRead){
                 System.memory.STRB(writeBuffer + amountRead, 0);
             }
-        }
+        }		
 
         writeBuffer = null;
-    }    
-    
+    }
+
     public static boolean play(String path){
         /*
         if( !wasInit ){
@@ -95,13 +91,18 @@ public class Stream {
             wasInit = true;
         }
         */
-        __inline_cpp__("
-        if( isOpen )
-            f_close((FIL*) getHandle());
 
-        isOpen = f_open((FIL*) getHandle(), path->__c_str(), FA_READ) == FR_OK;
-        if( !isOpen )
-            return false;
+
+        __inline_cpp__("
+        
+            auto& file = *(File*) getHandle();
+
+            if(isOpen) file.close();
+
+            isOpen = file.openRO(path->__c_str());
+            if( !isOpen ){
+                return false;
+            }
         ");
 
         procedural.play();
@@ -109,3 +110,4 @@ public class Stream {
         return true;
     }
 }
+

@@ -2,9 +2,7 @@
 /* Integer type definitions for FatFs module */
 /*-------------------------------------------*/
 
-#ifndef _SDFS_INTEGER
-#define _SDFS_INTEGER
-
+#pragma once
 #ifdef _WIN32    /* FatFs development platform */
 
 #include <windows.h>
@@ -12,7 +10,7 @@
 
 #else            /* Embedded platform */
 
-namespace SDFS
+namespace YAPFS
 {
 
 /* These types must be 16-bit, 32-bit or larger integer */
@@ -35,8 +33,7 @@ typedef long            LONG;
 typedef unsigned long   ULONG;
 typedef unsigned long   DWORD;
 
-} // namespace SDFS
+} // namespace YAPFS
 
 #endif
 
-#endif
