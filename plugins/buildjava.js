@@ -141,6 +141,7 @@ APP.addPlugin("BuildJava", ["Build"], _ => {
         },
 
         ["compile-java"]( files, cb, analyze ){
+            APP.clean();
             APP.readFilteredBuffers(
                 files,
                 (f=>f.type=="JAVA"
