@@ -13,11 +13,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     let extensions = [
         "PNG",
         "JPG",
-        "GIF",
-        "I16",
-        "I8",
-        "I4",
-        "I2"
+        "GIF"
     ];
 
     let innerHTML = (function(){
