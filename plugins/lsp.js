@@ -144,8 +144,13 @@ APP.addPlugin("LSP", [], _=> {
             let buildFolder = APP.getCPPBuildFolder();
             if(!buildFolder) return;
 
+            let exec = path.join(DATA.appPath, DATA.os, "clangd", "clangd" + DATA.executableExt);
+            if(!fs.existsSync(exec)){
+                exec = "clangd" + DATA.executableExt;
+            }
+
             server = APP.spawn(
-                path.join(DATA.appPath, DATA.os, "clangd", "clangd" + DATA.executableExt),
+                exec,
                 {cwd:buildFolder},
                 "-compile-commands-dir=" + buildFolder,
                 "-pch-storage=memory"
@@ -210,11 +215,19 @@ APP.addPlugin("LSP", [], _=> {
 
             server.on("close", error=>{
                 server = null;
-                APP.log("LSP closed with error=" + error);
-                deathCount++;
-                if(deathCount >= 5){
-                    APP.log("Too many LSP errors. Disabling autocomplete.");
+                if (error == -2) {
                     disabled = true;
+                    if (DATA.os == "linux")
+                        APP.log("Could not run clangd. Try 'sudo apt install clang-tools' in the terminal.");
+                    else
+                        APP.log("Could not run clangd. Disabling Autocomplete.");
+                } else {
+                    APP.log("LSP closed with error=" + error);
+                    deathCount++;
+                    if(deathCount >= 5){
+                        APP.log("Too many LSP errors. Disabling autocomplete.");
+                        disabled = true;
+                    }
                 }
             });
 

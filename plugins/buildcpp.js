@@ -141,6 +141,11 @@ APP.addPlugin("BuildCPP", ["Build"], _=> {
                 libFlags.push("-I" + path);
                 pending.start();
                 fs.readdir(path, (error, entries)=>{
+                    if (error) {
+                        APP.log("Error reading directory: " + path);
+                        pending.done();
+                        return;
+                    }
                     entries.forEach( entry =>{
                         let full = path + "/" + entry;
 
