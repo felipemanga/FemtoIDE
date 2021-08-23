@@ -375,7 +375,10 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
     function convertToU8(img, settings){
         let transparentIndex = settings.transparent|0;
         let palette = settings.palette;
-        let out = (settings.header|0) ? [[img.width, img.height]] : [];
+        let out = (settings.header|0) ? [[
+            img.width < 256 ? img.width : 0,
+            img.height < 256 ? img.height : 0
+        ]] : [];
         let bpp = (settings.bpp|0) || (Math.log(palette.length) / Math.log(2))|0;
         let i=0, len, bytes, data = img.data;
         let ppb = 8 / bpp;
