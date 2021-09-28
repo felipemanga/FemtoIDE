@@ -2,9 +2,8 @@ APP.addPlugin("RunEMU", [], _=> {
     let running = false, restart = false;
 
     APP.add({
-
         isEmulatorRunning(){
-            return !!running;
+            if (running) return true;
         },
 
         runDebug(){

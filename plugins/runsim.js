@@ -2,7 +2,7 @@ APP.addPlugin("RunSIM", [], _=>{
     let running = false, restart = false;
     APP.add(new class RunSIM {
         isEmulatorRunning(){
-            return !!running;
+            if (running) return true;
         }
 
         stopEmulator(){

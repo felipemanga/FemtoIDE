@@ -2,10 +2,8 @@ APP.addPlugin("RunCitra", [], _=> {
     let running = false, restart = false;
 
     APP.add({
-
         isEmulatorRunning(){
-            if(DATA.project.target != "3DS") return undefined;
-            return !!running;
+            if (running) return true;
         },
 
         runDebug(){
