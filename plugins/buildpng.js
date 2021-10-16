@@ -190,6 +190,9 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 localBinary: {
                     change: _=> update.call(this, "binary", {"Yes":1, "No":0}[DOM.localBinary.value], true)
                 },
+                localRLE: {
+                    change: _=> update.call(this, "rle", {"Yes":1, "No":0}[DOM.localRLE.value], true)
+                },
                 localHasHeader: {
                     change: _=> update.call(this, "header", {"Yes":1, "No":0}[DOM.localHasHeader.value], true)
                 },
@@ -223,6 +226,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
             DOM.localConvertAutomatically.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.automatic];
             DOM.localIsTransparent.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.isTransparent];
             DOM.localBinary.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.binary];
+            DOM.localRLE.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.rle];
             DOM.localHasHeader.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.header];
             DOM.localPalettePath.value = s.palette || "";
             DOM.localType.value = s.cpptype || "";
@@ -393,6 +397,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 transparent = data[i] < 128;
             }
         } else transparent = transparent|0;
+        settings.isTransparent = transparent;
 
         i=0;
         let PC = undefined, PCC = 0;
@@ -464,8 +469,46 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         return out;
     }
 
+    function compressRLE(src, settings) {
+        if ((settings.bpp|0) != 8 || !(settings.isTransparent|0))
+            return src;
+
+        let [w, h] = src[0];
+
+        if (w > 255 | h > 255)
+            return src;
+
+        let out = [[w, h], []];
+        for (let y = 0; y < h; ++y) {
+            let x = 0;
+            let row = src[y + 1];
+            let outRow = [];
+            do {
+                skip = 0;
+                for (; x < w && !row[x]; x++, skip++);
+                outRow.push(skip);
+                if (x < w) {
+                    let s = outRow.length;
+                    outRow.push(0);
+                    skip = 0;
+                    for (; x < w && row[x]; x++, skip++)
+                        outRow.push(row[x]);
+                    outRow[s] = skip;
+                }
+            } while (x < w);
+            out[y + 2] = outRow;
+            out[1][y] = outRow.length;
+        }
+
+        return out;
+    }
+
     function convert( img, settings, name ){
         let u8 = convertToU8(img, settings);
+
+        if (settings.rle|0)
+            u8 = compressRLE(u8, settings);
+
         if (settings.binary|0) {
             let total = 0;
             for(let arr of u8)
@@ -581,6 +624,7 @@ ${settings.cpptype} ${name}[] = {
             cpptype:"inline constexpr uint8_t",
             paloffset: 0,
             binary: 0,
+            rle: 0,
             header: 1
         };
 
