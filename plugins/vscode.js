@@ -25,33 +25,23 @@ const defaultTask = {
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Femto compile",
+            "label": "${targetName} compile",
             "type": "shell",
-            "command": IDE + " \"${projectName}\" compile",
+            "command": IDE + " \"${projectName}\" compile - \"${targetName}\"",
             "problemMatcher": [
                 "$gcc"
             ],
             "group": "build"
         },
         {
-            "label": "Femto clean compile",
+            "label": "${targetName} compile & run",
             "type": "shell",
-            "command": IDE + " \"${projectName}\" cleanCompile",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group":"build"
-        },
-        {
-            "label": "Femto compile & run",
-            "type": "shell",
-            "command": IDE + " \"${projectName}\" compileAndRun",
+            "command": IDE + " \"${projectName}\" compileAndRun - \"${targetName}\"",
             "problemMatcher": [
                 "$gcc"
             ],
             "group":{
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             }
         }
     ]
@@ -127,10 +117,22 @@ APP.add(new class VSCode {
             "utf-8"
         );
 
+        let processed = Object.assign({}, defaultTask);
+        processed.tasks = [];
+        for (let key in DATA.project.pipelines) {
+            APP.customSetVariables({
+                targetName: key
+            });
+            processed.tasks.push(...APP.escape(defaultTask.tasks));
+            if (key == DATA.project.target) {
+                let last = processed.tasks[processed.tasks.length - 1];
+                last.group.isDefault = true;
+            }
+        }
 
         fs.writeFileSync(
             vscode + path.sep + "tasks.json",
-            JSON.stringify(APP.escape(defaultTask), null, 1),
+            JSON.stringify(APP.escape(processed), null, 1),
             "utf-8"
         );
 

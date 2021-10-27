@@ -121,7 +121,12 @@ APP.addPlugin("Project", [], _=>{
         }
 
         setTarget(newtarget){
-            target.value = newtarget;
+            if (!(newtarget in DATA.project.pipelines))
+                return;
+            if (DATA.project.target == newtarget)
+                return;
+            if (target && target.value != newtarget)
+                target.value = newtarget;
             DATA.project.target = newtarget;
             APP.dirtyProject();
             APP.clean();

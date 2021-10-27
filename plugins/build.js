@@ -13,12 +13,12 @@ APP.addPlugin("Build", ["Project"], _=>{
         onCloseProject(){
             APP.remove(this);
         }
-        
-        compileAndRun(){
+
+        compileAndRun(target = DATA.project.target){
             APP.stopEmulator();
             this.compile(true, _=>{
                 APP.run();
-            });
+            }, target);
         }
 
         onAfterWriteBuffer(buffer){
@@ -34,11 +34,14 @@ APP.addPlugin("Build", ["Project"], _=>{
             busy = false;
         }
 
-        compileDebug(){
-            APP.compile(false);
+        compileDebug(target = DATA.project.target){
+            APP.compile(false, null, target);
         }
 
-        compile( release=true, callback=null ){
+        compile( release=true, callback=null, target=DATA.project.target ){
+            if (target != DATA.project.target)
+                APP.setTarget(target);
+
             let timings = "",
                 startTime = 0,
                 stage = "";
@@ -60,7 +63,6 @@ APP.addPlugin("Build", ["Project"], _=>{
             APP.customSetVariables({buildMode:release?"RELEASE":"DEBUG"});
             APP.setStatus("Compiling...");
 
-            const target = DATA.project.target;
             let BUILDFlags = getFlags();
 
             let pipeline, files, current;

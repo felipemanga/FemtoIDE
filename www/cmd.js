@@ -21,6 +21,18 @@ function main(args){
 
     let command = args[1];
     let listen = args[2] || defListeners[command];
+    let cmdarg = [];
+    if (listen == '-') {
+        listen = defListeners[command];
+        for (let i = 3; i < args.length; ++i) {
+            let arg = args[i];
+            if (arg == '-') {
+                arg = args[i + 1] || defListeners[command];
+                break;
+            }
+            cmdarg.push(arg);
+        }
+    }
 
     console.log("Open Project " + args[0] + " to " + command + " until " + listen);
 
@@ -39,7 +51,7 @@ function main(args){
                     APP.exit();
                 }
             });
-            APP[command]();
+            APP[command](...cmdarg);
         // },
 
         // registerProjectFile(buffer){
