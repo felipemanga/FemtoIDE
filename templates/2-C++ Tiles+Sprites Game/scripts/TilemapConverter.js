@@ -126,7 +126,6 @@ inline const uint8_t tiles[] = {
         for( let composite of compositeList ){
             acc += `// ${(id++).toString(16)}: ${composite.key}\n`;
             acc += APP.convertImage(composite, palette);
-            acc += ",\n\n";
         }
         acc += `};\n`;
 
