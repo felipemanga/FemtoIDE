@@ -632,6 +632,7 @@ ${settings.cpptype} ${name}[] = {
             paloffset: 0,
             binary: 0,
             rle: 0,
+            lz4: 0,
             header: 1
         };
 
