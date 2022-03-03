@@ -193,6 +193,9 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
                 localRLE: {
                     change: _=> update.call(this, "rle", {"Yes":1, "No":0}[DOM.localRLE.value], true)
                 },
+                localLZ4: {
+                    change: _=> update.call(this, "lz4", {"Yes":1, "No":0}[DOM.localLZ4.value], true)
+                },
                 localHasHeader: {
                     change: _=> update.call(this, "header", {"Yes":1, "No":0}[DOM.localHasHeader.value], true)
                 },
@@ -227,6 +230,7 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
             DOM.localIsTransparent.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.isTransparent];
             DOM.localBinary.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.binary];
             DOM.localRLE.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.rle];
+            DOM.localLZ4.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.lz4];
             DOM.localHasHeader.value = {"undefined":"Inherit", "0":"No", "1":"Yes"}[s.header];
             DOM.localPalettePath.value = s.palette || "";
             DOM.localType.value = s.cpptype || "";
@@ -508,6 +512,9 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
 
         if (settings.rle|0)
             u8 = compressRLE(u8, settings);
+
+        if (settings.lz4|0)
+            u8 = APP.compress(u8);
 
         if (settings.binary|0) {
             let total = 0;
