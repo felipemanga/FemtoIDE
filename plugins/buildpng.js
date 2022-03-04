@@ -513,8 +513,20 @@ APP.addPlugin("BuildPNG", ["Build", "Project"], _=> {
         if (settings.rle|0)
             u8 = compressRLE(u8, settings);
 
-        if (settings.lz4|0)
-            u8 = APP.compress(u8);
+        if (settings.lz4|0) {
+            let total = -2;
+            for(let arr of u8)
+                total += arr.length;
+            let out = new Uint8Array(total);
+            total = 0;
+            for(let j=1; j<u8.length; ++j){
+                let arr = u8[j];
+                for(let i=0; i<arr.length; ++i){
+                    out[total++] = arr[i];
+                }
+            }
+            u8 = APP.compress(out).slice(9);
+        }
 
         if (settings.binary|0) {
             let total = 0;
@@ -540,9 +552,14 @@ ${settings.cpptype} ${name}[] = {
 `;
         }
 
-        for(let row of u8){
-            out += row.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",") + ",\n";
-
+        if (u8 instanceof Uint8Array) {
+            for(let c of u8){
+                out += "0x" + c.toString(16).padStart(2, "0") + ",\n";
+            }
+        } else {
+            for(let row of u8){
+                out += row.map(c=>"0x"+c.toString(16).padStart(2, "0")).join(",") + ",\n";
+            }
         }
 
         if( name )
@@ -614,7 +631,7 @@ ${settings.cpptype} ${name}[] = {
             return settings;
 
         flags.forEach(f=>{
-            let m = (f+"").match(/^([a-z]+)\s*=\s*(.+)/);
+            let m = (f+"").match(/^([a-z0-9]+)\s*=\s*(.+)/i);
             if( !m ) return;
             settings[ m[1].toLowerCase() ] = m[2].trim();
         });
