@@ -5,6 +5,66 @@
 .include "pvcopy.i"
 .global SystemInit
 .global PVCOPY
+.global flushLine16
+
+.func flushLine16
+flushLine16:
+LINE .req r0
+X .req r1
+LCD .req r2
+TMP .req r3
+WRBIT .req r4
+CLR .req r5
+OUT .req r6
+        push {r4-r6, lr}
+        ldr X, =-220*2
+        subs LINE, X
+        ldr WRBIT, =1<<12
+        ldr CLR,   =252
+        ldr LCD,   =0xA0002188
+
+        ldrh OUT, [LINE, X]
+
+1:
+        lsls OUT, 3
+        str OUT, [LCD]
+        str WRBIT, [LCD, CLR]
+        adds X, 2
+        ldrh OUT, [LINE, X]
+        str WRBIT, [LCD, 124]
+
+        lsls OUT, 3
+        str OUT, [LCD]
+        str WRBIT, [LCD, CLR]
+        adds X, 2
+        ldrh OUT, [LINE, X]
+        str WRBIT, [LCD, 124]
+
+        lsls OUT, 3
+        str OUT, [LCD]
+        str WRBIT, [LCD, CLR]
+        adds X, 2
+        ldrh OUT, [LINE, X]
+        str WRBIT, [LCD, 124]
+
+        lsls OUT, 3
+        str OUT, [LCD]
+        str WRBIT, [LCD, CLR]
+        adds X, 2
+        ldrh OUT, [LINE, X]
+        str WRBIT, [LCD, 124]
+
+        blt 1b
+        pop {r4-r6, pc}
+.pool
+.endFunc
+.unreq LINE
+.unreq X
+.unreq LCD
+.unreq TMP
+.unreq WRBIT
+.unreq CLR
+.unreq OUT
 
 .func PVCOPY
 PVCOPY:

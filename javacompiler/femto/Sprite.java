@@ -471,7 +471,63 @@ __blit_4bpp(
             }
         }        
     }
-    
+
+	public void draw( TASMode screen) {
+	    draw(screen, this.x, this.y);
+	}
+	    
+	public void draw( TASMode screen, float x, float y ){
+	    updateTasAnimation();
+
+	    if( (flags&1) == 0 ){
+	        x -= screen.cameraX;
+	        y -= screen.cameraY;
+	    }
+
+	    pointer frame;
+	    __inline_cpp__("
+	    const auto &f = *(const up_femto::uc_FrameRef*)getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_LowRes256Color*)nullptr);
+
+	    frame = f.frame;
+	    int frameWidth = ((char*)f.frame)[0];
+	    int frameHeight= ((char*)f.frame)[1];
+
+	    // Apply the offsets to the local x,y coordinates
+	    x = x.getInteger() + (this->isMirrored()?this->width()-(frameWidth+(frameWidth&1)+f.offsetX):f.offsetX);
+	    y = y.getInteger() + (this->isFlipped()?this->height()-(frameHeight+f.offsetY):f.offsetY);
+
+	    ");
+	    screen.addSprite(frame, x, y, isMirrored(), isFlipped());
+	    return;
+	    getFrameDataForScreen(0, (LowRes256Color)null);
+	    width();
+	    height();
+	}
+
+	public void updateTasAnimation(){
+	    if( startFrame != endFrame ){
+
+	        uint now = System.currentTimeMillis();
+	        int delta = now - frameTime;
+	        pointer frameData;
+
+	        while( true ){
+	            int duration;
+	            __inline_cpp__("duration = ((up_femto::uc_FrameRef*)(getFrameDataForScreen(currentFrame, (up_femto::up_mode::uc_LowRes256Color*)nullptr)))->duration");
+	            if( duration >= delta )
+	                break;
+
+	            currentFrame++;
+	            delta -= duration;
+
+	            if( currentFrame > endFrame )
+	                currentFrame = startFrame;
+
+	            frameTime += duration;
+	        }
+	    }
+
+	}
 
     public pointer getFrameDataForScreen( uint number, HiRes16Color screen ){
         return null;
