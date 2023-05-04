@@ -128,6 +128,7 @@ void __print__( int i ){
 extern "C" void __wrap_exit(int);
 extern void *_codesize;
 extern "C" void __top_Ram0_32();
+extern "C" void flushLine16(uint16_t *line);
 
 namespace up_java {
     namespace up_lang {

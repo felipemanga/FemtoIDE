@@ -1,0 +1,205 @@
+{
+	"metadata": {},
+	"lastBuffer": "",
+	"files": {
+		"Main.java": {},
+		"project.json": {}
+	},
+	"javaFlags": {
+		"mainClass": "Main"
+	},
+	"libs": {
+		"Pokitto": [
+			"${appPath}/javacompiler/pokitto/libs/startup.cpp",
+			"${appPath}/javacompiler/pokitto/libs/SystemInit.s",
+			{
+				"recurse": "${appPath}/javacompiler/pokitto/libs/FemtoLibs"
+			}
+		],
+		"linux": "Desktop",
+		"windows": "Desktop",
+		"darwin": "Desktop",
+		"Desktop": [
+			{
+				"recurse": "${appPath}/PokittoLib/Pokitto",
+				"ignore": "BmpImage.cpp|ChaN|old_32bitSDL|libpff|SDFileSystem|File/ChaN|USBDevice|tinydir/tests|tinydir/samples|JoyHat|mbed-pokitto|POKITTO_HW|POKITTO_XTERNALS|PokittoDisk.cpp|PokittoBattery.cpp|Documentation|examples?|Physics|main.cpp|Pokitto_simsound.cpp"
+			}
+		]
+	},
+	"SFlags": {
+		"Pokitto": [
+			"-I${appPath}/javacompiler/pokitto/includes",
+			"-I${projectPath}",
+			"-mcpu=cortex-m0plus",
+			"-mthumb"
+		]
+	},
+	"CPPFlags": {
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"RELEASE": [
+			"-flto",
+			"-O3"
+		],
+		"Pokitto": [
+			"-I${appPath}/javacompiler/pokitto/includes",
+			"-I${projectPath}",
+			"-DPOKITTO",
+			"-fexceptions",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wno-psabi"
+		],
+		"Desktop": [
+			"-I${projectPath}",
+			"-DPOK_SIM",
+			"-Wall",
+			"-std=gnu++17",
+			"-fsigned-char",
+			"-DPOK_SIM",
+			"-fno-rtti",
+			"-Wno-pointer-arith",
+			"-c",
+			"-fno-builtin",
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-funsigned-char",
+			"-MMD",
+			"-fno-delete-null-pointer-checks"
+		],
+		"ALL": [
+			"-std=c++17"
+		],
+		"linux": {
+			"extend": "Desktop",
+			"flags": [
+				"-DPROJ_LINUX=1",
+				"-D_REENTRANT"
+			]
+		},
+		"windows": "Desktop"
+	},
+	"GDBFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.elf"
+		]
+	},
+	"emuFlags": {
+		"Pokitto": [
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"ELF2BINFlags": {
+		"Pokitto": [
+			"-O",
+			"binary",
+			"${projectPath}/${projectName}.elf",
+			"${projectPath}/${projectName}.bin"
+		]
+	},
+	"LDFlags": {
+		"RELEASE": [
+			"-O3"
+		],
+		"DEBUG": [
+			"-Og",
+			"-g3",
+			"-ggdb"
+		],
+		"Pokitto": [
+			"-Wl,--gc-sections",
+			"-Wl,-n",
+			"--specs=nano.specs",
+			"-Wl,--wrap,_sbrk",
+			"-Wl,--wrap,exit",
+			"-Wl,--wrap,malloc",
+			"-mcpu=cortex-m0plus",
+			"-mthumb",
+			"-Wl,--undefined=g_pfnVectors",
+			"-Wl,--undefined=boot",
+			"-T",
+			"${appPath}/javacompiler/pokitto/link.ld",
+			"--output",
+			"${projectPath}/${projectName}.elf",
+			"$objectFiles",
+			"-Wl,--start-group",
+			"-lstdc++",
+			"-lsupc++",
+			"-lm",
+			"-lc",
+			"-lgcc",
+			"-lnosys",
+			"-Wl,--end-group"
+		]
+	},
+	"target": "Pokitto",
+	"pipelines": {
+		"Pokitto": [
+			"compile-java",
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin",
+			"make-img"
+		],
+		"Desktop": [
+			"compile-java",
+			"compile-cpp",
+			"compile-ld",
+			"compile-bin"
+		]
+	},
+	"meta": {
+		"BGTileFiller.java": {},
+		"ColorFiller.java": {},
+		"LineFiller.java": {},
+		"FGTileFiller.java": {},
+		"Main.java": {},
+		"SpriteData.java": {},
+		"README.md": {},
+		"SpriteFiller.java": {},
+		"TASMode.java": {},
+		"TileMaps.java": {},
+		"project.json": {},
+		"maps": {},
+		"scripts": {},
+		"sprites": {},
+		"": {},
+		"maps/basictiles_2.png": {},
+		"maps/gardenPath.tmx": {},
+		"maps/magecity_1.png": {},
+		"scripts/TilemapConverter.js": {},
+		"sprites/Dude.json": {},
+		"sprites/Dude.png": {},
+		"5-Java Tiles+Sprites Game.elf": {},
+		"5-Java Tiles+Sprites Game.bin": {}
+	},
+	"ideVersion": 10000,
+	"BUILDFlags": {
+		"Pokitto": {}
+	},
+	"PNGFlags": {
+		"ALL": [
+			"transparent=0",
+			"automatic=1",
+			"bpp=4",
+			"cpptype=inline constexpr uint8_t",
+			"paloffset=0",
+			"binary=0",
+			"rle=0",
+			"header=1",
+			"palette=${appPath}/PokittoLib/Pokitto/POKITTO_CORE/PALETTES/miloslav.h"
+		]
+	}
+}
