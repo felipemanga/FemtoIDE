@@ -139,7 +139,7 @@ Promise.all(promises)
 public class TileMaps {
 \tstatic byte UNSUPPORTED = -1;
 \tstatic byte EMPTY = 0;
-\t${Object.keys(keys).map((o, i) => `static byte ${o} = ${i+1}`).join(";\n\t")}
+\t${Object.keys(keys).map((o, i) => `static byte ${o} = ${i+1};\n\t`).join('')}
 
     // get Map 0:width, 1:height, map...
     ${bin}
