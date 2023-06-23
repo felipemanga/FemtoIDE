@@ -9,7 +9,7 @@
   "author": "FManga",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.4.1",
+    "canvas": "^2.11.2",
     "java-parser": "^0.2.0"
   }
 }
